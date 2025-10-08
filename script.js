@@ -221,7 +221,7 @@ function toggleMenu() {
 
 
 // Código Frontend
-//const API_BASE_URL = 'https://URL_PUBLICA_DE_TU_BACKEND_AQUI/api'; // Esto lo reemplazarás
+const API_BASE_URL = 'https://p-aetech.onrender.com'; // Esto lo reemplazarás
 // ...
 //const response = await fetch(`${API_BASE_URL}/auth/login, { /* ... */ }`);
 
