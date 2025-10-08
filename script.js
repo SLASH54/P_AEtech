@@ -225,3 +225,90 @@ const API_BASE_URL = 'https://p-aetech.onrender.com'; // Esto lo reemplazarás
 // ...
 //const response = await fetch(`${API_BASE_URL}/auth/login, { /* ... */ }`);
 
+
+
+// script.js
+
+// Función para manejar el inicio de sesión
+const loginUser = async (e) => {
+    e.preventDefault(); // Evita que el formulario se envíe de la forma tradicional (recarga de página)
+    
+    // 1. Obtener los valores del formulario de login
+    // IDs de tu HTML: email_input y password_input
+    const email = document.getElementById('email_input').value; 
+    const password = document.getElementById('password_input').value;
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/auth/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, password }),
+        });
+
+        if (!response.ok) {
+            // Manejo de errores 401 (Unauthorized) o 403 (Forbidden)
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Credenciales incorrectas o error en el servidor.');
+        }
+
+        const data = await response.json();
+        
+        // 2. Almacenar el Token JWT
+        localStorage.setItem('userToken', data.token);
+        
+        // 3. Mostrar un mensaje de éxito y redirigir/actualizar la interfaz
+        alert('✅ Login Exitoso! Bienvenido ' + data.user.rol);
+        
+        // Aquí debes cargar la vista principal de tu aplicación
+        mostrarContenido('Tablero'); // O la sección que desees mostrar después del login
+        
+    } catch (error) {
+        console.error("Error de login:", error.message);
+        alert('⚠ Error de inicio de sesión: ' + error.message);
+    }
+};
+
+
+
+// Función para manejar el registro de nuevos usuarios
+const registerUser = async (e) => {
+    e.preventDefault(); // Evita la recarga de la página al enviar el formulario
+    
+    // 1. Obtener los datos del formulario de registro (#registroForm)
+    const nombre = document.getElementById('nombre').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const rol = document.getElementById('role').value; // El ID en tu HTML es 'role'
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/auth/register`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            // Enviamos todos los campos necesarios al backend
+            body: JSON.stringify({ nombre, email, password, rol }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            // Esto captura errores como 'El email ya existe'
+            throw new Error(errorData.message || 'Fallo el registro del usuario.');
+        }
+
+        // El backend devuelve el nuevo usuario (sin token, ya que es registro)
+        const data = await response.json(); 
+        
+        alert(`🎉 Registro Exitoso! Usuario ${data.email} creado con rol ${data.rol}.`);
+        
+        // Opcional: Después de registrar, puedes redirigir al login
+        document.getElementById('registroForm').style.display = 'none';
+        document.getElementById('loginForm').style.display = 'block';
+        
+    } catch (error) {
+        console.error("Error de registro:", error.message);
+        alert('⚠ Error en el registro: ' + error.message);
+    }
+};
