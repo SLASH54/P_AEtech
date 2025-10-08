@@ -1,0 +1,67 @@
+/* --- Estilos Generales para el Menú --- */
+
+.sidebar-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-nav button {
+    /* Estilos de tus botones de menú */
+    width: 100%;
+    text-align: left;
+    padding: 10px 15px;
+    border: none;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+/* Ocultar el botón de hamburguesa por defecto en escritorio */
+.menu-toggle {
+    display: none;
+}
+
+
+/* ------------------------------------------------------------------ */
+/* MEDIA QUERIES: DISEÑO RESPONSIVO (Menú Hamburguesa) */
+/* ------------------------------------------------------------------ */
+
+@media (max-width: 768px) {
+    /* Mostrar el botón de hamburguesa */
+    .menu-toggle {
+        display: block;
+        background-color: #334460; /* Color de fondo del menú */
+        color: white;
+        text-align: right;
+        padding: 10px 15px;
+        font-size: 30px; /* Tamaño del ícono ☰ */
+        line-height: 1;
+        /* Aseguramos que ocupe todo el ancho donde se muestre */
+        width: 100%; 
+    }
+
+    /* Ocultar el menú de lista por defecto */
+    #main-menu {
+        display: none;
+        /* Estilos cuando se despliega */
+        position: absolute; /* Para que flote sobre el contenido */
+        top: 55px; /* Ajusta este valor si tu encabezado es diferente */
+        left: 0;
+        width: 100%;
+        background-color: #334460;
+        border-top: 1px solid #4a5c7a;
+        z-index: 999; /* Asegurar que esté por encima de otros elementos */
+    }
+
+    /* Estilo para los ítems del menú desplegado */
+    #main-menu li {
+        border-bottom: 1px solid #4a5c7a;
+    }
+    
+    /* Mostrar el menú cuando tiene la clase 'open' */
+    #main-menu.open {
+        display: block;
+    }
+}
