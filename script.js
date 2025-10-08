@@ -258,16 +258,25 @@ const loginUser = async (e) => {
         // 2. Almacenar el Token JWT
         localStorage.setItem('userToken', data.token);
         
-        // 3. Mostrar un mensaje de éxito y redirigir/actualizar la interfaz
-        alert('✅ Login Exitoso! Bienvenido ' + data.user.rol);
+
+          let rolDelUsuario = 'Usuario'; // Valor por defecto
         
-        // Aquí debes cargar la vista principal de tu aplicación
-        mostrarContenido('Tablero'); // O la sección que desees mostrar después del login
+        if (data.user && data.user.rol) {
+            // Si el backend SI devuelve { user: { rol: '...' } }, usa ese valor
+            rolDelUsuario = data.user.rol;
+        } 
+        
+        // Si el backend NO devuelve el rol, solo muestra un mensaje de éxito
+        alert(`✅ Login Exitoso! Bienvenido ${rolDelUsuario}`);
+        
+        // 3. Redirigir o cambiar la vista
+        mostrarContenido('Tablero');
         
     } catch (error) {
         console.error("Error de login:", error.message);
         alert('⚠ Error de inicio de sesión: ' + error.message);
-    }
+    }
+
 };
 
 
