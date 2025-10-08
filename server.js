@@ -59,6 +59,7 @@ app.use(express.json());
 // Middleware para leer datos de formularios URL-encoded
 app.use(express.urlencoded({ extended: true })); 
 app.use(cors(corsOptions));
+app.use('/api/auth', require('./src/routes/authRoutes'));
 
 
 // ===========================================
