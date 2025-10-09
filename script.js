@@ -271,7 +271,7 @@ const loginUser = async (e) => {
         
         // 3. Redirigir o cambiar la vista
         //mostrarContenido('Tablero');
-        window.location.href = "index.html";
+        window.location.href = "sistema.html";
         
     } catch (error) {
         console.error("Error de login:", error.message);
