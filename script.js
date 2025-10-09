@@ -289,7 +289,6 @@ const registerUser = async (e) => {
     const nombre = document.getElementById('nombre').value;
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    const rol = document.getElementById('role').value; // El ID en tu HTML es 'role'
 
     try {
         const response = await fetch(`${API_BASE_URL}/auth/register`, {
