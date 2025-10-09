@@ -16,13 +16,67 @@
     <div class="container">
         <header>
             <img src="img/logoAEtech.png" width="80px" height="80px">
-            <div class="user-info-menu" style="text-align: right; margin: 10px;">
-                <span class="menu-user-name" style="font-weight: bold;">Cargando Nombre...</span>
-                
-                <span class="menu-user-email" style="margin-left: 10px; color: #666;">Cargando Email...</span>
-                
-                <button class="logout-button" onclick="logout('logout-button')" style="margin-left: 15px;">Cerrar Sesion</button>
+             <section class="login-section">
+    <div class="login-menu">
+        <button id="login-button" aria-label="Perfil de usuario">
+            <i class="fas fa-user-circle"></i>
+        </button>
+        <div class="dropdown-menu" id="dropdown-menu">
+            <!-- Información del perfil -->
+            <div class="profile-info" id="profile-info">
+                <img src="ruta/a/tu/imagen.jpg" alt="Foto de perfil" class="profile-image">
+                <p class="profile-name">Nombre del Usuario</p>
+                <p class="profile-email">usuario@email.com</p>
             </div>
+            <!-- Botón de cerrar sesión -->
+            <button id="logout-button">Cerrar Sesión</button>
+        </div>
+    </div>
+
+    <script>
+        const loginButton = document.getElementById('login-button');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        const profileInfo = document.getElementById('profile-info');
+        const logoutButton = document.getElementById('logout-button');
+
+        // Oculta el menú desplegable al principio
+        dropdownMenu.style.display = 'none';
+
+        loginButton.addEventListener('click', (event) => {
+            event.stopPropagation(); // Evita que el clic se propague
+            // Muestra u oculta el menú al hacer clic en el icono
+            if (dropdownMenu.style.display === 'none') {
+                dropdownMenu.style.display = 'block';
+            } else {
+                dropdownMenu.style.display = 'none';
+            }
+        });
+
+        // Cierra el menú si se hace clic fuera de él
+        document.addEventListener('click', (event) => {
+            if (!loginButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                dropdownMenu.style.display = 'none';
+            }
+        });
+
+        logoutButton.addEventListener('click', () => {
+            alert('Cerrar sesión del usuario'); // Reemplaza esto con tu código
+            dropdownMenu.style.display = 'none'; // Cierra el menú después de la acción
+        });
+
+        // Función para actualizar la información del perfil (ejemplo)
+        function updateProfileInfo(name, email, image) {
+            document.querySelector('.profile-name').textContent = name;
+            document.querySelector('.profile-email').textContent = email;
+            document.querySelector('.profile-image').src = image;
+        }
+
+        // Llama a esta función con los datos del usuario al cargar la página
+        // Por ejemplo:
+        // updateProfileInfo('Luis Reyesto', 'luis.reyesto@email.com', 'ruta/a/mi/foto.jpg');
+    </script>
+</section>
+
             
         </header>
 
