@@ -90,7 +90,8 @@ header h1 {
     word-break: break-all;
 }
 
-.logout-button {
+
+.logout-button{
     width: 100%;
     padding: 8px;
     background-color: #dc3545; /* Color rojo de cierre de sesión */
