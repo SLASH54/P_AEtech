@@ -244,9 +244,9 @@ const checkSession = async () => {
     }
 
     // B) Si estamos en el dashboard (index.html) y NO hay token, redirigir al login.
-    if (!token && (currentPage === '/index.html' || currentPage === '/dashboard.html')) {
+    if (!token && (currentPage === '/index.html' || currentPage === '/sistema.html')) {
         alert('Sesión expirada. Por favor, inicia sesión.');
-        window.location.href = '/index1.html'; // Redirige al login
+        window.location.href = '/index.html'; // Redirige al login
         return false;
     }
     
