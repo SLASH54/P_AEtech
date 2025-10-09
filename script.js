@@ -229,6 +229,42 @@ const API_BASE_URL = 'https://p-aetech.onrender.com/api'; // Esto lo reemplazar�
 
 // script.js
 
+/**
+ * Verifica si hay un token de sesión guardado y lo valida si es necesario.
+ */
+const checkSession = async () => {
+    const token = localStorage.getItem('userToken');
+    const currentPage = window.location.pathname;
+
+    // A) Si estamos en la página de login (index1.html) y hay un token, redirigir al dashboard.
+    if (token && (currentPage === '/index.html' || currentPage === '/')) {
+        // Redirige al dashboard/contenido principal si ya está logeado.
+        window.location.href = '/sistema.html'; // Cambia a tu nuevo dashboard.html
+        return true;
+    }
+
+    // B) Si estamos en el dashboard (index.html) y NO hay token, redirigir al login.
+    if (!token && (currentPage === '/index.html' || currentPage === '/dashboard.html')) {
+        alert('Sesión expirada. Por favor, inicia sesión.');
+        window.location.href = '/index1.html'; // Redirige al login
+        return false;
+    }
+    
+    // Opcional: Validación extra con el backend (ruta /auth/me o similar)
+    // Para simplificar, solo verificaremos la existencia del token.
+    return !!token;
+};
+
+/**
+ * Función para cerrar sesión.
+ */
+const logout = () => {
+    localStorage.removeItem('userToken');
+    alert('Sesión cerrada.');
+    window.location.href = '/index1.html'; // Redirige al login
+};
+
+
 // Función para manejar el inicio de sesión
 const loginUser = async (e) => {
     e.preventDefault(); // Evita que el formulario se envíe de la forma tradicional (recarga de página)

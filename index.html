@@ -81,6 +81,7 @@
             const registroForm = document.getElementById('registroForm'); // << ESTE
             const loginForm = document.getElementById('loginForm');     // << Y ESTE
 
+            checkSession();
             loginForm.addEventListener('submit', loginUser); 
             registroForm.addEventListener('submit', registerUser); 
 

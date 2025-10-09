@@ -16,6 +16,7 @@
     <div class="container">
         <header>
             <img src="img/logoAEtech.png" width="80px" height="80px">
+            <button id="logout-button">Cerrar Sesion</button>
         </header>
     <nav class="sidebar-nav">
         <button class="menu-toggle" onclick="toggleMenu()">
@@ -891,7 +892,11 @@
         document.addEventListener('DOMContentLoaded', () => {
             // Mostrar la sección de Evidencias por defecto al cargar la página
             mostrarContenido('Tablero');
+            checkSession();
         });
+
+        //Cerrar Sesion
+        document.getElementById('logout-button').addEventListener('click', logout);
     </script>
     
     <script src="script.js"></script>
