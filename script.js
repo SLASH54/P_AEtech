@@ -261,7 +261,7 @@ const checkSession = async () => {
 const logout = () => {
     localStorage.removeItem('userToken');
     alert('Sesión cerrada.');
-    window.location.href = '/index1.html'; // Redirige al login
+    window.location.href = '/index.html'; // Redirige al login
 };
 
 
