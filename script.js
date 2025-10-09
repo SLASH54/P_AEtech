@@ -270,7 +270,8 @@ const loginUser = async (e) => {
         alert(`✅ Login Exitoso! Bienvenido ${rolDelUsuario}`);
         
         // 3. Redirigir o cambiar la vista
-        mostrarContenido('Tablero');
+        //mostrarContenido('Tablero');
+        window.location.href = "index.html";
         
     } catch (error) {
         console.error("Error de login:", error.message);

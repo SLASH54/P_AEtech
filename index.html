@@ -24,8 +24,7 @@
 
         <ul id="main-menu">
             <li><button onclick="mostrarContenido('Tablero')">Tablero</button></li>
-            <li class="active"><button onclick="mostrarContenido('Usuarios')">Usuarios</button></li>
-            <li><button onclick="mostrarContenido('Actividades')">Actividades</button></li>
+            <li><button onclick="mostrarContenido('organizador-tareas')">Actividades</button></li>
             <li><button onclick="mostrarContenido('Evidencia')">Evidencias</button></li>
             <li><button onclick="mostrarContenido('Sucursales')">Sucursales</button></li>
             <li><button onclick="mostrarContenido('agregar-comentario')">Evaluaciones</button></li>
@@ -34,95 +33,7 @@
     </nav>
         <main>
 
-<section id="Usuarios" class="main-content show">
-    <div class="form-container">
-        <div class="logo-container">
-            <img src="img/imgae.jpg" alt="imgae.jpg">
-        </div>
 
-        <!-- Pantalla de Bienvenida -->
-        <div id="welcome-screen">
-            <h2>Bienvenido a AEtech</h2>
-            <button id="login-btn">Iniciar Sesión</button>
-            <button id="register-btn">Registrarse</button>
-        </div>
-
-        <!-- Formulario de Registro (Oculto inicialmente) -->
-        <form id="registroForm" style="display: none;">
-            <div class="form-group">
-                <label for="nombre">Nombre:</label>
-                <input type="text" id="nombre" name="nombre" required>
-            </div>
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Contraseña:</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-
-            <button type="submit">Registrar</button>
-            <button type="button" class="back-btn">Volver</button> <!-- Botón de Volver -->
-        </form>
-
-        <!-- Formulario de Inicio de Sesión (Añádelo aquí, oculto inicialmente) -->
-        <form id="loginForm" style="display: none;">
-    <div class="form-group">
-        <label for="email_input">Email:</label>
-        <input type="text" id="email_input" name="username" required>
-    </div>
-    <div class="form-group">
-        <label for="password">Contraseña:</label>
-        <input type="password" id="password_input" name="password" required>
-    </div>
-    <button type="submit">Iniciar Sesión</button> 
-    <div class="form-group">
-      <a href="#">Verifica tus datos </a>
-    </div>
-    <button type="button" class="back-btn">Volver</button>
-</form>
-
-    </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const loginBtn = document.getElementById('login-btn');
-            const registerBtn = document.getElementById('register-btn');
-            const welcomeScreen = document.getElementById('welcome-screen');    
-            const registroForm = document.getElementById('registroForm'); // << ESTE
-            const loginForm = document.getElementById('loginForm');     // << Y ESTE
-
-            loginForm.addEventListener('submit', loginUser); 
-            registroForm.addEventListener('submit', registerUser); 
-
-
-
-            // Función para mostrar la pantalla de bienvenida y ocultar los formularios
-            function showWelcomeScreen() {
-                welcomeScreen.style.display = 'block';
-                loginForm.style.display = 'none';
-                registroForm.style.display = 'none';
-            }
-
-            loginBtn.addEventListener('click', function() {
-                welcomeScreen.style.display = 'none';
-                loginForm.style.display = 'block';
-            });
-
-            registerBtn.addEventListener('click', function() {
-                welcomeScreen.style.display = 'none';
-                registroForm.style.display = 'block';
-            });
-
-            // Agregar event listeners a los botones de "Volver"
-            const backButtons = document.querySelectorAll('.back-btn');
-            backButtons.forEach(button => {
-                button.addEventListener('click', showWelcomeScreen);
-            });
-        });
-    </script>
-</section>
   <section id="Evidencia" class="main-content ">
                 <h2>Evidencias</h2>
                 <section class="main-info">
@@ -447,53 +358,213 @@
 
 
             
-            <section id="Actividades" class="main-content">
-                <h2>Actividades</h2>
+            <!-- NUEVO CONTENEDOR ORGANIZADOR DE TAREAS -->
+<section id="organizador-tareas" class="main-content" style="margin-top: 40px;">
+    <h2>Organizador de Tareas</h2>
 
-                <section class="tasks">
-                    <h2>Tareas</h2>
-                    <div class="filters">
-                        <label for="mostrar">Mostrar:</label>
-                        <select id="mostrar">
-                            <option value="" selected disabled>-- Selecciona una opción --</option>
-                            <option value="opcion1">CCTV</option>
-                            <option value="opcion2">Redes</option>
-                            <option value="opcion3">GPS y videovigilancia movil</option>
-                            <option value="opcion2">Cercado electrico</option>
-                            <option value="opcion2">Comunicaciones</option>
-                            <option value="opcion2">Alarmas</option>
-                            <option value="opcion2">Control de acceso</option>
-                        </select>
-                        <label for="tipo">Tipo:</label>
-                        <select id="tipo">
-                            <option>Todo</option>
-                        </select>
-                    </div>
-                    <div class="task-grid">
-                        <div class="task-item">
-                            <h3>Confirmación de ubicación</h3>
-                            <p>Mandar foto de la ubicación del cliente</p>
-                            <p>Nombre del grupo: Sin grupo</p>
-                            <p>Fotografía Requerida</p>
-                            <p>Calificación: Sin comentarios</p>
-                            <p>Valor: ⚙</p>
-                        </div>
-                        <div class="task-item">
-                            <h3>Foto antes de la instalación</h3>
-                            <p>Tomar fotografía de la unidad antes de la instalación del equipo</p>
-                            <p>Nombre del grupo: Sin grupo</p>
-                            <p>Fotografía Requerida</p>
-                            <p>Calificación: Sin comentarios</p>
-                            <p>Valor: ⚙</p>
-                        </div>
-                    </div>
-                </section>
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+        <label for="filter-tipo">Tipo:</label>
+        <select id="filter-tipo">
+            <option value="CCTV">CCTV</option>
+            <option value="Redes">Redes</option>
+            <option value="GPS y video vigilancia movil">GPS y video vigilancia movil</option>
+            <option value="Cercado Electrico">Cercado Electrico</option>
+            <option value="Comunicaciones">Comunicaciones</option>
+            <option value="Alarmas">Alarmas</option>
+            <option value="Control de acceso">Control de acceso</option>
+        </select>
+        <button id="btn-agregar-tarea" type="button">Agregar tarea</button>
+    </div>
 
-            </section>
-            <section id="Tareas" class="main-content">
-                <h2>Tareas</h2>
-                <p>Contenido de Tareas...</p>
-            </section>
+    <!-- FORMULARIO OCULTO PARA CREAR TAREA -->
+    <form id="form-tarea" style="display: none; border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; max-width: 600px;">
+        <div>
+            <label for="actividad">Actividad:</label><br>
+            <select id="actividad" name="actividad" required style="width: 100%;">
+                <option value="">Selecciona Actividad</option>
+                <option value="CCTV">CCTV</option>
+                <option value="Redes">Redes</option>
+                <option value="GPS y video vigilancia movil">GPS y video vigilancia movil</option>
+                <option value="Cercado Electrico">Cercado Electrico</option>
+                <option value="Comunicaciones">Comunicaciones</option>
+                <option value="Alarmas">Alarmas</option>
+                <option value="Control de acceso">Control de acceso</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="asignado">Asignado a:</label><br>
+            <select id="asignado" name="asignado" required style="width: 100%;">
+                <option value="">Selecciona Usuario</option>
+                <option value="Usuario 1">Usuario 1</option>
+                <option value="Usuario 2">Usuario 2</option>
+                <option value="Usuario 3">Usuario 3</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="ubicacion">Ubicación:</label><br>
+            <select id="ubicacion" name="ubicacion" required style="width: 100%;">
+                <option value="">Selecciona ubicación</option>
+                <option value="Sucursal 1">Calzada Oaxaca,Atlixco</option>
+                <option value="Sucursal 2">15 Poniente,Atlixco</option>
+                <option value="Sucursal 3">25 Sur,Puebla</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="tipo-rol">Tipo Rol:</label><br>
+            <select id="tipo-rol" name="tipo-rol" required style="width: 100%;">
+                <option value="">Selecciona rol</option>
+                <option value="Técnico">Técnico</option>
+                <option value="Supervisor">Supervisor</option>
+                <option value="Administrador">Administrador</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="limite-tiempo">Límite de tiempo:</label><br>
+            <input type="datetime-local" id="limite-tiempo" name="limite-tiempo" required style="width: 100%;">
+        </div>
+
+        <button type="submit" style="margin-top: 10px;">Enviar</button>
+        <button type="button" id="cancelar-tarea" style="margin-top: 10px;">Cancelar</button>
+    </form>
+
+    <!-- CONTENEDOR DE LISTAS -->
+    <div id="contenedor-listas" style="display: flex; gap: 20px; justify-content: space-between; max-width: 1000px;">
+        <div style="flex: 1;">
+            <h3>Lista de tareas</h3>
+            <div id="lista-tareas" style="min-height: 150px; border: 1px solid #ccc; padding: 10px;"></div>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const btnAgregarTarea = document.getElementById('btn-agregar-tarea');
+        const formTarea = document.getElementById('form-tarea');
+        const listaTareas = document.getElementById('lista-tareas');
+        const filterTipo = document.getElementById('filter-tipo');
+        const contenedorListas = document.getElementById('contenedor-listas');
+        const cancelarTareaBtn = document.getElementById('cancelar-tarea');
+
+        // Mostrar/Ocultar formulario y listas cuando se hace clic en "Agregar tarea"
+        btnAgregarTarea.addEventListener('click', () => {
+            const mostrarFormulario = formTarea.style.display === 'none';
+            formTarea.style.display = mostrarFormulario ? 'block' : 'none';
+            contenedorListas.style.display = mostrarFormulario ? 'none' : 'flex';
+        });
+
+        // Función para crear elemento tarea HTML
+        function crearElementoTarea(tarea) {
+            const div = document.createElement('div');
+            div.classList.add('tarea-item');
+            div.style.border = '1px solid #888';
+            div.style.marginBottom = '8px';
+            div.style.padding = '8px';
+            div.style.backgroundColor = '#f9f9f9';
+            div.dataset.tipo = tarea.tipo;
+
+            div.innerHTML = `
+                <strong>${tarea.actividad}</strong><br>
+                <small><strong>Asignado a:</strong> ${tarea.asignado}</small><br>
+                <small><strong>Ubicación:</strong> ${tarea.ubicacion}</small><br>
+                <small><strong>Tipo Rol:</strong> ${tarea.tipoRol}</small><br>
+                <small><strong>Límite:</strong> ${new Date(tarea.limiteTiempo).toLocaleString()}</small><br>
+                <button class="editar-tarea">Editar Tarea</button>
+                <button class="eliminar-tarea">Eliminar Tarea</button>
+                <button class="agregar-evidencia">Agregar Evidencia</button>
+            `;
+
+            // Botón "Editar Tarea" - CLAVE: usar una función de cierre
+            const editarBtn = div.querySelector('.editar-tarea');
+            editarBtn.addEventListener('click', function() {
+                editarTarea(tarea); // Llama a la función editarTarea con la tarea
+            });
+
+            // Botón "Eliminar Tarea"
+            div.querySelector('.eliminar-tarea').addEventListener('click', () => {
+                if (confirm('¿Seguro que quieres eliminar esta tarea?')) {
+                    div.remove(); // Elimina la tarea del DOM
+                }
+            });
+
+            // Botón "Agregar Evidencia"
+            div.querySelector('.agregar-evidencia').addEventListener('click', () => {
+                // Aquí puedes implementar la lógica para agregar evidencia
+                alert('Agregar evidencia para: ' + tarea.actividad);
+            });
+
+            return div;
+        }
+
+        // Envío del formulario
+        document.querySelector('#form-tarea').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const actividad = this.actividad.value;
+            const asignado = this.asignado.value;
+            const ubicacion = this.ubicacion.value;
+            const tipoRol = this['tipo-rol'].value;
+            const limiteTiempo = this['limite-tiempo'].value;
+            const tipoFiltro = filterTipo.value;
+
+            if(!actividad || !asignado || !ubicacion || !tipoRol || !limiteTiempo) {
+                alert('Por favor, completa todos los campos.');
+                return;
+            }
+
+            const tarea = {
+                actividad,
+                asignado,
+                ubicacion,
+                tipoRol,
+                limiteTiempo,
+                tipo: tipoFiltro
+            };
+
+            if(tipoFiltro === 'Todo' || tipoFiltro === tarea.tipo) {
+                const tareaElemento = crearElementoTarea(tarea);
+                listaTareas.appendChild(tareaElemento);
+            }
+
+            this.reset();
+            this.style.display = 'none';
+            contenedorListas.style.display = 'flex';
+        });
+
+        // Cancelar la creación de la tarea
+        cancelarTareaBtn.addEventListener('click', function() {
+            formTarea.style.display = 'none';
+            contenedorListas.style.display = 'flex';
+            formTarea.reset();
+        });
+
+        // Filtrar tareas por tipo
+        document.getElementById('filter-tipo').addEventListener('change', () => {
+            const tipoSeleccionado = document.getElementById('filter-tipo').value;
+
+            function filtrarLista(contenedor) {
+                Array.from(contenedor.children).forEach(div => {
+                    if(tipoSeleccionado === 'Todo' || div.dataset.tipo === tipoSeleccionado) {
+                        div.style.display = 'block';
+                    } else {
+                        div.style.display = 'none';
+                    }
+                });
+            }
+
+            filtrarLista(listaTareas);
+        });
+
+        // Función para editar la tarea
+        function editarTarea(tarea) {
+            // Aquí puedes implementar la lógica para editar la tarea
+            alert('Editar tarea: ' + tarea.actividad);
+        }
+    });
+</script>
             <section id="Sucursales" class="main-content">
     <h2>Sucursales</h2>
     <div class="contenedor-tarjetas">
