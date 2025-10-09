@@ -1,899 +1,116 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Instalación GPS</title>
+    <title>Bienvenidos a AE tech</title>
     <link rel="stylesheet" href="login.css">
     <link rel="icon" href="img/logoAEtech.png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         /* Los estilos CSS se encuentran en el archivo login.css */
-        
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <img src="img/logoAEtech.png" width="80px" height="80px">
-        </header>
-    <nav class="sidebar-nav">
-        <button class="menu-toggle" onclick="toggleMenu()">
-            &#9776; 
-        </button>
+    <section id="Usuarios" class="main-content show">
+    <div class="form-container">
+        <div class="logo-container">
+            <img src="img/imgae.jpg" alt="imgae.jpg">
+        </div>
 
-        <ul id="main-menu">
-            <li><button onclick="mostrarContenido('Tablero')">Tablero</button></li>
-            <li><button onclick="mostrarContenido('organizador-tareas')">Actividades</button></li>
-            <li><button onclick="mostrarContenido('Evidencia')">Evidencias</button></li>
-            <li><button onclick="mostrarContenido('Sucursales')">Sucursales</button></li>
-            <li><button onclick="mostrarContenido('agregar-comentario')">Evaluaciones</button></li>
-            <li><button onclick="mostrarContenido('Administracion')">Panel de Administracion</button></li>
-        </ul>
-    </nav>
-        <main>
+        <!-- Pantalla de Bienvenida -->
+        <div id="welcome-screen">
+            <h2>Bienvenido a AEtech</h2>
+            <button id="login-btn">Iniciar Sesión</button>
+            <button id="register-btn">Registrarse</button>
+        </div>
 
-
-  <section id="Evidencia" class="main-content ">
-                <h2>Evidencias</h2>
-                <section class="main-info">
-                    <h2>Agregar Evidencia</h2>
-                    <label for="actividadOriginal">Actividad:</label>
-                    <select name="Actividad" id="bxActividades">
-                        <option value="" selected disabled>-- Selecciona una opción --</option>
-                        <option value="opcion1">CCTV</option>
-                        <option value="opcion2">Redes</option>
-                        <option value="opcion3">GPS y videovigilancia movil</option>
-                        <option value="opcion2">Cercado electrico</option>
-                        <option value="opcion2">Comunicaciones</option>
-                        <option value="opcion2">Alarmas</option>
-                        <option value="opcion2">Control de acceso</option>
-                    </select>
-
-                    <label for="sucursal">Sucursal:</label>
-                    <select name="Actividad" id="bxActividades">
-                        <option value="" selected disabled>-- Selecciona una opción --</option>
-                        <option value="opcion1">Calzada Oaxaca, Atlixco</option>
-                        <option value="opcion2">15 Poniente, Atlixco</option>
-                        <option value="opcion3">25 Sur, Puebla</option>
-                        <option value="option4">Punto a convenir con cliente</option>
-                    </select>
-
-                    <label for="usuario">Usuario:</label>
-                    <input type="text" id="usuario" name="usuario" required>
-
-                    <label for="rol">Rol:</label>
-                    <input type="text" id="rol" name="rol" required>
-
-                    <label for="ubicacion">Ubicación:</label>
-                    <input type="text" id="ubicacion" name="ubicacion" required>
-
-                    <label for="direccion">Dirección:</label>
-                    <input type="text" id="direccion" name="direccion" required>
-
-                    <div class="buttons">
-                        <button onclick="verHistorial()">Ver historial</button>
-                        <button onclick="editarEvidencia()">Editar evidencia</button>
-                        <button onclick="eliminarEvidencia()">Eliminar evidencia</button>
-                        <button onclick="agregarImagen()">Agregar Evidencia</button>
-                    </div>
-                </section>
-
-                <section id="Evidencia" class="main-content "></section>
-                <h2>Tareas</h2>
-            <div class="evidence-grid">
-                <div class="evidence-card">
-                    <div class="image-placeholder"><img src="vehicle_back.jpg" alt="Confirmación de ubicación" onerror="this.style.display='none'; this.parentNode.textContent=''"></div>
-                    <h3>Confirmación de ubicación</h3>
-                    <button class="btn-action" onclick="document.getElementById('file-ubicacion').click()">
-                    Subir o Tomar Foto
-                </button>
-                <input 
-                    type="file" 
-                    id="file-ubicacion" 
-                    data-target="image-ubicacion"
-                    accept="image/*" 
-                    capture="camera" 
-                    style="display: none;"
-                    onchange="previewImage(this)">
-
-                    <p>Adjuntar fotografia de la ubicacion del cliente</p>
-                    <p>Fotografía: Requerida</p>
-                    <p>Valor: *@*</p>
-                </div>
-                
-                <div class="evidence-card">
-                    <div class="image-placeholder"><img src="license_plate.jpg" alt="Foto antes de la instalación" onerror="this.style.display='none'; this.parentNode.textContent=''"></div>
-                    <h3>Foto antes de la instalación</h3>
-                    <button class="btn-action" onclick="document.getElementById('file-pre-instalacion').click()">
-                    Subir o Tomar Foto
-                </button>
-                <input 
-                    type="file" 
-                    id="file-pre-instalacion" 
-                    data-target="image-pre-instalacion"
-                    accept="image/*" 
-                    capture="camera" 
-                    style="display: none;"
-                    onchange="previewImage(this)">
-                    <p>Adjuntar fotografia de la unidad antes de la instalacion del equipo</p>
-                    <p>Fotografía: Requerida</p>
-                    <p>Valor: *@*</p>
-                    
-                </div>
-
-                <div class="evidence-card">
-                    <div class="image-placeholder"><img src="imei.jpg" alt="IMEI o ID" onerror="this.style.display='none'; this.parentNode.textContent=''"></div>
-                    <h3>IMEI o ID</h3>
-                    <button class="btn-action" onclick="document.getElementById('file-pre-instalacion').click()">
-                    Subir o Tomar Foto
-                    </button>
-                    <input 
-                        type="file" 
-                        id="file-pre-instalacion" 
-                        data-target="image-pre-instalacion"
-                        accept="image/*" 
-                        capture="camera" 
-                        style="display: none;"
-                        onchange="previewImage(this)">
-                    <p>Adjuntar foto del IMEI y/o ID del dispositivo instalado</p>
-                    <p>Fotografía: Requerida</p>
-                    <p>Valor: *@*</p>
-                    
-                </div>
-
-                <div class="evidence-card">
-                    <div class="image-placeholder"><img src="sim_data.jpg" alt="SIM Datos" onerror="this.style.display='none'; this.parentNode.textContent=''"></div>
-                    <h3>SIM Datos</h3>
-                    <button class="btn-action" onclick="document.getElementById('file-pre-instalacion').click()">
-                    Subir o Tomar Foto
-                    </button>
-                    <input 
-                        type="file" 
-                        id="file-pre-instalacion" 
-                        data-target="image-pre-instalacion"
-                        accept="image/*" 
-                        capture="camera" 
-                        style="display: none;"
-                        onchange="previewImage(this)">
-                    <p>Adjuntar fotografia de la SIM instalada en el equipo GPS</p>
-                    <p>Fotografía: Requerida</p>
-                    <p>Valor: *@*</p>
-                
-                </div>
-
-                <div class="evidence-card">
-                    <div class="image-placeholder"><img src="gps_tracker.jpg" alt="Ubicación GPS" onerror="this.style.display='none'; this.parentNode.textContent=''"></div>
-                    <h3>Ubicación GPS</h3>
-                        <button class="btn-action" onclick="document.getElementById('file-pre-instalacion').click()">
-                    Subir o Tomar Foto
-                    </button>
-                    <input 
-                        type="file" 
-                        id="file-pre-instalacion" 
-                        data-target="image-pre-instalacion"
-                        accept="image/*" 
-                        capture="camera" 
-                        style="display: none;"
-                        onchange="previewImage(this)">
-                    <p>Abrir la unidad para tener acceso a la ubicacion del dispositivo GPS</p>
-                    <p>Fotografía: Requerida</p>
-                    <p>Valor: *@*</p>
-                    
-                </div>
-
-                <div class="evidence-card">
-                    <div class="image-placeholder"><img src="antenna_install.jpg" alt="Instalación antenas GPS GSM" onerror="this.style.display='none'; this.parentNode.textContent=''"></div>
-                    <h3>Instalación antenas GPS GSM</h3>
-                    <button class="btn-action" onclick="document.getElementById('file-pre-instalacion').click()">
-                    Subir o Tomar Foto
-                    </button>
-                    <input 
-                        type="file" 
-                        id="file-pre-instalacion" 
-                        data-target="image-pre-instalacion"
-                        accept="image/*" 
-                        capture="camera" 
-                        style="display: none;"
-                        onchange="previewImage(this)">
-                    <p>Adjuntar fotografia de la instalacion de antenas de comunicacion en la unidad</p>
-                    <p>Fotografía: Requerida</p>
-                    <p>Valor: *@*</p>
-                   
-                </div>
-
-                <div class="evidence-card">
-                    <div class="image-placeholder"><img src="" alt="conexiones Electricas" onerror="this.style.display='none'; this.parentNode.textContent=''"></div>
-                    <h3>Conexiones eléctricas</h3>
-                    <button class="btn-action" onclick="document.getElementById('file-pre-instalacion').click()">
-                    Subir o Tomar Foto
-                    </button>
-                    <input 
-                        type="file" 
-                        id="file-pre-instalacion" 
-                        data-target="image-pre-instalacion"
-                        accept="image/*" 
-                        capture="camera" 
-                        style="display: none;"
-                        onchange="previewImage(this)">
-                    <p>Adjuntar fotografia de las conexiones electricas del sistema</p>
-                    <p>Fotografía: Requerida</p>
-                    <p>Valor: *Ok*</p>
-                    
-                </div>
-
-                <div class="evidence-card">
-                    <div class="image-placeholder"><img src="" alt="Prueba GPS" onerror="this.style.display='none'; this.parentNode.textContent=''"></div>
-                    <h3>Prueba GPS</h3>
-                    <button class="btn-action" onclick="document.getElementById('file-pre-instalacion').click()">
-                    Subir o Tomar Foto
-                    </button>
-                    <input 
-                        type="file" 
-                        id="file-pre-instalacion" 
-                        data-target="image-pre-instalacion"
-                        accept="image/*" 
-                        capture="camera" 
-                        style="display: none;"
-                        onchange="previewImage(this)">
-                    <p>Realizar Pruebas de funcionamiento del dispositivo GPS</p>
-                    <p>Texto: Requerida</p>
-                    <p>Valor: *Ok*</p>
-                    
-                </div>
-                
-                <div class="evidence-card">
-                    <div class="image-placeholder"><img src="" alt="Agregar Contacto" onerror="this.style.display='none'; this.parentNode.textContent=''"></div>
-                    <h3>Agregar contacto</h3>
-                    <button class="btn-action" onclick="document.getElementById('file-pre-instalacion').click()">
-                    Subir o Tomar Foto
-                    </button>
-                    <input 
-                        type="file" 
-                        id="file-pre-instalacion" 
-                        data-target="image-pre-instalacion"
-                        accept="image/*" 
-                        capture="camera" 
-                        style="display: none;"
-                        onchange="previewImage(this)">
-                    <p>Adjuntar fotografia del contacto del Cliente</p>
-                    <p>Contacto: Requerida</p>
-                    <p>Valor: Contactos: 1</p>
-            
-                </div>
-                
-                <div class="evidence-card icon-card" data-card-id="firma-cliente">
-                    <div class="image-placeholder signature-display" id="signature-firma-cliente">
-                        <span class="card-icon">🤝</span>
-                    </div>
-                    
-                    <h3>Liberación de cliente</h3>
-                    <button class="btn-action btn-signature" onclick="openSignaturePad('firma-cliente')">
-                        Capturar Firma
-                    </button>
-                    
-                    <p>Nombre del grupo: Sin grupo</p>
-                    <p>Firma: Requerida</p>
-                    <p id="valor-firma-cliente">Valor: *@*</p>
-                </div>
-                
-                <div class="evidence-card icon-card">
-                    <span class="card-icon chat-icon">...</span>
-                    <h3>Observaciones</h3>
-                    <p>Nombre del grupo: Sin grupo</p>
-                    <p>Texto: Requerida</p>
-                    <p>Valor: *Na*</p>
-                    <button>Subir foto</button>
-                </div>
-                
-                <div class="evidence-card icon-card">
-                    <span class="card-icon chat-icon">...</span>
-                    <h3>Instalador</h3>
-                    <p>Nombre del grupo: Sin grupo</p>
-                    <p>Texto: Requerida</p>
-                    <p>Valor: *Kevin*</p>
-                    <button>Subir foto</button>
-                </div>
+        <!-- Formulario de Registro (Oculto inicialmente) -->
+        <form id="registroForm" style="display: none;">
+            <div class="form-group">
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" name="nombre" required>
             </div>
-            <div id="signature-modal" class="modal">
-                <div class="modal-content">
-                    <span class="close-button" onclick="closeSignaturePad()">&times;</span>
-                    <h2>Firma del Cliente</h2>
-                    <p>Dibuje la firma en el área de abajo:</p>
-                    <canvas id="signature-canvas" width="400" height="200"></canvas> 
-                    <div class="modal-actions">
-                        <button class="btn-signature-clear" onclick="clearSignature()">Limpiar</button>
-                        <button class="btn-signature-save" onclick="saveSignature()">Guardar Firma</button>
-                    </div>
-               </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
             </div>
-            </section>
-            </section>
+            <div class="form-group">
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
 
+            <button type="submit">Registrar</button>
+            <button type="button" class="back-btn">Volver</button> <!-- Botón de Volver -->
+        </form>
 
-
-            <section id="Tablero" class="main-content">
-             
-  <div class="tablero-container">
-   <div class="top-bar">
-    <div class="social-icons">
-     <a href="https://wa.me/2212724031" target="_blank" dm_dont_rewrite_url="true" aria-label="whatsapp" onclick="dm_gaq_push_event &amp; dm_gaq_push_event('socialLink', 'click', 'Whatsapp')"> <span class="dmSocialWhatsapp dm-social-icons-whatsapp oneIcon socialHubIcon style6" aria-hidden="true" data-hover-effect="float" class="social-icon"><img src="img/whatsapp.jpg" alt="whatsapp.jpg"></a></span>
-     <a href="https://facebook.com/AETech18" target="_blank" dm_dont_rewrite_url="true" aria-label="facebook" onclick="dm_gaq_push_event &amp;  dm_gaq_push_event('socialLink', 'click', 'Facebook')"> <span class="dmSocialFacebook dm-social-icons-facebook oneIcon socialHubIcon style6" aria-hidden="true" data-hover-effect="float" class="social-icon"><img src="img/facebook.jpg" alt="facebook.jpg"></a></span>
-     <a href="http://instagram.com/aetech18" target="_blank" dm_dont_rewrite_url="true" aria-label="instagram" onclick="dm_gaq_push_event &amp; dm_gaq_push_event('socialLink', 'click', 'Instagram')"> <span class="dmSocialInstagram dm-social-icons-instagram oneIcon socialHubIcon style6" aria-hidden="true" data-hover-effect="float" class="social-icon"><img src="img/instagram.jpg" alt="instagram.jpg"></a></span>
-     <a href="mailto:contacto@aetech.com.mx" dm_dont_rewrite_url="true" aria-label="email" onclick="dm_gaq_push_event &amp; dm_gaq_push_event('socialLink', 'click', 'Email')" target="_blank"> <span class="dmSocialEmail dm-social-icons-email oneIcon socialHubIcon style6" aria-hidden="true" data-hover-effect="float" class="social-icon"><img src="img/gmail.jpg" alt="gmail.jpg"></a></span>
-
+        <!-- Formulario de Inicio de Sesión (Añádelo aquí, oculto inicialmente) -->
+        <form id="loginForm" style="display: none;">
+    <div class="form-group">
+        <label for="email_input">Email:</label>
+        <input type="text" id="email_input" name="username" required>
     </div>
-    
-    
-     <img src="img/imgae.jpg" alt="imgae.jpg">
-     
-
-
-    <div class="contact-info">
-     <i class="fas fa-phone"></i> <a class="u_1788509405 default dmDefaultGradient align-center dmCall voipReplacement dmWidget dmNoMark dmWwr" contenteditable="false" onclick=";return dm_gaq_push_event('ClickToCall', 'Call',null,'4f1868a89c9c49a1800af08875200556', this);" id="1788509405" dmle_extension="clicktocall" data-element-type="clicktocall" data-buttonstyle="FLAT_ROUND_ICON" wr="true" data-display-type="block" localization_key_description="googleTranslate.HLc6QEJ.39" icon="true" surround="true" description="Llama ahora" adwords="" icon-name="icon-phone" phone="222 143 4363" text="" image="" target="_blank"> <span class="iconBg" aria-hidden="true"></a> 
-     <a class="default dmDefaultGradient align-center dmCall voipReplacement dmWidget dmNoMark dmWwr" href="tel:222 143 4363" contenteditable="false" onclick=";return dm_gaq_push_event('ClickToCall', 'Call',null,'4f1868a89c9c49a1800af08875200556', this);" id="1302615267" dmle_extension="clicktocall" data-element-type="clicktocall" wr="true" data-display-type="block" localization_key_description="googleTranslate.oJ4SyII.32" icon="true" surround="true" description="Llamar" adwords="" icon-name="icon-phone" phone="222 143 4363" text="" image="" target="_blank"> <span class="iconBg" aria-hidden="true"> <span class="icon hasFontIcon icon-phone"></span> 
-        </span> 
-        <span class="text">Llama ahora</span> 
-        <span class="text phoneNumHolder">222 143 4363</span>
-     </a>
+    <div class="form-group">
+        <label for="password">Contraseña:</label>
+        <input type="password" id="password_input" name="password" required>
     </div>
-   </div>
-
-   <div class="main-content-area">
-    <img id="logo-animado" src="img/logo.jpg" alt="logo.jpg" class="logo.jpg">
-
-    <div class="viva-mexico">
-     <span class="viva">Feliz dia de </span>
-     <span class="mexico">MUERTOS</span>
+    <button type="submit">Iniciar Sesión</button> 
+    <div class="form-group">
+      <a href="#">Verifica tus datos </a>
     </div>
+    <button type="button" class="back-btn">Volver</button>
+</form>
 
-   
-
-   <div class="bottom-bar">
-    <p>© 2025 AE Tech. Todos los derechos reservados.</p>
-   </div>
-  </div>
-     
-            </section>
-
-
-            
-            <!-- NUEVO CONTENEDOR ORGANIZADOR DE TAREAS -->
-<section id="organizador-tareas" class="main-content" style="margin-top: 40px;">
-    <h2>Organizador de Tareas</h2>
-
-    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-        <label for="filter-tipo">Tipo:</label>
-        <select id="filter-tipo">
-            <option value="CCTV">CCTV</option>
-            <option value="Redes">Redes</option>
-            <option value="GPS y video vigilancia movil">GPS y video vigilancia movil</option>
-            <option value="Cercado Electrico">Cercado Electrico</option>
-            <option value="Comunicaciones">Comunicaciones</option>
-            <option value="Alarmas">Alarmas</option>
-            <option value="Control de acceso">Control de acceso</option>
-        </select>
-        <button id="btn-agregar-tarea" type="button">Agregar tarea</button>
-    </div>
-
-    <!-- FORMULARIO OCULTO PARA CREAR TAREA -->
-    <form id="form-tarea" style="display: none; border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; max-width: 600px;">
-        <div>
-            <label for="actividad">Actividad:</label><br>
-            <select id="actividad" name="actividad" required style="width: 100%;">
-                <option value="">Selecciona Actividad</option>
-                <option value="CCTV">CCTV</option>
-                <option value="Redes">Redes</option>
-                <option value="GPS y video vigilancia movil">GPS y video vigilancia movil</option>
-                <option value="Cercado Electrico">Cercado Electrico</option>
-                <option value="Comunicaciones">Comunicaciones</option>
-                <option value="Alarmas">Alarmas</option>
-                <option value="Control de acceso">Control de acceso</option>
-            </select>
-        </div>
-
-        <div>
-            <label for="asignado">Asignado a:</label><br>
-            <select id="asignado" name="asignado" required style="width: 100%;">
-                <option value="">Selecciona Usuario</option>
-                <option value="Usuario 1">Usuario 1</option>
-                <option value="Usuario 2">Usuario 2</option>
-                <option value="Usuario 3">Usuario 3</option>
-            </select>
-        </div>
-
-        <div>
-            <label for="ubicacion">Ubicación:</label><br>
-            <select id="ubicacion" name="ubicacion" required style="width: 100%;">
-                <option value="">Selecciona ubicación</option>
-                <option value="Sucursal 1">Calzada Oaxaca,Atlixco</option>
-                <option value="Sucursal 2">15 Poniente,Atlixco</option>
-                <option value="Sucursal 3">25 Sur,Puebla</option>
-            </select>
-        </div>
-
-        <div>
-            <label for="tipo-rol">Tipo Rol:</label><br>
-            <select id="tipo-rol" name="tipo-rol" required style="width: 100%;">
-                <option value="">Selecciona rol</option>
-                <option value="Técnico">Técnico</option>
-                <option value="Supervisor">Supervisor</option>
-                <option value="Administrador">Administrador</option>
-            </select>
-        </div>
-
-        <div>
-            <label for="limite-tiempo">Límite de tiempo:</label><br>
-            <input type="datetime-local" id="limite-tiempo" name="limite-tiempo" required style="width: 100%;">
-        </div>
-
-        <button type="submit" style="margin-top: 10px;">Enviar</button>
-        <button type="button" id="cancelar-tarea" style="margin-top: 10px;">Cancelar</button>
-    </form>
-
-    <!-- CONTENEDOR DE LISTAS -->
-    <div id="contenedor-listas" style="display: flex; gap: 20px; justify-content: space-between; max-width: 1000px;">
-        <div style="flex: 1;">
-            <h3>Lista de tareas</h3>
-            <div id="lista-tareas" style="min-height: 150px; border: 1px solid #ccc; padding: 10px;"></div>
-        </div>
-    </div>
-</section>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const btnAgregarTarea = document.getElementById('btn-agregar-tarea');
-        const formTarea = document.getElementById('form-tarea');
-        const listaTareas = document.getElementById('lista-tareas');
-        const filterTipo = document.getElementById('filter-tipo');
-        const contenedorListas = document.getElementById('contenedor-listas');
-        const cancelarTareaBtn = document.getElementById('cancelar-tarea');
-
-        // Mostrar/Ocultar formulario y listas cuando se hace clic en "Agregar tarea"
-        btnAgregarTarea.addEventListener('click', () => {
-            const mostrarFormulario = formTarea.style.display === 'none';
-            formTarea.style.display = mostrarFormulario ? 'block' : 'none';
-            contenedorListas.style.display = mostrarFormulario ? 'none' : 'flex';
-        });
-
-        // Función para crear elemento tarea HTML
-        function crearElementoTarea(tarea) {
-            const div = document.createElement('div');
-            div.classList.add('tarea-item');
-            div.style.border = '1px solid #888';
-            div.style.marginBottom = '8px';
-            div.style.padding = '8px';
-            div.style.backgroundColor = '#f9f9f9';
-            div.dataset.tipo = tarea.tipo;
-
-            div.innerHTML = `
-                <strong>${tarea.actividad}</strong><br>
-                <small><strong>Asignado a:</strong> ${tarea.asignado}</small><br>
-                <small><strong>Ubicación:</strong> ${tarea.ubicacion}</small><br>
-                <small><strong>Tipo Rol:</strong> ${tarea.tipoRol}</small><br>
-                <small><strong>Límite:</strong> ${new Date(tarea.limiteTiempo).toLocaleString()}</small><br>
-                <button class="editar-tarea">Editar Tarea</button>
-                <button class="eliminar-tarea">Eliminar Tarea</button>
-                <button class="agregar-evidencia">Agregar Evidencia</button>
-            `;
-
-            // Botón "Editar Tarea" - CLAVE: usar una función de cierre
-            const editarBtn = div.querySelector('.editar-tarea');
-            editarBtn.addEventListener('click', function() {
-                editarTarea(tarea); // Llama a la función editarTarea con la tarea
-            });
-
-            // Botón "Eliminar Tarea"
-            div.querySelector('.eliminar-tarea').addEventListener('click', () => {
-                if (confirm('¿Seguro que quieres eliminar esta tarea?')) {
-                    div.remove(); // Elimina la tarea del DOM
-                }
-            });
-
-            // Botón "Agregar Evidencia"
-            div.querySelector('.agregar-evidencia').addEventListener('click', () => {
-                // Aquí puedes implementar la lógica para agregar evidencia
-                alert('Agregar evidencia para: ' + tarea.actividad);
-            });
-
-            return div;
-        }
-
-        // Envío del formulario
-        document.querySelector('#form-tarea').addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            const actividad = this.actividad.value;
-            const asignado = this.asignado.value;
-            const ubicacion = this.ubicacion.value;
-            const tipoRol = this['tipo-rol'].value;
-            const limiteTiempo = this['limite-tiempo'].value;
-            const tipoFiltro = filterTipo.value;
-
-            if(!actividad || !asignado || !ubicacion || !tipoRol || !limiteTiempo) {
-                alert('Por favor, completa todos los campos.');
-                return;
-            }
-
-            const tarea = {
-                actividad,
-                asignado,
-                ubicacion,
-                tipoRol,
-                limiteTiempo,
-                tipo: tipoFiltro
-            };
-
-            if(tipoFiltro === 'Todo' || tipoFiltro === tarea.tipo) {
-                const tareaElemento = crearElementoTarea(tarea);
-                listaTareas.appendChild(tareaElemento);
-            }
-
-            this.reset();
-            this.style.display = 'none';
-            contenedorListas.style.display = 'flex';
-        });
-
-        // Cancelar la creación de la tarea
-        cancelarTareaBtn.addEventListener('click', function() {
-            formTarea.style.display = 'none';
-            contenedorListas.style.display = 'flex';
-            formTarea.reset();
-        });
-
-        // Filtrar tareas por tipo
-        document.getElementById('filter-tipo').addEventListener('change', () => {
-            const tipoSeleccionado = document.getElementById('filter-tipo').value;
-
-            function filtrarLista(contenedor) {
-                Array.from(contenedor.children).forEach(div => {
-                    if(tipoSeleccionado === 'Todo' || div.dataset.tipo === tipoSeleccionado) {
-                        div.style.display = 'block';
-                    } else {
-                        div.style.display = 'none';
-                    }
-                });
-            }
-
-            filtrarLista(listaTareas);
-        });
-
-        // Función para editar la tarea
-        function editarTarea(tarea) {
-            // Aquí puedes implementar la lógica para editar la tarea
-            alert('Editar tarea: ' + tarea.actividad);
-        }
-    });
-</script>
-            <section id="Sucursales" class="main-content">
-    <h2>Sucursales</h2>
-    <div class="contenedor-tarjetas">
-
-        <!-- Tarjetas de Sucursales  -->
-        <div class="tarjeta">
-            <div class="map-container">
-                <h3>Sucursal Atlixco</h3>
-                <p>Calzada Oaxaca #3112, segundo piso, Francisco I. Madero, Atlixco, Puebla</p>
-                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3771.471895372691!2d-98.2224834!3d19.042978899999998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x85cfc7032f95847f%3A0x14368cb67647d37!2sAE%20TECH!5e0!3m2!1ses!2smx!4v1759351519212!5m2!1ses!2smx"
-                    width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy"
-                    referrerpolicy="no-referrer-when-downgrade"></iframe>
-            </div>
-        </div>
-
-        <div class="tarjeta">
-            <div class="map-container">
-                <h3>Punto de Venta Atlixco</h3>
-                <p>Calle 15 Poniente #107, Alvaro Obregon, Atlixco, Puebla</p>
-                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3774.9294048160427!2d-98.43886917431595!3d18.89021274801054!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x85cfb3b2f3c72c4b%3A0x7997679f2d024d6e!2sAE%20TECH!5e0!3m2!1ses!2smx!4v1759349314481!5m2!1ses!2smx"
-                    width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy"
-                    referrerpolicy="no-referrer-when-downgrade"></iframe>
-            </div>
-        </div>
-
-        <div class="tarjeta">
-            <div class="map-container">
-                <h3>Sucursal Puebla</h3>
-                <p>Calle 25 Sur #2710, Benito Juarez, Puebla, Puebla</p>
-                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3774.670411065148!2d-98.43769879999999!3d18.9016973!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x85cfb47f9d4aa489%3A0xecab6b4b061b7393!2sAE%20TECH!5e0!3m2!1ses!2smx!4v1759350362434!5m2!1ses!2smx"
-                    width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy"
-                    referrerpolicy="no-referrer-when-downgrade"></iframe>
-            </div>
-        </div>
-</section>
-</section>
-
-
-<section id="agregar-comentario" class="main-content">
-    <h2>Agregar Comentario</h2>
-    <form id="form-comentario">
-        <div class="form-group">
-            <label for="comentario">Comentario:</label>
-            <textarea id="comentario" name="comentario" rows="4" required></textarea>
-        </div>
-        <div class="form-group">
-            <label>Calificación:</label>
-            <div class="rating">
-                <span class="star" data-rating="1">&#9733;</span>
-                <span class="star" data-rating="2">&#9733;</span>
-                <span class="star" data-rating="3">&#9733;</span>
-                <span class="star" data-rating="4">&#9733;</span>
-                <span class="star" data-rating="5">&#9733;</span>
-                <input type="hidden" id="rating-value" name="rating" value="0">
-            </div>
-        </div>
-        <button type="submit">Publicar Comentario</button>
-        <button type="button" id="btn-cancelar-comentario">Cancelar</button>
-    </form>
-
-    <section id="lista-comentarios" style="display: none;">
-        <h2>Comentarios</h2>
-        <!-- Aquí se mostrarán los comentarios -->
-        <!-- Ejemplo de un comentario -->
-        <div class="comentario">
-            <div class="comentario-header">
-                <img src="img/default-user.png" alt="Avatar" class="comentario-avatar">
-                <div class="comentario-info">
-                    <span class="comentario-autor">Nombre del Autor</span>
-                    <div class="comentario-calificacion">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
-                            class="fas fa-star"></i><i class="far fa-star"></i>
-                    </div>
-                </div>
-            </div>
-            <p class="comentario-texto">Este es un ejemplo de comentario. ¡El servicio fue excelente!</p>
-        </div>
-        <!-- Fin del ejemplo de comentario -->
-    </section>
-</section>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const agregarComentarioSection = document.getElementById('agregar-comentario');
-        const formComentario = document.getElementById('form-comentario');
-        const listaComentarios = document.getElementById('lista-comentarios');
-        const btnCancelarComentario = document.getElementById('btn-cancelar-comentario');
-        const stars = document.querySelectorAll('.star');
-        const ratingValueInput = document.getElementById('rating-value');
-
-        // Ocultar la sección de comentarios al cargar la página
-        listaComentarios.style.display = 'none';
-
-        // Cancelar la creación del comentario
-        btnCancelarComentario.addEventListener('click', function () {
-            listaComentarios.style.display = 'none'; // Oculta la lista de comentarios al cancelar
-            agregarComentarioSection.classList.remove('show'); // Oculta la sección de agregar comentario
-        });
-
-        // Publicar el comentario
-        formComentario.addEventListener('submit', function (event) {
-            event.preventDefault();
-
-            const comentario = document.getElementById('comentario').value;
-            const ratingValue = ratingValueInput.value;
-
-            if (!comentario || ratingValue === "0") {
-                alert('Por favor, ingrese un comentario y seleccione una calificación.');
-                return;
-            }
-
-            // Crear el elemento del comentario
-            const nuevoComentario = document.createElement('div');
-            nuevoComentario.classList.add('comentario');
-            nuevoComentario.innerHTML = `
-                <div class="comentario-header">
-                    <img src="img/default-user.png" alt="Avatar" class="comentario-avatar">
-                    <div class="comentario-info">
-                        <span class="comentario-autor">Anónimo</span>
-                        <div class="comentario-calificacion">
-                            ${generarEstrellas(ratingValue)}
-                        </div>
-                    </div>
-                </div>
-                <p class="comentario-texto">${comentario}</p>
-            `;
-
-            listaComentarios.appendChild(nuevoComentario);
-
-            // Limpiar el formulario
-            document.getElementById('comentario').value = '';
-            ratingValueInput.value = "0"; // Reset rating value
-            stars.forEach(star => star.classList.remove('selected')); // Remove selected class
-
-            listaComentarios.style.display = 'block'; // Mostrar la lista de comentarios al publicar
-        });
-
-        // Función para generar las estrellas según la calificación
-        function generarEstrellas(rating) {
-            let estrellas = '';
-            for (let i = 0; i < rating; i++) {
-                estrellas += '<i class="fas fa-star"></i>';
-            }
-            for (let i = rating; i < 5; i++) {
-                estrellas += '<i class="far fa-star"></i>';
-            }
-            return estrellas;
-        }
-
-        // Star rating functionality
-        stars.forEach(star => {
-            star.addEventListener('click', function () {
-                const rating = this.dataset.rating;
-                ratingValueInput.value = rating;
-
-                // Highlight selected stars
-                stars.forEach(star => star.classList.remove('selected'));
-                for (let i = 0; i < rating; i++) {
-                    stars[i].classList.add('selected');
-                }
-            });
-        });
-    });
-</script>
-
-
-<section id="Administracion" class="main-content">
-    <h2>Administración de Usuarios</h2>
-
-    <h3>Usuarios con Roles</h3>
-    <div class="datagrid-container">
-        <table id="datagridUsuariosRoles">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Email</th>
-                    <th>Rol</th>
-                    <th>Contraseña</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Aquí se insertarán los datos de los usuarios con roles -->
-            </tbody>
-        </table>
-    </div>
-
-    <h3>Clientes</h3>
-    <div class="datagrid-container">
-        <table id="datagridClientes">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Email</th>
-                    <th>Contraseña</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Aquí se insertarán los datos de los clientes -->
-            </tbody>
-        </table>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const datagridUsuariosRoles = document.getElementById('datagridUsuariosRoles').querySelector('tbody');
-            const datagridClientes = document.getElementById('datagridClientes').querySelector('tbody');
 
-            // Datos de usuarios de ejemplo (simulación)
-            const usuariosConRoles = [
-                { nombre: "Kevin Perez", email: "kevin.perez@example.com", rol: "Ingeniero" },
-                { nombre: "Daniel Lopez", email: "daniel.lopez@example.com", rol: "Residente/Técnico" },
-                { nombre: "Maria Gomez", email: "maria.gomez@example.com", rol: "Practicante" }
-            ];
-
-            const clientes = [
-                { nombre: "Juan Perez", email: "juan.perez@example.com" },
-                { nombre: "Laura Torres", email: "laura.torres@example.com" }
-            ];
-
-            // Función para generar las filas de la tabla de usuarios con roles
-            function generarFilasUsuariosRoles(usuarios) {
-                let filas = '';
-                usuarios.forEach(usuario => {
-                    filas += `
-                        <tr>
-                            <td>${usuario.nombre}</td>
-                            <td>${usuario.email}</td>
-                            <td>${usuario.rol}</td>
-                            <td>${usuario.contraseña}</td>
-                        </tr>
-                    `;
-                });
-                datagridUsuariosRoles.innerHTML = filas;
-            }
-
-            // Función para generar las filas de la tabla de clientes
-            function generarFilasClientes(clientes) {
-                let filas = '';
-                clientes.forEach(cliente => {
-                    filas += `
-                        <tr>
-                            <td>${cliente.nombre}</td>
-                            <td>${cliente.email}</td>
-                             <td>${cliente.contraseña}</td>
-                        </tr>
-                    `;
-                });
-                datagridClientes.innerHTML = filas;
-            }
-
-            // Inicializar las tablas con los datos de ejemplo
-            generarFilasUsuariosRoles(usuariosConRoles);
-            generarFilasClientes(clientes);
-
-            // Función para agregar un nuevo usuario con rol
-            function agregarUsuarioConRol(usuario) {
-                const nuevaFila = `
-                    <tr>
-                        <td>${usuario.nombre}</td>
-                        <td>${usuario.email}</td>
-                        <td>${usuario.rol}</td>
-                        <td>${usuario.contraseña}</td>
-                    </tr>
-                `;
-                datagridUsuariosRoles.innerHTML += nuevaFila;
-            }
-
-            // Función para agregar un nuevo cliente
-            function agregarCliente(cliente) {
-                const nuevaFila = `
-                    <tr>
-                        <td>${cliente.nombre}</td>
-                        <td>${cliente.email}</td>
-                         <td>${cliente.contraseña}</td>
-                    </tr>
-                `;
-                datagridClientes.innerHTML += nuevaFila;
-            }
-
-            // Ejemplo de cómo agregar un nuevo usuario
-            // agregarUsuarioConRol({ nombre: "Nuevo Usuario", email: "nuevo@example.com", rol: "Ingeniero" });
-            // agregarCliente({ nombre: "Nuevo Cliente", email: "cliente@example.com" });
-        });
-    </script>
-</section>
-
-
-    <script>
-        // Función para mostrar el contenido de una sección y ocultar las demás
-        function mostrarContenido(seccionId) {
-            // Ocultar todas las secciones de contenido principal
-            let secciones = document.querySelectorAll('.main-content');
-            secciones.forEach(s => s.classList.remove('show'));
-            // Mostrar la sección correspondiente
-            let seccionAMostrar = document.getElementById(seccionId);
-            if (seccionAMostrar) {
-                seccionAMostrar.classList.add('show');
-            } else {
-                console.warn('La sección con ID ' + seccionId + ' no fue encontrada.');
-            }
-            // Opcional: Remover la clase 'active' de todos los botones de navegación y añadirla al botón actual
-            let navButtons = document.querySelectorAll('nav li button');
-            navButtons.forEach(btn => btn.parentElement.classList.remove('active'));
-            // Encuentra el botón correspondiente y añade la clase 'active' a su padre (li)
-            navButtons.forEach(btn => {
-                if (btn.textContent === seccionId || (seccionId === 'Tablero' && btn.textContent === 'Tablero') || (seccionId === 'Administracion' && btn.textContent === 'Administracion')) {
-                    btn.parentElement.classList.add('active');
+        // Función para mostrar la pantalla de bienvenida y ocultar los formularios
+                function showWelcomeScreen() {
+                    welcomeScreen.style.display = 'block';
+                    loginForm.style.display = 'none';
+                    registroForm.style.display = 'none';
                 }
-            });
-        }
 
-        function toggleEvaluacion(element) {
-            let detalles = element.parentNode.nextElementSibling;
-            if (detalles.style.display === "none") {
-                detalles.style.display = "block";
-                element.innerHTML = '<i class="fas fa-chevron-up"></i>';
-            } else {
-                detalles.style.display = "none";
-                element.innerHTML = '<i class="fas fa-chevron-down"></i>';
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginBtn = document.getElementById('login-btn');
+            const registerBtn = document.getElementById('register-btn');
+            const welcomeScreen = document.getElementById('welcome-screen');    
+            const registroForm = document.getElementById('registroForm'); // << ESTE
+            const loginForm = document.getElementById('loginForm');     // << Y ESTE
+
+            loginForm.addEventListener('submit', loginUser); 
+            registroForm.addEventListener('submit', registerUser); 
+
+
+
+            // Función para mostrar la pantalla de bienvenida y ocultar los formularios
+            function showWelcomeScreen() {
+                welcomeScreen.style.display = 'block';
+                loginForm.style.display = 'none';
+                registroForm.style.display = 'none';
             }
-        }
 
-        // --- Lógica de inicialización y actualización ---
-        document.addEventListener('DOMContentLoaded', () => {
-            // Mostrar la sección de Evidencias por defecto al cargar la página
-            mostrarContenido('Tablero');
+            loginBtn.addEventListener('click', function() {
+                welcomeScreen.style.display = 'none';
+                loginForm.style.display = 'block';
+            });
+
+            registerBtn.addEventListener('click', function() {
+                welcomeScreen.style.display = 'none';
+                registroForm.style.display = 'block';
+            });
+
+            // Agregar event listeners a los botones de "Volver"
+            const backButtons = document.querySelectorAll('.back-btn');
+            backButtons.forEach(button => {
+                button.addEventListener('click', showWelcomeScreen);
+            });
         });
     </script>
-    
     <script src="script.js"></script>
+</section>
 </body>
 </html>
