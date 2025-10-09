@@ -101,6 +101,10 @@ header h1 {
     cursor: pointer;
 }
 
+.logout-button:hover{
+    color: #dc35468f;
+}
+
 /* --- REGLAS GENERALES PARA ESCRITORIO (Aseguran que no haya fix/absolute) --- */
 
 .container {
