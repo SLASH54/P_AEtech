@@ -308,8 +308,12 @@ const registerUser = async (e) => {
 
         // El backend devuelve el nuevo usuario (sin token, ya que es registro)
         const data = await response.json(); 
-        
-        alert(`🎉 Registro Exitoso! Usuario ${data.email} creado con rol ${data.rol}.`);
+
+        let userEmail = data.user?.email || data.email || 'Desconocido';
+        let userRol = data.user?.rol || data.rol || 'Desconocido';
+
+        alert(`🎉 Registro Exitoso! Usuario ${userEmail} creado con rol ${userRol}.`);
+
         
         // Opcional: Después de registrar, puedes redirigir al login
         document.getElementById('registroForm').style.display = 'none';
