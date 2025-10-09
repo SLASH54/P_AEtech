@@ -29,7 +29,7 @@
                 <p class="profile-email">usuario@email.com</p>
             </div>
             <!-- Botón de cerrar sesión -->
-            <button id="logout-button">Cerrar Sesión</button>
+            <button id="logout-button" onclick="logoutButton('logout-button')">Cerrar Sesión</button>
         </div>
     </div>
 
@@ -59,10 +59,7 @@
             }
         });
 
-        logoutButton.addEventListener('click', () => {
-            alert('Cerrar sesión del usuario'); // Reemplaza esto con tu código
-            dropdownMenu.style.display = 'none'; // Cierra el menú después de la acción
-        });
+        
 
         // Función para actualizar la información del perfil (ejemplo)
         function updateProfileInfo(name, email, image) {
