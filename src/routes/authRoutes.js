@@ -5,7 +5,7 @@ const { registerUser, loginUser, logoutUser} = require('../controllers/authContr
 const router = express.Router();
 
 // Ruta POST para registrar (http://localhost:3000/api/auth/register)
-router.post('/register', authController.registerUser);
+router.post('/register', registerUser);
 
 // Ruta POST para iniciar sesión (http://localhost:3000/api/auth/login)
 router.post('/login', loginUser);
