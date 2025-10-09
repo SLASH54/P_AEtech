@@ -296,6 +296,15 @@ const loginUser = async (e) => {
         
 
           let rolDelUsuario = 'Usuario'; // Valor por defecto
+
+
+        // ⚠ ASUME que data.user existe y tiene nombre y email
+        if (data.user) {
+            localStorage.setItem('userName', data.user.nombre);
+            localStorage.setItem('userEmail', data.user.email);
+            // Si no tienes 'nombre', usa 'data.user.email' en el campo nombre.
+        }
+
         
         if (data.user && data.user.rol) {
             // Si el backend SI devuelve { user: { rol: '...' } }, usa ese valor

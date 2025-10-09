@@ -16,8 +16,16 @@
     <div class="container">
         <header>
             <img src="img/logoAEtech.png" width="80px" height="80px">
+            <div id="user-info-menu" style="text-align: right; margin: 10px;">
+                <span id="menu-user-name" style="font-weight: bold;">Cargando Nombre...</span>
+                
+                <span id="menu-user-email" style="margin-left: 10px; color: #666;">Cargando Email...</span>
+                
+                <button id="logout-button" style="margin-left: 15px;">Cerrar Sesión</button>
+            </div>
             <button onclick="logout('logout-button')">Cerrar Sesion</button>
         </header>
+
     <nav class="sidebar-nav">
         <button class="menu-toggle" onclick="toggleMenu()">
             &#9776; 
@@ -648,6 +656,21 @@
 </section>
 
 <script>
+            // Función para alternar la visibilidad del menú
+        function toggleUserMenu() {
+            const menu = document.getElementById('user-dropdown-menu');
+            menu.classList.toggle('show');
+        }
+
+        // Función para cargar los datos en el menú al iniciar la página
+        function loadUserInfo() {
+            const name = localStorage.getItem('userName') || 'Usuario';
+            const email = localStorage.getItem('userEmail') || 'No logeado';
+
+            document.getElementById('menu-user-name').textContent = name;
+            document.getElementById('menu-user-email').textContent = email;
+        }
+
     document.addEventListener('DOMContentLoaded', function () {
         const agregarComentarioSection = document.getElementById('agregar-comentario');
         const formComentario = document.getElementById('form-comentario');
@@ -655,6 +678,20 @@
         const btnCancelarComentario = document.getElementById('btn-cancelar-comentario');
         const stars = document.querySelectorAll('.star');
         const ratingValueInput = document.getElementById('rating-value');
+        const profileButton = document.getElementById('user-profile-btn');
+        const logoutMenuButton = document.getElementById('menu-logout-btn');
+
+    if (profileButton && logoutMenuButton) {
+        // 1. Conecta el botón de perfil para abrir/cerrar el menú
+        profileButton.addEventListener('click', toggleUserMenu);
+        
+        // 2. Conecta el botón de cerrar sesión del menú
+        logoutMenuButton.addEventListener('click', logout);
+        
+        // 3. Carga los datos del usuario
+        loadUserInfo();
+    }
+
 
         // Ocultar la sección de comentarios al cargar la página
         listaComentarios.style.display = 'none';
