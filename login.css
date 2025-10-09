@@ -1226,6 +1226,49 @@ main {
     background-color: #e9ecef;
 }
 
+/* Estilos para la sección de login */
+.login-section {
+    position: relative;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 10px;
+}
+
+/* Contenedor del menú de login */
+.login-menu {
+    position: relative;
+    display: inline-block;
+}
+
+/* Estilo del botón de icono */
+#login-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    color: #333;
+    padding: 5px;
+    border-radius: 50%;
+    transition: background-color 0.3s ease;
+}
+
+#login-button:hover {
+    background-color: #e0e0e0;
+}
+
+/* Estilo del menú desplegable */
+.dropdown-menu {
+    position: absolute;
+    background-color: #ffffff;
+    min-width: 250px; /* Aumenta el ancho para acomodar la info del perfil */
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    padding: 15px; /* Aumenta el padding para mejor espaciado */
+    z-index: 1000;
+    right: 0;
+    border-radius: 5px;
+    text-align: center; /* Centra el contenido horizontalmente */
+}
 
 /* Estilos para la información del perfil */
 .profile-info {
