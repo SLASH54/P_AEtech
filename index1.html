@@ -66,6 +66,14 @@
     </div>
 
     <script>
+
+        // Función para mostrar la pantalla de bienvenida y ocultar los formularios
+                function showWelcomeScreen() {
+                    welcomeScreen.style.display = 'block';
+                    loginForm.style.display = 'none';
+                    registroForm.style.display = 'none';
+                }
+
         document.addEventListener('DOMContentLoaded', function() {
             const loginBtn = document.getElementById('login-btn');
             const registerBtn = document.getElementById('register-btn');
