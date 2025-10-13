@@ -682,6 +682,8 @@ main {
 .form-group input[type="password"],
 .form-group input[type="date"],
 .form-group input[type="time"],
+.form-group input[type="telefono"],
+.form-group input[type="direccion"],
 .form-group select {
     width: 100%;
     padding: 10px 12px;
@@ -1308,4 +1310,15 @@ main {
 
 #logout-button:hover {
     background-color: #da190b; /* Rojo más oscuro */
+}
+
+/* --- Estilos para la sección de Usuarios (Formulario de Registro) --- */
+.form-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
