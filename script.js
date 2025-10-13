@@ -499,3 +499,43 @@ function restrictAdminSection() {
         }
     }
 }
+
+// script.js
+
+/**
+ * Función genérica para obtener datos protegidos por JWT.
+ */
+async function fetchData(endpoint) {
+    const token = localStorage.getItem('userToken');
+    if (!token) {
+        alert("Sesión expirada. Inicie sesión.");
+        window.location.href = '/index.html';
+        return null;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            alert("No tiene permisos de administrador para ver estos datos.");
+            return null;
+        }
+
+        if (!response.ok) {
+            throw new Error(`Error ${response.status} al obtener datos.`);
+        }
+
+        return await response.json();
+
+    } catch (error) {
+        console.error(`Error fetching ${endpoint}:`, error);
+        return null;
+    }
+}
+

@@ -833,11 +833,10 @@
                     <th>Email</th>
                     <th>Rol</th>
                     <th>Contraseña</th>
-                </tr>
+                    <th>Acciones</th> </tr>
             </thead>
             <tbody>
-                <!-- Aquí se insertarán los datos de los usuarios con roles -->
-            </tbody>
+                </tbody>
         </table>
     </div>
 
@@ -848,12 +847,12 @@
                 <tr>
                     <th>Nombre</th>
                     <th>Email</th>
-                    <th>Contraseña</th>
-                </tr>
+                    <th>Dirección</th> 
+                    <th>Teléfono</th>
+                    <th>Acciones</th> </tr>
             </thead>
             <tbody>
-                <!-- Aquí se insertarán los datos de los clientes -->
-            </tbody>
+                </tbody>
         </table>
     </div>
 
@@ -874,36 +873,51 @@
                 { nombre: "Laura Torres", email: "laura.torres@example.com" }
             ];
 
-            // Función para generar las filas de la tabla de usuarios con roles
-            function generarFilasUsuariosRoles(usuarios) {
-                let filas = '';
-                usuarios.forEach(usuario => {
-                    filas += `
-                        <tr>
-                            <td>${usuario.nombre}</td>
-                            <td>${usuario.email}</td>
-                            <td>${usuario.rol}</td>
-                            <td>${usuario.contraseña}</td>
-                        </tr>
-                    `;
-                });
-                datagridUsuariosRoles.innerHTML = filas;
-            }
+            // script.js
 
-            // Función para generar las filas de la tabla de clientes
-            function generarFilasClientes(clientes) {
-                let filas = '';
-                clientes.forEach(cliente => {
-                    filas += `
-                        <tr>
-                            <td>${cliente.nombre}</td>
-                            <td>${cliente.email}</td>
-                             <td>${cliente.contraseña}</td>
-                        </tr>
-                    `;
-                });
-                datagridClientes.innerHTML = filas;
-            }
+// Función para generar las filas de la tabla de usuarios con roles
+function generarFilasUsuariosRoles(usuarios, tbodyElement) {
+    let filas = '';
+    usuarios.forEach(usuario => {
+        // Asegúrate de que tu backend envíe las propiedades 'id', 'nombre', 'email', 'rol'
+        filas += `
+            <tr data-id="${usuario.id}"> 
+                <td>${usuario.nombre}</td>
+                <td>${usuario.email}</td>
+                <td>${usuario.rol}</td>
+                <td>***</td> <td>
+                    <button class="edit-btn" data-type="usuario" data-id="${usuario.id}">Editar</button>
+                    <button class="delete-btn" data-type="usuario" data-id="${usuario.id}">Eliminar</button>
+                </td>
+            </tr>
+        `;
+    });
+    tbodyElement.innerHTML = filas;
+    // 💡 Aquí podrías llamar a una función para adjuntar listeners a los botones
+    attachCrudListeners(); 
+}
+
+// Función para generar las filas de la tabla de clientes
+function generarFilasClientes(clientes, tbodyElement) {
+    let filas = '';
+    clientes.forEach(cliente => {
+        // Asegúrate de que tu backend envíe las propiedades 'id', 'nombre', 'email', 'direccion', 'telefono'
+        filas += `
+            <tr data-id="${cliente.id}">
+                <td>${cliente.nombre}</td>
+                <td>${cliente.email}</td>
+                <td>${cliente.direccion}</td>
+                <td>${cliente.telefono}</td>
+                <td>
+                    <button class="edit-btn" data-type="cliente" data-id="${cliente.id}">Editar</button>
+                    <button class="delete-btn" data-type="cliente" data-id="${cliente.id}">Eliminar</button>
+                </td>
+            </tr>
+        `;
+    });
+    tbodyElement.innerHTML = filas;
+    attachCrudListeners();
+}
 
             // Inicializar las tablas con los datos de ejemplo
             generarFilasUsuariosRoles(usuariosConRoles);
@@ -1024,7 +1038,36 @@
         //Cerrar Sesion
         document.getElementById('logout-button').addEventListener('click', logout);
 
-        
+       
+
+    const datagridUsuariosRoles = document.getElementById('datagridUsuariosRoles')?.querySelector('tbody');
+    const datagridClientes = document.getElementById('datagridClientes')?.querySelector('tbody');
+    
+    // ⚠️ Mueve la inicialización a una función asíncrona
+    async function initAdminPanel() {
+        if (!document.getElementById('Administracion') || document.getElementById('Administracion').style.display === 'none') {
+            return; // No cargar si la sección no está visible
+        }
+
+        // 1. Obtener Usuarios (Personal)
+        const usuarios = await fetchData('/api/usuarios'); // ⬅️ Reemplaza por tu ruta real de Backend
+        if (usuarios) {
+            generarFilasUsuariosRoles(usuarios, datagridUsuariosRoles);
+        } else if (datagridUsuariosRoles) {
+            datagridUsuariosRoles.innerHTML = '<tr><td colspan="4">No se pudieron cargar los usuarios.</td></tr>';
+        }
+
+        // 2. Obtener Clientes
+        const clientes = await fetchData('/api/clientes'); // ⬅️ Reemplaza por tu ruta real de Backend
+        if (clientes) {
+            generarFilasClientes(clientes, datagridClientes);
+        } else if (datagridClientes) {
+            datagridClientes.innerHTML = '<tr><td colspan="3">No se pudieron cargar los clientes.</td></tr>';
+        }
+    }
+    
+    initAdminPanel();
+
     </script>
     
     <script src="script.js"></script>
