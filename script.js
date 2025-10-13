@@ -539,3 +539,42 @@ async function fetchData(endpoint) {
     }
 }
 
+// script.js (Tu función initAdminPanel debe verse así)
+
+async function initAdminPanel() {
+    const userRole = localStorage.getItem('userRol');
+    const adminSection = document.getElementById('Administracion');
+    
+    // 1. VERIFICACIÓN DE ROL (SEGURIDAD FRONTAL)
+    if (userRole !== 'Admin' && userRole !== 'Administrador') {
+        // Si no es administrador, oculta la sección de nuevo (prevención de errores)
+        if (adminSection) {
+            adminSection.classList.remove('show');
+        }
+        alert("Acceso denegado: No tienes permisos de administrador.");
+        // Opcional: redirigir a otra sección, ej: mostrarContenido('Tablero');
+        return; 
+    }
+    
+    // 2. CARGA DE DATOS (Solo para Admin)
+    const tbodyUsuarios = document.getElementById('datagridUsuariosRoles')?.querySelector('tbody');
+    const tbodyClientes = document.getElementById('datagridClientes')?.querySelector('tbody');
+
+    // Cargar Usuarios
+    const usuarios = await fetchData('/api/usuarios'); 
+    if (usuarios && tbodyUsuarios) {
+        // Asegúrate de que esta función está definida en script.js
+        generarFilasUsuariosRoles(usuarios, tbodyUsuarios); 
+    } else if (tbodyUsuarios) {
+        tbodyUsuarios.innerHTML = '<tr><td colspan="5">No se pudieron cargar los usuarios.</td></tr>';
+    }
+
+    // Cargar Clientes
+    const clientes = await fetchData('/api/clientes'); 
+    if (clientes && tbodyClientes) {
+        // Asegúrate de que esta función está definida en script.js
+        generarFilasClientes(clientes, tbodyClientes);
+    } else if (tbodyClientes) {
+        tbodyClientes.innerHTML = '<tr><td colspan="5">No se pudieron cargar los clientes.</td></tr>';
+    }
+}
