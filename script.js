@@ -264,6 +264,51 @@ const logout = () => {
     window.location.href = '/index.html'; // Redirige al login
 };
 
+/**
+ * Carga el nombre y email del usuario en el contenedor de perfil existente en sistema.html.
+ */
+function loadUserInfo() {
+    // 1. Obtener los datos del localStorage
+    const name = localStorage.getItem('userName') || 'Usuario';
+    const email = localStorage.getItem('userEmail') || 'No disponible';
+
+    // 2. Localizar los elementos por sus clases o IDs
+    // Debes cambiar cómo accedes a los elementos dentro de tu contenedor <div class="profile-info">
+    
+    // Asumiendo que el botón de logout estará fuera de este div, pero en la misma página.
+    
+    // Obtenemos el contenedor principal (opcional, si solo lo usas para agrupar)
+    const profileContainer = document.getElementById('profile-info'); 
+    
+    // Obtenemos los elementos de texto (usa querySelector para clases si no tienen ID)
+    const nameElement = profileContainer ? profileContainer.querySelector('.profile-name') : null;
+    const emailElement = profileContainer ? profileContainer.querySelector('.profile-email') : null;
+    
+    // El botón de logout debe tener un ID para que puedas conectarlo a la función logout()
+    const logoutButton = document.getElementById('logout-button'); // *Asegúrate de que este ID exista en tu botón!*
+
+    if (nameElement && emailElement) {
+        // 3. Insertar la información
+        nameElement.textContent = name;
+        emailElement.textContent = email;
+    }
+    
+    // 4. Conectar la acción de cerrar sesión (si el botón existe)
+    if (logoutButton) {
+        logoutButton.addEventListener('click', logout);
+    }
+    
+    // Opcional: Si tienes un botón para abrir/cerrar menú, puedes cargarlo aquí.
+}
+
+// Asegúrate de que esta función se llame al cargar la página:
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Ejecuta la verificación de sesión
+    checkSession(); 
+    
+    // 2. Carga los datos del usuario en el menú
+    loadUserInfo();
+});
 
 // Función para manejar el inicio de sesión
 const loginUser = async (e) => {
