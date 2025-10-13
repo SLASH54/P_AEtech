@@ -327,20 +327,23 @@ const loginUser = async (e) => {
         }
 
         const data = await response.json();
+
+         // 🔑 AGREGAMOS ESTA LÍNEA CLAVE 🔑
+        console.log('Respuesta COMPLETA del Servidor al Login:', data);
         
-        // 2. Almacenar el Token JWT
+        // 1. Guardar el Token
         localStorage.setItem('userToken', data.token);
-        
+        let rolDelUsuario = 'Usuario'; // Valor por defecto
 
-          let rolDelUsuario = 'Usuario'; // Valor por defecto
-
-
-        // ⚠ ASUME que data.user existe y tiene nombre y email
-        if (data.user) {
+        // 2. Intento de guardar el nombre y email
+        // Dejaremos la versión más segura (asumiendo que viene en 'user')
+        if (data.user && data.user.nombre && data.user.email) {
             localStorage.setItem('userName', data.user.nombre);
             localStorage.setItem('userEmail', data.user.email);
-            // Si no tienes 'nombre', usa 'data.user.email' en el campo nombre.
         }
+        
+
+     
 
         
         if (data.user && data.user.rol) {
