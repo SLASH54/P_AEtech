@@ -959,58 +959,12 @@
                 <input type="text" id="client-telefono" name="Telefono" required> 
             </div>
             
-            <button type="submit">Registrar Cliente</button>
+            <button type="submit" id="registrarClienteBttn">Registrar Cliente</button>
         </form>
         <button type="button" class="back-btn">Volver</button>
     </div>
 
-    <script>
-        document.getElementById('registroForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Evita que el formulario se envíe por defecto
-
-            // Obtener los valores de los campos
-            var nombre = document.getElementById('nombre').value;
-            var email = document.getElementById('email').value;
-            var direccion = document.getElementById('direccion').value;
-            var telefono = document.getElementById('Telefono').value;
-
-            // Validaciones básicas (puedes agregar más)
-            if (nombre === "") {
-                alert("Por favor, ingresa tu nombre.");
-                return;
-            }
-            if (email === "") {
-                alert("Por favor, ingresa tu email.");
-                return;
-            }
-
-            // Aquí puedes agregar el código para enviar los datos a un servidor
-            // Usando fetch API o XMLHttpRequest
-
-            // Ejemplo usando fetch API (necesitarás un servidor para recibir los datos)
-            fetch('URL_DEL_SERVIDOR', { // Reemplaza con la URL de tu servidor
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    nombre: nombre,
-                    email: email,
-                    direccion: direccion,
-                    telefono: telefono
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Success:', data);
-                alert("Registro exitoso!"); // O muestra un mensaje más amigable
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                alert("Ocurrió un error al registrar. Intenta nuevamente.");
-            });
-        });
-    </script>
+    
 </section>
 
 
@@ -1058,6 +1012,9 @@
 
         //Cerrar Sesion
         document.getElementById('logout-button').addEventListener('click', logout);
+
+        //Registrar Cliente
+        document.getElementById('registrarClienteBttn').addEventListener('click', registerClient);
     </script>
     
     <script src="script.js"></script>
