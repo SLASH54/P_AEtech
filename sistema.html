@@ -1008,6 +1008,11 @@
             // Mostrar la sección de Evidencias por defecto al cargar la página
             mostrarContenido('Tablero');
             checkSession();
+
+        const registroClienteForm = document.getElementById('registroClienteFrom');
+    if(registroClienteForm) {
+        registroClienteForm.addEventListener('submit', registerClient);
+    }
         });
 
         //Cerrar Sesion
