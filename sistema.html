@@ -959,7 +959,7 @@
                 <input type="text" id="client-telefono" name="Telefono" required> 
             </div>
             
-            <button type="submit" id="registrarClienteBttn">Registrar Cliente</button>
+            <button type="submit">Registrar Cliente</button>
         </form>
         <button type="button" class="back-btn">Volver</button>
     </div>
@@ -1009,7 +1009,7 @@
             mostrarContenido('Tablero');
             checkSession();
 
-        const registroClienteForm = document.getElementById('registroClienteFrom');
+        const registroClienteForm = document.getElementById('registroClienteForm');
     if(registroClienteForm) {
         registroClienteForm.addEventListener('submit', registerClient);
     }
@@ -1018,8 +1018,7 @@
         //Cerrar Sesion
         document.getElementById('logout-button').addEventListener('click', logout);
 
-        //Registrar Cliente
-        document.getElementById('registrarClienteBttn').addEventListener('click', registerClient);
+        
     </script>
     
     <script src="script.js"></script>
