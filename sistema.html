@@ -748,8 +748,10 @@
 
         // Cancelar la creación del comentario
         btnCancelarComentario.addEventListener('click', function () {
-            listaComentarios.style.display = 'none'; // Oculta la lista de comentarios al cancelar
-            agregarComentarioSection.classList.remove('show'); // Oculta la sección de agregar comentario
+            document.getElementById('comentario').value = '';
+            ratingValueInput.value = "0";
+            stars.forEach(star => star.classList.remove('selected'));
+            
         });
 
         // Publicar el comentario
