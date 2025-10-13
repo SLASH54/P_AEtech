@@ -335,11 +335,13 @@ const loginUser = async (e) => {
         localStorage.setItem('userToken', data.token);
         let rolDelUsuario = 'Usuario'; // Valor por defecto
 
+    
+
         // 2. Intento de guardar el nombre y email
         // Dejaremos la versión más segura (asumiendo que viene en 'user')
         if (data.user && data.user.nombre && data.user.email) {
-            localStorage.setItem('userName', data.user.nombre);
-            localStorage.setItem('userEmail', data.user.email);
+            localStorage.setItem('userName', data.nombre);
+            localStorage.setItem('userEmail', data.email);
         }
         
 
