@@ -465,7 +465,7 @@ const registerClient = async (e) => {
 
         const data = await response.json(); 
         
-        alert(`🎉 Cliente ${data.nombre || data.email} registrado con éxito!`);
+        alert(`🎉 Cliente ${nombre || email} registrado con éxito!`);
         
         // Limpiar el formulario después del éxito
         e.target.reset();
