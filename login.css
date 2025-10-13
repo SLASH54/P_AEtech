@@ -1260,7 +1260,7 @@ main {
 /* Estilo del menú desplegable */
 .dropdown-menu {
     position: absolute;
-    background-color: #ffffff;
+    background-color: #4ecefd;
     min-width: 250px; /* Aumenta el ancho para acomodar la info del perfil */
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     padding: 15px; /* Aumenta el padding para mejor espaciado */
