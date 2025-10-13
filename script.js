@@ -417,3 +417,66 @@ const registerUser = async (e) => {
         alert('⚠ Error en el registro: ' + error.message);
     }
 };
+
+
+/**
+ * Función para manejar el registro de nuevos clientes.
+ */
+const registerClient = async (e) => {
+    e.preventDefault(); 
+    
+    // 1. Obtener el Token JWT del usuario logeado
+    const token = localStorage.getItem('userToken');
+    
+    // 🛑 SEGURIDAD: Si no hay token, no podemos registrar un cliente
+    if (!token) {
+        alert("⚠️ Necesitas iniciar sesión para registrar clientes.");
+        // Redirigir al login si es necesario
+        window.location.href = '/index.html'; 
+        return;
+    }
+
+    // 2. Obtener los datos del formulario
+    const nombre = document.getElementById('client-nombre').value;
+    const email = document.getElementById('client-email').value;
+    const direccion = document.getElementById('client-direccion').value;
+    const telefono = document.getElementById('client-telefono').value; // ¡Usaremos 'client-telefono' para evitar conflictos!
+
+    try {
+        // 3. Petición al Backend con el Token
+        const response = await fetch(`${API_BASE_URL}/clientes`, { // ⬅️ Cambia '/clientes' por tu ruta real
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                // 🔑 INCLUYE EL TOKEN JWT PARA AUTENTICAR LA PETICIÓN 🔑
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ nombre, email, direccion, telefono }),
+        });
+
+        if (response.status === 401 || response.status === 403) {
+             throw new Error("No tienes permisos o la sesión ha expirado.");
+        }
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Fallo el registro del cliente.');
+        }
+
+        const data = await response.json(); 
+        
+        alert(`🎉 Cliente ${data.nombre || data.email} registrado con éxito!`);
+        
+        // Limpiar el formulario después del éxito
+        e.target.reset();
+        
+    } catch (error) {
+        console.error("Error al registrar cliente:", error.message);
+        alert('⚠️ Error en el registro del cliente: ' + error.message);
+    }
+};
+
+const registroClienteForm = document.getElementById('registroClienteFrom');
+    if(registroClienteForm) {
+        registroClienteForm.addEventListener('submit', registerClient);
+    }
