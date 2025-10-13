@@ -1010,11 +1010,15 @@
             // Mostrar la sección de Evidencias por defecto al cargar la página
             mostrarContenido('Tablero');
             checkSession();
+            
 
         const registroClienteForm = document.getElementById('registroClienteForm');
-    if(registroClienteForm) {
-        registroClienteForm.addEventListener('submit', registerClient);
-    }
+            if(registroClienteForm) {
+                registroClienteForm.addEventListener('submit', registerClient);
+            }
+        
+            // 🔑 LLAMAR A LA RESTRICCIÓN AQUÍ 🔑
+        restrictAdminSection();
         });
 
         //Cerrar Sesion

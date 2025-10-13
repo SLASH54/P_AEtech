@@ -480,3 +480,22 @@ const registroClienteForm = document.getElementById('registroClienteFrom');
     if(registroClienteForm) {
         registroClienteForm.addEventListener('submit', registerClient);
     }
+
+
+/**
+ * Muestra/Oculta la sección de Administración basada en el rol.
+ */
+function restrictAdminSection() {
+    const userRole = localStorage.getItem('userRol');
+    const adminSection = document.getElementById('Administracion');
+
+    if (adminSection) {
+        // Asumiendo que 'Admin' es el rol que da acceso total
+        if (userRole === 'Admin' || userRole === 'Administrador') { 
+            adminSection.style.display = 'block'; // Mostrar
+        } else {
+            adminSection.style.display = 'none'; // Ocultar
+            // Opcional: mostrar un mensaje de error o redirigir
+        }
+    }
+}
