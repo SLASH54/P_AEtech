@@ -284,21 +284,13 @@ function loadUserInfo() {
     const nameElement = profileContainer ? profileContainer.querySelector('.profile-name') : null;
     const emailElement = profileContainer ? profileContainer.querySelector('.profile-email') : null;
     
-    // El botón de logout debe tener un ID para que puedas conectarlo a la función logout()
-    const logoutButton = document.getElementById('logout-button'); // *Asegúrate de que este ID exista en tu botón!*
-
+    
     if (nameElement && emailElement) {
         // 3. Insertar la información
         nameElement.textContent = name;
         emailElement.textContent = email;
     }
-    
-    // 4. Conectar la acción de cerrar sesión (si el botón existe)
-    if (logoutButton) {
-        logoutButton.addEventListener('click', logout);
-    }
-    
-    // Opcional: Si tienes un botón para abrir/cerrar menú, puedes cargarlo aquí.
+      
 }
 
 // Asegúrate de que esta función se llame al cargar la página:
