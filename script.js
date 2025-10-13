@@ -339,22 +339,26 @@ const loginUser = async (e) => {
 
         // 2. Intento de guardar el nombre y email
         // Dejaremos la versión más segura (asumiendo que viene en 'user')
-        if (data.user && data.user.nombre && data.user.email) {
+        if (data.nombre && data.email) {
             localStorage.setItem('userName', data.nombre);
             localStorage.setItem('userEmail', data.email);
+        }
+
+        if  (data.rol) {
+            localStorage.setItem('userRol', data.rol)
         }
         
 
      
 
         
-        if (data.user && data.user.rol) {
+        if (data.user && data.rol) {
             // Si el backend SI devuelve { user: { rol: '...' } }, usa ese valor
-            rolDelUsuario = data.user.rol;
+            rolDelUsuario = data.rol;
         } 
         
         // Si el backend NO devuelve el rol, solo muestra un mensaje de éxito
-        alert(`✅ Login Exitoso! Bienvenido ${rolDelUsuario}`);
+        alert(`✅ Login Exitoso! Bienvenido ${data.nombre || data.email}`);
         
         // 3. Redirigir o cambiar la vista
         //mostrarContenido('Tablero');
