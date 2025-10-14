@@ -682,7 +682,7 @@ function generarFilasUsuariosRoles(usuarios, tbodyElement) {
     tbodyElement.innerHTML = filas;
     
     // Llamar a la función de escucha (si está definida)
-    //attachCrudListeners(); 
+    attachCrudListeners(); 
 
 }
 
@@ -747,6 +747,76 @@ function mostrarContenido(seccionId) {
         }
 
 
+
+
+        // script.js (Añadir al alcance global)
+
+function handleDeleteClick(event) {
+    // currentTarget es más seguro que target dentro de un bucle forEach o un listener
+    const button = event.currentTarget;
+    const type = button.getAttribute('data-type'); // 'usuario' o 'cliente'
+    const id = button.getAttribute('data-id');     // El ID único del registro
+
+    // Llamar a la función principal de eliminación
+    deleteRecord(type, id);
+}
+
+
+// script.js (Asegúrate de que esta función esté definida globalmente)
+
+function attachCrudListeners() {
+    
+    // 🗑️ Conectar botones de Eliminar (.delete-btn)
+    document.querySelectorAll('.delete-btn').forEach(button => {
+        // Importante: Remover listeners anteriores para evitar duplicados al recargar el panel
+        button.removeEventListener('click', handleDeleteClick); 
+        button.addEventListener('click', handleDeleteClick);
+    });
+    
+    // ✍️ Conectar botones de Editar (.edit-btn) - Lo haremos en el siguiente paso
+    document.querySelectorAll('.edit-btn').forEach(button => {
+        // button.removeEventListener('click', handleEditClick);
+        // button.addEventListener('click', handleEditClick);
+    });
+}
+
+
+// script.js (Añadir al alcance global)
+//DELETE
+async function deleteRecord(type, id) {
+    if (!confirm(`¿Estás seguro de que quieres eliminar este ${type} con ID ${id}? Esta acción es irreversible.`)) {
+        return; // Detiene la ejecución si el usuario cancela
+    }
+
+    const token = localStorage.getItem('userToken');
+    // Define el endpoint basado en el tipo (ej: /users/1 o /clientes/5)
+    const endpoint = (type === 'usuario') ? `/users/${id}` : `/clientes/${id}`;
+
+    try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            alert(`${type.charAt(0).toUpperCase() + type.slice(1)} eliminado con éxito.`);
+            // 🔑 Vuelve a cargar el panel para refrescar AMBAS tablas
+            initAdminPanel(); 
+        } else if (response.status === 404) {
+            alert(`Error: ${type} no encontrado. Es posible que haya sido eliminado previamente.`);
+        } else {
+            // Manejo de otros errores (ej: error del servidor)
+            const errorData = await response.json().catch(() => ({ message: response.statusText })); 
+            alert(`Error al eliminar ${type}: ${errorData.message || response.statusText}`);
+        }
+    } catch (error) {
+        console.error(`Error de conexión al eliminar ${type}:`, error);
+        alert('Hubo un error de conexión con el servidor al intentar eliminar el registro.');
+    }
+}
 // ===================================================
 // CONEXIÓN PRINCIPAL (DOMContentLoaded)
 // ===================================================
