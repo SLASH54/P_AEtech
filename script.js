@@ -589,3 +589,104 @@ async function initAdminPanel() {
 
     
 }
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const datagridUsuariosRoles = document.getElementById('datagridUsuariosRoles').querySelector('tbody');
+            const datagridClientes = document.getElementById('datagridClientes').querySelector('tbody');
+
+
+            // script.js
+
+// script.js
+
+// Función para generar las filas de la tabla de usuarios con roles
+function generarFilasUsuariosRoles(usuarios, tbodyElement) {
+
+    // 🛑 Limpiar el contenido anterior 🛑
+    tbodyElement.innerHTML = ''; 
+    
+    if (!usuarios || usuarios.length === 0) {
+        tbodyElement.innerHTML = '<tr><td colspan="5">No se encontraron usuarios.</td></tr>';
+        return;
+    }
+
+    let filas = '';
+    usuarios.forEach(usuario => {
+        filas += `
+            <tr data-id="${usuario.id}"> 
+                <td>${usuario.nombre}</td>
+                <td>${usuario.email}</td>
+                <td>${usuario.rol}</td>
+                <td>***</td> 
+                <td>
+                    <button class="edit-btn" data-type="usuario" data-id="${usuario.id}">Editar</button>
+                    <button class="delete-btn" data-type="usuario" data-id="${usuario.id}">Eliminar</button>
+                </td>
+            </tr>
+        `;
+    });
+    
+    // 🔑 Insertar todas las filas de golpe
+    tbodyElement.innerHTML = filas;
+    
+    // Llamar a la función de escucha (si está definida)
+    attachCrudListeners(); 
+
+}
+
+// Haz la misma revisión para generarFilasClientes (usando 'nombre', 'email', 'direccion', 'telefono')
+
+// Función para generar las filas de la tabla de clientes
+function generarFilasClientes(clientes, tbodyElement) {
+    let filas = '';
+    clientes.forEach(cliente => {
+        // Asegúrate de que tu backend envíe las propiedades 'id', 'nombre', 'email', 'direccion', 'telefono'
+        filas += `
+            <tr data-id="${cliente.id}">
+                <td>${cliente.nombre}</td>
+                <td>${cliente.email}</td>
+                <td>${cliente.direccion}</td>
+                <td>${cliente.telefono}</td>
+                <td>
+                    <button class="edit-btn" data-type="cliente" data-id="${cliente.id}">Editar</button>
+                    <button class="delete-btn" data-type="cliente" data-id="${cliente.id}">Eliminar</button>
+                </td>
+            </tr>
+        `;
+    });
+    tbodyElement.innerHTML = filas;
+    attachCrudListeners();
+}
+
+        
+
+            // Función para agregar un nuevo usuario con rol
+            function agregarUsuarioConRol(usuario) {
+                const nuevaFila = `
+                    <tr>
+                        <td>${usuario.nombre}</td>
+                        <td>${usuario.email}</td>
+                        <td>${usuario.rol}</td>
+                        <td>${usuario.contraseña}</td>
+                    </tr>
+                `;
+                datagridUsuariosRoles.innerHTML += nuevaFila;
+            }
+
+            // Función para agregar un nuevo cliente
+            function agregarCliente(cliente) {
+                const nuevaFila = `
+                    <tr>
+                        <td>${cliente.nombre}</td>
+                        <td>${cliente.email}</td>
+                         <td>${cliente.contraseña}</td>
+                    </tr>
+                `;
+                datagridClientes.innerHTML += nuevaFila;
+            }
+
+            // Ejemplo de cómo agregar un nuevo usuario
+            // agregarUsuarioConRol({ nombre: "Nuevo Usuario", email: "nuevo@example.com", rol: "Ingeniero" });
+            // agregarCliente({ nombre: "Nuevo Cliente", email: "cliente@example.com" });
+        });
