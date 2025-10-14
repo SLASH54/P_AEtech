@@ -90,11 +90,6 @@ exports.deleteUser = async (req, res) => {
 };
 
 
-/**
- * @desc Obtener un solo usuario por ID
- * @route GET /users/:id
- * @access Private (Admin)
- */
 async function getUserById(req, res) {
     // El ID se extrae de los parámetros de la URL (gracias a la ruta /:id)
     const userId = req.params.id; 
