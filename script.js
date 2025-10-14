@@ -762,6 +762,70 @@ function handleDeleteClick(event) {
 }
 
 
+// script.js (Añadir al alcance global)
+
+function handleEditClick(event) {
+    const button = event.currentTarget;
+    const type = button.getAttribute('data-type');
+    const id = button.getAttribute('data-id');
+    
+    // 1. Obtener los datos actuales del registro haciendo una petición GET específica.
+    // Usaremos fetchData, pero el endpoint será distinto: /users/ID o /clientes/ID
+    const endpoint = (type === 'usuario') ? `/users/${id}` : `/clientes/${id}`;
+
+    fetchData(endpoint).then(data => {
+        if (data) {
+            openEditModal(data, type);
+        } else {
+            alert(`No se pudieron obtener los datos del ${type}.`);
+        }
+    });
+}
+
+function openEditModal(data, type) {
+    const modal = document.getElementById('editModal');
+    const form = document.getElementById('editForm');
+    
+    // 1. Llenar campos ocultos
+    document.getElementById('edit-id').value = data.id;
+    document.getElementById('edit-type').value = type;
+    document.getElementById('recordType').textContent = type.charAt(0).toUpperCase() + type.slice(1);
+    
+    // 2. Llenar campos comunes
+    document.getElementById('edit-nombre').value = data.nombre || '';
+    document.getElementById('edit-email').value = data.email || '';
+    
+    // 3. Mostrar/Ocultar campos específicos
+    const userFields = document.getElementById('userFields');
+    const clientFields = document.getElementById('clientFields');
+    
+    if (type === 'usuario') {
+        userFields.style.display = 'block';
+        clientFields.style.display = 'none';
+        document.getElementById('edit-rol').value = data.rol || '';
+    } else { // cliente
+        userFields.style.display = 'none';
+        clientFields.style.display = 'block';
+        // 🔑 NOTA CRÍTICA: Asegúrate de que tu backend use 'direccion' y 'telefono'
+        document.getElementById('edit-direccion').value = data.direccion || '';
+        document.getElementById('edit-telefono').value = data.telefono || '';
+    }
+    
+    modal.style.display = 'block';
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+}
+
+// Opcional: Cerrar modal haciendo clic fuera de la ventana
+window.onclick = function(event) {
+    const modal = document.getElementById('editModal');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+}
+
 // script.js (Asegúrate de que esta función esté definida globalmente)
 
 function attachCrudListeners() {
@@ -775,10 +839,12 @@ function attachCrudListeners() {
     
     // ✍️ Conectar botones de Editar (.edit-btn) - Lo haremos en el siguiente paso
     document.querySelectorAll('.edit-btn').forEach(button => {
-        // button.removeEventListener('click', handleEditClick);
-        // button.addEventListener('click', handleEditClick);
+         button.removeEventListener('click', handleEditClick);
+         button.addEventListener('click', handleEditClick);
     });
 }
+
+
 
 
 // script.js (Añadir al alcance global)
@@ -830,4 +896,56 @@ document.addEventListener('DOMContentLoaded', function () {
     
     restrictAdminSection(); 
     // Y la lógica de conexión de botones de menú...
+     // 🔑 Conectar el formulario de edición
+    const editForm = document.getElementById('editForm');
+    if (editForm) {
+        editForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const id = document.getElementById('edit-id').value;
+            const type = document.getElementById('edit-type').value;
+            
+            // Recolectar datos del formulario
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+            
+            // Limpiar datos específicos que no aplican
+            if (type === 'usuario') {
+                delete data.direccion;
+                delete data.telefono;
+            } else { // cliente
+                delete data.rol;
+            }
+            
+            const token = localStorage.getItem('userToken');
+            const endpoint = (type === 'usuario') ? `/users/${id}` : `/clientes/${id}`;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                    method: 'PUT', // o 'PATCH', dependiendo de tu backend
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    alert(`${type.charAt(0).toUpperCase() + type.slice(1)} actualizado con éxito.`);
+                    closeModal('editModal');
+                    initAdminPanel(); // Recargar las tablas
+                } else {
+                    const errorData = await response.json().catch(() => ({ message: response.statusText }));
+                    alert(`Error al actualizar: ${errorData.message || response.statusText}`);
+                }
+            } catch (error) {
+                console.error('Error al enviar el formulario de edición:', error);
+                alert('Hubo un error de conexión al guardar los cambios.');
+            }
+        });
+    }
 });
+
+
+// script.js (Añadir listener al alcance global, probablemente dentro de DOMContentLoaded)
+

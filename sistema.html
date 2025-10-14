@@ -856,7 +856,38 @@
         </table>
     </div>
 
-    
+    <div id="editModal" class="modal">
+    <div class="modal-content">
+        <span class="close-button" onclick="closeModal('editModal')">&times;</span>
+        <h3>Editar Registro (<span id="recordType"></span>)</h3>
+        
+        <form id="editForm">
+            <input type="hidden" id="edit-id" name="id">
+            <input type="hidden" id="edit-type" name="type">
+
+            <label for="edit-nombre">Nombre:</label>
+            <input type="text" id="edit-nombre" name="nombre" required>
+
+            <label for="edit-email">Email:</label>
+            <input type="email" id="edit-email" name="email" required>
+
+            <div id="userFields">
+                <label for="edit-rol">Rol:</label>
+                <input type="text" id="edit-rol" name="rol">
+                </div>
+
+            <div id="clientFields">
+                <label for="edit-direccion">Dirección:</label>
+                <input type="text" id="edit-direccion" name="direccion">
+                
+                <label for="edit-telefono">Teléfono:</label>
+                <input type="text" id="edit-telefono" name="telefono">
+            </div>
+
+            <button type="submit">Guardar Cambios</button>
+        </form>
+    </div>
+</div>
 </section>
 
 <section id="Clientes" class="main-content">
