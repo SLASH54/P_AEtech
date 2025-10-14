@@ -559,19 +559,17 @@ async function initAdminPanel() {
         return; 
     }
     
-    // 2. CARGA DE DATOS (Solo para Admin)
+    // 🔑 Obtener las referencias (SOLO AQUÍ)
     const tbodyUsuarios = document.getElementById('datagridUsuariosRoles')?.querySelector('tbody');
     const tbodyClientes = document.getElementById('datagridClientes')?.querySelector('tbody');
+    
+    // 1. Cargar Usuarios
+    const usuarios = await fetchData('/api/usuarios'); 
+    if (usuarios && Array.isArray(usuarios) && tbodyUsuarios) { 
+        generarFilasUsuariosRoles(usuarios, tbodyUsuarios); // ✅ Esto insertará los datos
+    } 
+    // ... (El resto de la lógica)
 
-
-      // 1. Cargar Usuarios
-    const usuarios = await fetchData('/users'); 
-    if (usuarios && Array.isArray(usuarios) && tbodyUsuarios) { // <- Asegurarse de que sea un array
-        generarFilasUsuariosRoles(usuarios, tbodyUsuarios); 
-    } else if (tbodyUsuarios) {
-        // Mostrar error solo si no se obtuvieron datos o no son un array
-        tbodyUsuarios.innerHTML = '<tr><td colspan="5">Error: No se pudieron cargar los usuarios.</td></tr>'; 
-    }
     
     // ... (Lógica para cargar Clientes, siguiendo el mismo patrón)
 
