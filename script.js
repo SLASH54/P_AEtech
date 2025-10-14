@@ -564,7 +564,7 @@ async function initAdminPanel() {
 
 
       // 1. Cargar Usuarios
-    const usuarios = await fetchData('/api/usuarios'); 
+    const usuarios = await fetchData('/usuarios'); 
     if (usuarios && Array.isArray(usuarios) && tbodyUsuarios) { // <- Asegurarse de que sea un array
         generarFilasUsuariosRoles(usuarios, tbodyUsuarios); 
     } else if (tbodyUsuarios) {
