@@ -8,6 +8,7 @@ const router = express.Router();
 // Todas estas rutas son solo para el Admin
 router.post('/', protect, admin, clienteController.createClienteNegocio);
 router.get('/', protect, admin, clienteController.getAllClientesNegocio);
+router.get('/:id', protect, admin, clienteController.getClienteNegocioById);
 router.put('/:id', protect, admin, clienteController.updateClienteNegocio);
 router.delete('/:id', protect, admin, clienteController.deleteClienteNegocio);
 

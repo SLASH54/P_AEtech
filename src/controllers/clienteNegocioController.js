@@ -57,3 +57,30 @@ exports.deleteClienteNegocio = async (req, res) => {
         return res.status(500).json({ message: 'Error interno del servidor al eliminar cliente.' });
     }
 };
+
+exports.getClienteNegocioById = async (req, res) => {
+    // El ID se extrae de los parámetros de la URL
+    const clienteId = req.params.id; 
+
+    try {
+        // Lógica de Sequelize: Buscar el cliente por ID
+        const cliente = await ClienteNegocio.findOne({
+            where: { id: clienteId }
+            // Nota: Aquí no excluimos la contraseña ya que los clientes no la tienen
+        });
+
+        if (!cliente) {
+            // Si el cliente no existe, devuelve 404
+            return res.status(404).json({ message: 'Cliente no encontrado.' });
+        }
+
+        // Si se encuentra, devuelve los datos del cliente (status 200 OK)
+        res.json(cliente);
+
+    } catch (error) {
+        console.error(`Error al obtener cliente ID ${clienteId}:`, error);
+        // Devuelve un error 500 para fallos del servidor
+        res.status(500).json({ message: 'Error en el servidor al buscar el cliente.' });
+    }
+};
+
