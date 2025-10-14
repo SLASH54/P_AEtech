@@ -648,14 +648,15 @@ async function initAdminPanel() {
 
     // Cargar Clientes
     const clientes = await fetchData('/clientes'); 
-    if (clientes && tbodyClientes) {
-        // Asegúrate de que esta función está definida en script.js
+
+    // 🔑 CORRECCIÓN EN LA VERIFICACIÓN:
+    if (clientes && Array.isArray(clientes) && tbodyClientes) {
+        // Si hay datos y es un array, los insertamos
         generarFilasClientes(clientes, tbodyClientes);
     } else if (tbodyClientes) {
-        tbodyClientes.innerHTML = '<tr><td colspan="5">No se pudieron cargar los clientes.</td></tr>';
+        // Si falló el fetch O si el array está vacío, mostramos el mensaje de error/no encontrados
+        tbodyClientes.innerHTML = '<tr><td colspan="5">No se pudieron cargar los clientes o no se encontraron.</td></tr>';
     }
-
-
     
 }
 
@@ -696,9 +697,18 @@ function generarFilasUsuariosRoles(usuarios, tbodyElement) {
 
 // Función generarFilasClientes - (DEBE SER GLOBAL)
 function generarFilasClientes(clientes, tbodyElement) {
+     // 🛑 AGREGAR ESTA LÍNEA DE LIMPIEZA 🛑
+    tbodyElement.innerHTML = ''; 
+
+    // Si no hay clientes o el array está vacío, muestra el mensaje
+    if (!clientes || clientes.length === 0) {
+        tbodyElement.innerHTML = '<tr><td colspan="5">No se encontraron clientes.</td></tr>';
+        return;
+    }
+    
     let filas = '';
     clientes.forEach(cliente => {
-        // Asegúrate de que tu backend envíe las propiedades 'id', 'nombre', 'email', 'direccion', 'telefono'
+        // Asegúrate de que las propiedades coincidan con el JSON del backend (id, nombre, email, direccion, telefono)
         filas += `
             <tr data-id="${cliente.id}">
                 <td>${cliente.nombre}</td>
