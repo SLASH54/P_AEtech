@@ -88,3 +88,39 @@ exports.deleteUser = async (req, res) => {
         res.status(500).json({ message: 'Error interno del servidor al eliminar.' });
     }
 };
+
+
+/**
+ * @desc Obtener un solo usuario por ID
+ * @route GET /users/:id
+ * @access Private (Admin)
+ */
+async function getUserById(req, res) {
+    // El ID se extrae de los parámetros de la URL (gracias a la ruta /:id)
+    const userId = req.params.id; 
+
+    try {
+        // 🔑 Lógica de la Base de Datos: Busca el usuario por su ID
+        // (Ajusta esta línea según tu ORM o método de DB)
+        const user = await User.findById(userId).select('-password'); // Excluir la contraseña por seguridad
+
+        if (!user) {
+            // Si el usuario no existe, devuelve 404
+            return res.status(404).json({ message: 'Usuario no encontrado.' });
+        }
+
+        // Si se encuentra, devuelve los datos del usuario (status 200 OK)
+        res.json(user);
+
+    } catch (error) {
+        console.error(`Error al obtener usuario ID ${userId}:`, error);
+        // Devuelve un error 500 para fallos del servidor
+        res.status(500).json({ message: 'Error en el servidor al buscar el usuario.' });
+    }
+}
+
+// Asegúrate de exportar la función para que tus rutas puedan usarla:
+module.exports = {
+    // ... Tus otras funciones (getAllUsers, updateUser, deleteUser, etc.)
+    getUserById
+};
