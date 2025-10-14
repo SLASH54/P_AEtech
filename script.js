@@ -549,7 +549,7 @@ async function initAdminPanel() {
     
     // 1. VERIFICACIÓN DE ROL (SEGURIDAD FRONTAL)
     if (userRole !== 'Admin' && userRole !== 'Administrador') {
-        seccionAMostrar.classList.add('show');
+        
         // Si no es administrador, oculta la sección de nuevo (prevención de errores)
         if (adminSection) {
             adminSection.classList.remove('show');
