@@ -650,6 +650,7 @@ async function initAdminPanel() {
     // 5. DEBUGGING TEMPORAL
     console.log('initAdminPanel finalizado.'); // Verifica que esta línea aparezca en la consola
 }
+
 // Función generarFilasUsuariosRoles - (DEBE SER GLOBAL)
 function generarFilasUsuariosRoles(usuarios, tbodyElement) {
 
@@ -681,7 +682,7 @@ function generarFilasUsuariosRoles(usuarios, tbodyElement) {
     tbodyElement.innerHTML = filas;
     
     // Llamar a la función de escucha (si está definida)
-    attachCrudListeners(); 
+    //attachCrudListeners(); 
 
 }
 
