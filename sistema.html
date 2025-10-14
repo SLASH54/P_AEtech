@@ -868,7 +868,8 @@
 
 // Función para generar las filas de la tabla de usuarios con roles
 function generarFilasUsuariosRoles(usuarios, tbodyElement) {
-    // 🛑 VACIAR EL CONTENIDO DE LA TABLA SIEMPRE ANTES DE INSERTAR 🛑
+
+    // 🛑 Limpiar el contenido anterior 🛑
     tbodyElement.innerHTML = ''; 
     
     if (!usuarios || usuarios.length === 0) {
@@ -878,7 +879,6 @@ function generarFilasUsuariosRoles(usuarios, tbodyElement) {
 
     let filas = '';
     usuarios.forEach(usuario => {
-        // MUY IMPORTANTE: Usar las claves que vienen del backend (nombre, email, rol, id)
         filas += `
             <tr data-id="${usuario.id}"> 
                 <td>${usuario.nombre}</td>
@@ -892,8 +892,13 @@ function generarFilasUsuariosRoles(usuarios, tbodyElement) {
             </tr>
         `;
     });
+    
+    // 🔑 Insertar todas las filas de golpe
     tbodyElement.innerHTML = filas;
-    attachCrudListeners(); // Si ya definiste esta función, déjala
+    
+    // Llamar a la función de escucha (si está definida)
+    attachCrudListeners(); 
+
 }
 
 // Haz la misma revisión para generarFilasClientes (usando 'nombre', 'email', 'direccion', 'telefono')
