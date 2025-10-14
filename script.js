@@ -634,6 +634,7 @@ async function initAdminPanel() {
     const tbodyUsuarios = document.getElementById('datagridUsuariosRoles')?.querySelector('tbody');
     const tbodyClientes = document.getElementById('datagridClientes')?.querySelector('tbody');
     
+    
     // 1. Cargar Usuarios
     const usuarios = await fetchData('/users'); 
     if (usuarios && Array.isArray(usuarios) && tbodyUsuarios) { 
@@ -646,16 +647,15 @@ async function initAdminPanel() {
 
 
 
-    // Cargar Clientes
+    // 2. Cargar Clientes (ENFOQUE DE LA CORRECCIÓN)
     const clientes = await fetchData('/clientes'); 
-
-    // 🔑 CORRECCIÓN EN LA VERIFICACIÓN:
+    
     if (clientes && Array.isArray(clientes) && tbodyClientes) {
-        // Si hay datos y es un array, los insertamos
+        // ✅ Si hay datos y es un array, los insertamos.
         generarFilasClientes(clientes, tbodyClientes);
     } else if (tbodyClientes) {
-        // Si falló el fetch O si el array está vacío, mostramos el mensaje de error/no encontrados
-        tbodyClientes.innerHTML = '<tr><td colspan="5">No se pudieron cargar los clientes o no se encontraron.</td></tr>';
+        // ❌ Si falló el fetch O si el array está vacío, mostramos el mensaje.
+        tbodyClientes.innerHTML = '<tr><td colspan="5">No se pudieron cargar los clientes o la lista está vacía.</td></tr>';
     }
     
 }
@@ -698,8 +698,8 @@ function generarFilasUsuariosRoles(usuarios, tbodyElement) {
 // Función generarFilasClientes - (DEBE SER GLOBAL)
 function generarFilasClientes(clientes, tbodyElement) {
      // 🛑 AGREGAR ESTA LÍNEA DE LIMPIEZA 🛑
-    tbodyElement.innerHTML = ''; 
-
+     tbodyElement.innerHTML = ''; 
+    
     // Si no hay clientes o el array está vacío, muestra el mensaje
     if (!clientes || clientes.length === 0) {
         tbodyElement.innerHTML = '<tr><td colspan="5">No se encontraron clientes.</td></tr>';
@@ -708,12 +708,12 @@ function generarFilasClientes(clientes, tbodyElement) {
     
     let filas = '';
     clientes.forEach(cliente => {
-        // Asegúrate de que las propiedades coincidan con el JSON del backend (id, nombre, email, direccion, telefono)
+        // 🔑 VERIFICA ESTOS NOMBRES: id, nombre, email, direccion, telefono
         filas += `
             <tr data-id="${cliente.id}">
                 <td>${cliente.nombre}</td>
                 <td>${cliente.email}</td>
-                <td>${cliente.direccion}</td>
+                <td>${cliente.direccion}</td> 
                 <td>${cliente.telefono}</td>
                 <td>
                     <button class="edit-btn" data-type="cliente" data-id="${cliente.id}">Editar</button>
