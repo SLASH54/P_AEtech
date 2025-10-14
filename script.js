@@ -561,7 +561,7 @@ async function initAdminPanel() {
     const tbodyClientes = document.getElementById('datagridClientes')?.querySelector('tbody');
 
     // Cargar Usuarios
-    const usuarios = await fetchData('/api/usuarios'); 
+    const usuarios = await fetchData('/usuarios'); 
     if (usuarios && tbodyUsuarios) {
         // Asegúrate de que esta función está definida en script.js
         generarFilasUsuariosRoles(usuarios, tbodyUsuarios); 
@@ -570,7 +570,7 @@ async function initAdminPanel() {
     }
 
     // Cargar Clientes
-    const clientes = await fetchData('/api/clientes'); 
+    const clientes = await fetchData('/clientes'); 
     if (clientes && tbodyClientes) {
         // Asegúrate de que esta función está definida en script.js
         generarFilasClientes(clientes, tbodyClientes);
