@@ -617,49 +617,39 @@ async function initAdminPanel() {
     const userRole = localStorage.getItem('userRol');
     const adminSection = document.getElementById('Administracion');
     
-    
-    // 1. VERIFICACIÓN DE ROL (SEGURIDAD FRONTAL)
+    // 1. VERIFICACIÓN DE ROL
     if (userRole !== 'Admin' && userRole !== 'Administrador') {
-        
-        // Si no es administrador, oculta la sección de nuevo (prevención de errores)
         if (adminSection) {
             adminSection.classList.remove('show');
         }
         alert("Acceso denegado: No tienes permisos de administrador.");
-        // Opcional: redirigir a otra sección, ej: mostrarContenido('Tablero');
         return; 
     }
     
-    // 🔑 Obtener las referencias (SOLO AQUÍ)
+    // 2. OBTENER REFERENCIAS DE LA TABLA
     const tbodyUsuarios = document.getElementById('datagridUsuariosRoles')?.querySelector('tbody');
     const tbodyClientes = document.getElementById('datagridClientes')?.querySelector('tbody');
     
-    
-    // 1. Cargar Usuarios
+    // 3. Cargar Usuarios (Bloque que ya funciona)
     const usuarios = await fetchData('/users'); 
     if (usuarios && Array.isArray(usuarios) && tbodyUsuarios) { 
-        generarFilasUsuariosRoles(usuarios, tbodyUsuarios); // ✅ Esto insertará los datos
-    } 
-    // ... (El resto de la lógica)
-
+        generarFilasUsuariosRoles(usuarios, tbodyUsuarios); 
+    } else if (tbodyUsuarios) {
+        tbodyUsuarios.innerHTML = '<tr><td colspan="5">No se pudieron cargar los usuarios o la lista está vacía.</td></tr>';
+    }
     
-    // ... (Lógica para cargar Clientes, siguiendo el mismo patrón)
-
-
-
-    // 2. Cargar Clientes (ENFOQUE DE LA CORRECCIÓN)
-    const clientes = await fetchData('/clientes'); 
+    // 🔑 4. Cargar Clientes (DEBE EJECUTARSE INMEDIATAMENTE DESPUÉS)
+    const clientes = await fetchData('/clientes'); // <<-- La ejecución debe llegar aquí
     
     if (clientes && Array.isArray(clientes) && tbodyClientes) {
-        // ✅ Si hay datos y es un array, los insertamos.
         generarFilasClientes(clientes, tbodyClientes);
     } else if (tbodyClientes) {
-        // ❌ Si falló el fetch O si el array está vacío, mostramos el mensaje.
         tbodyClientes.innerHTML = '<tr><td colspan="5">No se pudieron cargar los clientes o la lista está vacía.</td></tr>';
     }
     
+    // 5. DEBUGGING TEMPORAL
+    console.log('initAdminPanel finalizado.'); // Verifica que esta línea aparezca en la consola
 }
-
 // Función generarFilasUsuariosRoles - (DEBE SER GLOBAL)
 function generarFilasUsuariosRoles(usuarios, tbodyElement) {
 
