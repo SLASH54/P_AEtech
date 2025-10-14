@@ -564,7 +564,7 @@ async function initAdminPanel() {
     const tbodyClientes = document.getElementById('datagridClientes')?.querySelector('tbody');
     
     // 1. Cargar Usuarios
-    const usuarios = await fetchData('/api/usuarios'); 
+    const usuarios = await fetchData('/users'); 
     if (usuarios && Array.isArray(usuarios) && tbodyUsuarios) { 
         generarFilasUsuariosRoles(usuarios, tbodyUsuarios); // ✅ Esto insertará los datos
     } 
