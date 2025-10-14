@@ -90,18 +90,17 @@ exports.deleteUser = async (req, res) => {
 };
 
 exports.getUserById = async (req, res) => {
-    // ... (Tu código de getUserById, usando Usuario.findByPk, NO User.findById) ...
-
-    // El ID se extrae de los parámetros de la URL (gracias a la ruta /:id)
     const userId = req.params.id; 
 
     try {
-        // 🔑 Lógica de la Base de Datos: Busca el usuario por su ID
-        // (Ajusta esta línea según tu ORM o método de DB)
-        const user = await User.findById(userId).select('-password'); // Excluir la contraseña por seguridad
+        // 🔑 CORRECCIÓN PARA SEQUELIZE: Usamos findOne con la condición 'where'
+        const user = await Usuario.findOne({
+            where: { id: userId },
+            // Excluir la contraseña (usando la sintaxis de Sequelize)
+            attributes: { exclude: ['password'] } 
+        });
 
         if (!user) {
-            // Si el usuario no existe, devuelve 404
             return res.status(404).json({ message: 'Usuario no encontrado.' });
         }
 
@@ -110,10 +109,10 @@ exports.getUserById = async (req, res) => {
 
     } catch (error) {
         console.error(`Error al obtener usuario ID ${userId}:`, error);
-        // Devuelve un error 500 para fallos del servidor
         res.status(500).json({ message: 'Error en el servidor al buscar el usuario.' });
     }
-}
+};
+
 
 
 // 🔑 ¡CRÍTICO! DEJA SOLO UNA EXPORTACIÓN AL FINAL si defines todas las funciones individualmente
@@ -121,6 +120,5 @@ module.exports = {
     getAllUsers: exports.getAllUsers,
     updateUser: exports.updateUser,
     deleteUser: exports.deleteUser,
-    getUserById: exports.getUserById, // <-- Agrega esta línea
+    getUserById: exports.getUserById, // <-- Esta línea funciona gracias a la corrección 1
 };
-
