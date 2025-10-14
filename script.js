@@ -540,6 +540,7 @@ async function fetchData(endpoint) {
 }
 
 // script.js (Tu función initAdminPanel debe verse así)
+// script.js (Dentro de initAdminPanel)
 
 async function initAdminPanel() {
     const userRole = localStorage.getItem('userRol');
@@ -561,15 +562,19 @@ async function initAdminPanel() {
     const tbodyUsuarios = document.getElementById('datagridUsuariosRoles')?.querySelector('tbody');
     const tbodyClientes = document.getElementById('datagridClientes')?.querySelector('tbody');
 
-    // 1. Cargar Usuarios
-    const usuarios = await fetchData('/users'); // Tu endpoint
-    if (usuarios && tbodyUsuarios) {
-        // ✅ Pasamos los datos y el cuerpo de la tabla
+
+      // 1. Cargar Usuarios
+    const usuarios = await fetchData('/api/usuarios'); 
+    if (usuarios && Array.isArray(usuarios) && tbodyUsuarios) { // <- Asegurarse de que sea un array
         generarFilasUsuariosRoles(usuarios, tbodyUsuarios); 
     } else if (tbodyUsuarios) {
-        // ❌ Este mensaje SOLO debe mostrarse si la carga falla o no hay datos
-        tbodyUsuarios.innerHTML = '<tr><td colspan="5">No se pudieron cargar los usuarios.</td></tr>'; 
+        // Mostrar error solo si no se obtuvieron datos o no son un array
+        tbodyUsuarios.innerHTML = '<tr><td colspan="5">Error: No se pudieron cargar los usuarios.</td></tr>'; 
     }
+    
+    // ... (Lógica para cargar Clientes, siguiendo el mismo patrón)
+
+
 
     // Cargar Clientes
     const clientes = await fetchData('/clientes'); 
