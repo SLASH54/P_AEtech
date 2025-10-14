@@ -89,8 +89,9 @@ exports.deleteUser = async (req, res) => {
     }
 };
 
+exports.getUserById = async (req, res) => {
+    // ... (Tu código de getUserById, usando Usuario.findByPk, NO User.findById) ...
 
-async function getUserById(req, res) {
     // El ID se extrae de los parámetros de la URL (gracias a la ruta /:id)
     const userId = req.params.id; 
 
@@ -114,8 +115,12 @@ async function getUserById(req, res) {
     }
 }
 
-// Asegúrate de exportar la función para que tus rutas puedan usarla:
+
+// 🔑 ¡CRÍTICO! DEJA SOLO UNA EXPORTACIÓN AL FINAL si defines todas las funciones individualmente
 module.exports = {
-    // ... Tus otras funciones (getAllUsers, updateUser, deleteUser, etc.)
-    getUserById
+    getAllUsers: exports.getAllUsers,
+    updateUser: exports.updateUser,
+    deleteUser: exports.deleteUser,
+    getUserById: exports.getUserById, // <-- Agrega esta línea
 };
+
