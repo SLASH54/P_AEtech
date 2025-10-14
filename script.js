@@ -485,6 +485,83 @@ const registroClienteForm = document.getElementById('registroClienteFrom');
 /**
  * Muestra/Oculta la sección de Administración basada en el rol.
  */
+
+
+// script.js
+
+/**
+ * Función genérica para obtener datos protegidos por JWT.
+ */
+
+
+// script.js (Tu función initAdminPanel debe verse así)
+// script.js (Dentro de initAdminPanel)
+
+
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const datagridUsuariosRoles = document.getElementById('datagridUsuariosRoles').querySelector('tbody');
+            const datagridClientes = document.getElementById('datagridClientes').querySelector('tbody');
+
+
+            // script.js
+
+// script.js
+
+// Función para generar las filas de la tabla de usuarios con roles
+
+
+// Haz la misma revisión para generarFilasClientes (usando 'nombre', 'email', 'direccion', 'telefono')
+
+// Función para generar las filas de la tabla de clientes
+
+
+        
+
+            // Función para agregar un nuevo usuario con rol
+            function agregarUsuarioConRol(usuario) {
+                const nuevaFila = `
+                    <tr>
+                        <td>${usuario.nombre}</td>
+                        <td>${usuario.email}</td>
+                        <td>${usuario.rol}</td>
+                        <td>${usuario.contraseña}</td>
+                    </tr>
+                `;
+                datagridUsuariosRoles.innerHTML += nuevaFila;
+            }
+
+            // Función para agregar un nuevo cliente
+            function agregarCliente(cliente) {
+                const nuevaFila = `
+                    <tr>
+                        <td>${cliente.nombre}</td>
+                        <td>${cliente.email}</td>
+                         <td>${cliente.contraseña}</td>
+                    </tr>
+                `;
+                datagridClientes.innerHTML += nuevaFila;
+            }
+
+            // Ejemplo de cómo agregar un nuevo usuario
+            // agregarUsuarioConRol({ nombre: "Nuevo Usuario", email: "nuevo@example.com", rol: "Ingeniero" });
+            // agregarCliente({ nombre: "Nuevo Cliente", email: "cliente@example.com" });
+        });
+
+
+
+
+
+
+
+
+
+        // ===================================================
+// script.js (ALCANCE GLOBAL)
+// ===================================================
+
+// Función restrictAdminSection - (OK, déjala global si necesitas usarla en DOMContentLoaded)
 function restrictAdminSection() {
     const userRole = localStorage.getItem('userRol');
     const adminSection = document.getElementById('Administracion');
@@ -500,11 +577,7 @@ function restrictAdminSection() {
     }
 }
 
-// script.js
-
-/**
- * Función genérica para obtener datos protegidos por JWT.
- */
+// Función fetchData - (OK, déjala global)
 async function fetchData(endpoint) {
     const token = localStorage.getItem('userToken');
     if (!token) {
@@ -539,9 +612,7 @@ async function fetchData(endpoint) {
     }
 }
 
-// script.js (Tu función initAdminPanel debe verse así)
-// script.js (Dentro de initAdminPanel)
-
+// Función initAdminPanel - (OK, déjala global)
 async function initAdminPanel() {
     const userRole = localStorage.getItem('userRol');
     const adminSection = document.getElementById('Administracion');
@@ -588,17 +659,7 @@ async function initAdminPanel() {
     
 }
 
-
-        document.addEventListener('DOMContentLoaded', function () {
-            const datagridUsuariosRoles = document.getElementById('datagridUsuariosRoles').querySelector('tbody');
-            const datagridClientes = document.getElementById('datagridClientes').querySelector('tbody');
-
-
-            // script.js
-
-// script.js
-
-// Función para generar las filas de la tabla de usuarios con roles
+// Función generarFilasUsuariosRoles - (DEBE SER GLOBAL)
 function generarFilasUsuariosRoles(usuarios, tbodyElement) {
 
     // 🛑 Limpiar el contenido anterior 🛑
@@ -633,9 +694,7 @@ function generarFilasUsuariosRoles(usuarios, tbodyElement) {
 
 }
 
-// Haz la misma revisión para generarFilasClientes (usando 'nombre', 'email', 'direccion', 'telefono')
-
-// Función para generar las filas de la tabla de clientes
+// Función generarFilasClientes - (DEBE SER GLOBAL)
 function generarFilasClientes(clientes, tbodyElement) {
     let filas = '';
     clientes.forEach(cliente => {
@@ -657,34 +716,47 @@ function generarFilasClientes(clientes, tbodyElement) {
     attachCrudListeners();
 }
 
-        
-
-            // Función para agregar un nuevo usuario con rol
-            function agregarUsuarioConRol(usuario) {
-                const nuevaFila = `
-                    <tr>
-                        <td>${usuario.nombre}</td>
-                        <td>${usuario.email}</td>
-                        <td>${usuario.rol}</td>
-                        <td>${usuario.contraseña}</td>
-                    </tr>
-                `;
-                datagridUsuariosRoles.innerHTML += nuevaFila;
+// Función mostrarContenido (Asumiendo que la tienes)
+function mostrarContenido(seccionId) {
+            // Ocultar todas las secciones de contenido principal
+            let secciones = document.querySelectorAll('.main-content');
+            secciones.forEach(s => s.classList.remove('show'));
+            // Mostrar la sección correspondiente
+            let seccionAMostrar = document.getElementById(seccionId);
+            if (seccionAMostrar) {
+                seccionAMostrar.classList.add('show');
+            } else {
+                console.warn('La sección con ID ' + seccionId + ' no fue encontrada.');
             }
-
-            // Función para agregar un nuevo cliente
-            function agregarCliente(cliente) {
-                const nuevaFila = `
-                    <tr>
-                        <td>${cliente.nombre}</td>
-                        <td>${cliente.email}</td>
-                         <td>${cliente.contraseña}</td>
-                    </tr>
-                `;
-                datagridClientes.innerHTML += nuevaFila;
+            // Opcional: Remover la clase 'active' de todos los botones de navegación y añadirla al botón actual
+            let navButtons = document.querySelectorAll('nav li button');
+            navButtons.forEach(btn => btn.parentElement.classList.remove('active'));
+            // 🔑 PUNTO CRÍTICO: Cargar los datos SOLO si la sección es Administración 🔑
+            if (seccionId === 'Administracion') {
+                // Ejecutamos la carga de datos del Admin
+                initAdminPanel(); 
             }
+            // Encuentra el botón correspondiente y añade la clase 'active' a su padre (li)
+            navButtons.forEach(btn => {
+                if (btn.textContent === seccionId || (seccionId === 'Tablero' && btn.textContent === 'Tablero') || (seccionId === 'Administracion' && btn.textContent === 'Administracion')) {
+                    btn.parentElement.classList.add('active');
+                }
+            });
+            
+        }
 
-            // Ejemplo de cómo agregar un nuevo usuario
-            // agregarUsuarioConRol({ nombre: "Nuevo Usuario", email: "nuevo@example.com", rol: "Ingeniero" });
-            // agregarCliente({ nombre: "Nuevo Cliente", email: "cliente@example.com" });
-        });
+
+// ===================================================
+// CONEXIÓN PRINCIPAL (DOMContentLoaded)
+// ===================================================
+
+document.addEventListener('DOMContentLoaded', function () {
+    // 🛑 ELIMINAR ESTO: Ya no necesitas obtener las referencias aquí
+    // const datagridUsuariosRoles = document.getElementById('datagridUsuariosRoles').querySelector('tbody');
+    // const datagridClientes = document.getElementById('datagridClientes').querySelector('tbody');
+
+    // 🔑 Aquí solo debe ir el código de inicialización:
+    
+    restrictAdminSection(); 
+    // Y la lógica de conexión de botones de menú...
+});
