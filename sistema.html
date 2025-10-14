@@ -953,34 +953,6 @@
 
        
 
-    const datagridUsuariosRoles = document.getElementById('datagridUsuariosRoles')?.querySelector('tbody');
-    const datagridClientes = document.getElementById('datagridClientes')?.querySelector('tbody');
-    
-    // ⚠️ Mueve la inicialización a una función asíncrona
-    async function initAdminPanel() {
-        if (!document.getElementById('Administracion') || document.getElementById('Administracion').style.display === 'none') {
-            return; // No cargar si la sección no está visible
-        }
-
-        // 1. Obtener Usuarios (Personal)
-        const usuarios = await fetchData('/api/users'); // ⬅️ Reemplaza por tu ruta real de Backend
-        if (usuarios) {
-            generarFilasUsuariosRoles(usuarios, datagridUsuariosRoles);
-        } else if (datagridUsuariosRoles) {
-            datagridUsuariosRoles.innerHTML = '<tr><td colspan="4">No se pudieron cargar los usuarios.</td></tr>';
-        }
-
-        // 2. Obtener Clientes
-        const clientes = await fetchData('/api/clientes'); // ⬅️ Reemplaza por tu ruta real de Backend
-        if (clientes) {
-            generarFilasClientes(clientes, datagridClientes);
-        } else if (datagridClientes) {
-            datagridClientes.innerHTML = '<tr><td colspan="3">No se pudieron cargar los clientes.</td></tr>';
-        }
-    }
-    
-    initAdminPanel();
-
     </script>
     
     <script src="script.js"></script>
