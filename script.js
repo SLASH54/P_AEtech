@@ -641,10 +641,8 @@ async function initAdminPanel() {
     // 1. VERIFICACIÓN DE ROL
     if (userRole !== 'Admin' && userRole !== 'Administrador') {
         // Para el no-Admin, solo devolvemos, el enlace ya está oculto.
-        return; 
-    }
-    else {
         alert("No tiene permisos de administrador para ver estos datos.");
+        return; 
     }
     // 🔑 CLAVE: Si el rol es válido, aseguramos que la sección sea visible.
     // Esto es una medida de seguridad, ya que `mostrarContenido` ya lo hace, 
