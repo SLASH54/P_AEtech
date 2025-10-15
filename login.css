@@ -18,6 +18,18 @@ body {
     height: 100vh;
 }
 
+/* Asegúrate de que esta regla sea prioritaria */
+.main-content { 
+    display: none !important; /* Añade !important como prueba, si funciona, busca la regla conflictiva */
+}
+
+.main-content.show { 
+    display: block !important; /* Esto es lo que debe ganar */
+    /* Asegúrate de que no hay overflow: hidden, altura cero, o posición que lo oculte */
+    opacity: 1; /* A veces ayuda si hay transiciones */
+    height: auto; /* Evita que otras reglas fijen la altura a cero */
+}
+
 h2{
     color: white;
 }
@@ -392,10 +404,6 @@ main {
     overflow-y: auto;
 }
 
-/* Estilos para ocultar y mostrar secciones de contenido */
-
-.main-content { display: none; }
-.main-content.show { display: block; }
 
 
 /* --- Estilos para la sección de Evidencias --- */

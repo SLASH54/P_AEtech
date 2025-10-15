@@ -735,39 +735,37 @@ function generarFilasClientes(clientes, tbodyElement) {
 
 // Función mostrarContenido (Asumiendo que la tienes)
 function mostrarContenido(seccionId) {
-    // Obtener todas las secciones de contenido principal
+    // 1. Obtener TODAS las secciones de contenido principal
     let secciones = document.querySelectorAll('.main-content');
-    
-    // 1. OCULTAR TODAS LAS SECCIONES
+    let navButtons = document.querySelectorAll('#main-menu li button'); // Usa el ID de tu UL
+
+    // 2. OCULTAR TODAS LAS SECCIONES y desactivar botones
     secciones.forEach(s => s.classList.remove('show'));
-    
-    
-    // 2. Mostrar la sección de destino
+    navButtons.forEach(btn => btn.parentElement.classList.remove('active'));
+
+    // 3. Mostrar la sección de destino
     let seccionAMostrar = document.getElementById(seccionId);
     if (seccionAMostrar) {
-        seccionAMostrar.classList.add('show'); // AÑADE LA CLASE 'show'
+        // 🔑 CLAVE: Añadir la clase 'show' para display: block
+        seccionAMostrar.classList.add('show'); 
     } else {
         console.warn('La sección con ID ' + seccionId + ' no fue encontrada.');
+        return; // Detener si la sección no existe
     }
     
-    // 3. Lógica CRÍTICA: Cargar los datos SOLO si la sección es Administración
-    if (seccionId === 'Administracion') {
-       initAdminPanel(); // Llama a la carga y garantiza la visibilidad
-    }
+    // 4. Activar el botón de menú correspondiente
+    navButtons.forEach(btn => {
+        // Comparamos el ID que se pasa (ej. 'Administracion') con el que el botón intenta mostrar
+        if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(`mostrarContenido('${seccionId}')`)) {
+             btn.parentElement.classList.add('active');
+        }
+    });
 
-    // 3. Lógica de Activación de Menú (OK)
-    let navButtons = document.querySelectorAll('nav li button');
-    navButtons.forEach(btn => btn.parentElement.classList.remove('active'));
-    // ... (Tu lógica para añadir 'active' al botón seleccionado) ...
-     // Encuentra el botón correspondiente y añade la clase 'active' a su padre (li)
-            navButtons.forEach(btn => {
-    // ...
-    // Aquí es donde puede haber un error de texto
-    if (btn.textContent === seccionId || (seccionId === 'Tablero' && btn.textContent === 'Tablero') || (seccionId === 'Administracion' && btn.textContent === 'Administracion')) {
-        btn.parentElement.classList.add('active');
+    // 5. Lógica CRÍTICA: Cargar los datos SOLO si la sección es Administración
+    if (seccionId === 'Administracion') {
+       // La clase 'show' ya fue aplicada arriba, initAdminPanel se encarga de los datos.
+       initAdminPanel();
     }
-});
-            
 }
 
 
