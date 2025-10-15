@@ -1322,3 +1322,214 @@ main {
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+
+
+
+
+/* --- CONTRASEÑA  --- */
+
+    .password-container {
+      position: relative;
+      width: 100%;
+    }
+
+    .password-container input {
+      width: 100%;
+      padding-right: 35px;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #555;
+    }
+
+    .toggle-password:hover {
+      color: #000;
+    }
+
+
+
+
+
+/* styles.css */
+
+
+
+
+.contenedor {
+    display: flex;
+  
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.foto-contenedor {
+    border: 1px solid #ddd;
+    padding: 15px;
+    text-align: center;
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    width: 30%;
+    min-width: 200px;
+    margin-bottom: 15px;
+}
+
+#Actividades img {
+    max-width: 100%;
+    max-height: 120px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+}
+
+textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-family: inherit;
+    resize: vertical;
+}
+
+button {
+    background-color: #5cb85c;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #4cae4c;
+}
+
+@media (max-width: 768px) {
+    .contenedor {
+        flex-direction: column;
+    }
+
+    .foto-contenedor {
+        width: 100%;
+    }
+}
+
+#Actividades {
+    margin-bottom: 20px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+
+.foto-contenedor {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  width: 350px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.foto-contenedor h3 {
+  margin-bottom: 10px;
+  color: #5182ff;
+}
+
+.preview-img,
+.signature-img {
+  width: 100%;
+  max-height: 220px;
+  object-fit: contain;
+  border: 1px solid #5182ff;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+#signature-canvas {
+  border: 2px solid #64ffda;
+  border-radius: 8px;
+  background-color: #fff;
+  cursor: crosshair;
+}
+
+button {
+  background: #64ffda;
+  border: none;
+  color: #0a192f;
+  font-weight: bold;
+  padding: 8px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin: 5px;
+  transition: background 0.3s ease, transform 0.2s;
+}
+
+button:hover {
+  background: #52e0c4;
+  transform: scale(1.05);
+}
+
+#signature-preview {
+  margin-top: 10px;
+}
+
+.foto-contenedor {
+  text-align: center;
+  background: #f8f8f8;
+  border-radius: 12px;
+  padding: 20px;
+  width: 350px;
+  margin: 20px auto;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+#firmaCanvas {
+  border: 2px solid #333;
+  border-radius: 6px;
+  background-color: #fff;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.botones-firma {
+  margin-top: 10px;
+}
+
+.botones-firma button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin: 5px;
+  font-weight: bold;
+  transition: transform 0.2s, background 0.3s;
+}
+
+.botones-firma button:hover {
+  background-color: #45a049;
+  transform: scale(1.05);
+}
+
+.firma-guardada {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.imagen-firma-guardada {
+  width: 300px;
+  border: 2px solid #333;
+  border-radius: 8px;
+  background: white;
+}
