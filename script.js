@@ -968,6 +968,15 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+    document.querySelectorAll('nav li button').forEach(button => {
+        button.addEventListener('click', function() {
+            // Ahora obtiene el ID del atributo data-target
+            const sectionId = this.getAttribute('data-target'); 
+            if (sectionId) {
+                mostrarContenido(sectionId);
+            }
+        });
+    });
 });
 
 
