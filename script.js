@@ -638,31 +638,39 @@ async function initAdminPanel() {
     const userRole = localStorage.getItem('userRol');
     const adminSection = document.getElementById('Administracion'); // Obtenemos la referencia
     
-    // 1. VERIFICACIÓN DE ROL
+    // 1. VERIFICACIÓN DE ROL TEMPRANA (CLAVE)
     if (userRole !== 'Admin' && userRole !== 'Administrador') {
-        // Para el no-Admin, solo devolvemos, el enlace ya está oculto.
+        // Opcional: Ocultar la sección explícitamente si se logra mostrar
+        if (adminSection) {
+            adminSection.classList.remove('show');
+        }
+        // Devolvemos y salimos ANTES de cualquier llamada a fetchData
+        alert("Acceso denegado: No tienes permisos de administrador."); 
+        // Ya que la alerta está aquí, podemos quitarla de fetchData
         return; 
     }
-    // 🔑 CLAVE: Si el rol es válido, aseguramos que la sección sea visible.
-    // Esto es una medida de seguridad, ya que `mostrarContenido` ya lo hace, 
-    // pero garantiza que si la llamada a initAdminPanel falla el CSS de `mostrarContenido` funciona.
+    
+    // 🔑 Si el rol es válido, aseguramos que la sección sea visible.
     if (adminSection && !adminSection.classList.contains('show')) {
         adminSection.classList.add('show');
     }
     
-    // 2. Carga de Usuarios
+    // 2. Carga de Usuarios (Solo si el rol es Admin)
     const tbodyUsuarios = document.getElementById('datagridUsuariosRoles')?.querySelector('tbody');
     const usuarios = await fetchData('/users'); 
     if (usuarios && Array.isArray(usuarios) && tbodyUsuarios) { 
         generarFilasUsuariosRoles(usuarios, tbodyUsuarios); 
     }
+  
     
-    // 3. Carga de Clientes
+    
+    // 3. Carga de Clientes (Solo si el rol es Admin)
     const tbodyClientes = document.getElementById('datagridClientes')?.querySelector('tbody');
     const clientes = await fetchData('/clientes'); 
     if (clientes && Array.isArray(clientes) && tbodyClientes) {
         generarFilasClientes(clientes, tbodyClientes);
     }
+
     console.log('initAdminPanel finalizado y la sección debería ser visible.');
 }
 
