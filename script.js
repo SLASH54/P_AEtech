@@ -761,10 +761,13 @@ function mostrarContenido(seccionId) {
     // ... (Tu lógica para añadir 'active' al botón seleccionado) ...
      // Encuentra el botón correspondiente y añade la clase 'active' a su padre (li)
             navButtons.forEach(btn => {
-                if (btn.textContent === seccionId || (seccionId === 'Tablero' && btn.textContent === 'Tablero') || (seccionId === 'Administracion' && btn.textContent === 'Administracion')) {
-                    btn.parentElement.classList.add('active');
-                }
-            });
+    // ...
+    // Aquí es donde puede haber un error de texto
+    if (btn.textContent === seccionId || (seccionId === 'Tablero' && btn.textContent === 'Tablero') || (seccionId === 'Administracion' && btn.textContent === 'Administracion')) {
+        btn.parentElement.classList.add('active');
+    }
+});
+            
 }
 
 
