@@ -562,18 +562,36 @@ const registroClienteForm = document.getElementById('registroClienteFrom');
 // ===================================================
 
 // Función restrictAdminSection - (OK, déjala global si necesitas usarla en DOMContentLoaded)
+// 📄 script.js (Función para ocultar el ENLACE del menú y dar alerta)
+
 function restrictAdminSection() {
     const userRole = localStorage.getItem('userRol');
-    const adminSection = document.getElementById('Administracion');
-
-    if (adminSection) {
-        // Asumiendo que 'Admin' es el rol que da acceso total
-        if (userRole === 'Admin' || userRole === 'Administrador') { 
-            adminSection.style.display = 'block'; // Mostrar
+    // 🔑 USAMOS EL ID DEL ENLACE DEL MENÚ
+    const adminLink = document.getElementById('Panel de Administracion'); 
+    
+    // Si el enlace existe:
+    if (adminLink) {
+        if (userRole === 'Admin' || userRole === 'Administrador') {
+            // ✅ ROL VÁLIDO: Mostrar el enlace
+            adminLink.style.display = 'block'; // O el display original del menú
         } else {
-            adminSection.style.display = 'none'; // Ocultar
-            // Opcional: mostrar un mensaje de error o redirigir
+            // ❌ ROL INVÁLIDO: Oculta el enlace
+            adminLink.style.display = 'none';
         }
+    }
+    
+    // Si el usuario llega a la sección de administración directamente (Admin ya oculta el enlace)
+    // Asumimos que esta función se llama al inicio. Si el rol no es Admin, el usuario
+    // solo debería ver la sección activa por defecto (ej: Tablero).
+    
+    const currentSection = document.getElementById('Administracion');
+    if (currentSection && userRole !== 'Admin' && userRole !== 'Administrador') {
+        // Si el no-admin está en una página donde se carga la sección de Admin, la ocultamos y alertamos.
+        // Esto solo es necesario si las URLs no redirigen.
+        currentSection.classList.remove('show');
+        alert("Acceso denegado: No tienes permisos de administrador.");
+        // Opcional: Redirigir al tablero si está usando navegación basada en URL
+        // mostrarContenido('Tablero'); 
     }
 }
 
