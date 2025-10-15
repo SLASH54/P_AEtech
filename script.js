@@ -236,22 +236,20 @@ const checkSession = async () => {
     const token = localStorage.getItem('userToken');
     const currentPage = window.location.pathname;
 
-    // A) Si estamos en la página de login (index1.html) y hay un token, redirigir al dashboard.
+    // A) Si estamos en la página de login (index.html) y hay un token, redirigir al dashboard.
     if (token && (currentPage === '/index.html' || currentPage === '/')) {
-        // Redirige al dashboard/contenido principal si ya está logeado.
-        window.location.href = '/sistema.html'; // Cambia a tu nuevo dashboard.html
+        window.location.href = '/sistema.html'; // Redirige al dashboard
         return true;
     }
 
-    // B) Si estamos en el dashboard (index.html) y NO hay token, redirigir al login.
+    // B) Si estamos en el dashboard (sistema.html) y NO hay token, redirigir al login.
     if (!token && (currentPage === '/sistema.html' || currentPage === '/sistema.html')) {
         alert('Sesión expirada. Por favor, inicia sesión.');
         window.location.href = '/index.html'; // Redirige al login
         return false;
     }
     
-    // Opcional: Validación extra con el backend (ruta /auth/me o similar)
-    // Para simplificar, solo verificaremos la existencia del token.
+    // Si la sesión es válida (hay token) y estamos en sistema.html, devolvemos true.
     return !!token;
 };
 
@@ -644,6 +642,9 @@ async function initAdminPanel() {
     if (userRole !== 'Admin' && userRole !== 'Administrador') {
         // Para el no-Admin, solo devolvemos, el enlace ya está oculto.
         return; 
+    }
+    else {
+        alert("No tiene permisos de administrador para ver estos datos.");
     }
     // 🔑 CLAVE: Si el rol es válido, aseguramos que la sección sea visible.
     // Esto es una medida de seguridad, ya que `mostrarContenido` ya lo hace, 
