@@ -735,11 +735,7 @@ function mostrarContenido(seccionId) {
             // Opcional: Remover la clase 'active' de todos los botones de navegación y añadirla al botón actual
             let navButtons = document.querySelectorAll('nav li button');
             navButtons.forEach(btn => btn.parentElement.classList.remove('active'));
-            // 🔑 PUNTO CRÍTICO: Cargar los datos SOLO si la sección es Administración 🔑
-            if (seccionId === 'Administracion') {
-                // Ejecutamos la carga de datos del Admin
-               initAdminPanel(); 
-            }
+            
             // Encuentra el botón correspondiente y añade la clase 'active' a su padre (li)
             navButtons.forEach(btn => {
                 if (btn.textContent === seccionId || (seccionId === 'Tablero' && btn.textContent === 'Tablero') || (seccionId === 'Administracion' && btn.textContent === 'Administracion')) {
