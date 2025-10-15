@@ -630,41 +630,29 @@ async function fetchData(endpoint) {
     }
 }
 
+
 // Función initAdminPanel - (OK, déjala global)
 async function initAdminPanel() {
     const userRole = localStorage.getItem('userRol');
-    const adminSection = document.getElementById('Administracion');
     
-    // 1. VERIFICACIÓN DE ROL (Solo se usa para detener la carga, NO la visibilidad)
+    // 1. VERIFICACIÓN DE ROL: Solo para detener la carga de datos si no es Admin
     if (userRole !== 'Admin' && userRole !== 'Administrador') {
-        // No alertamos aquí, ya que el backend debería ser la última defensa.
-        return; // Detiene la ejecución si no es Admin
+        return; // No carga los datos (el enlace ya está oculto para ellos)
     }
     
-    // 2. OBTENER REFERENCIAS DE LA TABLA
+    // 2. Carga de Usuarios
     const tbodyUsuarios = document.getElementById('datagridUsuariosRoles')?.querySelector('tbody');
-    const tbodyClientes = document.getElementById('datagridClientes')?.querySelector('tbody');
-   
-    
-    // 3. Cargar Usuarios (Bloque que ya funciona)
     const usuarios = await fetchData('/users'); 
     if (usuarios && Array.isArray(usuarios) && tbodyUsuarios) { 
         generarFilasUsuariosRoles(usuarios, tbodyUsuarios); 
-    } else if (tbodyUsuarios) {
-        tbodyUsuarios.innerHTML = '<tr><td colspan="5">No se pudieron cargar los usuarios o la lista está vacía.</td></tr>';
     }
     
-    // 🔑 4. Cargar Clientes (DEBE EJECUTARSE INMEDIATAMENTE DESPUÉS)
-    const clientes = await fetchData('/clientes'); // <<-- La ejecución debe llegar aquí
-    
+    // 3. Carga de Clientes
+    const tbodyClientes = document.getElementById('datagridClientes')?.querySelector('tbody');
+    const clientes = await fetchData('/clientes'); 
     if (clientes && Array.isArray(clientes) && tbodyClientes) {
         generarFilasClientes(clientes, tbodyClientes);
-    } else if (tbodyClientes) {
-        tbodyClientes.innerHTML = '<tr><td colspan="5">No se pudieron cargar los clientes o la lista está vacía.</td></tr>';
     }
-    
-    // 5. DEBUGGING TEMPORAL
-    console.log('initAdminPanel finalizado.'); // Verifica que esta línea aparezca en la consola
 }
 
 // Función generarFilasUsuariosRoles - (DEBE SER GLOBAL)
