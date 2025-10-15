@@ -617,26 +617,16 @@ async function initAdminPanel() {
     const userRole = localStorage.getItem('userRol');
     const adminSection = document.getElementById('Administracion');
     
-
-    // Si la sección no existe, no hacemos nada
-    if (!adminSection) {
-        return; 
-    }
-
-    // 1. VERIFICACIÓN DE ROL
-    if (userRole === 'Admin' || userRole === 'Administrador') {
-        // ✅ ROL VÁLIDO: MUESTRA la sección para que se pueda ver el contenido cargado.
-        adminSection.style.display = 'block'; // O 'flex' si es tu estilo CSS
-    } else {
-        // ❌ ROL INVÁLIDO: OCULTA la sección y sale de la función.
-        adminSection.style.display = 'none';
-        alert("Acceso denegado: No tienes permisos de administrador.");
-        return; // Detiene la ejecución para que no intente cargar las tablas
+    // 1. VERIFICACIÓN DE ROL (Solo se usa para detener la carga, NO la visibilidad)
+    if (userRole !== 'Admin' && userRole !== 'Administrador') {
+        // No alertamos aquí, ya que el backend debería ser la última defensa.
+        return; // Detiene la ejecución si no es Admin
     }
     
     // 2. OBTENER REFERENCIAS DE LA TABLA
     const tbodyUsuarios = document.getElementById('datagridUsuariosRoles')?.querySelector('tbody');
     const tbodyClientes = document.getElementById('datagridClientes')?.querySelector('tbody');
+   
     
     // 3. Cargar Usuarios (Bloque que ya funciona)
     const usuarios = await fetchData('/users'); 
@@ -725,18 +715,23 @@ function generarFilasClientes(clientes, tbodyElement) {
     attachCrudListeners();
 }
 
+
 // Función mostrarContenido (Asumiendo que la tienes)
 function mostrarContenido(seccionId) {
-            // Ocultar todas las secciones de contenido principal
+            // Obtener todas las secciones de contenido principal
             let secciones = document.querySelectorAll('.main-content');
+            
+            // 1. OCULTAR TODAS LAS SECCIONES
             secciones.forEach(s => s.classList.remove('show'));
-            // Mostrar la sección correspondiente
+            
+            // 2. Mostrar la sección de destino
             let seccionAMostrar = document.getElementById(seccionId);
             if (seccionAMostrar) {
                 seccionAMostrar.classList.add('show');
             } else {
                 console.warn('La sección con ID ' + seccionId + ' no fue encontrada.');
             }
+    
             // Opcional: Remover la clase 'active' de todos los botones de navegación y añadirla al botón actual
             let navButtons = document.querySelectorAll('nav li button');
             navButtons.forEach(btn => btn.parentElement.classList.remove('active'));
@@ -751,6 +746,9 @@ function mostrarContenido(seccionId) {
                     btn.parentElement.classList.add('active');
                 }
             });
+            if (seccionId === 'Administracion') {
+            initAdminPanel(); 
+            }
             
         }
 

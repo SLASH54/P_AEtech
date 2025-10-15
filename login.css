@@ -397,8 +397,9 @@ main {
     display: none;
 }
 
-.show {
-    display: block;
+
+.main-content.show {
+    display: block; /* O 'flex', para mostrar la sección activa */
 }
 
 /* --- Estilos para la sección de Evidencias --- */
