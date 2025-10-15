@@ -619,8 +619,11 @@ async function initAdminPanel() {
     
     // 1. VERIFICACIÓN DE ROL
     if (userRole !== 'Admin' && userRole !== 'Administrador') {
+        //if (adminSection) {
+        //    adminSection.classList.remove('show');
+        //}
         if (adminSection) {
-            adminSection.classList.remove('show');
+            adminSection.style.display = 'block'; // O 'flex', dependiendo de tu diseño
         }
         alert("Acceso denegado: No tienes permisos de administrador.");
         return; 
