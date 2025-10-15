@@ -617,16 +617,21 @@ async function initAdminPanel() {
     const userRole = localStorage.getItem('userRol');
     const adminSection = document.getElementById('Administracion');
     
-    // 1. VERIFICACIÓN DE ROL
-    if (userRole !== 'Admin' && userRole !== 'Administrador') {
-        //if (adminSection) {
-        //    adminSection.classList.remove('show');
-        //}
-        if (adminSection) {
-            adminSection.style.display = 'block'; // O 'flex', dependiendo de tu diseño
-        }
-        alert("Acceso denegado: No tienes permisos de administrador.");
+
+    // Si la sección no existe, no hacemos nada
+    if (!adminSection) {
         return; 
+    }
+
+    // 1. VERIFICACIÓN DE ROL
+    if (userRole === 'Admin' || userRole === 'Administrador') {
+        // ✅ ROL VÁLIDO: MUESTRA la sección para que se pueda ver el contenido cargado.
+        adminSection.style.display = 'block'; // O 'flex' si es tu estilo CSS
+    } else {
+        // ❌ ROL INVÁLIDO: OCULTA la sección y sale de la función.
+        adminSection.style.display = 'none';
+        alert("Acceso denegado: No tienes permisos de administrador.");
+        return; // Detiene la ejecución para que no intente cargar las tablas
     }
     
     // 2. OBTENER REFERENCIAS DE LA TABLA
