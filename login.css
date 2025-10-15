@@ -394,9 +394,6 @@ main {
 
 /* Estilos para ocultar y mostrar secciones de contenido */
 
-.main-content { display: none; }
-.main-content.show { display: block; }
-
 
 /* --- Estilos para la sección de Evidencias --- */
 .main-info {
