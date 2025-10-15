@@ -631,13 +631,25 @@ async function fetchData(endpoint) {
 }
 
 
+    // 2. OBTENER Y CARGAR DATOS (Tu lógica actual)
+    const tbodyUsuarios = document.getElementById('datagridUsuariosRoles')?.querySelector('tbody');
+    // ... tu lógica de carga de datos ...
+
 // Función initAdminPanel - (OK, déjala global)
 async function initAdminPanel() {
     const userRole = localStorage.getItem('userRol');
+    const adminSection = document.getElementById('Administracion'); // Obtenemos la referencia
     
-    // 1. VERIFICACIÓN DE ROL: Solo para detener la carga de datos si no es Admin
+    // 1. VERIFICACIÓN DE ROL
     if (userRole !== 'Admin' && userRole !== 'Administrador') {
-        return; // No carga los datos (el enlace ya está oculto para ellos)
+        // Para el no-Admin, solo devolvemos, el enlace ya está oculto.
+        return; 
+    }
+    // 🔑 CLAVE: Si el rol es válido, aseguramos que la sección sea visible.
+    // Esto es una medida de seguridad, ya que `mostrarContenido` ya lo hace, 
+    // pero garantiza que si la llamada a initAdminPanel falla el CSS de `mostrarContenido` funciona.
+    if (adminSection && !adminSection.classList.contains('show')) {
+        adminSection.classList.add('show');
     }
     
     // 2. Carga de Usuarios
@@ -653,6 +665,7 @@ async function initAdminPanel() {
     if (clientes && Array.isArray(clientes) && tbodyClientes) {
         generarFilasClientes(clientes, tbodyClientes);
     }
+    console.log('initAdminPanel finalizado y la sección debería ser visible.');
 }
 
 // Función generarFilasUsuariosRoles - (DEBE SER GLOBAL)
@@ -719,8 +732,7 @@ function generarFilasClientes(clientes, tbodyElement) {
     });
     tbodyElement.innerHTML = filas;
     attachCrudListeners();
-}
-
+} 
 
 // Función mostrarContenido (Asumiendo que la tienes)
 function mostrarContenido(seccionId) {
@@ -730,14 +742,20 @@ function mostrarContenido(seccionId) {
     // 1. OCULTAR TODAS LAS SECCIONES
     secciones.forEach(s => s.classList.remove('show'));
     
+    
     // 2. Mostrar la sección de destino
     let seccionAMostrar = document.getElementById(seccionId);
     if (seccionAMostrar) {
-        seccionAMostrar.classList.add('show');
+        seccionAMostrar.classList.add('show'); // AÑADE LA CLASE 'show'
     } else {
         console.warn('La sección con ID ' + seccionId + ' no fue encontrada.');
     }
     
+    // 3. Lógica CRÍTICA: Cargar los datos SOLO si la sección es Administración
+    if (seccionId === 'Administracion') {
+       initAdminPanel(); // Llama a la carga y garantiza la visibilidad
+    }
+
     // 3. Lógica de Activación de Menú (OK)
     let navButtons = document.querySelectorAll('nav li button');
     navButtons.forEach(btn => btn.parentElement.classList.remove('active'));
@@ -748,11 +766,6 @@ function mostrarContenido(seccionId) {
                     btn.parentElement.classList.add('active');
                 }
             });
-    
-    // 4. LÓGICA CRÍTICA: Cargar los datos SOLO si la sección es Administración
-    if (seccionId === 'Administracion') {
-       initAdminPanel(); 
-    }
 }
 
 
