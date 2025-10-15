@@ -743,7 +743,7 @@ function mostrarContenido(seccionId) {
             // 🔑 PUNTO CRÍTICO: Cargar los datos SOLO si la sección es Administración 🔑
             if (seccionId === 'Administracion') {
                 // Ejecutamos la carga de datos del Admin
-                initAdminPanel(); 
+               // initAdminPanel(); 
             }
             // Encuentra el botón correspondiente y añade la clase 'active' a su padre (li)
             navButtons.forEach(btn => {
