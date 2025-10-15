@@ -731,6 +731,10 @@ function mostrarContenido(seccionId) {
             } else {
                 console.warn('La sección con ID ' + seccionId + ' no fue encontrada.');
             }
+    
+            // Opcional: Remover la clase 'active' de todos los botones de navegación y añadirla al botón actual
+            let navButtons = document.querySelectorAll('nav li button');
+            navButtons.forEach(btn => btn.parentElement.classList.remove('active'));
             
             // Encuentra el botón correspondiente y añade la clase 'active' a su padre (li)
             navButtons.forEach(btn => {
