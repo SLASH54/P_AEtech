@@ -1329,20 +1329,20 @@ function setupTareaModal() {
         const method = tareaId ? 'PUT' : 'POST';
         const endpoint = tareaId ? `https://p-aetech.onrender.com/api/tareas/${tareaId}` : 'https://p-aetech.onrender.com/api/tareas' ;
         
+        // 2. 🔑 CLAVE: Recolección de Datos del Formulario con NOMBRES DE BACKEND
         const data = {
-            // 🛑 CORRECCIÓN 1: Usar 'nombre' en lugar de 'titulo' para el backend
-            nombre: document.getElementById('tareaTitulo').value,
-            descripcion: document.getElementById('tareaDescripcion').value,
-            // 🛑 CORRECCIÓN 2: Añadir la actividad
-            actividad: document.getElementById('tareaActividadId').value,
-            asignadoA: document.getElementById('tareaAsignadoA').value,
-            // 🛑 AÑADIR CLIENTE
-            cliente: document.getElementById('tareaClienteId').value,
-            // 🛑 CORRECCIÓN 3: Añadir un valor temporal para sucursal para evitar el error
-            // (La solución real es quitar la validación de sucursal en el backend)
-            sucursal: 'General',
+            nombre: document.getElementById('tareaTitulo').value, 
+            // ID del usuario seleccionado (backend espera 'usuarioAsignadoId')
+            usuarioAsignadoId: document.getElementById('tareaAsignadoA').value, 
+            // ID de la actividad seleccionada (backend espera 'actividadId')
+            actividadId: document.getElementById('tareaActividadId').value, 
+            // ID del cliente seleccionado (backend espera 'clienteNegocioId')
+            clienteNegocioId: document.getElementById('tareaClienteId').value, 
+            // Campos opcionales o sin cambio de nombre
+            descripcion: document.getElementById('tareaDescripcion').value, // No está en la validación, pero es bueno enviarlo
             fechaLimite: document.getElementById('tareaFechaLimite').value,
-            estado: document.getElementById('tareaEstado').value
+            estado: document.getElementById('tareaEstado').value 
+            // Si tienes un campo 'prioridad', también deberías incluirlo aquí.
         };
 
         // 🔑 Si tu backend espera 'nombre' en lugar de 'titulo', ajusta aquí:

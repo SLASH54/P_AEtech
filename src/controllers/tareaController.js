@@ -6,7 +6,6 @@ const { sequelize } = require('../config/database');
 const includeConfig = [
     { model: Usuario, as: 'AsignadoA', attributes: ['id', 'nombre', 'rol'] },
     { model: Actividad, attributes: ['id', 'nombre', 'campos_evidencia'] },
-    { model: Sucursal, attributes: ['id', 'nombre', 'direccion'] },
     { model: ClienteNegocio, attributes: ['id', 'nombre'] }
 ];
 
@@ -14,20 +13,24 @@ const includeConfig = [
 exports.createTarea = async (req, res) => {
     try {
         const { 
+            // 🛑 ELIMINAR: sucursalId,
             nombre, usuarioAsignadoId, actividadId, 
-            sucursalId, clienteNegocioId, fechaLimite, prioridad 
+            clienteNegocioId, fechaLimite, prioridad 
         } = req.body;
         
         // Verificación básica de IDs necesarios
-        if (!nombre || !usuarioAsignadoId || !actividadId || !sucursalId || !clienteNegocioId) {
+        // 🛑 ELIMINAR: !sucursalId
+        if (!nombre || !usuarioAsignadoId || !actividadId || !clienteNegocioId) { 
             return res.status(400).json({ 
-                message: 'Faltan campos requeridos (nombre, asignado, actividad, sucursal o cliente).' 
+                // 🛑 AJUSTAR el mensaje de error para reflejar los campos actuales
+                message: 'Faltan campos requeridos (nombre, asignado, actividad o cliente).' 
             });
         }
 
         const tarea = await Tarea.create({
+            // 🛑 ELIMINAR: sucursalId,
             nombre, usuarioAsignadoId, actividadId, 
-            sucursalId, clienteNegocioId, fechaLimite, prioridad 
+            clienteNegocioId, fechaLimite, prioridad 
         });
 
         // Devolver la tarea con los detalles de las relaciones
