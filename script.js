@@ -1051,16 +1051,12 @@ async function initTareas() {
         tareasBody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">No hay tareas asignadas.</td></tr>';
     }
 
-    // Configurar Modal
+    // Configurar Modal (Esto solo funciona si renderTareasTable no falló)
     setupTareaModal();
     
-    // Cargar usuarios para el SELECT del modal (se hace de forma asíncrona)
+    // Cargar recursos
     loadUsersForTareaSelect();
-
-    // 🔑 CLAVE: Cargar clientes para el SELECT del modal
     loadClientesForTareaSelect();
-
-    // 🔑 CLAVE: Cargar actividades
     loadActividadesForTareaSelect();
 }
 
@@ -1071,7 +1067,6 @@ async function loadUsersForTareaSelect() {
     const userSelect = document.getElementById('tareaAsignadoA');
     if (!userSelect) return;
 
-    // Usamos el endpoint de usuarios, si está restringido, solo funcionará para Admins.
     const users = await fetchData('/users'); 
     
     // Limpiar opciones previas, excepto el placeholder
@@ -1095,11 +1090,8 @@ async function loadUsersForTareaSelect() {
     }
 }
 
-// ... (Despues de loadUsersForTareaSelect) ...
-
 /**
  * Carga clientes y llena el SELECT del modal de tareas.
- * También añade el listener para cargar la dirección.
  */
 async function loadClientesForTareaSelect() {
     const clienteSelect = document.getElementById('tareaClienteId');
@@ -1107,11 +1099,10 @@ async function loadClientesForTareaSelect() {
 
     clienteSelect.innerHTML = '<option value="" disabled selected>-- Cargando Clientes... --</option>';
 
-    // Usamos el endpoint de clientes que ya usas en initAdminPanel
     const clientes = await fetchData('/clientes'); 
     
-    // Almacenamos los clientes globalmente o en un dataset para fácil acceso a la dirección
-    window.clientesData = {}; // Usamos una variable global temporal para guardar la data
+    // Almacenamos los clientes globalmente para fácil acceso a la dirección
+    window.clientesData = {};
 
     clienteSelect.innerHTML = '<option value="" disabled selected>-- Seleccione Cliente --</option>';
 
@@ -1122,11 +1113,10 @@ async function loadClientesForTareaSelect() {
             option.textContent = cliente.nombre; 
             clienteSelect.appendChild(option);
             
-            // Guardar la data para el evento 'change'
             window.clientesData[option.value] = cliente; 
         });
         
-        // 🔑 CLAVE: Listener para actualizar la dirección
+        // Listener para actualizar la dirección
         clienteSelect.addEventListener('change', updateClientAddress);
         
     } else {
@@ -1144,7 +1134,6 @@ async function loadActividadesForTareaSelect() {
 
     actividadSelect.innerHTML = '<option value="" disabled selected>-- Cargando Actividades... --</option>';
 
-    // Usamos el endpoint de actividades
     const actividades = await fetchData('/actividades'); 
     
     actividadSelect.innerHTML = '<option value="" disabled selected>-- Seleccione Actividad --</option>';
@@ -1183,13 +1172,14 @@ function updateClientAddress() {
  * Renderiza la lista de tareas en la tabla.
  * @param {Array<Object>} tareas - La lista de tareas a mostrar.
  */
-
-
 function renderTareasTable(tareas) {
     const tareasBody = document.getElementById('tareasBody');
     if (!tareasBody) return;
     
     tareasBody.innerHTML = ''; // Limpiar contenido
+    
+    // 🛑 CORRECCIÓN CLAVE 1: Almacenar la lista de tareas globalmente
+    window.tareasList = tareas;
     
     tareas.forEach(tarea => {
         const row = document.createElement('tr');
@@ -1204,6 +1194,10 @@ function renderTareasTable(tareas) {
             else if (estado === 'Bloqueada') color = 'bg-red-100 text-red-800';
             return `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${color}">${estado}</span>`;
         };
+        
+        // 🛑 CORRECCIÓN CLAVE 2: Definir las variables aplanadas DENTRO del bucle
+        const asignadoNombre = tarea.asignadoANombre || 'N/A'; // Asumimos que tu backend aplana el nombre
+        const sucursalNombre = tarea.sucursal || 'General'; // Asumimos que tu backend aplana el nombre de sucursal
 
         row.innerHTML = `
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${tarea.nombre}</td> 
@@ -1212,7 +1206,8 @@ function renderTareasTable(tareas) {
             <td class="px-6 py-4 whitespace-nowrap text-sm">${getStatusBadge(tarea.estado)}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(tarea.fechaLimite).toLocaleDateString()}</td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <button onclick="openTareaModal(${JSON.stringify(tarea).replace(/"/g, '&quot;')}, 'edit')" 
+                <!-- 🛑 CORRECCIÓN CLAVE 3: Pasar solo el ID para evitar fallos de JSON.stringify -->
+                <button onclick="openTareaModal('${tarea.id}', 'edit')" 
                     class="text-indigo-600 hover:text-indigo-900 mr-3">
                     Editar
                 </button>
@@ -1235,46 +1230,41 @@ function setupTareaModal() {
     const form = document.getElementById('tareaForm');
 
     // Abrir Modal
+    // 🔑 CLAVE: La función openTareaModal se llama con un objeto vacío y modo 'create'.
     openBtn.onclick = () => openTareaModal({}, 'create');
 
     // Cerrar Modal
+    // 🛑 CORREGIDO: Usar 'none' para ocultar el modal
     closeBtn.onclick = () => modal.style.display = 'none';
-   
+    
     // Enviar Formulario (Crear/Editar)
     form.onsubmit = async (e) => {
         e.preventDefault();
         const tareaId = document.getElementById('tareaId').value;
         const method = tareaId ? 'PUT' : 'POST';
-        const endpoint = tareaId ? `https://p-aetech.onrender.com/api/tareas/${tareaId}` : 'https://p-aetech.onrender.com/api/tareas' ;
+        // 🔑 NOTA: saveOrUpdateData necesita el endpoint completo, lo construimos aquí.
+        const endpoint = tareaId 
+            ? `https://p-aetech.onrender.com/api/tareas/${tareaId}` 
+            : 'https://p-aetech.onrender.com/api/tareas';
         
-        // 2. 🔑 CLAVE: Recolección de Datos del Formulario con NOMBRES DE BACKEND
+        // Recolección de Datos del Formulario con NOMBRES DE BACKEND
         const data = {
             nombre: document.getElementById('tareaTitulo').value, 
-            // ID del usuario seleccionado (backend espera 'usuarioAsignadoId')
             usuarioAsignadoId: document.getElementById('tareaAsignadoA').value, 
-            // ID de la actividad seleccionada (backend espera 'actividadId')
             actividadId: document.getElementById('tareaActividadId').value, 
-            // ID del cliente seleccionado (backend espera 'clienteNegocioId')
             clienteNegocioId: document.getElementById('tareaClienteId').value, 
-            // 🛑 SOLUCIÓN TEMPORAL: Incluir sucursalId con un valor que satisfaga la validación.
-            // Usa un ID válido que exista en tu tabla de Sucursales.
-            sucursalId: '1', // <-- Cambia '1' si sabes que el ID es diferente
-            // Campos opcionales o sin cambio de nombre
-            descripcion: document.getElementById('tareaDescripcion').value, // No está en la validación, pero es bueno enviarlo
+            sucursalId: document.getElementById('tareaSucursalId')?.value || '1', 
+            descripcion: document.getElementById('tareaDescripcion').value,
             fechaLimite: document.getElementById('tareaFechaLimite').value,
             estado: document.getElementById('tareaEstado').value,
             prioridad : 'Normal'
-            // Si tienes un campo 'prioridad', también deberías incluirlo aquí.
         };
 
-        // 🔑 Si tu backend espera 'nombre' en lugar de 'titulo', ajusta aquí:
-        // if (!data.nombre) data.nombre = data.titulo;
-
-       const result = await saveOrUpdateData(`https://p-aetech.onrender.com/api${endpoint}`, method, data);
+        const result = await saveOrUpdateData(endpoint, method, data);
         if (result) {
-            // 🛑 CORRECCIÓN: Usar modal personalizado en lugar de alert
-            showCustomAlert('Tarea guardada exitosamente.', 'success');
-            modal.style.display = 'none'; // 🛑 CORREGIDO: Usar 'none'
+            // Se recomienda usar un modal personalizado en lugar de alert
+            alert('Tarea guardada exitosamente.'); 
+            modal.style.display = 'none'; 
             initTareas(); // Recargar la lista de tareas
         }
     };
@@ -1282,31 +1272,46 @@ function setupTareaModal() {
     // Función para manejar el cierre al hacer clic fuera
     window.onclick = function(event) {
         if (event.target == modal) {
-            modal.style.display = "none"; // 🛑 CORREGIDO: Usar 'none'
+            modal.style.display = "none";
         }
     }
 }
 
 /**
  * Abre y llena el modal para crear o editar una tarea.
- * @param {Object} tarea - Objeto de la tarea si es edición, o vacío si es creación.
+ * @param {string|Object} tareaIdOrObject - ID de la tarea si es edición, o un objeto vacío ({}) si es creación.
  * @param {string} mode - 'create' o 'edit'.
  */
-function openTareaModal(tarea, mode) {
+function openTareaModal(tareaIdOrObject, mode) {
     const modal = document.getElementById('tareaModal');
     const title = document.getElementById('tareaModalTitle');
     const form = document.getElementById('tareaForm');
+
+    let tarea = {};
+    if (mode === 'edit') {
+        // 🛑 CORRECCIÓN CLAVE 4: Buscar la tarea completa si solo se pasó el ID
+        // Esto depende de que window.tareasList se haya poblado en renderTareasTable
+        if (typeof tareaIdOrObject === 'string') {
+             tarea = window.tareasList?.find(t => t.id == tareaIdOrObject);
+        } else {
+             tarea = tareaIdOrObject;
+        }
+
+        if (!tarea || !tarea.id) {
+            console.error('Error: Tarea no encontrada para edición o datos incompletos.');
+            return; 
+        }
+    }
 
     if (mode === 'create') {
         title.textContent = 'Crear Nueva Tarea';
         form.reset();
         document.getElementById('tareaId').value = '';
-        // Limpiar dirección
         document.getElementById('tareaDireccionCliente').value = '';
-        } else {
+    } else { // mode === 'edit'
         title.textContent = 'Editar Tarea';
         document.getElementById('tareaId').value = tarea.id;
-        // 🔑 CLAVE: Usar 'nombre' para el título
+        // 🔑 Rellenar campos con los nombres correctos
         document.getElementById('tareaTitulo').value = tarea.nombre || '';
         document.getElementById('tareaDescripcion').value = tarea.descripcion || '';
         
@@ -1318,16 +1323,16 @@ function openTareaModal(tarea, mode) {
         
         document.getElementById('tareaEstado').value = tarea.estado || '';
         
-        // 🔑 CLAVE: Usar los IDs correctos para precargar los SELECT
+        // 🔑 Rellenar SELECTS con los IDs
         document.getElementById('tareaAsignadoA').value = tarea.usuarioAsignadoId || '';
         document.getElementById('tareaActividadId').value = tarea.actividadId || '';
         document.getElementById('tareaClienteId').value = tarea.clienteNegocioId || '';
         
-        // Disparar la función de dirección si hay un cliente asociado.
+        // Disparar la función de dirección
         setTimeout(updateClientAddress, 10);
     }
 
-    // 🛑 CORREGIDO: Usar 'flex' para mostrar el modal (asumiendo que es un modal con Tailwind)
+    // 🛑 CORREGIDO: Usar 'flex' para mostrar el modal
     modal.style.display = 'flex';
 }
 
@@ -1337,10 +1342,11 @@ function openTareaModal(tarea, mode) {
  */
 async function deleteTarea(tareaId) {
     if (!window.confirm('¿Está seguro de que desea eliminar esta tarea?')) {
-        return; // Usamos window.confirm por simplicidad, pero se recomienda un modal personalizado.
+        return; 
     }
 
-    const endpoint = `/tareas/${tareaId}`;
+    // 🔑 NOTA: deleteData necesita el endpoint completo, lo construimos aquí.
+    const endpoint = `https://p-aetech.onrender.com/api/tareas/${tareaId}`;
     const response = await deleteData(endpoint);
 
     if (response) {
@@ -1350,24 +1356,19 @@ async function deleteTarea(tareaId) {
 }
 
 // ------------------------------------------------------------------------
-// Funciones Auxiliares (Deben existir en tu script.js)
+// Funciones Auxiliares (Asegurando que usen el endpoint completo si es necesario)
 // ------------------------------------------------------------------------
-
-/**
- * Función genérica para guardar o actualizar datos.
- */
 
 async function saveOrUpdateData(endpoint, method, data) {
     
     const token = localStorage.getItem('userToken');
     if (!token) {
-        // Redirigir a login, o mostrar error.
         alert('Sesión expirada. Por favor, inicie sesión de nuevo.');
         return null;
     }
     
     try {
-        const response = await fetch(endpoint, {
+        const response = await fetch(endpoint, { // El endpoint ya viene completo aquí
             method: method,
             headers: {
                 'Content-Type': 'application/json',
@@ -1391,9 +1392,6 @@ async function saveOrUpdateData(endpoint, method, data) {
     }
 }
 
-/**
- * Función genérica para eliminar datos.
- */
 async function deleteData(endpoint) {
     const token = localStorage.getItem('userToken');
     if (!token) {
@@ -1402,7 +1400,7 @@ async function deleteData(endpoint) {
     }
 
     try {
-        const response = await fetch(endpoint, {
+        const response = await fetch(endpoint, { // El endpoint ya viene completo aquí
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -1423,11 +1421,6 @@ async function deleteData(endpoint) {
         return false;
     }
 }
-
-// ------------------------------------------------------------------------
-// AGREGAR LLAMADA A initTareas EN document.addEventListener
-// ------------------------------------------------------------------------
-
 
 
 
