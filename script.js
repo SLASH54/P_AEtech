@@ -1229,7 +1229,7 @@ async function loadActividadesForTareaSelect() {
     actividadSelect.innerHTML = '<option value="" disabled selected>-- Cargando Actividades... --</option>';
 
     // Usamos el endpoint de actividades
-    const actividades = await fetchData('/api/actividades'); 
+    const actividades = await fetchData('/actividades'); 
     
     actividadSelect.innerHTML = '<option value="" disabled selected>-- Seleccione Actividad --</option>';
 
