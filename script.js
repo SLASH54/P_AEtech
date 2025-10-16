@@ -1121,7 +1121,7 @@ async function initTareas() {
     tareasBody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">Cargando tareas...</td></tr>';
     
     // Cargar Tareas
-    const tareas = await fetchData('/api/tareas');
+    const tareas = await fetchData('/tareas');
     
     if (tareas && tareas.length > 0) {
         renderTareasTable(tareas);
@@ -1144,7 +1144,7 @@ async function loadUsersForTareaSelect() {
     if (!userSelect) return;
 
     // Usamos el endpoint de usuarios, si está restringido, solo funcionará para Admins.
-    const users = await fetchData('/api/users'); 
+    const users = await fetchData('/users'); 
     
     // Limpiar opciones previas, excepto el placeholder
     const placeholder = userSelect.querySelector('option[disabled]');
