@@ -1345,7 +1345,7 @@ function setupTareaModal() {
             descripcion: document.getElementById('tareaDescripcion').value, // No está en la validación, pero es bueno enviarlo
             fechaLimite: document.getElementById('tareaFechaLimite').value,
             estado: document.getElementById('tareaEstado').value,
-            prioridad : 'normal'
+            prioridad : 'Media'
             // Si tienes un campo 'prioridad', también deberías incluirlo aquí.
         };
 
