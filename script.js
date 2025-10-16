@@ -1238,7 +1238,7 @@ function setupTareaModal() {
     openBtn.onclick = () => openTareaModal({}, 'create');
 
     // Cerrar Modal
-    closeBtn.onclick = () => modal.style.display = 'hidden';
+    closeBtn.onclick = () => modal.style.display = 'none';
    
     // Enviar Formulario (Crear/Editar)
     form.onsubmit = async (e) => {
@@ -1270,10 +1270,11 @@ function setupTareaModal() {
         // 🔑 Si tu backend espera 'nombre' en lugar de 'titulo', ajusta aquí:
         // if (!data.nombre) data.nombre = data.titulo;
 
-        const result = await saveOrUpdateData(endpoint, method, data);
+       const result = await saveOrUpdateData(`https://p-aetech.onrender.com/api${endpoint}`, method, data);
         if (result) {
-            alert('Tarea guardada exitosamente.');
-            modal.style.display = 'hidden';
+            // 🛑 CORRECCIÓN: Usar modal personalizado en lugar de alert
+            showCustomAlert('Tarea guardada exitosamente.', 'success');
+            modal.style.display = 'none'; // 🛑 CORREGIDO: Usar 'none'
             initTareas(); // Recargar la lista de tareas
         }
     };
@@ -1281,7 +1282,7 @@ function setupTareaModal() {
     // Función para manejar el cierre al hacer clic fuera
     window.onclick = function(event) {
         if (event.target == modal) {
-            modal.style.display = "hidden";
+            modal.style.display = "none"; // 🛑 CORREGIDO: Usar 'none'
         }
     }
 }
@@ -1300,27 +1301,33 @@ function openTareaModal(tarea, mode) {
         title.textContent = 'Crear Nueva Tarea';
         form.reset();
         document.getElementById('tareaId').value = '';
+        // Limpiar dirección
+        document.getElementById('tareaDireccionCliente').value = '';
         } else {
-        title.textContent = 'Editar Tarea';
-        document.getElementById('tareaId').value = tarea.id;
-        document.getElementById('tareaTitulo').value = tarea.nombre; // 🛑 CORREGIDO: De 'titulo' a 'nombre'
-        document.getElementById('tareaDescripcion').value = tarea.descripcion;
-        document.getElementById('tareaFechaLimite').value = tarea.fechaLimite.split('T')[0];
-        document.getElementById('tareaEstado').value = tarea.estado;
-        
-        // Asignar al usuario
-        const assignedUser = tarea.usuarioAsignadoId || ''; // 🛑 CORREGIDO: De 'asignadoA' a 'usuarioAsignadoId'
-        const select = document.getElementById('tareaAsignadoA');
-    
-        // Si el select no tiene aún las opciones cargadas, espera
-        if (select.options.length <= 1) {
-            // Esto es una medida de seguridad, ya que loadUsersForTareaSelect es async
-            select.value = assignedUser; 
+        title.textContent = 'Editar Tarea';
+        document.getElementById('tareaId').value = tarea.id;
+        // 🔑 CLAVE: Usar 'nombre' para el título
+        document.getElementById('tareaTitulo').value = tarea.nombre || '';
+        document.getElementById('tareaDescripcion').value = tarea.descripcion || '';
+        
+        if (tarea.fechaLimite) {
+            document.getElementById('tareaFechaLimite').value = tarea.fechaLimite.split('T')[0];
         } else {
-            select.value = assignedUser; 
+             document.getElementById('tareaFechaLimite').value = '';
         }
+        
+        document.getElementById('tareaEstado').value = tarea.estado || '';
+        
+        // 🔑 CLAVE: Usar los IDs correctos para precargar los SELECT
+        document.getElementById('tareaAsignadoA').value = tarea.usuarioAsignadoId || '';
+        document.getElementById('tareaActividadId').value = tarea.actividadId || '';
+        document.getElementById('tareaClienteId').value = tarea.clienteNegocioId || '';
+        
+        // Disparar la función de dirección si hay un cliente asociado.
+        setTimeout(updateClientAddress, 10);
     }
 
+    // 🛑 CORREGIDO: Usar 'flex' para mostrar el modal (asumiendo que es un modal con Tailwind)
     modal.style.display = 'flex';
 }
 
