@@ -1143,6 +1143,9 @@ async function initTareas() {
 
     // 🔑 CLAVE: Cargar clientes para el SELECT del modal
     loadClientesForTareaSelect();
+
+    // 🔑 CLAVE: Cargar actividades
+    loadActividadesForTareaSelect();
 }
 
 /**
@@ -1216,6 +1219,33 @@ async function loadClientesForTareaSelect() {
             : 'No se encontraron clientes.';
             
         clienteSelect.innerHTML = `<option value="" disabled selected>${errorMessage}</option>`;
+    }
+}
+
+async function loadActividadesForTareaSelect() {
+    const actividadSelect = document.getElementById('tareaActividadId');
+    if (!actividadSelect) return;
+
+    actividadSelect.innerHTML = '<option value="" disabled selected>-- Cargando Actividades... --</option>';
+
+    // Usamos el endpoint de actividades
+    const actividades = await fetchData('/api/actividades'); 
+    
+    actividadSelect.innerHTML = '<option value="" disabled selected>-- Seleccione Actividad --</option>';
+
+    if (actividades && Array.isArray(actividades) && actividades.length > 0) {
+        actividades.forEach(actividad => {
+            const option = document.createElement('option');
+            option.value = actividad._id || actividad.id; // Asume que el ID es la clave
+            option.textContent = actividad.nombre; // O el campo que uses para el nombre de la actividad
+            actividadSelect.appendChild(option);
+        });
+    } else {
+        const errorMessage = (actividades === null) 
+            ? 'No tienes permisos para ver actividades.' 
+            : 'No se encontraron actividades.';
+            
+        actividadSelect.innerHTML = `<option value="" disabled selected>${errorMessage}</option>`;
     }
 }
 
@@ -1300,11 +1330,17 @@ function setupTareaModal() {
         const endpoint = tareaId ? `https://p-aetech.onrender.com/api/tareas/${tareaId}` : 'https://p-aetech.onrender.com/api/tareas' ;
         
         const data = {
-            titulo: document.getElementById('tareaTitulo').value,
+            // 🛑 CORRECCIÓN 1: Usar 'nombre' en lugar de 'titulo' para el backend
+            nombre: document.getElementById('tareaTitulo').value,
             descripcion: document.getElementById('tareaDescripcion').value,
+            // 🛑 CORRECCIÓN 2: Añadir la actividad
+            actividad: document.getElementById('tareaActividadId').value,
             asignadoA: document.getElementById('tareaAsignadoA').value,
             // 🛑 AÑADIR CLIENTE
             cliente: document.getElementById('tareaClienteId').value,
+            // 🛑 CORRECCIÓN 3: Añadir un valor temporal para sucursal para evitar el error
+            // (La solución real es quitar la validación de sucursal en el backend)
+            sucursal: 'General',
             fechaLimite: document.getElementById('tareaFechaLimite').value,
             estado: document.getElementById('tareaEstado').value
         };

@@ -497,11 +497,19 @@ class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center 
                     <input type="date" id="tareaFechaLimite" name="fechaLimite" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
                 </div>
             </div>
+            
             <div class="mb-4">
-    <label for="tareaDireccionCliente" class="block text-sm font-medium text-gray-700">Dirección del Cliente</label>
-    <input type="text" id="tareaDireccionCliente" name="direccionCliente" readonly 
-           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-gray-100 text-gray-600">
-</div>
+                <label for="tareaDireccionCliente" class="block text-sm font-medium text-gray-700">Dirección del Cliente</label>
+                <input type="text" id="tareaDireccionCliente" name="direccionCliente" readonly 
+                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-gray-100 text-gray-600">
+            </div>
+
+            <div class="mb-4">
+                <label for="tareaActividadId" class="block text-sm font-medium text-gray-700">Tipo de Actividad</label>
+                <select id="tareaActividadId" name="actividad" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="" disabled selected>-- Seleccione Actividad --</option>
+                    </select>
+            </div>
 
             <div class="mb-4">
                 <label for="tareaEstado" class="block text-sm font-medium text-gray-700">Estado</label>
