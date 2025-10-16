@@ -1094,3 +1094,331 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // script.js (Añadir listener al alcance global, probablemente dentro de DOMContentLoaded)
 
+// ... Asumiendo que tus funciones loginUser, checkAuth, logout, fetchData, mostrarContenido, initAdminPanel, y openEditModal (para el modal de admin) ya están aquí.
+
+// =========================================================================
+// GESTIÓN DE TAREAS (ID: organizador-tareas)
+// =========================================================================
+
+/**
+ * Inicializa la sección de Tareas:
+ * 1. Carga la lista de tareas desde la API.
+ * 2. Carga la lista de usuarios para el selector de asignación.
+ * 3. Configura el comportamiento del modal de creación/edición.
+ */
+async function initTareas() {
+    console.log('Iniciando sección de Tareas...');
+    const tareasBody = document.getElementById('tareasBody');
+    if (!tareasBody) return;
+
+    tareasBody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">Cargando tareas...</td></tr>';
+    
+    // Cargar Tareas
+    const tareas = await fetchData('/api/tareas');
+    
+    if (tareas && tareas.length > 0) {
+        renderTareasTable(tareas);
+    } else {
+        tareasBody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">No hay tareas asignadas.</td></tr>';
+    }
+
+    // Configurar Modal
+    setupTareaModal();
+    
+    // Cargar usuarios para el SELECT del modal (se hace de forma asíncrona)
+    loadUsersForTareaSelect();
+}
+
+/**
+ * Carga usuarios y llena el SELECT del modal de tareas.
+ */
+async function loadUsersForTareaSelect() {
+    const userSelect = document.getElementById('tareaAsignadoA');
+    if (!userSelect) return;
+
+    // Usamos el endpoint de usuarios, si está restringido, solo funcionará para Admins.
+    const users = await fetchData('/api/users'); 
+    
+    // Limpiar opciones previas, excepto el placeholder
+    const placeholder = userSelect.querySelector('option[disabled]');
+    userSelect.innerHTML = '';
+    if (placeholder) {
+        userSelect.appendChild(placeholder);
+    } else {
+        userSelect.innerHTML = '<option value="" disabled selected>-- Seleccione Usuario --</option>';
+    }
+
+    if (users && users.length > 0) {
+        users.forEach(user => {
+            const option = document.createElement('option');
+            option.value = user.id; // Asume que el ID es la clave para asignar
+            option.textContent = user.nombre; 
+            userSelect.appendChild(option);
+        });
+    } else {
+        console.warn('No se pudieron cargar usuarios para asignación.');
+    }
+}
+
+/**
+ * Renderiza la lista de tareas en la tabla.
+ * @param {Array<Object>} tareas - La lista de tareas a mostrar.
+ */
+function renderTareasTable(tareas) {
+    const tareasBody = document.getElementById('tareasBody');
+    if (!tareasBody) return;
+    
+    tareasBody.innerHTML = ''; // Limpiar contenido
+    
+    tareas.forEach(tarea => {
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-gray-100 transition duration-150';
+
+        // Función auxiliar para obtener el estilo del estado
+        const getStatusBadge = (estado) => {
+            let color = 'bg-gray-200 text-gray-800';
+            if (estado === 'Completada') color = 'bg-green-100 text-green-800';
+            else if (estado === 'En Progreso') color = 'bg-blue-100 text-blue-800';
+            else if (estado === 'Pendiente') color = 'bg-yellow-100 text-yellow-800';
+            else if (estado === 'Bloqueada') color = 'bg-red-100 text-red-800';
+            return `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${color}">${estado}</span>`;
+        };
+
+        row.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${tarea.titulo}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${tarea.asignadoANombre || 'N/A'}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${tarea.sucursal || 'General'}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm">${getStatusBadge(tarea.estado)}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(tarea.fechaLimite).toLocaleDateString()}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <button onclick="openTareaModal(${JSON.stringify(tarea).replace(/"/g, '&quot;')}, 'edit')" 
+                    class="text-indigo-600 hover:text-indigo-900 mr-3">
+                    Editar
+                </button>
+                <button onclick="deleteTarea('${tarea.id}')" class="text-red-600 hover:text-red-900">
+                    Eliminar
+                </button>
+            </td>
+        `;
+        tareasBody.appendChild(row);
+    });
+}
+
+/**
+ * Configura los event listeners para el modal de tareas (abrir/cerrar/enviar).
+ */
+function setupTareaModal() {
+    const modal = document.getElementById('tareaModal');
+    const openBtn = document.getElementById('openAddTaskModal');
+    const closeBtn = document.getElementById('closeTareaModal');
+    const form = document.getElementById('tareaForm');
+
+    // Abrir Modal
+    openBtn.onclick = () => openTareaModal({}, 'create');
+
+    // Cerrar Modal
+    closeBtn.onclick = () => modal.style.display = 'hidden';
+
+    // Enviar Formulario (Crear/Editar)
+    form.onsubmit = async (e) => {
+        e.preventDefault();
+        const tareaId = document.getElementById('tareaId').value;
+        const method = tareaId ? 'PUT' : 'POST';
+        const endpoint = tareaId ? `/api/tareas/${tareaId}` : '/api/tareas';
+
+        const data = {
+            titulo: document.getElementById('tareaTitulo').value,
+            descripcion: document.getElementById('tareaDescripcion').value,
+            asignadoA: document.getElementById('tareaAsignadoA').value,
+            fechaLimite: document.getElementById('tareaFechaLimite').value,
+            estado: document.getElementById('tareaEstado').value
+        };
+
+        const result = await saveOrUpdateData(endpoint, method, data);
+        if (result) {
+            alert('Tarea guardada exitosamente.');
+            modal.style.display = 'hidden';
+            initTareas(); // Recargar la lista de tareas
+        }
+    };
+    
+    // Función para manejar el cierre al hacer clic fuera
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "hidden";
+        }
+    }
+}
+
+/**
+ * Abre y llena el modal para crear o editar una tarea.
+ * @param {Object} tarea - Objeto de la tarea si es edición, o vacío si es creación.
+ * @param {string} mode - 'create' o 'edit'.
+ */
+function openTareaModal(tarea, mode) {
+    const modal = document.getElementById('tareaModal');
+    const title = document.getElementById('tareaModalTitle');
+    const form = document.getElementById('tareaForm');
+
+    if (mode === 'create') {
+        title.textContent = 'Crear Nueva Tarea';
+        form.reset();
+        document.getElementById('tareaId').value = '';
+    } else {
+        title.textContent = 'Editar Tarea';
+        document.getElementById('tareaId').value = tarea.id;
+        document.getElementById('tareaTitulo').value = tarea.titulo;
+        document.getElementById('tareaDescripcion').value = tarea.descripcion;
+        document.getElementById('tareaFechaLimite').value = tarea.fechaLimite.split('T')[0]; // Formato YYYY-MM-DD
+        document.getElementById('tareaEstado').value = tarea.estado;
+        
+        // Asignar al usuario
+        const assignedUser = tarea.asignadoA || ''; // asume tarea.asignadoA contiene el ID del usuario
+        const select = document.getElementById('tareaAsignadoA');
+        
+        // Si el select no tiene aún las opciones cargadas, espera
+        if (select.options.length <= 1) {
+            // Esto es una medida de seguridad, ya que loadUsersForTareaSelect es async
+            select.value = assignedUser; 
+        } else {
+            select.value = assignedUser; 
+        }
+    }
+
+    modal.style.display = 'flex';
+}
+
+/**
+ * Envía una petición para eliminar una tarea.
+ * @param {string} tareaId - El ID de la tarea a eliminar.
+ */
+async function deleteTarea(tareaId) {
+    if (!window.confirm('¿Está seguro de que desea eliminar esta tarea?')) {
+        return; // Usamos window.confirm por simplicidad, pero se recomienda un modal personalizado.
+    }
+
+    const endpoint = `/api/tareas/${tareaId}`;
+    const response = await deleteData(endpoint);
+
+    if (response) {
+        alert('Tarea eliminada exitosamente.');
+        initTareas(); // Recargar la tabla
+    }
+}
+
+// ------------------------------------------------------------------------
+// Funciones Auxiliares (Deben existir en tu script.js)
+// ------------------------------------------------------------------------
+
+/**
+ * Función genérica para guardar o actualizar datos.
+ */
+async function saveOrUpdateData(endpoint, method, data) {
+    const token = localStorage.getItem('userToken');
+    if (!token) {
+        // Redirigir a login, o mostrar error.
+        alert('Sesión expirada. Por favor, inicie sesión de nuevo.');
+        return null;
+    }
+    
+    try {
+        const response = await fetch(endpoint, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            alert(`Error al guardar: ${errorData.message || response.statusText}`);
+            return null;
+        }
+
+        return await response.json();
+
+    } catch (error) {
+        console.error('Error en saveOrUpdateData:', error);
+        alert('Ocurrió un error de red al intentar guardar los datos.');
+        return null;
+    }
+}
+
+/**
+ * Función genérica para eliminar datos.
+ */
+async function deleteData(endpoint) {
+    const token = localStorage.getItem('userToken');
+    if (!token) {
+        alert('Sesión expirada. Por favor, inicie sesión de nuevo.');
+        return false;
+    }
+
+    try {
+        const response = await fetch(endpoint, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 204 || response.ok) {
+            return true;
+        } else {
+            const errorData = await response.json();
+            alert(`Error al eliminar: ${errorData.message || response.statusText}`);
+            return false;
+        }
+
+    } catch (error) {
+        console.error('Error en deleteData:', error);
+        alert('Ocurrió un error de red al intentar eliminar.');
+        return false;
+    }
+}
+
+
+// ------------------------------------------------------------------------
+// AGREGAR LLAMADA A initTareas EN mostrarContenido
+// ------------------------------------------------------------------------
+
+// Asegúrate de que tu función mostrarContenido ahora llame a initTareas
+// cuando la sección seleccionada es 'organizador-tareas'
+function mostrarContenido(seccionId) {
+    let secciones = document.querySelectorAll('.main-content');
+    // ... (Tu lógica para ocultar y mostrar secciones) ...
+
+    let seccionAMostrar = document.getElementById(seccionId);
+    if (seccionAMostrar) {
+        seccionAMostrar.classList.add('show');
+    }
+
+    // 🔑 CLAVE: Agregar la inicialización de Tareas
+    if (seccionId === 'organizador-tareas') {
+        initTareas();
+    }
+    
+    // Mantenemos la inicialización de Administración
+    if (seccionId === 'Administracion') {
+       initAdminPanel();
+    }
+    
+    // ... (Otras inicializaciones) ...
+}
+
+// ------------------------------------------------------------------------
+// AGREGAR LLAMADA A initTareas EN document.addEventListener
+// ------------------------------------------------------------------------
+
+document.addEventListener('DOMContentLoaded', function () {
+    // ... (Tu lógica de autenticación y redirección) ...
+
+    // 🔑 CLAVE: Inicializar la sección de tareas al cargar si es la primera visible
+    if (document.getElementById('organizador-tareas')?.classList.contains('show')) {
+        initTareas();
+    }
+    
+    // ... (El resto de tu código DOMContentLoaded) ...
+});
