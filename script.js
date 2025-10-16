@@ -1183,7 +1183,7 @@ async function loadClientesForTareaSelect() {
     clienteSelect.innerHTML = '<option value="" disabled selected>-- Cargando Clientes... --</option>';
 
     // Usamos el endpoint de clientes que ya usas en initAdminPanel
-    const clientes = await fetchData('/api/clientes'); 
+    const clientes = await fetchData('/clientes'); 
     
     // Almacenamos los clientes globalmente o en un dataset para fácil acceso a la dirección
     window.clientesData = {}; // Usamos una variable global temporal para guardar la data
