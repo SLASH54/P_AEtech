@@ -1231,7 +1231,7 @@ function setupTareaModal() {
         e.preventDefault();
         const tareaId = document.getElementById('tareaId').value;
         const method = tareaId ? 'PUT' : 'POST';
-        const endpoint = fetch ? '/api/tareas' : `/api/tareas/${tareaId}`;
+        const endpoint = tareaId ? 'https://p-aetech.onrender.com/api/tareas' : `https://p-aetech.onrender.com/api/tareas/${tareaId}`;
         
         const data = {
             titulo: document.getElementById('tareaTitulo').value,
