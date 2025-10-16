@@ -476,6 +476,8 @@ class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center 
                 <textarea id="tareaDescripcion" name="descripcion" required rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
             </div>
 
+            
+
             <div class="grid grid-cols-2 gap-4 mb-4">
                 <div>
                     <label for="tareaAsignadoA" class="block text-sm font-medium text-gray-700">Asignar a Usuario</label>
@@ -485,10 +487,21 @@ class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center 
                     </select>
                 </div>
                 <div>
+                    <label for="tareaClienteId" class="block text-sm font-medium text-gray-700">Cliente Asociado</label>
+                    <select id="tareaClienteId" name="clienteId" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="" disabled selected>-- Seleccione Cliente --</option>
+                        </select>
+                </div>
+                <div>
                     <label for="tareaFechaLimite" class="block text-sm font-medium text-gray-700">Fecha Límite</label>
                     <input type="date" id="tareaFechaLimite" name="fechaLimite" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
                 </div>
             </div>
+            <div class="mb-4">
+    <label for="tareaDireccionCliente" class="block text-sm font-medium text-gray-700">Dirección del Cliente</label>
+    <input type="text" id="tareaDireccionCliente" name="direccionCliente" readonly 
+           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-gray-100 text-gray-600">
+</div>
 
             <div class="mb-4">
                 <label for="tareaEstado" class="block text-sm font-medium text-gray-700">Estado</label>

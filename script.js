@@ -1134,6 +1134,9 @@ async function initTareas() {
     
     // Cargar usuarios para el SELECT del modal (se hace de forma asíncrona)
     loadUsersForTareaSelect();
+
+    // 🔑 CLAVE: Cargar clientes para el SELECT del modal
+    loadClientesForTareaSelect();
 }
 
 /**
@@ -1164,6 +1167,63 @@ async function loadUsersForTareaSelect() {
         });
     } else {
         console.warn('No se pudieron cargar usuarios para asignación.');
+    }
+}
+
+// ... (Despues de loadUsersForTareaSelect) ...
+
+/**
+ * Carga clientes y llena el SELECT del modal de tareas.
+ * También añade el listener para cargar la dirección.
+ */
+async function loadClientesForTareaSelect() {
+    const clienteSelect = document.getElementById('tareaClienteId');
+    if (!clienteSelect) return;
+
+    clienteSelect.innerHTML = '<option value="" disabled selected>-- Cargando Clientes... --</option>';
+
+    // Usamos el endpoint de clientes que ya usas en initAdminPanel
+    const clientes = await fetchData('/api/clientes'); 
+    
+    // Almacenamos los clientes globalmente o en un dataset para fácil acceso a la dirección
+    window.clientesData = {}; // Usamos una variable global temporal para guardar la data
+
+    clienteSelect.innerHTML = '<option value="" disabled selected>-- Seleccione Cliente --</option>';
+
+    if (clientes && Array.isArray(clientes) && clientes.length > 0) {
+        clientes.forEach(cliente => {
+            const option = document.createElement('option');
+            option.value = cliente._id || cliente.id; // Usar el ID del cliente
+            option.textContent = cliente.nombre; 
+            clienteSelect.appendChild(option);
+            
+            // Guardar la data para el evento 'change'
+            window.clientesData[option.value] = cliente; 
+        });
+        
+        // 🔑 CLAVE: Listener para actualizar la dirección
+        clienteSelect.addEventListener('change', updateClientAddress);
+        
+    } else {
+        const errorMessage = (clientes === null) 
+            ? 'No tienes permisos para ver clientes.' 
+            : 'No se encontraron clientes.';
+            
+        clienteSelect.innerHTML = `<option value="" disabled selected>${errorMessage}</option>`;
+    }
+}
+
+/**
+ * Actualiza el campo de dirección basado en el cliente seleccionado.
+ */
+function updateClientAddress() {
+    const clienteId = document.getElementById('tareaClienteId').value;
+    const direccionInput = document.getElementById('tareaDireccionCliente');
+    
+    if (window.clientesData && window.clientesData[clienteId]) {
+        direccionInput.value = window.clientesData[clienteId].direccion || 'Dirección no disponible';
+    } else {
+        direccionInput.value = '';
     }
 }
 
@@ -1237,11 +1297,14 @@ function setupTareaModal() {
             titulo: document.getElementById('tareaTitulo').value,
             descripcion: document.getElementById('tareaDescripcion').value,
             asignadoA: document.getElementById('tareaAsignadoA').value,
+            // 🛑 AÑADIR CLIENTE
+            cliente: document.getElementById('tareaClienteId').value,
             fechaLimite: document.getElementById('tareaFechaLimite').value,
             estado: document.getElementById('tareaEstado').value
         };
 
-
+        // 🔑 Si tu backend espera 'nombre' en lugar de 'titulo', ajusta aquí:
+        // if (!data.nombre) data.nombre = data.titulo;
 
         const result = await saveOrUpdateData(endpoint, method, data);
         if (result) {
