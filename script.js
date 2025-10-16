@@ -1342,7 +1342,8 @@ function setupTareaModal() {
             // Campos opcionales o sin cambio de nombre
             descripcion: document.getElementById('tareaDescripcion').value, // No está en la validación, pero es bueno enviarlo
             fechaLimite: document.getElementById('tareaFechaLimite').value,
-            estado: document.getElementById('tareaEstado').value 
+            estado: document.getElementById('tareaEstado').value,
+            prioridad : 'normal'
             // Si tienes un campo 'prioridad', también deberías incluirlo aquí.
         };
 
