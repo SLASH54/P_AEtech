@@ -773,6 +773,11 @@ function mostrarContenido(seccionId) {
        // La clase 'show' ya fue aplicada arriba, initAdminPanel se encarga de los datos.
        initAdminPanel();
     }
+
+    // 🔑 CLAVE: Agregar la inicialización de Tareas
+    if (seccionId === 'organizador-tareas') {
+        initTareas();
+    }
 }
 
 
@@ -931,6 +936,11 @@ document.addEventListener('DOMContentLoaded', function () {
     
     restrictAdminSection(); 
     // Y la lógica de conexión de botones de menú...
+     // 🔑 CLAVE: Inicializar la sección de tareas al cargar si es la primera visible
+    if (document.getElementById('organizador-tareas')?.classList.contains('show')) {
+        initTareas();
+    }
+    
      // 🔑 Conectar el formulario de edición
     const editForm = document.getElementById('editForm');
     if (editForm) {
@@ -1379,46 +1389,7 @@ async function deleteData(endpoint) {
     }
 }
 
-
-// ------------------------------------------------------------------------
-// AGREGAR LLAMADA A initTareas EN mostrarContenido
-// ------------------------------------------------------------------------
-
-// Asegúrate de que tu función mostrarContenido ahora llame a initTareas
-// cuando la sección seleccionada es 'organizador-tareas'
-function mostrarContenido(seccionId) {
-    let secciones = document.querySelectorAll('.main-content');
-    // ... (Tu lógica para ocultar y mostrar secciones) ...
-
-    let seccionAMostrar = document.getElementById(seccionId);
-    if (seccionAMostrar) {
-        seccionAMostrar.classList.add('show');
-    }
-
-    // 🔑 CLAVE: Agregar la inicialización de Tareas
-    if (seccionId === 'organizador-tareas') {
-        initTareas();
-    }
-    
-    // Mantenemos la inicialización de Administración
-    if (seccionId === 'Administracion') {
-       initAdminPanel();
-    }
-    
-    // ... (Otras inicializaciones) ...
-}
-
 // ------------------------------------------------------------------------
 // AGREGAR LLAMADA A initTareas EN document.addEventListener
 // ------------------------------------------------------------------------
 
-document.addEventListener('DOMContentLoaded', function () {
-    // ... (Tu lógica de autenticación y redirección) ...
-
-    // 🔑 CLAVE: Inicializar la sección de tareas al cargar si es la primera visible
-    if (document.getElementById('organizador-tareas')?.classList.contains('show')) {
-        initTareas();
-    }
-    
-    // ... (El resto de tu código DOMContentLoaded) ...
-});
