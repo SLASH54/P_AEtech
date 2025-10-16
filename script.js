@@ -1435,7 +1435,6 @@ function openTareaModal(tarea, mode) {
         // Asignar al usuario
         const assignedUser = tarea.usuarioAsignadoId || ''; // 🛑 CORREGIDO: De 'asignadoA' a 'usuarioAsignadoId'
         const select = document.getElementById('tareaAsignadoA');
-// ...
     
         // Si el select no tiene aún las opciones cargadas, espera
         if (select.options.length <= 1) {
