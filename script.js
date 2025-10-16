@@ -937,7 +937,7 @@ document.addEventListener('DOMContentLoaded', function () {
     restrictAdminSection(); 
     // Y la lógica de conexión de botones de menú...
     //
-    
+    //
      // 🔑 Conectar el formulario de edición
     const editForm = document.getElementById('editForm');
     if (editForm) {

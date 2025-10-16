@@ -457,7 +457,10 @@
 <!-- MODAL para Agregar/Editar Tarea (Lo mantendremos simple por ahora) -->
 <!-- --------------------------------------------------------------------------------- -->
 
-<div id="tareaModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 hidden flex items-center justify-center p-4 z-50">
+<div id="tareaModal" 
+class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50 
+            opacity-0 pointer-events-none transition-opacity duration-300"
+     style="display: none;"> <!-- Aseguramos que está oculto inicialmente -->
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6">
         <h3 id="tareaModalTitle" class="text-2xl font-semibold mb-4 border-b pb-2">Crear Nueva Tarea</h3>
         <form id="tareaForm">
