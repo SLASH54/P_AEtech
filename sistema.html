@@ -497,7 +497,7 @@ class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center 
                     <input type="date" id="tareaFechaLimite" name="fechaLimite" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
                 </div>
             </div>
-            
+
             <div class="mb-4">
                 <label for="tareaDireccionCliente" class="block text-sm font-medium text-gray-700">Dirección del Cliente</label>
                 <input type="text" id="tareaDireccionCliente" name="direccionCliente" readonly 
@@ -961,67 +961,103 @@ class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center 
     
 </section>
 
+
+
+
+
 <section id="Actividades" class="main-content">
     <div class="contenedor">
-        <div class="foto-contenedor">
-           <h3>Foto Antes de la Instalación</h3>
-                <img id="foto-antes" src="#" alt="Foto Antes">
-                <input type="file" id="upload-antes" accept="image/*">
-                <button onclick="tomarFoto('foto-antes', 'upload-antes')">Tomar Foto</button>
+
+               <!-- Contenedor principal de inputs y firmas -->
+        <div class="section-container">
+            
+            <!-- 1. FOTO ANTES DE LA INSTALACIÓN (Campo fijo) -->
+            <div class="foto-contenedor">
+                <h3>Foto Antes de la Instalación</h3>
+                <img id="foto-antes" class="preview-img" src="https://placehold.co/300x200/cccccc/333333?text=ANTES" alt="Foto Antes">
+                
+                <!-- Input Unificado (Oculto) -->
                 <input 
                     type="file" 
-                    id="file-pre-instalacion" 
-                    data-target="image-pre-instalacion"
+                    id="upload-antes" 
                     accept="image/*" 
                     capture="camera" 
-                    style="display: none;"
-                    onchange="previewImage(this)">
+                    style="display: none;" 
+                    onchange="previewImage(this, 'foto-antes')">
+                
+                <button onclick="activarInput('upload-antes')">📸 Tomar Foto / Elegir Archivo</button>
+            </div>
+
+            <!-- 2. FOTO DESPUÉS DE LA INSTALACIÓN (Campo fijo) -->
+            <div class="foto-contenedor">
+                <h3>Foto Despues de la Instalación</h3>
+                <img id="foto-despues" class="preview-img" src="https://placehold.co/300x200/cccccc/333333?text=DESPUÉS" alt="Foto Despues">
+                
+                <!-- Input Unificado (Oculto) -->
+                <input 
+                    type="file" 
+                    id="upload-despues" 
+                    accept="image/*" 
+                    capture="camera" 
+                    style="display: none;" 
+                    onchange="previewImage(this, 'foto-despues')">
+                
+                <button onclick="activarInput('upload-despues')">📸 Tomar Foto / Elegir Archivo</button>
+            </div>
+            
+            <!-- 3. FOTOS ADICIONALES (Múltiples) -->
+            <div class="adicional-contenedor">
+                <h3>Otras Fotos (Evidencia Adicional)</h3>
+                <div id="additional-photos-preview" class="preview-list">
+                    <!-- Aquí se añadirán las miniaturas de fotos adicionales -->
                 </div>
-
-        <div class="foto-contenedor">
-            <h3>Foto Despues de la Instalación</h3>
-                <img id="foto-despues" src="#" alt="Foto Despues">
-                <input type="file" id="upload-despues" accept="image/*">
-                <button onclick="tomarFoto('foto-despues', 'upload-despues')">Tomar Foto</button>
+                
+                <!-- Input Unificado (Oculto) -->
                 <input 
                     type="file" 
-                    id="file-pre-instalacion" 
-                    data-target="image-pre-instalacion"
+                    id="upload-adicional" 
                     accept="image/*" 
                     capture="camera" 
-                    style="display: none;"
-                    onchange="previewImage(this)">
-                 </div>
+                    multiple 
+                    style="display: none;" 
+                    onchange="addAdditionalPhotos(this)">
+                
+                <button onclick="activarInput('upload-adicional')">➕ Agregar Fotos Adicionales</button>
+            </div>
 
-                    
-       <div class="foto-contenedor">
-      <h3>Firma del Cliente</h3>
-      <canvas id="firmaCanvas" width="300" height="150"></canvas>
-      <div class="botones-firma">
-        <button id="limpiarBtn">🧹 Limpiar</button>
-        <button id="guardarBtn">💾 Guardar Firma</button>
-      </div>
-     
-  
- 
-  
-<!-- Contenedor donde se mostrará la firma guardada -->
-  <div id="firmaGuardada" class="firma-guardada">
-    <h4>Firma Guardada:</h4>
-    <div id="imagenFirma"></div>
-  </div> </div>
-   
+            <!-- 4. FIRMAS DEL CLIENTE (Múltiples) -->
+            <div class="firma-contenedor">
+                <h3>Firma(s) del Cliente</h3>
+                <canvas id="firmaCanvas" width="300" height="150"></canvas>
+                <div class="botones-firma">
+                    <button onclick="limpiarCanvas()">🧹 Limpiar</button>
+                    <button onclick="guardarFirma()">💾 Guardar Firma</button>
+                </div>
+                
+                <div id="firmas-guardadas-preview" class="preview-list">
+                    <!-- Aquí se añadirán las firmas guardadas como miniaturas -->
+                </div>
+            </div>
 
-        <h3>Descripción de la Actividad</h3>
-        <textarea id="descripcion" rows="4" cols="50"></textarea>
-        <button onclick="agregarActividad()">Agregar Actividad</button>
-    </div>
+        </div>
+        
+        <!-- 5. DESCRIPCIÓN Y BOTÓN DE ACCIÓN -->
+        <div class="area-descripcion">
+            <h3>Descripción de la Actividad Realizada</h3>
+            <textarea id="descripcion" rows="4" placeholder="Escriba aquí la descripción detallada de la actividad..." ></textarea>
+            <button class="main-button" onclick="agregarActividad()">✅ Guardar Actividad y Evidencias</button>
+        </div>
 
+        <!-- 6. SECCIÓN DE EVIDENCIAS (Donde se muestran los registros) -->
+        <section id="evidencias-seccion">
+            <h2>EVIDENCIAS GUARDADAS</h2>
+            <div id="evidencias-contenedor">
+                <!-- Aquí se irán agregando las tarjetas de actividad -->
+                <p style="text-align: center; color: #7f8c8d;">No hay actividades guardadas aún.</p>
+            </div>
+        </section>
 
-
-
-</section>
-
+    </section>
     <script>
 
 

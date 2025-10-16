@@ -1020,90 +1020,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  const canvas = document.getElementById('firmaCanvas');
-  const ctx = canvas.getContext('2d');
-  const limpiarBtn = document.getElementById('limpiarBtn');
-  const guardarBtn = document.getElementById('guardarBtn');
-  const imagenFirma = document.getElementById('imagenFirma');
-
-  let dibujando = false;
-
-  ctx.strokeStyle = "#000";
-  ctx.lineWidth = 2;
-  ctx.lineCap = "round";
-
-  canvas.addEventListener('mousedown', (e) => {
-    dibujando = true;
-    ctx.beginPath();
-    ctx.moveTo(e.offsetX, e.offsetY);
-  });
-
-  canvas.addEventListener('mousemove', (e) => {
-    if (!dibujando) return;
-    ctx.lineTo(e.offsetX, e.offsetY);
-    ctx.stroke();
-  }); 
-
-  canvas.addEventListener('mouseup', () => dibujando = false);
-  canvas.addEventListener('mouseleave', () => dibujando = false);
-
-  canvas.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    dibujando = true;
-    const rect = canvas.getBoundingClientRect();
-    const touch = e.touches[0];
-    ctx.beginPath();
-    ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
-  });
-
-  canvas.addEventListener('touchmove', (e) => {
-    e.preventDefault();
-    if (!dibujando) return;
-    const rect = canvas.getBoundingClientRect();
-    const touch = e.touches[0];
-    ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
-    ctx.stroke();
-  });
-
-  canvas.addEventListener('touchend', () => dibujando = false);
-
-  limpiarBtn.addEventListener('click', () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  });
-
-  guardarBtn.addEventListener('click', () => {
-    const dataURL = canvas.toDataURL("image/png");
-    const img = document.createElement("img");
-    img.src = dataURL;
-    img.alt = "Firma del cliente";
-    img.classList.add("imagen-firma-guardada");
-    imagenFirma.innerHTML = "";
-    imagenFirma.appendChild(img);
-  });
-
-  function agregarActividad() {
-    const fotoAntesSrc = document.getElementById('foto-antes').src;
-    const fotoDespuesSrc = document.getElementById('foto-despues').src;
-    const firma = document.getElementById('imagenFirma').querySelector('img')?.src || '';
-    const descripcion = document.getElementById('descripcion').value;
-
-    const actividadDiv = document.createElement('div');
-    actividadDiv.innerHTML = `
-      <img src="${fotoAntesSrc}" alt="Foto Antes">
-      <img src="${fotoDespuesSrc}" alt="Foto Después">
-      ${firma ? `<img src="${firma}" alt="Firma">` : ''}
-      <p>Descripción: ${descripcion}</p>
-      <hr>
-    `;
-    document.getElementById('actividades-realizadas').appendChild(actividadDiv);
-
-    document.getElementById('foto-antes').src = '';
-    document.getElementById('foto-despues').src = '';
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    imagenFirma.innerHTML = '';
-    document.getElementById('descripcion').value = '';
-  }
-
 
 // script.js (Añadir listener al alcance global, probablemente dentro de DOMContentLoaded)
 
@@ -1504,4 +1420,294 @@ async function deleteData(endpoint) {
 // ------------------------------------------------------------------------
 // AGREGAR LLAMADA A initTareas EN document.addEventListener
 // ------------------------------------------------------------------------
+
+
+
+
+
+//mich OW
+        // =======================================================
+        // DECLARACIÓN DE ESTADO GLOBAL PARA FOTOS Y FIRMAS MÚLTIPLES
+        // =======================================================
+        let additionalPhotos = []; // Almacena Data URLs de fotos adicionales
+        let savedSignatures = []; // Almacena Data URLs de firmas
+        let actividadCounter = 0; // Contador global para numerar las actividades consecutivamente
+        
+        // =======================================================
+        // LÓGICA DE FOTOS Y ARCHIVOS
+        // =======================================================
+        
+        // Función para activar el input de archivo (oculto)
+        function activarInput(uploadId) {
+            const input = document.getElementById(uploadId);
+            input.click();
+        }
+
+        // Función para previsualizar la imagen seleccionada/capturada (Para Fotos Antes/Después)
+        function previewImage(inputElement, imgId) {
+            const file = inputElement.files[0];
+            const targetImg = document.getElementById(imgId);
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    targetImg.src = event.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        // Función para añadir Múltiples Fotos Adicionales
+        function addAdditionalPhotos(inputElement) {
+            if (inputElement.files.length === 0) return;
+
+            Array.from(inputElement.files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const dataURL = event.target.result;
+                    additionalPhotos.push(dataURL);
+                    renderAdditionalPhotos();
+                };
+                reader.readAsDataURL(file);
+            });
+            // Limpiar el input para poder seleccionar los mismos archivos de nuevo
+            inputElement.value = '';
+        }
+
+        // Renderizar las miniaturas de fotos adicionales
+        function renderAdditionalPhotos() {
+            const container = document.getElementById('additional-photos-preview');
+            container.innerHTML = '';
+            
+            additionalPhotos.forEach((dataURL, index) => {
+                const item = document.createElement('div');
+                item.classList.add('preview-item');
+                
+                const img = document.createElement('img');
+                img.src = dataURL;
+                img.alt = `Foto Adicional ${index + 1}`;
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.classList.add('remove-btn');
+                removeBtn.textContent = 'X';
+                removeBtn.onclick = () => removePhoto(index);
+                
+                item.appendChild(img);
+                item.appendChild(removeBtn);
+                container.appendChild(item);
+            });
+            
+            if (additionalPhotos.length === 0) {
+                 container.innerHTML = '<span>No hay fotos adicionales</span>';
+            }
+        }
+        
+        // Eliminar una foto adicional
+        function removePhoto(index) {
+            additionalPhotos.splice(index, 1);
+            renderAdditionalPhotos();
+        }
+
+        // Inicializar render de fotos adicionales (vacío al inicio)
+        document.addEventListener('DOMContentLoaded', renderAdditionalPhotos);
+
+
+        // =======================================================
+        // LÓGICA DE FIRMAS (MÚLTIPLES)
+        // =======================================================
+        
+        const canvas = document.getElementById('firmaCanvas');
+        const ctx = canvas.getContext('2d');
+        const firmasPreview = document.getElementById('firmas-guardadas-preview');
+        
+        let dibujando = false;
+
+        // Configuración inicial del canvas
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 2;
+        ctx.lineCap = "round";
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height); // Asegurar fondo blanco
+
+        // Eventos de Mouse (Desktop)
+        canvas.addEventListener('mousedown', (e) => {
+            dibujando = true;
+            ctx.beginPath();
+            ctx.moveTo(e.offsetX, e.offsetY);
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!dibujando) return;
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+        }); 
+
+        canvas.addEventListener('mouseup', () => dibujando = false);
+        canvas.addEventListener('mouseleave', () => dibujando = false);
+
+        // Eventos de Touch (Móvil)
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            dibujando = true;
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            ctx.beginPath();
+            ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+        }, { passive: false });
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (!dibujando) return;
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+            ctx.stroke();
+        }, { passive: false });
+
+        canvas.addEventListener('touchend', () => dibujando = false);
+
+        // Limpiar el área de firma
+        function limpiarCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillRect(0, 0, canvas.width, canvas.height); // Volver a pintar fondo blanco
+        }
+        
+        // Guardar la firma actual y agregarla a la lista
+        function guardarFirma() {
+            const dataURL = canvas.toDataURL("image/png");
+            
+            // Verificar si el canvas está vacío (solo fondo blanco)
+            const blank = document.createElement('canvas');
+            blank.width = canvas.width;
+            blank.height = canvas.height;
+            const bctx = blank.getContext('2d');
+            bctx.fillStyle = "#fff";
+            bctx.fillRect(0, 0, blank.width, blank.height);
+            
+            if (dataURL === blank.toDataURL("image/png")) {
+                console.error("No se puede guardar una firma vacía.");
+                // Opcional: mostrar un modal o mensaje al usuario aquí
+                return;
+            }
+
+            savedSignatures.push(dataURL);
+            limpiarCanvas(); // Limpiar para la próxima firma
+            renderSavedSignatures();
+        }
+
+        // Renderizar las miniaturas de firmas guardadas
+        function renderSavedSignatures() {
+            firmasPreview.innerHTML = '';
+            
+            savedSignatures.forEach((dataURL, index) => {
+                const item = document.createElement('div');
+                item.classList.add('preview-item');
+                
+                const img = document.createElement('img');
+                img.src = dataURL;
+                img.alt = `Firma ${index + 1}`;
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.classList.add('remove-btn');
+                removeBtn.textContent = 'X';
+                removeBtn.onclick = () => removeSignature(index);
+                
+                item.appendChild(img);
+                item.appendChild(removeBtn);
+                firmasPreview.appendChild(item);
+            });
+            
+            if (savedSignatures.length === 0) {
+                 firmasPreview.innerHTML = '<span>No hay firmas guardadas</span>';
+            }
+        }
+        
+        // Eliminar una firma
+        function removeSignature(index) {
+            savedSignatures.splice(index, 1);
+            renderSavedSignatures();
+        }
+
+        // Inicializar render de firmas (vacío al inicio)
+        document.addEventListener('DOMContentLoaded', renderSavedSignatures);
+
+
+        // =======================================================
+        // LÓGICA DE AGREGAR ACTIVIDAD (EVIDENCIAS)
+        // =======================================================
+
+        function agregarActividad() {
+            // 1. Recopilar datos
+            const fotoAntesSrc = document.getElementById('foto-antes').src;
+            const fotoDespuesSrc = document.getElementById('foto-despues').src;
+            const descripcionTexto = document.getElementById('descripcion').value.trim();
+            const evidenciasContenedor = document.getElementById('evidencias-contenedor');
+
+            // 1.1 Incrementar el contador de actividad
+            actividadCounter++;
+            
+            // Validar que al menos haya una descripción o una imagen
+            if (!descripcionTexto && fotoAntesSrc.includes('ANTES') && fotoDespuesSrc.includes('DESPUÉS') && additionalPhotos.length === 0 && savedSignatures.length === 0) {
+                 console.warn("La actividad no tiene descripción ni evidencias válidas.");
+                 // Si la validación falla, decrementamos el contador para no perder la secuencia
+                 actividadCounter--;
+                 return; 
+            }
+            
+            // 2. Crear el nuevo elemento de evidencia
+            const actividadDiv = document.createElement('div');
+            actividadDiv.classList.add('actividad-evidencia');
+            
+            // Se usa el contador global para la numeración consecutiva
+            let htmlContent = `
+                <h4>Actividad #${actividadCounter}</h4>
+                <p><strong>Descripción:</strong> ${descripcionTexto || 'Sin descripción'}</p>
+                <div class="evidencia-galeria">
+            `;
+            
+            // a. Agregar Foto Antes
+            if (!fotoAntesSrc.includes('ANTES')) {
+                htmlContent += `<img class="evidencia-foto-img" src="${fotoAntesSrc}" alt="Foto Antes">`;
+            }
+
+            // b. Agregar Foto Después
+            if (!fotoDespuesSrc.includes('DESPUÉS')) {
+                htmlContent += `<img class="evidencia-foto-img" src="${fotoDespuesSrc}" alt="Foto Después">`;
+            }
+
+            // c. Agregar Fotos Adicionales
+            additionalPhotos.forEach((src, index) => {
+                htmlContent += `<img class="evidencia-foto-img" src="${src}" alt="Foto Adicional ${index + 1}">`;
+            });
+
+            // d. Agregar Firmas
+            savedSignatures.forEach((src, index) => {
+                htmlContent += `<img class="evidencia-firma-img" src="${src}" alt="Firma Cliente ${index + 1}">`;
+            });
+            
+            htmlContent += `</div>`;
+            actividadDiv.innerHTML = htmlContent;
+
+            // 3. Insertar la nueva actividad al inicio de la sección de evidencias
+            const primerElemento = evidenciasContenedor.querySelector('p'); // Buscar el párrafo de "No hay actividades"
+            if (primerElemento && (primerElemento.textContent.includes('No hay actividades guardadas aún'))) {
+                 evidenciasContenedor.innerHTML = '';
+            }
+            evidenciasContenedor.prepend(actividadDiv); // Agregar al inicio (más reciente primero)
+
+            // 4. Limpiar el formulario
+            document.getElementById('foto-antes').src = 'https://placehold.co/300x200/cccccc/333333?text=ANTES';
+            document.getElementById('foto-despues').src = 'https://placehold.co/300x200/cccccc/333333?text=DESPUÉS';
+            document.getElementById('descripcion').value = '';
+            
+            additionalPhotos = [];
+            savedSignatures = [];
+            renderAdditionalPhotos();
+            renderSavedSignatures();
+            limpiarCanvas();
+            
+            console.log(`Actividad #${actividadCounter} guardada exitosamente.`);
+        }
+    
+
 
