@@ -1338,6 +1338,9 @@ function setupTareaModal() {
             actividadId: document.getElementById('tareaActividadId').value, 
             // ID del cliente seleccionado (backend espera 'clienteNegocioId')
             clienteNegocioId: document.getElementById('tareaClienteId').value, 
+            // ID de la sucursal (backend espera 'sucursalId', temporal hasta que lo quites del controller)
+            sucursalId: '1', // 🛑 IMPORTANTE: Enviamos un ID VÁLIDO o 'null' si tu BD lo permite. 
+                             // Si 'General' no funciona, pon un ID de sucursal existente (ej: '1')
             // Campos opcionales o sin cambio de nombre
             descripcion: document.getElementById('tareaDescripcion').value, // No está en la validación, pero es bueno enviarlo
             fechaLimite: document.getElementById('tareaFechaLimite').value,
