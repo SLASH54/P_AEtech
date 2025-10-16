@@ -828,10 +828,16 @@ function openEditModal(data, type) {
     const userFields = document.getElementById('userFields');
     const clientFields = document.getElementById('clientFields');
     
-    if (type === 'usuario') {
+   if (type === 'usuario') {
         userFields.style.display = 'block';
         clientFields.style.display = 'none';
-        document.getElementById('edit-rol').value = data.rol || '';
+        
+        // 🔑 CAMBIO CRÍTICO: Asignar el valor del rol al SELECT
+        const rolSelect = document.getElementById('edit-rol');
+        if (rolSelect) {
+             // El valor del select debe ser igual al rol que viene de la base de datos (data.rol)
+             rolSelect.value = data.rol || '';
+        }
     } else { // cliente
         userFields.style.display = 'none';
         clientFields.style.display = 'block';
