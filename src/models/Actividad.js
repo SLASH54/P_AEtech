@@ -11,8 +11,8 @@ const Actividad = sequelize.define('Actividad', {
     nombre: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
-        comment: 'Nombre de la actividad (ej: Instalación de GPS)',
+        //unique: true,
+        //comment: 'Nombre de la actividad (ej: Instalación de GPS)',
     },
     descripcion: {
         type: DataTypes.TEXT,
