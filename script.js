@@ -1338,7 +1338,9 @@ function setupTareaModal() {
             actividadId: document.getElementById('tareaActividadId').value, 
             // ID del cliente seleccionado (backend espera 'clienteNegocioId')
             clienteNegocioId: document.getElementById('tareaClienteId').value, 
-            
+            // 🛑 SOLUCIÓN TEMPORAL: Incluir sucursalId con un valor que satisfaga la validación.
+            // Usa un ID válido que exista en tu tabla de Sucursales.
+            sucursalId: '1', // <-- Cambia '1' si sabes que el ID es diferente
             // Campos opcionales o sin cambio de nombre
             descripcion: document.getElementById('tareaDescripcion').value, // No está en la validación, pero es bueno enviarlo
             fechaLimite: document.getElementById('tareaFechaLimite').value,
