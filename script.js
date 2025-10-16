@@ -1231,7 +1231,7 @@ function setupTareaModal() {
         e.preventDefault();
         const tareaId = document.getElementById('tareaId').value;
         const method = tareaId ? 'PUT' : 'POST';
-        const endpoint = tareaId ? `/api/tareas/${tareaId}` : '/api/tareas';
+        const endpoint = tareaId ? `/tareas/${tareaId}` : '/tareas';
 
         const data = {
             titulo: document.getElementById('tareaTitulo').value,
@@ -1304,7 +1304,7 @@ async function deleteTarea(tareaId) {
         return; // Usamos window.confirm por simplicidad, pero se recomienda un modal personalizado.
     }
 
-    const endpoint = `/api/tareas/${tareaId}`;
+    const endpoint = `/tareas/${tareaId}`;
     const response = await deleteData(endpoint);
 
     if (response) {
