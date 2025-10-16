@@ -1225,14 +1225,14 @@ function setupTareaModal() {
 
     // Cerrar Modal
     closeBtn.onclick = () => modal.style.display = 'hidden';
-
+   
     // Enviar Formulario (Crear/Editar)
     form.onsubmit = async (e) => {
         e.preventDefault();
         const tareaId = document.getElementById('tareaId').value;
         const method = tareaId ? 'PUT' : 'POST';
         const endpoint = tareaId ? `/api/tareas/${tareaId}` : '/api/tareas';
-
+        
         const data = {
             titulo: document.getElementById('tareaTitulo').value,
             descripcion: document.getElementById('tareaDescripcion').value,
@@ -1241,13 +1241,18 @@ function setupTareaModal() {
             estado: document.getElementById('tareaEstado').value
         };
 
+// 3. Llamar a la API
         const result = await saveOrUpdateData(endpoint, method, data);
+        
+        // 4. Manejar Respuesta
         if (result) {
-            alert('Tarea guardada exitosamente.');
-            modal.style.display = 'hidden';
+            alert('Tarea guardada exitosamente.'); 
+            closeModal(); 
             initTareas(); // Recargar la lista de tareas
         }
-    };
+        // Si 'result' es null, 'fetchData' ya mostró el error (401/500/etc.)
+
+};
     
     // Función para manejar el cierre al hacer clic fuera
     window.onclick = function(event) {
@@ -1256,6 +1261,12 @@ function setupTareaModal() {
         }
     }
 }
+
+const closeModal = () => {
+        modal.classList.remove('opacity-100', 'pointer-events-auto');
+        modal.classList.add('opacity-0', 'pointer-events-none');
+        setTimeout(() => { modal.style.display = 'none'; }, 300);
+    };
 
 /**
  * Abre y llena el modal para crear o editar una tarea.
