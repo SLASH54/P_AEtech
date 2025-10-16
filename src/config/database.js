@@ -38,19 +38,21 @@ const sequelize = new Sequelize(isProduction ? process.env.DATABASE_URL : {
 // ... (resto del código de sincronización)
 
 
-async function connectDB() {
-  try {
-    await sequelize.authenticate();
-    console.log('✅ Conexión a la base de datos PostgreSQL exitosa.');
-    
-    // Sincroniza todos los modelos que has importado (crea las tablas si no existen)
-        await sequelize.sync({ alter: true }); 
-        console.log('⚙ Modelos sincronizados con la base de datos (Alter Mode).');
 
-  } catch (error) {
-    console.error('❌ Error al conectar o sincronizar la base de datos:', error.message);
-    process.exit(1); 
-  }
+async function connectDB() {
+    try {
+        await sequelize.authenticate();
+        console.log('✅ Conexión a la base de datos PostgreSQL exitosa.');
+        
+        // 🛑 CLAVE: COMENTA O ELIMINA LA LÍNEA DE SINCRONIZACIÓN.
+        // Esto permite que el servidor arranque si las tablas ya existen.
+        // await sequelize.sync({}); 
+        console.log('⚙ Modelos listos. NO se intentó la sincronización automática.');
+
+    } catch (error) {
+        console.error('❌ Error al conectar o sincronizar la base de datos:', error.message);
+        process.exit(1); 
+    }
 }
 
 module.exports = { sequelize, connectDB };
