@@ -936,10 +936,7 @@ document.addEventListener('DOMContentLoaded', function () {
     
     restrictAdminSection(); 
     // Y la lógica de conexión de botones de menú...
-     // 🔑 CLAVE: Inicializar la sección de tareas al cargar si es la primera visible
-    if (document.getElementById('organizador-tareas')?.classList.contains('show')) {
-        initTareas();
-    }
+    
     
      // 🔑 Conectar el formulario de edición
     const editForm = document.getElementById('editForm');
