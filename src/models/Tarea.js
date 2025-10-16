@@ -19,10 +19,16 @@ const Tarea = sequelize.define('Tarea', {
         allowNull: false,
         comment: 'FK al usuario (Residente/Practicante) que debe realizar la tarea.',
     },
-    actividadId: {
+     // Campo que causa el error
+    sucursalId: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        comment: 'FK al tipo de actividad (Instalación GPS) que se debe realizar.',
+        // 🛑 CLAVE: Cambiar 'allowNull: false' a 'allowNull: true' (o simplemente eliminar la línea)
+        allowNull: true, // <-- DEBES ASEGURARTE DE QUE ESTO ESTÉ ASÍ
+        references: {
+            model: 'Sucursales', // Nombre de la tabla de Sucursales
+            key: 'id'
+        },
+        // onDelete: 'CASCADE' // o 'SET NULL' si lo prefieres, pero 'allowNull: true' es la clave
     },
     sucursalId: {
         type: DataTypes.INTEGER,
