@@ -778,6 +778,12 @@ function mostrarContenido(seccionId) {
     if (seccionId === 'organizador-tareas') {
         initTareas();
     }
+
+     // Ocultar el menú después de la selección en móvil
+     const menu = document.getElementById('main-menu');
+     if (menu.classList.contains('open') && window.innerWidth <= 768) {
+         menu.classList.remove('open');
+     }
 }
 
 
