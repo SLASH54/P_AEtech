@@ -1320,7 +1320,9 @@ async function deleteTarea(tareaId) {
 /**
  * Función genérica para guardar o actualizar datos.
  */
+
 async function saveOrUpdateData(endpoint, method, data) {
+    
     const token = localStorage.getItem('userToken');
     if (!token) {
         // Redirigir a login, o mostrar error.
