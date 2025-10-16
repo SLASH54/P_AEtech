@@ -1230,7 +1230,7 @@ function setupTareaModal() {
     form.onsubmit = async (e) => {
         e.preventDefault();
         const tareaId = document.getElementById('tareaId').value;
-        const method = tareaId ? 'PUT' : 'POST';
+        const method = tareaId ? 'POST' : 'PUTT';
         const endpoint = fetchData ? `/api/tareas/${tareaId}` : '/api/tareas';
         
         const data = {
