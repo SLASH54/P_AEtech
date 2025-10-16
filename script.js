@@ -1267,6 +1267,48 @@ function updateClientAddress() {
  * Renderiza la lista de tareas en la tabla.
  * @param {Array<Object>} tareas - La lista de tareas a mostrar.
  */
+
+function renderTareasTable(tareas) {
+    const tareasBody = document.getElementById('tareasBody');
+    if (!tareasBody) return;
+    
+    tareasBody.innerHTML = ''; // Limpiar contenido
+    
+    tareas.forEach(tarea => {
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-gray-100 transition duration-150';
+
+        // ... (Función getStatusBadge se mantiene igual) ...
+
+        // 🛑 Corregido: La BD envía 'nombre', no 'titulo'.
+        // 🛑 Corregido: La BD envía el objeto de usuario en 'Usuario' o 'AsignadoA'.
+        // 🛑 Corregido: La BD envía el objeto de sucursal en 'Sucursal'.
+
+        // Suponemos que tu backend usa los alias: Tarea.belongsTo(Usuario, { as: 'UsuarioAsignado' })
+        // Y Tarea.belongsTo(Sucursal, { as: 'Sucursal' })
+        const asignadoNombre = tarea.UsuarioAsignado ? tarea.UsuarioAsignado.nombre : 'N/A';
+        const sucursalNombre = tarea.Sucursal ? (tarea.Sucursal.nombre || tarea.Sucursal.direccion) : 'General';
+
+
+        row.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${tarea.nombre}</td> 
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${asignadoNombre}</td> 
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sucursalNombre}</td> 
+            <td class="px-6 py-4 whitespace-nowrap text-sm">${getStatusBadge(tarea.estado)}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(tarea.fechaLimite).toLocaleDateString()}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <button onclick="openTareaModal(${JSON.stringify(tarea).replace(/"/g, '&quot;')}, 'edit')" 
+                    class="text-indigo-600 hover:text-indigo-900 mr-3">
+                    Editar
+                </button>
+                <button onclick="deleteTarea('${tarea.id}')" class="text-red-600 hover:text-red-900">
+                    Eliminar
+                </button>
+            </td>
+        `;
+        tareasBody.appendChild(row);
+    });
+}
 function renderTareasTable(tareas) {
     const tareasBody = document.getElementById('tareasBody');
     if (!tareasBody) return;
@@ -1288,9 +1330,9 @@ function renderTareasTable(tareas) {
         };
 
         row.innerHTML = `
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${tarea.titulo}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${tarea.asignadoANombre || 'N/A'}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${tarea.sucursal || 'General'}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${tarea.nombre}</td> 
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${asignadoNombre}</td> 
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sucursalNombre}</td> 
             <td class="px-6 py-4 whitespace-nowrap text-sm">${getStatusBadge(tarea.estado)}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(tarea.fechaLimite).toLocaleDateString()}</td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -1382,18 +1424,19 @@ function openTareaModal(tarea, mode) {
         title.textContent = 'Crear Nueva Tarea';
         form.reset();
         document.getElementById('tareaId').value = '';
-    } else {
-        title.textContent = 'Editar Tarea';
-        document.getElementById('tareaId').value = tarea.id;
-        document.getElementById('tareaTitulo').value = tarea.titulo;
-        document.getElementById('tareaDescripcion').value = tarea.descripcion;
-        document.getElementById('tareaFechaLimite').value = tarea.fechaLimite.split('T')[0]; // Formato YYYY-MM-DD
-        document.getElementById('tareaEstado').value = tarea.estado;
-        
-        // Asignar al usuario
-        const assignedUser = tarea.asignadoA || ''; // asume tarea.asignadoA contiene el ID del usuario
-        const select = document.getElementById('tareaAsignadoA');
-        
+        } else {
+        title.textContent = 'Editar Tarea';
+        document.getElementById('tareaId').value = tarea.id;
+        document.getElementById('tareaTitulo').value = tarea.nombre; // 🛑 CORREGIDO: De 'titulo' a 'nombre'
+        document.getElementById('tareaDescripcion').value = tarea.descripcion;
+        document.getElementById('tareaFechaLimite').value = tarea.fechaLimite.split('T')[0];
+        document.getElementById('tareaEstado').value = tarea.estado;
+        
+        // Asignar al usuario
+        const assignedUser = tarea.usuarioAsignadoId || ''; // 🛑 CORREGIDO: De 'asignadoA' a 'usuarioAsignadoId'
+        const select = document.getElementById('tareaAsignadoA');
+// ...
+    
         // Si el select no tiene aún las opciones cargadas, espera
         if (select.options.length <= 1) {
             // Esto es una medida de seguridad, ya que loadUsersForTareaSelect es async
