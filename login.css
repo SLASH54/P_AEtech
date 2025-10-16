@@ -1368,177 +1368,235 @@ main {
 
 
 
+        .contenedor {
+            display: flex;
+            gap: 20px; /* Espaciado moderno entre contenedores */
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
 
-.contenedor {
-    display: flex;
-  
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-}
+        .section-container {
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
 
-.foto-contenedor {
-    border: 1px solid #ddd;
-    padding: 15px;
-    text-align: center;
-    background-color: #f9f9f9;
-    border-radius: 6px;
-    width: 30%;
-    min-width: 200px;
-    margin-bottom: 15px;
-}
+        .foto-contenedor, .firma-contenedor, .adicional-contenedor {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            flex-grow: 1;
+            min-width: 280px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .firma-contenedor {
+            min-width: 350px;
+            max-width: 400px;
+        }
 
-#Actividades img {
-    max-width: 100%;
-    max-height: 120px;
-    margin-bottom: 10px;
-    border-radius: 4px;
-}
+        h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 1.4rem;
+        }
 
-textarea {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    font-family: inherit;
-    resize: vertical;
-}
+        /* Imágenes de previsualización */
+        .preview-img {
+            width: 100%;
+            max-height: 200px;
+            object-fit: contain;
+            border: 2px solid #5182ff;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background-color: #ecf0f1; /* Fondo para ver el contenedor vacío */
+        }
+        
+        /* Contenedores de imágenes dinámicas */
+        .preview-list, #evidencias-contenedor {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+        
+        .preview-item img, .evidencia-foto-img, .evidencia-firma-img {
+            max-width: 100%;
+            max-height: 150px;
+            width: auto;
+            border-radius: 6px;
+            object-fit: cover;
+            border: 1px solid #bdc3c7;
+        }
+        
+        .preview-item {
+            width: 100px;
+            height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        
+        .remove-btn {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            line-height: 20px;
+            font-size: 12px;
+            padding: 0;
+        }
 
-button {
-    background-color: #5cb85c;
-    color: white;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s ease;
-}
 
-button:hover {
-    background-color: #4cae4c;
-}
+        /* Área de Descripción y Botón Principal */
+        .area-descripcion {
+            width: 100%;
+            margin-top: 20px;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
 
-@media (max-width: 768px) {
-    .contenedor {
-        flex-direction: column;
-    }
+        textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+            transition: border-color 0.3s;
+        }
 
-    .foto-contenedor {
-        width: 100%;
-    }
-}
+        textarea:focus {
+            border-color: #5182ff;
+            outline: none;
+        }
 
-#Actividades {
-    margin-bottom: 20px;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
+        /* Botones Globales */
+        button {
+            background-color: #5cb85c;
+            color: white;
+            padding: 10px 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease, transform 0.2s;
+            margin: 5px;
+            font-weight: bold;
+        }
 
+        button:hover {
+            background-color: #4cae4c;
+            transform: translateY(-1px);
+        }
+        
+        .main-button {
+            width: 100%;
+            margin-top: 10px;
+            padding: 15px 0;
+            background-color: #3498db;
+        }
 
-.foto-contenedor {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(8px);
-  border-radius: 12px;
-  padding: 20px;
-  text-align: center;
-  width: 350px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-}
+        .main-button:hover {
+            background-color: #2980b9;
+        }
 
-.foto-contenedor h3 {
-  margin-bottom: 10px;
-  color: #5182ff;
-}
+        /* Firma */
+        #firmaCanvas {
+            border: 2px solid #333;
+            border-radius: 6px;
+            background-color: #fff;
+            cursor: crosshair;
+            touch-action: none;
+            width: 100%;
+            max-width: 300px;
+            height: 150px;
+            margin: 0 auto 10px;
+            display: block;
+        }
+        
+        .botones-firma {
+            margin-top: 10px;
+        }
 
-.preview-img,
-.signature-img {
-  width: 100%;
-  max-height: 220px;
-  object-fit: contain;
-  border: 1px solid #5182ff;
-  border-radius: 8px;
-  margin-bottom: 10px;
-}
+        /* Sección EVIDENCIAS */
+        #evidencias-seccion {
+            margin-top: 40px;
+            padding: 25px;
+            background-color: #ecf0f1;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
+        }
 
-#signature-canvas {
-  border: 2px solid #64ffda;
-  border-radius: 8px;
-  background-color: #fff;
-  cursor: crosshair;
-}
+        #evidencias-seccion h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 10px;
+        }
 
-button {
-  background: #64ffda;
-  border: none;
-  color: #0a192f;
-  font-weight: bold;
-  padding: 8px 15px;
-  border-radius: 6px;
-  cursor: pointer;
-  margin: 5px;
-  transition: background 0.3s ease, transform 0.2s;
-}
+        .actividad-evidencia {
+            border: 1px solid #bdc3c7;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .actividad-evidencia h4 {
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        
+        .actividad-evidencia p {
+            font-style: italic;
+            margin-top: 5px;
+            white-space: pre-wrap; /* Para respetar saltos de línea en la descripción */
+        }
+        
+        .evidencia-galeria {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #ccc;
+        }
 
-button:hover {
-  background: #52e0c4;
-  transform: scale(1.05);
-}
-
-#signature-preview {
-  margin-top: 10px;
-}
-
-.foto-contenedor {
-  text-align: center;
-  background: #f8f8f8;
-  border-radius: 12px;
-  padding: 20px;
-  width: 350px;
-  margin: 20px auto;
-  box-shadow: 0 0 10px rgba(0,0,0,0.2);
-}
-
-#firmaCanvas {
-  border: 2px solid #333;
-  border-radius: 6px;
-  background-color: #fff;
-  cursor: crosshair;
-  touch-action: none;
-}
-
-.botones-firma {
-  margin-top: 10px;
-}
-
-.botones-firma button {
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  padding: 8px 15px;
-  border-radius: 6px;
-  cursor: pointer;
-  margin: 5px;
-  font-weight: bold;
-  transition: transform 0.2s, background 0.3s;
-}
-
-.botones-firma button:hover {
-  background-color: #45a049;
-  transform: scale(1.05);
-}
-
-.firma-guardada {
-  text-align: center;
-  margin-top: 20px;
-}
-
-.imagen-firma-guardada {
-  width: 300px;
-  border: 2px solid #333;
-  border-radius: 8px;
-  background: white;
-}
+        .evidencia-galeria img {
+            border: 1px solid #3498db;
+            max-height: 100px;
+            width: auto;
+            object-fit: cover;
+        }
+        
+        /* Media Queries para Responsividad */
+        @media (max-width: 900px) {
+             .section-container {
+                 flex-direction: column;
+                 align-items: center;
+             }
+             .foto-contenedor, .firma-contenedor, .adicional-contenedor {
+                 width: 100%;
+                 max-width: 450px;
+             }
+        }
