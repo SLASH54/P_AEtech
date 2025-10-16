@@ -421,86 +421,94 @@
 
             
             <!-- NUEVO CONTENEDOR ORGANIZADOR DE TAREAS -->
-<section id="organizador-tareas" class="main-content" style="margin-top: 40px;">
-    <h2>Organizador de Tareas</h2>
-
-    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-        <label for="filter-tipo">Tipo:</label>
-        <select id="filter-tipo">
-            <option value="CCTV">CCTV</option>
-            <option value="Redes">Redes</option>
-            <option value="GPS y video vigilancia movil">GPS y video vigilancia movil</option>
-            <option value="Cercado Electrico">Cercado Electrico</option>
-            <option value="Comunicaciones">Comunicaciones</option>
-            <option value="Alarmas">Alarmas</option>
-            <option value="Control de acceso">Control de acceso</option>
-        </select>
-        <button id="btn-agregar-tarea" type="button">Agregar tarea</button>
-    </div>
-
-    <!-- FORMULARIO OCULTO PARA CREAR TAREA -->
-    <form id="form-tarea" style="display: none; border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; max-width: 600px;">
-        <div>
-            <label for="actividad">Actividad:</label><br>
-            <select id="actividad" name="actividad" required style="width: 100%;">
-                <option value="">Selecciona Actividad</option>
-                <option value="CCTV">CCTV</option>
-                <option value="Redes">Redes</option>
-                <option value="GPS y video vigilancia movil">GPS y video vigilancia movil</option>
-                <option value="Cercado Electrico">Cercado Electrico</option>
-                <option value="Comunicaciones">Comunicaciones</option>
-                <option value="Alarmas">Alarmas</option>
-                <option value="Control de acceso">Control de acceso</option>
-            </select>
+<!-- Sección de Tareas -->
+<section id="organizador-tareas" class="main-content">
+    <div class="p-8">
+        <h2 class="text-3xl font-bold mb-6 text-gray-800 border-b pb-2">Organizador de Tareas</h2>
+        
+        <div class="flex justify-between items-center mb-6">
+            <p class="text-gray-600">Gestión centralizada de las tareas asignadas y sus estados.</p>
+            <button id="openAddTaskModal" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 transform hover:scale-105">
+                + Nueva Tarea
+            </button>
         </div>
 
-        <div>
-            <label for="asignado">Asignado a:</label><br>
-            <select id="asignado" name="asignado" required style="width: 100%;">
-                <option value="">Selecciona Usuario</option>
-                <option value="Usuario 1">Usuario 1</option>
-                <option value="Usuario 2">Usuario 2</option>
-                <option value="Usuario 3">Usuario 3</option>
-            </select>
-        </div>
-
-        <div>
-            <label for="ubicacion">Ubicación:</label><br>
-            <select id="ubicacion" name="ubicacion" required style="width: 100%;">
-                <option value="">Selecciona ubicación</option>
-                <option value="Sucursal 1">Calzada Oaxaca,Atlixco</option>
-                <option value="Sucursal 2">15 Poniente,Atlixco</option>
-                <option value="Sucursal 3">25 Sur,Puebla</option>
-            </select>
-        </div>
-
-        <div>
-            <label for="tipo-rol">Tipo Rol:</label><br>
-            <select id="tipo-rol" name="tipo-rol" required style="width: 100%;">
-                <option value="">Selecciona rol</option>
-                <option value="Técnico">Técnico</option>
-                <option value="Supervisor">Supervisor</option>
-                <option value="Administrador">Administrador</option>
-            </select>
-        </div>
-
-        <div>
-            <label for="limite-tiempo">Límite de tiempo:</label><br>
-            <input type="datetime-local" id="limite-tiempo" name="limite-tiempo" required style="width: 100%;">
-        </div>
-
-        <button type="submit" style="margin-top: 10px;">Enviar</button>
-        <button type="button" id="cancelar-tarea" style="margin-top: 10px;">Cancelar</button>
-    </form>
-
-    <!-- CONTENEDOR DE LISTAS -->
-    <div id="contenedor-listas" style="display: flex; gap: 20px; justify-content: space-between; max-width: 1000px;">
-        <div style="flex: 1;">
-            <h3>Lista de tareas</h3>
-            <div id="lista-tareas" style="min-height: 150px; border: 1px solid #ccc; padding: 10px;"></div>
+        <div class="bg-white shadow-xl rounded-xl overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200" id="tareasTable">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Título</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asignado a</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sucursal</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Límite</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200" id="tareasBody">
+                    <!-- Aquí se cargarán las tareas con JavaScript -->
+                    <tr><td colspan="6" class="p-4 text-center text-gray-500">Cargando tareas...</td></tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </section>
+
+<!-- --------------------------------------------------------------------------------- -->
+<!-- MODAL para Agregar/Editar Tarea (Lo mantendremos simple por ahora) -->
+<!-- --------------------------------------------------------------------------------- -->
+
+<div id="tareaModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6">
+        <h3 id="tareaModalTitle" class="text-2xl font-semibold mb-4 border-b pb-2">Crear Nueva Tarea</h3>
+        <form id="tareaForm">
+            <input type="hidden" id="tareaId">
+
+            <div class="mb-4">
+                <label for="tareaTitulo" class="block text-sm font-medium text-gray-700">Título</label>
+                <input type="text" id="tareaTitulo" name="titulo" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+
+            <div class="mb-4">
+                <label for="tareaDescripcion" class="block text-sm font-medium text-gray-700">Descripción</label>
+                <textarea id="tareaDescripcion" name="descripcion" required rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label for="tareaAsignadoA" class="block text-sm font-medium text-gray-700">Asignar a Usuario</label>
+                    <select id="tareaAsignadoA" name="asignadoA" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="" disabled selected>-- Seleccione Usuario --</option>
+                        <!-- Opciones cargadas dinámicamente -->
+                    </select>
+                </div>
+                <div>
+                    <label for="tareaFechaLimite" class="block text-sm font-medium text-gray-700">Fecha Límite</label>
+                    <input type="date" id="tareaFechaLimite" name="fechaLimite" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label for="tareaEstado" class="block text-sm font-medium text-gray-700">Estado</label>
+                <select id="tareaEstado" name="estado" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="En Progreso">En Progreso</option>
+                    <option value="Completada">Completada</option>
+                    <option value="Bloqueada">Bloqueada</option>
+                </select>
+            </div>
+
+            <div class="flex justify-end space-x-3 mt-6">
+                <button type="button" id="closeTareaModal" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-lg transition duration-300">
+                    Cancelar
+                </button>
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-300">
+                    Guardar Tarea
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
