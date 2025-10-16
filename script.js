@@ -1268,47 +1268,7 @@ function updateClientAddress() {
  * @param {Array<Object>} tareas - La lista de tareas a mostrar.
  */
 
-function renderTareasTable(tareas) {
-    const tareasBody = document.getElementById('tareasBody');
-    if (!tareasBody) return;
-    
-    tareasBody.innerHTML = ''; // Limpiar contenido
-    
-    tareas.forEach(tarea => {
-        const row = document.createElement('tr');
-        row.className = 'hover:bg-gray-100 transition duration-150';
 
-        // ... (Función getStatusBadge se mantiene igual) ...
-
-        // 🛑 Corregido: La BD envía 'nombre', no 'titulo'.
-        // 🛑 Corregido: La BD envía el objeto de usuario en 'Usuario' o 'AsignadoA'.
-        // 🛑 Corregido: La BD envía el objeto de sucursal en 'Sucursal'.
-
-        // Suponemos que tu backend usa los alias: Tarea.belongsTo(Usuario, { as: 'UsuarioAsignado' })
-        // Y Tarea.belongsTo(Sucursal, { as: 'Sucursal' })
-        const asignadoNombre = tarea.UsuarioAsignado ? tarea.UsuarioAsignado.nombre : 'N/A';
-        const sucursalNombre = tarea.Sucursal ? (tarea.Sucursal.nombre || tarea.Sucursal.direccion) : 'General';
-
-
-        row.innerHTML = `
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${tarea.nombre}</td> 
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${asignadoNombre}</td> 
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sucursalNombre}</td> 
-            <td class="px-6 py-4 whitespace-nowrap text-sm">${getStatusBadge(tarea.estado)}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(tarea.fechaLimite).toLocaleDateString()}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <button onclick="openTareaModal(${JSON.stringify(tarea).replace(/"/g, '&quot;')}, 'edit')" 
-                    class="text-indigo-600 hover:text-indigo-900 mr-3">
-                    Editar
-                </button>
-                <button onclick="deleteTarea('${tarea.id}')" class="text-red-600 hover:text-red-900">
-                    Eliminar
-                </button>
-            </td>
-        `;
-        tareasBody.appendChild(row);
-    });
-}
 function renderTareasTable(tareas) {
     const tareasBody = document.getElementById('tareasBody');
     if (!tareasBody) return;
