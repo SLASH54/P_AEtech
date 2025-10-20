@@ -1673,6 +1673,12 @@ function addAdditionalPhotos(input) {
     });
 }
 
+// Eliminar una foto adicional
+function removePhoto(index) {
+    additionalPhotos.splice(index, 1);
+    renderAdditionalPhotos();
+}
+
 
 // --- 2. GESTIÓN DE FIRMAS (Canvas) ---
 
