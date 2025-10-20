@@ -1217,7 +1217,7 @@ function renderTareasTable(tareas) {
                     Eliminar
                 </button>
                 <button onclick="agregarEvidencia('${tarea.id}')" class="text-red-600 hover:text-red-900">
-                    Agregar Evidencia
+                    Agregar Evidencias
                 </button>
             </td>
         `;
