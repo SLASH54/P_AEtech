@@ -1600,3 +1600,260 @@ main {
                  max-width: 450px;
              }
         }
+
+
+ /* tareas css */
+
+        #organizador-tareas {
+            max-width: 1200px;
+            margin: 40px auto; /* Centrar el contenedor principal */
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Título de la sección */
+        #organizador-tareas h2 {
+            color: #1f2937; /* Gris oscuro */
+            font-size: 1.8rem;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e5e7eb; /* Línea separadora */
+        }
+
+        /* Botón de "Nueva Tarea" (Personalización si no usas Tailwind) */
+        #openAddTaskModal {
+            background-color: #4f46e5; /* Índigo */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        #openAddTaskModal:hover {
+            background-color: #4338ca; /* Índigo más oscuro al pasar el ratón */
+            transform: scale(1.03);
+        }
+
+        /* ------------------------------------------------------------------------- */
+        /* ## Estilos de la Tabla */
+        /* ------------------------------------------------------------------------- */
+
+        /* Contenedor de la tabla */
+        .shadow-xl.rounded-xl.overflow-hidden {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* Encabezados de la tabla */
+        #tareasTable thead th {
+            background-color: #f9fafb; /* Fondo gris muy claro para el encabezado */
+            color: #6b7280; /* Texto gris */
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 12px 24px;
+            text-align: left;
+        }
+
+        /* Filas del cuerpo de la tabla */
+        #tareasTable tbody tr {
+            transition: background-color 0.2s;
+        }
+
+        #tareasTable tbody tr:nth-child(even) {
+            background-color: #f9fafb; /* Cebra para mejor legibilidad */
+        }
+
+        #tareasTable tbody tr:hover {
+            background-color: #f3f4f6; /* Resaltar al pasar el ratón */
+        }
+
+        /* Celdas de la tabla */
+        #tareasTable tbody td {
+            padding: 12px 24px;
+            font-size: 0.875rem;
+            color: #374151;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        /* ------------------------------------------------------------------------- */
+        /* ## MODAL (Ajustando la lógica de visibilidad sin Tailwind) */
+        /* ------------------------------------------------------------------------- */
+
+        #tareaModal {
+            /* Clases de Tailwind reemplazadas/ajustadas */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* Fondo oscuro semitransparente */
+            display: flex; /* Para centrar contenido */
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            
+            /* Manejo de la transición con opacidad para reemplazar las clases de Tailwind */
+            opacity: 0;
+            pointer-events: none; /* Deshabilita interacciones cuando está oculto */
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        /* Clase para mostrar el modal (se debe agregar con JavaScript) */
+        #tareaModal.show-modal {
+            opacity: 1;
+            pointer-events: auto; /* Habilita interacciones cuando está visible */
+        }
+
+        /* Contenido del Modal */
+        #tareaModal > div {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 500px;
+            transform: translateY(-20px); /* Pequeña animación de entrada */
+            transition: transform 0.3s ease-in-out;
+        }
+
+        #tareaModal.show-modal > div {
+            transform: translateY(0);
+        }
+
+        /* Título del Modal */
+        #tareaModalTitle {
+            color: #1f2937;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        /* Estilos de los campos del formulario */
+        #tareaForm label {
+            display: block;
+            margin-bottom: 5px;
+            color: #374151;
+            font-weight: 500;
+        }
+
+        #tareaForm input:not([type="hidden"]), 
+        #tareaForm textarea, 
+        #tareaForm select {
+            box-sizing: border-box;
+            width: 100%;
+            padding: 10px;
+            margin-top: 4px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        #tareaForm input:focus, 
+        #tareaForm textarea:focus, 
+        #tareaForm select:focus {
+            border-color: #4f46e5; /* Índigo */
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        /* Campo de solo lectura para Dirección */
+        #tareaDireccionCliente {
+            background-color: #f3f4f6;
+            color: #6b7280;
+        }
+
+        /* Botones del Modal */
+        #closeTareaModal {
+            background-color: #d1d5db;
+            color: #374151;
+        }
+
+        #closeTareaModal:hover {
+            background-color: #9ca3af;
+        }
+
+        #tareaForm button[type="submit"] {
+            background-color: #10b981; /* Verde esmeralda */
+            color: white;
+        }
+
+        #tareaForm button[type="submit"]:hover {
+            background-color: #059669; /* Verde más oscuro */
+        }
+
+        #closeTareaModal, #tareaForm button[type="submit"] {
+            font-weight: 600;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        /* Estilos de los campos de la tabla dinámica (estilos originales con JS) */
+        .tarea-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            /* Se usan !important para garantizar que estos estilos CSS puros 
+               sobrescriban cualquier estilo inline que el JS pueda agregar. */
+            border: 1px solid #e5e7eb !important; 
+            background-color: #ffffff !important;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: box-shadow 0.2s;
+        }
+
+        .tarea-item:hover {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .tarea-item button {
+            margin-top: 5px;
+            margin-right: 8px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border: none;
+            transition: background-color 0.2s;
+        }
+
+        .tarea-item .editar-tarea {
+            background-color: #3b82f6; /* Azul */
+            color: white;
+        }
+        .tarea-item .editar-tarea:hover {
+            background-color: #2563eb;
+        }
+
+        .tarea-item .eliminar-tarea {
+            background-color: #ef4444; /* Rojo */
+            color: white;
+        }
+        .tarea-item .eliminar-tarea:hover {
+            background-color: #dc2626;
+        }
+
+        .tarea-item .agregar-evidencia {
+            background-color: #6366f1; /* Índigo */
+            color: white;
+        }
+        .tarea-item .agregar-evidencia:hover {
+            background-color: #4f46e5;
+        }
+
+        /* Estilo para los elementos pequeños de texto */
+        .tarea-item small {
+            display: block;
+            color: #4b5563;
+            line-height: 1.5;
+        }
