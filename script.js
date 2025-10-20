@@ -1753,57 +1753,97 @@ function limpiarCanvas() {
  * Convierte el dibujo del canvas a base64, lo guarda y añade la miniatura.
  */
 function guardarFirma() {
-    if (!firmaCanvas) return;
+    if (!firmaCanvas || !ctx) return;
 
-    // 1. Obtener la imagen de la firma en base64
-    const firmaBase64 = firmaCanvas.toDataURL('image/png'); 
+    // 1. Obtener la DataURL del canvas CON LA FIRMA (lo que el usuario quiere guardar)
+    const firmaBase64 = firmaCanvas.toDataURL('image/png');
     
-    // 2. Validar que no sea un canvas en blanco (simplemente el fondo blanco)
+    // --- LÓGICA DE VALIDACIÓN CORREGIDA ---
+    
+    // 2. Limpiar el canvas para obtener la versión BLANCA
+    // Guardamos el estado actual del canvas (con la firma)
+    const estadoActualFirma = ctx.getImageData(0, 0, firmaCanvas.width, firmaCanvas.height);
+    
+    // Limpiamos el canvas para obtener el "cuerpo" de un canvas vacío
+    limpiarCanvas();
     const blankDataUrl = firmaCanvas.toDataURL('image/png');
-    limpiarCanvas(); // Limpiar y comparar
-    const currentDataUrl = firmaCanvas.toDataURL('image/png');
-    initSignaturePad(); // Volver a inicializar para que el usuario siga firmando
     
-    if (firmaBase64 === currentDataUrl || firmaBase64 === blankDataUrl) {
-        alert('Por favor, dibuje una firma en el recuadro antes de guardar.');
+    // Restauramos la firma original inmediatamente
+    ctx.putImageData(estadoActualFirma, 0, 0);
+
+    // 3. Comparar la firma dibujada con la versión BLANCA
+    if (firmaBase64 === blankDataUrl) {
+        // Usamos una función que muestre un modal en lugar de alert()
+        // (Debe existir la función mostrarMensaje en tu script)
+        // Ya que la imagen original usa un modal, lo reemplazo aquí.
+        // Si no tienes mostrarMensaje, puedes volver a usar alert()
+        // alert('Por favor, dibuje una firma en el recuadro antes de guardar.');
+        mostrarMensaje('Aviso', 'Por favor, dibuje una firma en el recuadro antes de guardar.');
         return;
     }
     
-    // 3. Guardar Base64 en variable global
-    window.evidenciaData.firmas.push(firmaBase64);
+    // --- LÓGICA DE GUARDADO (Mantenida por el Usuario) ---
     
-    // 4. Crear miniatura y botón de eliminar
+    // 4. Guardar Base64 en variable global
+    // Importante: Si 'window.evidenciaData' no existe, esto dará error.
+    if (window.evidenciaData && window.evidenciaData.firmas) {
+         window.evidenciaData.firmas.push(firmaBase64);
+    } else {
+        console.error('window.evidenciaData o window.evidenciaData.firmas no están definidos.');
+        // Puedes agregar la firma a un array simple si el global no está listo
+        // console.log('Firma capturada con éxito pero no guardada en global.');
+    }
+   
+    // 5. Crear miniatura y botón de eliminar
     const previewContainer = document.getElementById('firmas-guardadas-preview');
     
-    const previewWrapper = document.createElement('div');
-    previewWrapper.className = 'preview-item';
-    
-    const img = document.createElement('img');
-    img.src = firmaBase64;
-    img.className = 'preview-img-mini';
-    img.alt = 'Firma Guardada';
-    
-    const deleteBtn = document.createElement('button');
-    deleteBtn.textContent = 'x';
-    deleteBtn.className = 'delete-btn';
-    
-    deleteBtn.onclick = () => {
-        // Eliminar del array global
-        const index = window.evidenciaData.firmas.indexOf(firmaBase64);
-        if (index > -1) {
-            window.evidenciaData.firmas.splice(index, 1);
-        }
-        // Eliminar del DOM
-        previewContainer.removeChild(previewWrapper);
-    };
+    if (previewContainer) {
+        const previewWrapper = document.createElement('div');
+        previewWrapper.className = 'preview-item';
+        
+        const img = document.createElement('img');
+        img.src = firmaBase64;
+        img.className = 'preview-img-mini';
+        img.alt = 'Firma Guardada';
+        
+        // Uso del botón de eliminar (CSS y JS son necesarios para que funcione bien)
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'x';
+        deleteBtn.className = 'delete-btn bg-red-500 text-white font-bold rounded-full w-6 h-6 absolute top-0 right-0 -mt-2 -mr-2 shadow-md hover:bg-red-700 transition duration-150';
+        
+        deleteBtn.onclick = () => {
+            // Eliminar del array global
+            if (window.evidenciaData && window.evidenciaData.firmas) {
+                const index = window.evidenciaData.firmas.indexOf(firmaBase64);
+                if (index > -1) {
+                    window.evidenciaData.firmas.splice(index, 1);
+                }
+            }
+            // Eliminar del DOM
+            previewContainer.removeChild(previewWrapper);
+        };
 
-    previewWrapper.appendChild(img);
-    previewWrapper.appendChild(deleteBtn);
-    previewContainer.appendChild(previewWrapper);
+        previewWrapper.appendChild(img);
+        previewWrapper.appendChild(deleteBtn);
+        // Asegúrate de que el wrapper tenga posición relativa para que el botón 'x' sea absoluto
+        previewWrapper.style.position = 'relative'; 
+        previewContainer.appendChild(previewWrapper);
+    }
 
-    // 5. Limpiar el canvas para una nueva firma
+
+    // 6. Limpiar el canvas para una nueva firma
     limpiarCanvas();
-    alert('Firma guardada. Puede añadir otra si es necesario.');
+    // alert('Firma guardada. Puede añadir otra si es necesario.');
+    mostrarMensaje('Éxito', 'Firma guardada. Puede añadir otra si es necesario.');
+}
+
+// Nota: Debes asegurarte de tener definida una función 'mostrarMensaje' 
+// para reemplazar el uso de alert(), como se recomienda para evitar interrupciones en la UI.
+function mostrarMensaje(titulo, mensaje) {
+    // Implementación simple de ejemplo (reemplazar con tu modal)
+    // Usar 'alert' solo si no hay alternativa de modal en tu proyecto.
+    console.log(`[Mensaje a Mostrar] ${titulo}: ${mensaje}`);
+    alert(mensaje); // Revertido temporalmente a alert para no romper la funcionalidad
 }
 
 
