@@ -1216,6 +1216,9 @@ function renderTareasTable(tareas) {
                 <button onclick="deleteTarea('${tarea.id}')" class="text-red-600 hover:text-red-900">
                     Eliminar
                 </button>
+                <button onclick="agregarEvidencia('${tarea.id}')" class="text-red-600 hover:text-red-900">
+                    Agregar Evidencia
+                </button>
             </td>
         `;
         tareasBody.appendChild(row);
