@@ -4,6 +4,7 @@ const cors = require('cors');
 const { connectDB } = require('./src/config/database');
 require('dotenv').config();
 require('./src/models/relations');
+const path = require('path');
 
 
 // 2. Definir los orígenes permitidos
@@ -24,10 +25,16 @@ const corsOptions = {
 // 3. Aplicar el middleware CORS
  // <-- ¡Aplicación del middleware!
 
-
+ 
 const app = express();
+app.use(cors(corsOptions));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 // Usa el puerto del .env o el 3000 por defecto
 const PORT = process.env.PORT || 3000; 
+
+
 
 // ===========================================
 // 1. CARGA DE MODELOS
@@ -62,6 +69,8 @@ app.use(cors(corsOptions));
 app.use('/api/auth', require('./src/routes/authRoutes'));
 
 
+
+
 // ===========================================
 // 3. MONTAJE DE RUTAS
 // ===========================================
@@ -80,7 +89,12 @@ const path = require('path');
 // Monta las rutas de autenticación en /api/auth
 // Las peticiones a /api/auth/register y /api/auth/login funcionarán aquí.
 app.use('/api/auth', authRoutes); 
-app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+// Servir archivos de imágenes subidas
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+
+
+
 
 // Importar y usar rutas de administración de usuarios
 const userRoutes = require('./src/routes/userRoutes');
@@ -96,14 +110,15 @@ app.use('/api/upload', uploadRoutes)
 
 
 
+
 // ===========================================
 // 4. INICIO DE LA APLICACIÓN
 // ===========================================
 // Primero conecta la DB y luego inicia el servidor
 connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Servidor corriendo en http://localhost:${PORT}`);
-  });
+ app.listen(process.env.PORT, () =>
+    console.log(`Servidor en http://localhost:${process.env.PORT}`)
+  );
 }).catch(err => {
     console.error('La aplicación no pudo iniciarse debido a un error de DB/conexión.');
     console.error(err);

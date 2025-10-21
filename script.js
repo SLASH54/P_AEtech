@@ -2003,4 +2003,54 @@ async function deleteActividad(id) {
 // estar definidas en otro lugar de tu script.js
 // ------------------------------------------------------------------------
 
-        
+
+
+
+
+// ============================
+// Subida múltiple de evidencias
+// ============================
+function initEvidencias() {
+  const container = document.getElementById('evidencias-container');
+  const addBtn = document.getElementById('btn-agregar');
+  const saveBtn = document.getElementById('btn-guardar');
+  const tareaId = 'ID_DE_TAREA'; // dinámico según selección
+  const token = localStorage.getItem('userToken');
+
+  let count = 2;
+
+  // Crear campos iniciales
+  for (let i = 0; i < 2; i++) agregarCampo();
+
+  addBtn.addEventListener('click', agregarCampo);
+
+  function agregarCampo() {
+    const div = document.createElement('div');
+    div.className = 'evidencia-item';
+    div.innerHTML = `
+      <input type="text" placeholder="Título de la evidencia" class="titulo">
+      <input type="file" accept="image/*" class="archivo">
+    `;
+    container.appendChild(div);
+    count++;
+  }
+
+  saveBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    const titulos = [...document.querySelectorAll('.titulo')].map(i => i.value);
+    const archivos = [...document.querySelectorAll('.archivo')];
+    archivos.forEach(f => { if (f.files[0]) formData.append('archivos', f.files[0]); });
+    formData.append('titulos', titulos.join(','));
+
+    const res = await fetch(`${API_BASE_URL}/evidencias/upload-multiple/${tareaId}`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData
+    });
+
+    const data = await res.json();
+    if (res.ok) alert('Evidencias subidas correctamente');
+    else alert(data.msg || 'Error al subir evidencias');
+  });
+}
