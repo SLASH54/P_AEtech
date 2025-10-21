@@ -1078,8 +1078,57 @@ class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center 
             </div>
             
         </section>
+        <div id="evidencias-container">
+  <div class="evidencia">
+    <input name="titulo" placeholder="Título de la evidencia 1">
+    <input type="file" name="archivos" accept="image/*">
+  </div>
+  <div class="evidencia">
+    <input name="titulo" placeholder="Título de la evidencia 2">
+    <input type="file" name="archivos" accept="image/*">
+  </div>
+</div>
+
+<button id="add-evidencia">Agregar foto adicional</button>
+<button id="save-evidencias">Guardar evidencias</button>
 
     </section>
+    <script>
+        const API = 'https://tu-backend.onrender.com';
+const token = localStorage.getItem('token');
+const tareaId = tareaSeleccionada.id;
+
+document.getElementById('add-evidencia').onclick = () => {
+  const cont = document.getElementById('evidencias-container');
+  const div = document.createElement('div');
+  div.classList.add('evidencia');
+  div.innerHTML = `
+    <input name="titulo" placeholder="Título de la evidencia">
+    <input type="file" name="archivos" accept="image/*">
+  `;
+  cont.appendChild(div);
+};
+
+document.getElementById('save-evidencias').onclick = async () => {
+  const form = new FormData();
+  const titulos = [...document.querySelectorAll('input[name="titulo"]')].map(i => i.value);
+  document.querySelectorAll('input[name="archivos"]').forEach(f => {
+    if (f.files[0]) form.append('archivos', f.files[0]);
+  });
+  form.append('titulos', titulos.join(','));
+
+  const res = await fetch(`${API}/api/evidencias/upload-multiple/${tareaId}`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: form
+  });
+  const data = await res.json();
+  alert(data.msg);
+};
+// después de subir
+document.querySelector(`#tarea-${tareaId} .estado`).textContent = 'Completada';
+
+    </script>
     <script>
 
 

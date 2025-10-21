@@ -2,11 +2,26 @@
 const express = require('express');
 const evidenciaController = require('../controllers/evidenciaController');
 const { protect, rol } = require('../middleware/authMiddleware'); 
+const { upload } = require('../middleware/uploadMiddleware');
 
 const router = express.Router();
 
+const roles = ['Residente', 'Practicante', 'Admin'];
 const rolesCreacion = ['Residente', 'Practicante'];
 const rolesMonitoreo = ['Admin', 'Ingeniero'];
+
+// src/routes/evidenciaRoutes.js
+
+router.post(
+  '/upload-multiple/:tareaId',
+  protect,
+  rol(roles),
+  upload.array('archivos', 10),   // hasta 10 fotos
+  evidenciaController.subirMultiplesEvidencias
+);
+
+module.exports = router;
+
 
 // Rutas Generales de Evidencia
 router.route('/')

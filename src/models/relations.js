@@ -4,7 +4,7 @@ const Usuario = require('./Usuario');
 const Actividad = require('./Actividad'); 
 const Sucursal = require('./Sucursal');
 const ClienteNegocio = require('./ClienteNegocio');
-const Tarea = require('./Tarea'); // Aún no existe, la crearemos en el siguiente paso
+const Tarea = require('./Tarea');
 const Evidencia = require('./Evidencia');
 
 // 1. Relación Tarea -> Usuario (Asignación)
@@ -32,6 +32,8 @@ ClienteNegocio.hasMany(Tarea, { foreignKey: 'clienteNegocioId' });
 // Una Evidencia documenta una Tarea
 Evidencia.belongsTo(Tarea, { foreignKey: 'tareaId' });
 Tarea.hasOne(Evidencia, { foreignKey: 'tareaId' }); // Una Tarea tiene una única Evidencia
+//Probablemente habra que cambiar esto a:
+//Tarea.hasMany(Evidencia, {foreignKey: 'tareaId });  
 
 // 6. Relación Evidencia -> Usuario (Autor del Reporte)
 // Una Evidencia fue creada por un Usuario

@@ -2,6 +2,41 @@
 const { Evidencia, Tarea, Usuario } = require('../models/relations');
 const { sequelize } = require('../config/database');
 
+
+// src/controllers/evidenciaController.js
+
+
+exports.subirMultiplesEvidencias = async (req, res) => {
+  try {
+    const { tareaId } = req.params;
+    const { titulos } = req.body; // titulos separado por comas
+    const archivos = req.files || [];
+
+    if (!archivos.length) return res.status(400).json({ msg: 'No se subieron archivos.' });
+
+    const urls = archivos.map((f) => `/uploads/${f.filename}`);
+
+    // crea una evidencia por archivo
+    const evidencias = await Promise.all(urls.map((url, i) =>
+      Evidencia.create({
+        tareaId,
+        usuarioId: req.user.id,
+        titulo: titulos?.split(',')[i] || `Evidencia #${i + 1}`,
+        archivoUrl: url,
+      })
+    ));
+
+    // cambia estado de la tarea
+    await Tarea.update({ estado: 'Completada' }, { where: { id: tareaId } });
+
+    res.status(201).json({ msg: 'Evidencias guardadas', evidencias });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: 'Error al guardar evidencias' });
+  }
+};
+
+
 // Configuración de inclusión para GET (mostrar detalles de la Tarea relacionada)
 const includeConfig = [
     { model: Tarea, include: [
