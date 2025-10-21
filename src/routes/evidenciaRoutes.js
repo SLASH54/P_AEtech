@@ -19,14 +19,13 @@ rol(roles),
 evidenciaController.getEvidenciasByTarea
 );
 
-
 module.exports = router;
 
 router.post(
   '/upload-multiple/:tareaId',
   protect,
-  rol(roles),
-  uploadMultiple, // 👈 Usamos el middleware exportado
+  rol(['Admin', 'Residente', 'Practicante']), // ✅ roles permitidos
+  uploadMultiple, // middleware multer
   evidenciaController.subirMultiplesEvidencias
 );
 
