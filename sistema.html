@@ -978,108 +978,41 @@
 
 
 <section id="Actividades" class="main-content">
-        <h1>Registro de Evidencias de Trabajo</h1>
-        
-        <!-- Contenedor principal de inputs y firmas -->
-        <div class="section-container">
-            
-            <!-- 1. FOTO ANTES DE LA INSTALACIÓN (Campo fijo) -->
-            <div class="foto-contenedor">
-                <h3>Foto Antes de la Instalación</h3>
-                <img id="foto-antes" class="preview-img" src="https://placehold.co/300x200/cccccc/333333?text=ANTES" alt="Foto Antes">
-                
-                <!-- Input Unificado (Oculto) -->
-                <input 
-                    type="file" 
-                    id="upload-antes" 
-                    accept="image/*" 
-                    capture="camera" 
-                    style="display: none;" 
-                    onchange="previewImage(this, 'foto-antes')">
-                
-                <button onclick="activarInput('upload-antes')">📸 Tomar Foto / Elegir Archivo</button>
-            </div>
+  <h2 class="titulo-seccion">📸 Registro de Evidencias</h2>
 
-            <!-- 2. FOTO DESPUÉS DE LA INSTALACIÓN (Campo fijo) -->
-            <div class="foto-contenedor">
-                <h3>Foto Despues de la Instalación</h3>
-                <img id="foto-despues" class="preview-img" src="https://placehold.co/300x200/cccccc/333333?text=DESPUÉS" alt="Foto Despues">
-                
-                <!-- Input Unificado (Oculto) -->
-                <input 
-                    type="file" 
-                    id="upload-despues" 
-                    accept="image/*" 
-                    capture="camera" 
-                    style="display: none;" 
-                    onchange="previewImage(this, 'foto-despues')">
-                
-                <button onclick="activarInput('upload-despues')">📸 Tomar Foto / Elegir Archivo</button>
-            </div>
-            
-            <!-- 3. FOTOS ADICIONALES (Múltiples) -->
-            <div class="adicional-contenedor">
-                <h3>Otras Fotos (Evidencia Adicional)</h3>
-                <div id="additional-photos-preview" class="preview-list">
-                    <!-- Aquí se añadirán las miniaturas de fotos adicionales -->
-                </div>
-                
-                <!-- Input Unificado (Oculto) -->
-                <input 
-                    type="file" 
-                    id="upload-adicional" 
-                    accept="image/*" 
-                    capture="camera" 
-                    multiple 
-                    style="display: none;" 
-                    onchange="addAdditionalPhotos(this)">
-                
-                <button onclick="activarInput('upload-adicional')">➕ Agregar Fotos Adicionales</button>
-            </div>
+  <div id="contenedor-evidencias" class="evidencias-grid">
+    <!-- Campo 1 -->
+    <div class="card-evidencia">
+      <label>Título de la evidencia</label>
+      <input type="text" name="titulo[]" placeholder="Ej: Foto antes de la instalación">
+      <label class="label-file">
+        <i class="fa-solid fa-camera"></i> Tomar Foto / Elegir Archivo
+        <input type="file" name="archivos[]" accept="image/*">
+      </label>
+    </div>
 
-            <!-- 4. FIRMAS DEL CLIENTE (Múltiples) -->
-            <div class="firma-contenedor">
-                <h3>Firma(s) del Cliente</h3>
-                <canvas id="firmaCanvas" width="300" height="150"></canvas>
-                <div class="botones-firma">
-                    <button onclick="limpiarCanvas()">🧹 Limpiar</button>
-                    <button onclick="guardarFirma()">💾 Guardar Firma</button>
-                </div>
-                
-                <div id="firmas-guardadas-preview" class="preview-list">
-                    <!-- Aquí se añadirán las firmas guardadas como miniaturas -->
-                </div>
-            </div>
+    <!-- Campo 2 -->
+    <div class="card-evidencia">
+      <label>Título de la evidencia</label>
+      <input type="text" name="titulo[]" placeholder="Ej: Foto después de la instalación">
+      <label class="label-file">
+        <i class="fa-solid fa-camera"></i> Tomar Foto / Elegir Archivo
+        <input type="file" name="archivos[]" accept="image/*">
+      </label>
+    </div>
+  </div>
 
-        </div>
-        
-        <!-- 5. DESCRIPCIÓN Y BOTÓN DE ACCIÓN -->
-        <div class="area-descripcion">
-            <h3>Descripción de la Actividad Realizada</h3>
-            <textarea id="descripcion" rows="4" placeholder="Escriba aquí la descripción detallada de la actividad..." ></textarea>
-            <button class="main-button" onclick="agregarActividad()">✅ Guardar Actividad y Evidencias</button>
-        </div>
+  <div class="botones-evidencias">
+    <button type="button" id="btnAgregarFoto">
+      <i class="fa-solid fa-plus"></i> Agregar Foto Adicional
+    </button>
 
-        <!-- 6. SECCIÓN DE EVIDENCIAS (Donde se muestran los registros) -->
-        <section id="evidencias-seccion">
-            <h2>EVIDENCIAS GUARDADAS</h2>
-            
-            <div id="evidencias-contenedor">
-                <!-- Aquí se irán agregando las tarjetas de actividad -->
-                <p style="text-align: center; color: #7f8c8d;">No hay actividades guardadas aún.</p>
-            </div>
-            
-        </section>
-        <section id="EvidenciasSection">
-  <h3>Subir evidencias</h3>
-  <form id="form-evidencias">
-    <div id="evidencias-container"></div>
-    <button type="button" id="btn-agregar">Agregar foto adicional</button>
-    <button type="submit" id="btn-guardar">Guardar evidencias</button>
-  </form>
+    <button type="button" id="btnGuardarEvidencias">
+      <i class="fa-solid fa-floppy-disk"></i> Guardar Evidencias
+    </button>
+  </div>
 </section>
 
-    </section>
    
     <script>
 

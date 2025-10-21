@@ -1718,3 +1718,95 @@ main {
 .tracking-wider {
     letter-spacing: 0.05em;
 }
+
+
+
+
+/*CSS del formulario de evidencias-Pablo T.
+
+/* CONTENEDOR PRINCIPAL */
+.section-container {
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  padding: 20px;
+  margin-top: 25px;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* TÍTULO */
+.titulo-seccion {
+  text-align: center;
+  color: #1e3a8a;
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+
+/* GRID DE EVIDENCIAS */
+.evidencias-grid {
+  display: grid;
+  gap: 20px;
+}
+
+/* TARJETA INDIVIDUAL */
+.card-evidencia {
+  background-color: #f3f4f6;
+  border-radius: 10px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card-evidencia input[type="text"] {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 0.9rem;
+}
+
+/* BOTÓN DE ARCHIVO */
+.label-file {
+  background-color: #3b82f6;
+  color: white;
+  font-weight: 600;
+  text-align: center;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.label-file:hover {
+  background-color: #2563eb;
+}
+
+.label-file input[type="file"] {
+  display: none;
+}
+
+/* BOTONES PRINCIPALES */
+.botones-evidencias {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+
+.botones-evidencias button {
+  background-color: #22c55e;
+  color: #fff;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.3s ease;
+}
+
+.botones-evidencias button:hover {
+  background-color: #16a34a;
+  transform: scale(1.03);
+}

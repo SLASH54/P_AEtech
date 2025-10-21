@@ -2154,3 +2154,21 @@ function agregarEvidencia(tareaId) {
   // Inicializa el formulario de evidencias dinámicas
   initEvidencias(tareaId);
 }
+
+
+const btnAgregar = document.getElementById('btnAgregarFoto');
+const contenedor = document.getElementById('contenedor-evidencias');
+
+btnAgregar.addEventListener('click', () => {
+  const div = document.createElement('div');
+  div.classList.add('card-evidencia');
+  div.innerHTML = `
+    <label>Título de la evidencia</label>
+    <input type="text" name="titulo[]" placeholder="Ej: Evidencia adicional">
+    <label class="label-file">
+      <i class="fa-solid fa-camera"></i> Tomar Foto / Elegir Archivo
+      <input type="file" name="archivos[]" accept="image/*">
+    </label>
+  `;
+  contenedor.appendChild(div);
+});
