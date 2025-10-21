@@ -64,5 +64,3 @@ exports.rol = (rolesPermitidos) => (req, res, next) => {
         });
     }
 };
-
-module.exports = { protect, admin, rol };
