@@ -2,7 +2,6 @@
 const multer = require('multer');
 const path = require('path');
 
-// Configuración del almacenamiento
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'uploads/'),
   filename: (req, file, cb) => {
@@ -13,10 +12,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-const uploadMultiple = upload.fields([
-  { name: 'archivos', maxCount: 10 },
-  { name: 'firmaCliente', maxCount: 1 }
-]);
+const uploadMultiple = upload.array('archivos', 10); // ✅ función
 
 module.exports = { uploadMultiple };
 

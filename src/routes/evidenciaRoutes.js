@@ -1,9 +1,9 @@
 // src/routes/evidenciaRoutes.js
 const express = require('express');
-const evidenciaController = require('../controllers/evidenciaController');
-const { protect, rol } = require('../middleware/authMiddleware'); 
-const { upload } = require('../middleware/uploadMiddleware');
+const { protect, rol } = require('../middleware/authMiddleware');
 const { uploadMultiple } = require('../middleware/uploadMiddleware');
+const evidenciaController = require('../controllers/evidenciaController');
+
 
 const router = express.Router();
 
