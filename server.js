@@ -83,7 +83,7 @@ const tareaRoutes = require('./src/routes/tareaRoutes');
 const evidenciaRoutes = require('./src/routes/evidenciaRoutes');
 const reporteRoutes = require('./src/routes/reporteRoutes');
 const uploadRoutes = require('./src/routes/uploadRoutes');
-const path = require('path');
+
 
 
 // Monta las rutas de autenticación en /api/auth
