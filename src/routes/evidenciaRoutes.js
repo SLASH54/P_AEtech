@@ -3,6 +3,7 @@ const express = require('express');
 const evidenciaController = require('../controllers/evidenciaController');
 const { protect, rol } = require('../middleware/authMiddleware'); 
 const { upload } = require('../middleware/uploadMiddleware');
+const { uploadMultiple } = require('../middlewares/uploadMiddleware');
 
 const router = express.Router();
 
@@ -25,7 +26,7 @@ router.post(
   '/upload-multiple/:tareaId',
   protect,
   rol(roles),
-  upload.array('archivos', 10),   // hasta 10 fotos
+  uploadMultiple, // 👈 Usamos el middleware exportado
   evidenciaController.subirMultiplesEvidencias
 );
 
