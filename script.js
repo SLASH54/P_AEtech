@@ -2020,8 +2020,8 @@ async function deleteActividad(id) {
 // ============================
 function initEvidencias(tareaId) {
   const container = document.getElementById('evidencias-container');
-  const addBtn = document.getElementById('btn-agregar');
-  const saveBtn = document.getElementById('btn-guardar');
+  const addBtn = document.getElementById('btnAgregarFoto');
+  const saveBtn = document.getElementById('btnGuardarEvidencias');
   const token = localStorage.getItem('userToken');
 
   container.innerHTML = ''; // limpia el contenido anterior
