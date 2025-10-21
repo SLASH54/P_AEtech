@@ -3,7 +3,7 @@ const express = require('express');
 const evidenciaController = require('../controllers/evidenciaController');
 const { protect, rol } = require('../middleware/authMiddleware'); 
 const { upload } = require('../middleware/uploadMiddleware');
-const { uploadMultiple } = require('../middlewares/uploadMiddleware');
+const { uploadMultiple } = require('../middleware/uploadMiddleware');
 
 const router = express.Router();
 
