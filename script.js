@@ -2039,7 +2039,7 @@ function initEvidencias(tareaId) {
     archivos.forEach(f => { if (f.files[0]) formData.append('archivos', f.files[0]); });
     formData.append('titulos', titulos.join(','));
 
-    const res = await fetch(`${API_BASE_URL}/api/evidencias/upload-multiple/${tareaId}`, {
+    const res = await fetch(`${API_BASE_URL}/evidencias/upload-multiple/${tareaId}`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
       body: formData
