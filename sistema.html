@@ -1078,19 +1078,14 @@ class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center 
             </div>
             
         </section>
-        <div id="evidencias-container">
-  <div class="evidencia">
-    <input name="titulo" placeholder="Título de la evidencia 1">
-    <input type="file" name="archivos" accept="image/*">
-  </div>
-  <div class="evidencia">
-    <input name="titulo" placeholder="Título de la evidencia 2">
-    <input type="file" name="archivos" accept="image/*">
-  </div>
-</div>
-
-<button id="add-evidencia">Agregar foto adicional</button>
-<button id="save-evidencias">Guardar evidencias</button>
+        <section id="EvidenciasSection">
+  <h3>Subir evidencias</h3>
+  <form id="form-evidencias">
+    <div id="evidencias-container"></div>
+    <button type="button" id="btn-agregar">Agregar foto adicional</button>
+    <button type="submit" id="btn-guardar">Guardar evidencias</button>
+  </form>
+</section>
 
     </section>
    
