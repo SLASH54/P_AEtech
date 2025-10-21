@@ -1998,6 +1998,84 @@ async function deleteActividad(id) {
     }
 }
 
+
+
+
+
+
+
+
+  // tareas NUEVO JAJAJAJAJAJA
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const openAddTaskModalBtn = document.getElementById('openAddTaskModal');
+    const tareaModal = document.getElementById('tareaModal');
+    const closeTareaModalBtn = document.getElementById('closeTareaModal');
+    const tareaForm = document.getElementById('tareaForm');
+    const tareasBody = document.getElementById('tareasBody');
+
+    // Function to open the Modal
+    openAddTaskModalBtn.addEventListener('click', () => {
+        tareaModal.style.opacity = 1;
+        tareaModal.style.pointerEvents = 'auto';
+        tareaModal.style.display = 'flex'; // Ensure it's a flex container
+    });
+
+    // Function to close the Modal
+    closeTareaModalBtn.addEventListener('click', () => {
+        tareaModal.style.opacity = 0;
+        tareaModal.style.pointerEvents = 'none';
+        setTimeout(() => {
+            tareaModal.style.display = 'none'; // Hide after the transition
+        }, 300); // Match the transition duration
+    });
+
+    // Function to handle form submission
+    tareaForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        // Get form values
+        const tareaTitulo = document.getElementById('tareaTitulo').value;
+        const tareaDescripcion = document.getElementById('tareaDescripcion').value;
+        const tareaAsignadoA = document.getElementById('tareaAsignadoA').value;
+        const tareaClienteId = document.getElementById('tareaClienteId').value;
+        const tareaFechaLimite = document.getElementById('tareaFechaLimite').value;
+        const tareaDireccionCliente = document.getElementById('tareaDireccionCliente').value;
+        const tareaActividadId = document.getElementById('tareaActividadId').value;
+        const tareaEstado = document.getElementById('tareaEstado').value;
+
+        // Create a new row in the table
+        const newRow = tareasBody.insertRow();
+        newRow.innerHTML = `
+            <td class="px-6 py-3">${tareaTitulo}</td>
+            <td class="px-6 py-3">${tareaAsignadoA}</td>
+            <td class="px-6 py-3">Sucursal</td> <!-- Replace with actual value if available -->
+            <td class="px-6 py-3">${tareaEstado}</td>
+            <td class="px-6 py-3">${tareaFechaLimite}</td>
+            <td class="px-6 py-3">
+                <!-- Add action buttons here -->
+                Acciones
+            </td>
+        `;
+
+        // Clear form fields
+        document.getElementById('tareaTitulo').value = '';
+        document.getElementById('tareaDescripcion').value = '';
+        document.getElementById('tareaAsignadoA').value = '';
+        document.getElementById('tareaClienteId').value = '';
+        document.getElementById('tareaFechaLimite').value = '';
+        document.getElementById('tareaDireccionCliente').value = '';
+        document.getElementById('tareaActividadId').value = '';
+        document.getElementById('tareaEstado').value = 'Pendiente'; // Reset to default value
+
+        // Close the modal
+        tareaModal.style.opacity = 0;
+        tareaModal.style.pointerEvents = 'none';
+        setTimeout(() => {
+            tareaModal.style.display = 'none';
+        }, 300);
+    });
+});
 // ------------------------------------------------------------------------
 // Nota: Las funciones saveOrUpdateData, deleteData, y fetchData deben 
 // estar definidas en otro lugar de tu script.js
