@@ -2047,6 +2047,22 @@ function initEvidencias(tareaId) {
     archivos.forEach(f => { if (f.files[0]) formData.append('archivos', f.files[0]); });
     formData.append('titulos', titulos.join(','));
 
+      // 🔹 Capturar firma del canvas y convertirla en archivo PNG
+  const canvas = document.getElementById('signature-pad');
+  if (canvas) {
+    const firmaData = canvas.toDataURL('image/png');
+    const blobBin = atob(firmaData.split(',')[1]);
+    const array = [];
+    for (let i = 0; i < blobBin.length; i++) {
+      array.push(blobBin.charCodeAt(i));
+    }
+    const firmaFile = new Blob([new Uint8Array(array)], { type: 'image/png' });
+
+    // 👇 Agregar al FormData
+    formData.append('firmaCliente', firmaFile, 'firma_cliente.png');
+  }
+
+
     const res = await fetch(`${API_BASE_URL}/evidencias/upload-multiple/${tareaId}`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
@@ -2062,6 +2078,8 @@ function initEvidencias(tareaId) {
       alert(data.msg || 'Error al subir evidencias');
     }
   };
+
+  
 }
 
 function actualizarEstadoTarea(tareaId, nuevoEstado) {
@@ -2089,6 +2107,7 @@ function agregarEvidencia(tareaId) {
 const btnAgregar = document.getElementById('btnAgregarFoto');
 const contenedor = document.getElementById('contenedor-evidencias');
 
+
 btnAgregar.addEventListener('click', () => {
   const div = document.createElement('div');
   div.classList.add('card-evidencia');
@@ -2099,14 +2118,19 @@ btnAgregar.addEventListener('click', () => {
       <i class="fa-solid fa-camera"></i> Tomar Foto / Elegir Archivo
       <input type="file" name="archivos[]" accept="image/*">
     </label>
+    <div class="preview-container">
+      <img class="preview-img" src="" alt="Vista previa" style="display:none;">
+    </div>
   `;
   contenedor.appendChild(div);
 });
 
 
+
 // 🔹 PREVISUALIZACIÓN DE IMÁGENES
+// 🔹 PREVISUALIZACIÓN GLOBAL (funciona también en recuadros nuevos)
 document.addEventListener('change', (e) => {
-  if (e.target.type === 'file' && e.target.files[0]) {
+  if (e.target.matches('input[type="file"][name="archivos[]"]') && e.target.files[0]) {
     const reader = new FileReader();
     const preview = e.target.closest('.card-evidencia').querySelector('.preview-img');
     reader.onload = () => {
@@ -2116,6 +2140,7 @@ document.addEventListener('change', (e) => {
     reader.readAsDataURL(e.target.files[0]);
   }
 });
+
 
 // 🔹 FIRMA DEL CLIENTE
 const canvas = document.getElementById('signature-pad');

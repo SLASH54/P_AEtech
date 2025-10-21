@@ -7,38 +7,33 @@ const { sequelize } = require('../config/database');
 
 // src/controllers/evidenciaController.js
 
-exports.subirMultiplesEvidencias = async (req, res) => {
-try {
-const { tareaId } = req.params;
-const { titulos } = req.body;
-const archivos = req.files || [];
+const subirMultiplesEvidencias = async (req, res) => {
+  try {
+    const { tareaId } = req.params;
+    const usuarioId = req.user.id;
+    const files = req.files['archivos'] || [];
+    const firma = req.files['firmaCliente']?.[0] || null;
 
+    const evidencias = await Promise.all(
+      files.map(async (file, index) => {
+        const titulo = req.body.titulo[index] || `Evidencia ${index + 1}`;
+        return await Evidencia.create({
+          tareaId,
+          usuarioId,
+          titulo,
+          archivoUrl: `/uploads/${file.filename}`,
+          firmaClienteUrl: firma ? `/uploads/${firma.filename}` : null,
+        });
+      })
+    );
 
-if (!archivos.length) return res.status(400).json({ msg: 'No se subieron archivos.' });
-
-
-const urls = archivos.map((f) => `/uploads/${f.filename}`);
-
-
-const evidencias = await Promise.all(urls.map((url, i) =>
-Evidencia.create({
-tareaId,
-usuarioId: req.user.id,
-titulo: titulos?.split(',')[i] || `Evidencia #${i + 1}`,
-archivoUrl: url,
-})
-));
-
-
-await Tarea.update({ estado: 'Completada' }, { where: { id: tareaId } });
-
-
-res.status(201).json({ msg: 'Evidencias guardadas', evidencias });
-} catch (err) {
-console.error(err);
-res.status(500).json({ msg: 'Error al guardar evidencias' });
-}
+    res.status(201).json({ msg: 'Evidencias guardadas correctamente', evidencias });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: 'Error al subir evidencias', error });
+  }
 };
+
 
 
 // Configuración de inclusión para GET (mostrar detalles de la Tarea relacionada)
