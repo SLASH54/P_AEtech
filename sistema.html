@@ -985,6 +985,11 @@
     <div class="card-evidencia">
       <label>Título de la evidencia</label>
       <input type="text" name="titulo[]" placeholder="Ej: Foto antes de la instalación">
+      <!-- PREVISUALIZACIÓN DE IMAGEN -->
+<div class="preview-container">
+  <img class="preview-img" src="" alt="Vista previa" style="display:none;">
+</div>
+
       <label class="label-file">
         <i class="fa-solid fa-camera"></i> Tomar Foto / Elegir Archivo
         <input type="file" name="archivos[]" accept="image/*">
@@ -995,6 +1000,11 @@
     <div class="card-evidencia">
       <label>Título de la evidencia</label>
       <input type="text" name="titulo[]" placeholder="Ej: Foto después de la instalación">
+      <!-- PREVISUALIZACIÓN DE IMAGEN -->
+<div class="preview-container">
+  <img class="preview-img" src="" alt="Vista previa" style="display:none;">
+</div>
+
       <label class="label-file">
         <i class="fa-solid fa-camera"></i> Tomar Foto / Elegir Archivo
         <input type="file" name="archivos[]" accept="image/*">
@@ -1006,6 +1016,21 @@
     <button type="button" id="btnAgregarFoto">
       <i class="fa-solid fa-plus"></i> Agregar Foto Adicional
     </button>
+
+        <!-- FIRMA DEL CLIENTE -->
+    <section id="firma-cliente" class="firma-section">
+    <h2>🖊️ Firma del Cliente</h2>
+    <canvas id="signature-pad" width="400" height="200"></canvas>
+    <div class="firma-botones">
+        <button type="button" id="btnLimpiarFirma">
+        <i class="fa-solid fa-eraser"></i> Limpiar
+        </button>
+        <button type="button" id="btnGuardarFirma">
+        <i class="fa-solid fa-floppy-disk"></i> Guardar Firma
+        </button>
+    </div>
+    </section>
+
 
     <button type="button" id="btnGuardarEvidencias">
       <i class="fa-solid fa-floppy-disk"></i> Guardar Evidencias

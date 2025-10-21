@@ -1810,3 +1810,68 @@ main {
   background-color: #16a34a;
   transform: scale(1.03);
 }
+
+/* PREVISUALIZACIÓN */
+.preview-container {
+  width: 100%;
+  background-color: #f9fafb;
+  border: 2px dashed #93c5fd;
+  border-radius: 10px;
+  text-align: center;
+  padding: 10px;
+  margin-top: 10px;
+}
+
+.preview-img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+/* SECCIÓN FIRMA */
+.firma-section {
+  background-color: #fff;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  text-align: center;
+  margin-top: 30px;
+}
+
+.firma-section h2 {
+  color: #1e3a8a;
+  margin-bottom: 15px;
+}
+
+#signature-pad {
+  border: 2px solid #2563eb;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 400px;
+  height: 200px;
+  background-color: #f9fafb;
+  margin-bottom: 15px;
+  cursor: crosshair;
+}
+
+/* BOTONES DE FIRMA */
+.firma-botones {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.firma-botones button {
+  background-color: #22c55e;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: transform 0.2s ease, background 0.3s ease;
+}
+
+.firma-botones button:hover {
+  background-color: #16a34a;
+  transform: scale(1.05);
+}

@@ -2102,3 +2102,51 @@ btnAgregar.addEventListener('click', () => {
   `;
   contenedor.appendChild(div);
 });
+
+
+// 🔹 PREVISUALIZACIÓN DE IMÁGENES
+document.addEventListener('change', (e) => {
+  if (e.target.type === 'file' && e.target.files[0]) {
+    const reader = new FileReader();
+    const preview = e.target.closest('.card-evidencia').querySelector('.preview-img');
+    reader.onload = () => {
+      preview.src = reader.result;
+      preview.style.display = 'block';
+    };
+    reader.readAsDataURL(e.target.files[0]);
+  }
+});
+
+// 🔹 FIRMA DEL CLIENTE
+const canvas = document.getElementById('signature-pad');
+if (canvas) {
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+
+  canvas.addEventListener('mousedown', (e) => {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mousemove', (e) => {
+    if (!drawing) return;
+    ctx.lineTo(e.offsetX, e.offsetY);
+    ctx.strokeStyle = '#2563eb';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  });
+
+  canvas.addEventListener('mouseup', () => (drawing = false));
+  canvas.addEventListener('mouseleave', () => (drawing = false));
+
+  document.getElementById('btnLimpiarFirma').addEventListener('click', () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  });
+
+  document.getElementById('btnGuardarFirma').addEventListener('click', () => {
+    const firmaData = canvas.toDataURL('image/png');
+    console.log('Firma capturada:', firmaData);
+    alert('✅ Firma guardada temporalmente (aún falta subirla al servidor).');
+  });
+}
