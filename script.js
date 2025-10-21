@@ -2071,7 +2071,7 @@ function agregarEvidencia(tareaId) {
   window.tareaActual = tareaId;
 
   // Muestra el formulario (si está oculto en otra sección)
-  mostrarContenido('Evidencia'); // si usas tu función ya existente para navegar entre secciones
+  mostrarContenido('Actividades'); // si usas tu función ya existente para navegar entre secciones
 
   // Inicializa el formulario de evidencias dinámicas
   initEvidencias(tareaId);
