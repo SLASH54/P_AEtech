@@ -6,6 +6,22 @@ require('dotenv').config();
 require('./src/models/relations');
 const path = require('path');
 
+const { sequelize } = require('./src/config/database');
+
+
+connectDB().then(async () => {
+  try {
+    await sequelize.sync({ alter: true }); // 🔥 CREA o actualiza tablas automáticamente
+    console.log('✅ Tablas sincronizadas correctamente');
+  } catch (err) {
+    console.error('❌ Error al sincronizar tablas:', err);
+  }
+
+  app.listen(process.env.PORT, () =>
+    console.log(`Servidor en http://localhost:${process.env.PORT}`)
+  );
+});
+
 
 // 2. Definir los orígenes permitidos
 const allowedOrigins = ['http://localhost:5173', 'http://localhost:3001', 'https://aetechprueba.netlify.app']; // Añade aquí las URLs de tu frontend
