@@ -21,12 +21,14 @@ evidenciaController.getEvidenciasByTarea
 
 module.exports = router;
 
+
+
 router.post(
   '/upload-multiple/:tareaId',
   protect,
-  rol(['Admin', 'Residente', 'Practicante']), // ✅ roles permitidos
-  uploadMultiple, // middleware multer
-  evidenciaController.subirMultiplesEvidencias
+  rol(['Admin', 'Residente', 'Practicante']), // ✅ función que devuelve otra función
+  uploadMultiple, // ✅ middleware multer
+  evidenciaController.subirMultiplesEvidencias // ✅ controlador final
 );
 
 module.exports = router;

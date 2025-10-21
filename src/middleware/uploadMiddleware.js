@@ -4,23 +4,21 @@ const path = require('path');
 
 // Configuración del almacenamiento
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // 📂 carpeta donde se guardan los archivos
-  },
+  destination: (req, file, cb) => cb(null, 'uploads/'),
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
-    const nombre = `${Date.now()}-${file.fieldname}${ext}`;
-    cb(null, nombre);
+    cb(null, Date.now() + '-' + file.fieldname + ext);
   }
 });
 
 const upload = multer({ storage });
 
-// Exportar correctamente las funciones de subida
-module.exports = {
-  uploadMultiple: upload.fields([
-    { name: 'archivos', maxCount: 10 },
-    { name: 'firmaCliente', maxCount: 1 } // ✅ añadimos soporte para la firma
-  ])
-};
+const uploadMultiple = upload.fields([
+  { name: 'archivos', maxCount: 10 },
+  { name: 'firmaCliente', maxCount: 1 }
+]);
+
+module.exports = { uploadMultiple };
+
+
 
