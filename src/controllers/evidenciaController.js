@@ -3,37 +3,41 @@ const { Evidencia, Tarea, Usuario } = require('../models/relations');
 const { sequelize } = require('../config/database');
 
 
+
+
 // src/controllers/evidenciaController.js
 
-
 exports.subirMultiplesEvidencias = async (req, res) => {
-  try {
-    const { tareaId } = req.params;
-    const { titulos } = req.body; // titulos separado por comas
-    const archivos = req.files || [];
+try {
+const { tareaId } = req.params;
+const { titulos } = req.body;
+const archivos = req.files || [];
 
-    if (!archivos.length) return res.status(400).json({ msg: 'No se subieron archivos.' });
 
-    const urls = archivos.map((f) => `/uploads/${f.filename}`);
+if (!archivos.length) return res.status(400).json({ msg: 'No se subieron archivos.' });
 
-    // crea una evidencia por archivo
-    const evidencias = await Promise.all(urls.map((url, i) =>
-      Evidencia.create({
-        tareaId,
-        usuarioId: req.user.id,
-        titulo: titulos?.split(',')[i] || `Evidencia #${i + 1}`,
-        archivoUrl: url,
-      })
-    ));
 
-    // cambia estado de la tarea
-    await Tarea.update({ estado: 'Completada' }, { where: { id: tareaId } });
+const urls = archivos.map((f) => `/uploads/${f.filename}`);
 
-    res.status(201).json({ msg: 'Evidencias guardadas', evidencias });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: 'Error al guardar evidencias' });
-  }
+
+const evidencias = await Promise.all(urls.map((url, i) =>
+Evidencia.create({
+tareaId,
+usuarioId: req.user.id,
+titulo: titulos?.split(',')[i] || `Evidencia #${i + 1}`,
+archivoUrl: url,
+})
+));
+
+
+await Tarea.update({ estado: 'Completada' }, { where: { id: tareaId } });
+
+
+res.status(201).json({ msg: 'Evidencias guardadas', evidencias });
+} catch (err) {
+console.error(err);
+res.status(500).json({ msg: 'Error al guardar evidencias' });
+}
 };
 
 
@@ -129,4 +133,16 @@ exports.getEvidenciaByTareaId = async (req, res) => {
         console.error('Error al obtener evidencia:', error);
         return res.status(500).json({ message: 'Error interno del servidor al obtener la evidencia.' });
     }
+};
+
+
+exports.getEvidenciasByTarea = async (req, res) => {
+try {
+const { tareaId } = req.params;
+const list = await Evidencia.findAll({ where: { tareaId }, order: [['createdAt','DESC']] });
+return res.json(list);
+} catch (err) {
+console.error(err);
+return res.status(500).json({ msg: 'Error al obtener evidencias' });
+}
 };

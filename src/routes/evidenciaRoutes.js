@@ -11,6 +11,15 @@ const rolesCreacion = ['Residente', 'Practicante'];
 const rolesMonitoreo = ['Admin', 'Ingeniero'];
 
 // src/routes/evidenciaRoutes.js
+router.get(
+'/tarea/:tareaId',
+protect,
+rol(roles),
+evidenciaController.getEvidenciasByTarea
+);
+
+
+module.exports = router;
 
 router.post(
   '/upload-multiple/:tareaId',
