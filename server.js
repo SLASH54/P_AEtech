@@ -11,7 +11,7 @@ const { sequelize } = require('./src/config/database');
 
 connectDB().then(async () => {
   try {
-    await sequelize.sync({ alter: true }); // 🔥 CREA o actualiza tablas automáticamente
+    await sequelize.sync(); // 🔥 CREA o actualiza tablas automáticamente
     console.log('✅ Tablas sincronizadas correctamente');
   } catch (err) {
     console.error('❌ Error al sincronizar tablas:', err);
