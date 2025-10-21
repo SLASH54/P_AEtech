@@ -111,7 +111,6 @@ connectDB().then(() => {
 
 
 //Servir Archivos Estaticos y carpeta uploads
-const path = require('path');
 const fs = require('fs');
 // ...
 const uploadsDir = path.join(__dirname, 'uploads');
