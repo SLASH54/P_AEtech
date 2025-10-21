@@ -2010,19 +2010,16 @@ async function deleteActividad(id) {
 // ============================
 // Subida múltiple de evidencias
 // ============================
-function initEvidencias() {
+function initEvidencias(tareaId) {
   const container = document.getElementById('evidencias-container');
   const addBtn = document.getElementById('btn-agregar');
   const saveBtn = document.getElementById('btn-guardar');
-  const tareaId = 'ID_DE_TAREA'; // dinámico según selección
   const token = localStorage.getItem('userToken');
 
-  let count = 2;
-
-  // Crear campos iniciales
+  container.innerHTML = ''; // limpia el contenido anterior
   for (let i = 0; i < 2; i++) agregarCampo();
 
-  addBtn.addEventListener('click', agregarCampo);
+  addBtn.onclick = agregarCampo;
 
   function agregarCampo() {
     const div = document.createElement('div');
@@ -2032,10 +2029,9 @@ function initEvidencias() {
       <input type="file" accept="image/*" class="archivo">
     `;
     container.appendChild(div);
-    count++;
   }
 
-  saveBtn.addEventListener('click', async (e) => {
+  saveBtn.onclick = async (e) => {
     e.preventDefault();
     const formData = new FormData();
     const titulos = [...document.querySelectorAll('.titulo')].map(i => i.value);
@@ -2043,14 +2039,40 @@ function initEvidencias() {
     archivos.forEach(f => { if (f.files[0]) formData.append('archivos', f.files[0]); });
     formData.append('titulos', titulos.join(','));
 
-    const res = await fetch(`${API_BASE_URL}/evidencias/upload-multiple/${tareaId}`, {
+    const res = await fetch(`${API_BASE_URL}/api/evidencias/upload-multiple/${tareaId}`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
       body: formData
     });
 
     const data = await res.json();
-    if (res.ok) alert('Evidencias subidas correctamente');
-    else alert(data.msg || 'Error al subir evidencias');
-  });
+    if (res.ok) {
+      alert('Evidencias subidas correctamente');
+      // Opcional: actualiza estado de tarea en la tabla
+      actualizarEstadoTarea(tareaId, 'Completada');
+    } else {
+      alert(data.msg || 'Error al subir evidencias');
+    }
+  };
+}
+
+function actualizarEstadoTarea(tareaId, nuevoEstado) {
+  const fila = document.querySelector(`[data-tarea-id="${tareaId}"]`);
+  if (fila) fila.querySelector('.estado').textContent = nuevoEstado;
+}
+
+// ===============================
+// ABRIR FORMULARIO DE EVIDENCIAS
+// ===============================
+function agregarEvidencia(tareaId) {
+  console.log("Tarea seleccionada:", tareaId);
+
+  // Guarda el id temporalmente (puedes usar localStorage o variable global)
+  window.tareaActual = tareaId;
+
+  // Muestra el formulario (si está oculto en otra sección)
+  mostrarContenido('Evidencia'); // si usas tu función ya existente para navegar entre secciones
+
+  // Inicializa el formulario de evidencias dinámicas
+  initEvidencias(tareaId);
 }
