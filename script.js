@@ -1716,9 +1716,6 @@ if (canvas) {
   });
 }
 
-const path = require('path');
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
-
 
 
 
@@ -1769,44 +1766,3 @@ async function subirEvidencias(tareaId) {
     alert(data.msg || 'Error al subir evidencias');
   }
 }
-
-// === 2) listener global para el botón ===
-document.addEventListener('DOMContentLoaded', () => {
-  const saveBtn = document.getElementById('btnGuardarEvidencias');
-  if (saveBtn) {
-    saveBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      const tareaId = window.tareaActual; // o de donde la guardes
-      if (!tareaId) { alert('Selecciona primero una tarea.'); return; }
-      subirEvidencias(tareaId);
-    });
-  }
-
-  const addBtn = document.getElementById('btnAgregarFoto');
-  if (addBtn) {
-    addBtn.addEventListener('click', () => {
-      const container = document.getElementById('evidencias-container') || document.getElementById('contenedor-evidencias');
-      const div = document.createElement('div');
-      div.className = 'evidencia-item card-evidencia';
-      div.innerHTML = `
-        <input type="text" placeholder="Título de la evidencia" class="titulo">
-        <label class="label-file">
-          <i class="fa-solid fa-camera"></i> Tomar Foto / Elegir Archivo
-          <input type="file" accept="image/*" class="archivo">
-        </label>
-        <div class="preview-container"><img class="preview-img" style="display:none;"></div>
-      `;
-      container.appendChild(div);
-    });
-  }
-
-  // Previsualización delegada (sirve también para los nuevos campos)
-  document.addEventListener('change', (e) => {
-    if (e.target.matches('input.archivo') && e.target.files[0]) {
-      const reader = new FileReader();
-      const preview = e.target.closest('.card-evidencia').querySelector('.preview-img');
-      reader.onload = () => { preview.src = reader.result; preview.style.display = 'block'; };
-      reader.readAsDataURL(e.target.files[0]);
-    }
-  });
-});
