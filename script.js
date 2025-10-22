@@ -1582,7 +1582,7 @@ function initEvidencias(tareaId) {
       <input type="text" name="titulo[]" class="titulo" placeholder="Ej: Foto antes de la instalación">
       <label class="label-file">
         <i class="fa-solid fa-camera"></i> Tomar Foto / Elegir Archivo
-        <input type="file" name="archivos" accept="image/*" class="archivo">
+        <input type="file" name="archivos" class="archivo" accept="image/*" class="archivo">
       </label>
       <div class="preview-container">
         <img class="preview-img" src="" alt="Vista previa" style="display:none;">
@@ -1613,9 +1613,12 @@ function initEvidencias(tareaId) {
 
     const formData = new FormData();
     const titulos = [...document.querySelectorAll('.titulo')].map(i => i.value);
-    const archivos = [...document.querySelectorAll('.archivos')];//Posiblemente no lleve "s"(.archivo)
+    const archivos = [...document.querySelectorAll('.archivo')];//Posiblemente no lleve "s"(.archivo)
     archivos.forEach(f => { if (f.files[0]) formData.append('archivos', f.files[0]); });
     formData.append('titulos', titulos.join(','));
+
+    console.log('🧾 Archivos a enviar:', archivos.map(f => f.files[0]?.name));
+
 
     // Firma del cliente
     const canvas = document.getElementById('signature-pad');
