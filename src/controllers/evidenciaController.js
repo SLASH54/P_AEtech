@@ -3,44 +3,65 @@ const { Evidencia, Tarea, Usuario } = require('../models/relations');
 const { sequelize } = require('../config/database');
 
 
-
-
 // src/controllers/evidenciaController.js
 
 const subirMultiplesEvidencias = async (req, res) => {
   try {
-    const { tareaId } = req.params;
-    const usuarioId = req.user.id;
-    const files = req.files['archivos'] || [];
-    const firma = req.files['firmaCliente']?.[0] || null;
+    // ✅ 1. Parámetros correctos
+    const { id: tareaId } = req.params;
+    const usuarioId = req.user?.id || null;
 
+    // ✅ 2. Archivos y firma
+    const files = req.files?.archivos || [];
+    const firma = req.files?.firmaCliente?.[0] || null;
+
+    // ✅ 3. Titulos convertidos a array
+    const titulos = req.body.titulos ? req.body.titulos.split(',') : [];
+
+    console.log('REQ.PARAMS =>', req.params);
+    console.log('REQ.BODY =>', req.body);
+    console.log('REQ.FILES =>', req.files);
+
+    // ✅ 4. Validación
+    if (!tareaId) {
+      return res.status(400).json({ msg: 'Falta el ID de la tarea.' });
+    }
+    if (files.length === 0 && !firma) {
+      return res.status(400).json({ msg: 'No se subieron archivos ni firma.' });
+    }
+
+    // ✅ 5. Crear registros en DB
     const evidencias = await Promise.all(
       files.map(async (file, index) => {
-        const titulo = req.body.titulo[index] || `Evidencia ${index + 1}`;
+        const titulo = titulos[index] || `Evidencia ${index + 1}`;
         return await Evidencia.create({
           tareaId,
           usuarioId,
           titulo,
-          archivoUrl: `/uploads/${file.filename}`,
-          firmaClienteUrl: firma ? `/uploads/${firma.filename}` : null,
+          archivoUrl: `/uploads/${file.originalname}`,
+          firmaClienteUrl: firma ? `/uploads/${firma.originalname}` : null,
         });
       })
     );
 
-    res.status(201).json({ msg: 'Evidencias guardadas correctamente', evidencias });
+    console.log('✅ Evidencias guardadas:', evidencias.length);
+
+    res.status(201).json({
+      msg: 'Evidencias guardadas correctamente',
+      evidencias,
+    });
   } catch (error) {
-    console.error(error);
+    console.error('❌ Error en subirMultiplesEvidencias:', error);
     res.status(500).json({ msg: 'Error al subir evidencias', error });
   }
 
+  
   console.log("REQ.FILES =>", req.files);
 console.log("REQ.BODY =>", req.body);
 console.log("REQ.PARAMS =>", req.params);
 
 console.log("🟢 Campos recibidos:", Object.keys(req.body));
 console.log("🟣 Archivos recibidos:", req.files?.map(f => f.fieldname));
-
-
 };
 
 
