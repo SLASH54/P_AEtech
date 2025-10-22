@@ -154,6 +154,3 @@ module.exports = {
   getEvidenciasByTarea: exports.getEvidenciasByTarea,
 };
 
-console.log("🧾 DEBUG: req.files =", req.files);
-console.log("🧾 DEBUG: req.body =", req.body);
-console.log("🧾 DEBUG: req.params =", req.params);
