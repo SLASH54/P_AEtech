@@ -32,6 +32,11 @@ const subirMultiplesEvidencias = async (req, res) => {
     console.error(error);
     res.status(500).json({ msg: 'Error al subir evidencias', error });
   }
+
+  console.log("REQ.FILES =>", req.files);
+console.log("REQ.BODY =>", req.body);
+console.log("REQ.PARAMS =>", req.params);
+
 };
 
 
