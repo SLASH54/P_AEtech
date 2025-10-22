@@ -37,7 +37,7 @@ router.post(
     { name: 'archivos', maxCount: 10 },
     { name: 'firmaCliente', maxCount: 1 }
   ]),
-  subirMultiplesEvidencias
+  evidenciaController.subirMultiplesEvidencias
 );
 
 
