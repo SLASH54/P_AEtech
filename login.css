@@ -1875,3 +1875,80 @@ main {
   background-color: #16a34a;
   transform: scale(1.05);
 }
+
+
+.main-container {
+  max-width: 1200px;
+  margin: 4rem auto;
+  background-color: white;
+  border-radius: 1.5rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  padding: 2.5rem;
+}
+
+.header-section {
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 1.5rem;
+}
+
+.header-section h2 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #007bff;
+}
+
+#openAddTaskModal {
+  background-color: #28a745;
+  box-shadow: 0 4px 6px rgba(40, 167, 69, 0.3);
+  font-weight: 700;
+  padding: 0.75rem 1.5rem;
+}
+
+#openAddTaskModal:hover {
+  background-color: #218838;
+}
+
+#task-table-body tr {
+  border-bottom: 1px solid #f3f4f6;
+  transition: background-color 0.2s;
+}
+
+#task-table-body tr:hover {
+  background-color: #f9fafb;
+}
+
+.action-btn {
+  font-size: 0.8rem;
+}
+
+.flex-col .action-btn {
+  width: 100%;
+}
+
+.modal-content-card {
+  background-color: #004a8f;
+  color: white;
+  border-radius: 1.5rem;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+  padding: 2.5rem;
+}
+
+.modal-content-card label {
+  color: white;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.modal-content-card input,
+.modal-content-card textarea,
+.modal-content-card select {
+  background-color: white;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.65rem 1rem;
+  color: #1f2937;
+}

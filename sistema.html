@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Instalación GPS</title>
+  <!-- TailwindCSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="login.css">
     <link rel="icon" href="img/logoAEtech.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -441,233 +443,101 @@
             <!-- NUEVO CONTENEDOR ORGANIZADOR DE TAREAS -->
 <!-- Sección de Tareas -->
  <section id="organizador-tareas" class="main-content">
-    <div class="p-8">
-        <h2 class="text-3xl font-bold mb-6 text-gray-800 border-b pb-2">Organizador de Tareas</h2>
 
-        <div class="flex justify-between items-center mb-6">
-            <p class="text-gray-600">Gestión centralizada de las tareas asignadas y sus estados.</p>
-            <button id="openAddTaskModal" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 transform hover:scale-105">
-                + Nueva Tarea
-            </button>
-        </div>
 
-        <div class="bg-white shadow-xl rounded-xl overflow-hidden">
-            <table class="min-w-full divide-y divide-gray-200" id="tareasTable">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Título</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asignado a</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sucursal</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Límite</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200" id="tareasBody">
-                    <!-- Aquí se cargarán las tareas con JavaScript -->
-                    <tr><td colspan="6" class="p-4 text-center text-gray-500">Cargando tareas...</td></tr>
-                </tbody>
-            </table>
-        </div>
+     <div class="text-left">
+        <h2>Organizador de Tareas</h2>
+      </div>
+      <div class="flex flex-col justify-between items-start">
+        <p class="mb-4 text-md">Gestión centralizada de las tareas asignadas y sus estados.</p>
+        <button id="openAddTaskModal" class="text-white rounded-lg shadow-md transition duration-300 transform hover:scale-105">
+          + Nueva Tarea
+        </button>
+      </div>
+    </header>
+
+    <!-- TABLA DE TAREAS -->
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Título</th>
+            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Asignado a</th>
+            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Sucursal</th>
+            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Estado</th>
+            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Fecha Límite</th>
+            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="task-table-body" class="bg-white divide-y divide-gray-200">
+          <!-- Filas dinámicas -->
+        </tbody>
+      </table>
     </div>
+  </div>
 
-    <!-- MODAL para Agregar/Editar Tarea -->
-    <div id="tareaModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none transition-opacity duration-300">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6">
-            <h3 id="tareaModalTitle" class="text-2xl font-semibold mb-4 border-b pb-2">Crear Nueva Tarea</h3>
-            <form id="tareaForm">
-                <input type="hidden" id="tareaId">
+  <!-- MODAL -->
+  <div id="tareaModal"
+       class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50 
+              opacity-0 pointer-events-none transition-opacity duration-300"
+       style="display: none;">
 
-                <div class="mb-4">
-                    <label for="tareaTitulo" class="block text-sm font-medium text-gray-700">Título</label>
-                    <input type="text" id="tareaTitulo" name="titulo" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
-                </div>
+    <div id="modalContent" class="modal-content-card w-full max-w-lg transform transition-all duration-300 scale-95">
+      <h3 id="tareaModalTitle" class="text-3xl font-extrabold mb-6 border-b border-white/30 pb-3">Crear Nueva Tarea</h3>
+      <form id="tareaForm">
+        <input type="hidden" id="tareaId" />
 
-                <div class="mb-4">
-                    <label for="tareaDescripcion" class="block text-sm font-medium text-gray-700">Descripción</label>
-                    <textarea id="tareaDescripcion" name="descripcion" required rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label for="tareaAsignadoA" class="block text-sm font-medium text-gray-700">Asignar a Usuario</label>
-                        <select id="tareaAsignadoA" name="asignadoA" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            <option value="" disabled selected>-- Seleccione Usuario --</option>
-                            <!-- Opciones cargadas dinámicamente -->
-                        </select>
-                    </div>
-                    <div>
-                        <label for="tareaClienteId" class="block text-sm font-medium text-gray-700">Cliente Asociado</label>
-                        <select id="tareaClienteId" name="clienteId" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            <option value="" disabled selected>-- Seleccione Cliente --</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="tareaFechaLimite" class="block text-sm font-medium text-gray-700">Fecha Límite</label>
-                        <input type="date" id="tareaFechaLimite" name="fechaLimite" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <label for="tareaDireccionCliente" class="block text-sm font-medium text-gray-700">Dirección del Cliente</label>
-                    <input type="text" id="tareaDireccionCliente" name="direccionCliente" readonly class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-gray-100 text-gray-600">
-                </div>
-
-                <div class="mb-4">
-                    <label for="tareaActividadId" class="block text-sm font-medium text-gray-700">Tipo de Actividad</label>
-                    <select id="tareaActividadId" name="actividad" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
-                        <option value="" disabled selected>-- Seleccione Actividad --</option>
-                    </select>
-                </div>
-
-                <div class="mb-4">
-                    <label for="tareaEstado" class="block text-sm font-medium text-gray-700">Estado</label>
-                    <select id="tareaEstado" name="estado" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="En Progreso">En Progreso</option>
-                        <option value="Completada">Completada</option>
-                        <option value="Bloqueada">Bloqueada</option>
-                    </select>
-                </div>
-
-                <div class="flex justify-end space-x-3 mt-6">
-                    <button type="button" id="closeTareaModal" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-lg transition duration-300">
-                        Cancelar
-                    </button>
-                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-300">
-                        Guardar Tarea
-                    </button>
-                </div>
-            </form>
+        <div class="mb-4">
+          <label for="tareaTitulo" class="block">Título</label>
+          <input type="text" id="tareaTitulo" name="titulo" required class="mt-1 block w-full shadow-sm" />
         </div>
+
+        <div class="mb-4">
+          <label for="tareaDescripcion" class="block">Descripción</label>
+          <textarea id="tareaDescripcion" name="descripcion" rows="3" required class="mt-1 block w-full shadow-sm"></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label for="tareaAsignadoA" class="block">Asignar a Usuario</label>
+            <select id="tareaAsignadoA" required class="mt-1 block w-full shadow-sm"></select>
+          </div>
+          <div>
+            <label for="tareaClienteId" class="block">Cliente Asociado</label>
+            <select id="tareaClienteId" required class="mt-1 block w-full shadow-sm"></select>
+          </div>
+          <div>
+            <label for="tareaFechaLimite" class="block">Fecha Límite</label>
+            <input type="date" id="tareaFechaLimite" required class="mt-1 block w-full shadow-sm" />
+          </div>
+          <div>
+            <label for="tareaActividadId" class="block">Tipo de Actividad</label>
+            <select id="tareaActividadId" required class="mt-1 block w-full shadow-sm"></select>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label for="tareaDireccionCliente" class="block">Dirección del Cliente (Sucursal)</label>
+          <input type="text" id="tareaDireccionCliente" readonly class="mt-1 block w-full shadow-sm" />
+        </div>
+
+        <div class="mb-4">
+          <label for="tareaEstado" class="block">Estado</label>
+          <select id="tareaEstado" required class="mt-1 block w-full shadow-sm">
+            <option value="Pendiente">Pendiente</option>
+            <option value="En Progreso">En Progreso</option>
+            <option value="Completada">Completada</option>
+            <option value="Bloqueada">Bloqueada</option>
+          </select>
+        </div>
+
+        <div class="flex justify-end space-x-3 pt-4 border-t border-white/30 mt-6">
+          <button type="button" id="closeTareaModal" class="bg-gray-300 hover:bg-gray-400 text-white font-semibold py-2 px-4 rounded-lg transition duration-300">Cancelar</button>
+          <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-300">Guardar Tarea</button>
+        </div>
+      </form>
     </div>
-</section>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const btnAgregarTarea = document.getElementById('btn-agregar-tarea');
-        const formTarea = document.getElementById('form-tarea');
-        const listaTareas = document.getElementById('lista-tareas');
-        const filterTipo = document.getElementById('filter-tipo');
-        const contenedorListas = document.getElementById('contenedor-listas');
-        const cancelarTareaBtn = document.getElementById('cancelar-tarea');
-
-        // Mostrar/Ocultar formulario y listas cuando se hace clic en "Agregar tarea"
-        btnAgregarTarea.addEventListener('click', () => {
-            const mostrarFormulario = formTarea.style.display === 'none';
-            formTarea.style.display = mostrarFormulario ? 'block' : 'none';
-            contenedorListas.style.display = mostrarFormulario ? 'none' : 'flex';
-        });
-
-        // Función para crear elemento tarea HTML
-        function crearElementoTarea(tarea) {
-            const div = document.createElement('div');
-            div.classList.add('tarea-item');
-            div.style.border = '1px solid #888';
-            div.style.marginBottom = '8px';
-            div.style.padding = '8px';
-            div.style.backgroundColor = '#f9f9f9';
-            div.dataset.tipo = tarea.tipo;
-
-            div.innerHTML = `
-                <strong>${tarea.actividad}</strong><br>
-                <small><strong>Asignado a:</strong> ${tarea.asignado}</small><br>
-                <small><strong>Ubicación:</strong> ${tarea.ubicacion}</small><br>
-                <small><strong>Tipo Rol:</strong> ${tarea.tipoRol}</small><br>
-                <small><strong>Límite:</strong> ${new Date(tarea.limiteTiempo).toLocaleString()}</small><br>
-                <button class="editar-tarea">Editar Tarea</button>
-                <button class="eliminar-tarea">Eliminar Tarea</button>
-                <button class="agregar-evidencia">Agregar Evidencia</button>
-            `;
-
-            // Botón "Editar Tarea" - CLAVE: usar una función de cierre
-            const editarBtn = div.querySelector('.editar-tarea');
-            editarBtn.addEventListener('click', function() {
-                editarTarea(tarea); // Llama a la función editarTarea con la tarea
-            });
-
-            // Botón "Eliminar Tarea"
-            div.querySelector('.eliminar-tarea').addEventListener('click', () => {
-                if (confirm('¿Seguro que quieres eliminar esta tarea?')) {
-                    div.remove(); // Elimina la tarea del DOM
-                }
-            });
-
-            // Botón "Agregar Evidencia"
-            div.querySelector('.agregar-evidencia').addEventListener('click', () => {
-                // Aquí puedes implementar la lógica para agregar evidencia
-                alert('Agregar evidencia para: ' + tarea.actividad);
-            });
-
-            return div;
-        }
-
-        // Envío del formulario
-        document.querySelector('#form-tarea').addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            const actividad = this.actividad.value;
-            const asignado = this.asignado.value;
-            const ubicacion = this.ubicacion.value;
-            const tipoRol = this['tipo-rol'].value;
-            const limiteTiempo = this['limite-tiempo'].value;
-            const tipoFiltro = filterTipo.value;
-
-            if(!actividad || !asignado || !ubicacion || !tipoRol || !limiteTiempo) {
-                alert('Por favor, completa todos los campos.');
-                return;
-            }
-
-            const tarea = {
-                actividad,
-                asignado,
-                ubicacion,
-                tipoRol,
-                limiteTiempo,
-                tipo: tipoFiltro
-            };
-
-            if(tipoFiltro === 'Todo' || tipoFiltro === tarea.tipo) {
-                const tareaElemento = crearElementoTarea(tarea);
-                listaTareas.appendChild(tareaElemento);
-            }
-
-            this.reset();
-            this.style.display = 'none';
-            contenedorListas.style.display = 'flex';
-        });
-
-        // Cancelar la creación de la tarea
-        cancelarTareaBtn.addEventListener('click', function() {
-            formTarea.style.display = 'none';
-            contenedorListas.style.display = 'flex';
-            formTarea.reset();
-        });
-
-        // Filtrar tareas por tipo
-        document.getElementById('filter-tipo').addEventListener('change', () => {
-            const tipoSeleccionado = document.getElementById('filter-tipo').value;
-
-            function filtrarLista(contenedor) {
-                Array.from(contenedor.children).forEach(div => {
-                    if(tipoSeleccionado === 'Todo' || div.dataset.tipo === tipoSeleccionado) {
-                        div.style.display = 'block';
-                    } else {
-                        div.style.display = 'none';
-                    }
-                });
-            }
-
-            filtrarLista(listaTareas);
-        });
-
-        // Función para editar la tarea
-        function editarTarea(tarea) {
-            // Aquí puedes implementar la lógica para editar la tarea
-            alert('Editar tarea: ' + tarea.actividad);
-        }
-    });
-</script>
+  </div>
             <section id="Sucursales" class="main-content">
     <h2>Sucursales</h2>
     <div class="contenedor-tarjetas">
