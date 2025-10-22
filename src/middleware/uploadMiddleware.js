@@ -12,7 +12,7 @@ const storage = multer.memoryStorage({
 
 const upload = multer({ storage });
 
-const uploadMultiple = upload.array('archivos', 10); // ✅ función
+//const uploadMultiple = upload.array('archivos', 10); // ✅ función
 
 //module.exports = { uploadMultiple };
 module.exports = upload;
