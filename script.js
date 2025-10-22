@@ -1559,10 +1559,15 @@ let firmaCanvas = null;
 // Subida múltiple de evidencias
 // ============================
 function initEvidencias(tareaId) {
-  const container = document.getElementById('evidencias-container');
+  const container = document.getElementById('contenedor-evidencias');
   const addBtn = document.getElementById('btnAgregarFoto');
   const saveBtn = document.getElementById('btnGuardarEvidencias');
   const token = localStorage.getItem('userToken');
+
+  if (!container) {
+    console.error('No se encontró el contenedor de evidencias');
+    return;
+  }
 
   container.innerHTML = ''; // limpia el contenido anterior
   for (let i = 0; i < 2; i++) agregarCampo();
@@ -1571,56 +1576,79 @@ function initEvidencias(tareaId) {
 
   function agregarCampo() {
     const div = document.createElement('div');
-    div.className = 'evidencia-item';
+    div.className = 'card-evidencia';
     div.innerHTML = `
-      <input type="text" placeholder="Título de la evidencia" class="titulo">
-      <input type="file" accept="image/*" class="archivo">
+      <label>Título de la evidencia</label>
+      <input type="text" name="titulo[]" class="titulo" placeholder="Ej: Foto antes de la instalación">
+      <label class="label-file">
+        <i class="fa-solid fa-camera"></i> Tomar Foto / Elegir Archivo
+        <input type="file" name="archivos[]" accept="image/*" class="archivo">
+      </label>
+      <div class="preview-container">
+        <img class="preview-img" src="" alt="Vista previa" style="display:none;">
+      </div>
     `;
     container.appendChild(div);
   }
 
+  // 🔹 Previsualización de imágenes
+  container.addEventListener('change', (e) => {
+    if (e.target.matches('input[type="file"][name="archivos[]"]')) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      const preview = e.target.closest('.card-evidencia').querySelector('.preview-img');
+      reader.onload = () => {
+        preview.src = reader.result;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // 🔹 Guardar evidencias
   saveBtn.onclick = async (e) => {
     e.preventDefault();
+
     const formData = new FormData();
     const titulos = [...document.querySelectorAll('.titulo')].map(i => i.value);
     const archivos = [...document.querySelectorAll('.archivo')];
     archivos.forEach(f => { if (f.files[0]) formData.append('archivos', f.files[0]); });
     formData.append('titulos', titulos.join(','));
 
-      // 🔹 Capturar firma del canvas y convertirla en archivo PNG
-  const canvas = document.getElementById('signature-pad');
-  if (canvas) {
-    const firmaData = canvas.toDataURL('image/png');
-    const blobBin = atob(firmaData.split(',')[1]);
-    const array = [];
-    for (let i = 0; i < blobBin.length; i++) {
-      array.push(blobBin.charCodeAt(i));
+    // Firma del cliente
+    const canvas = document.getElementById('signature-pad');
+    if (canvas) {
+      const firmaData = canvas.toDataURL('image/png');
+      const blobBin = atob(firmaData.split(',')[1]);
+      const array = [];
+      for (let i = 0; i < blobBin.length; i++) array.push(blobBin.charCodeAt(i));
+      const firmaFile = new Blob([new Uint8Array(array)], { type: 'image/png' });
+      formData.append('firmaCliente', firmaFile, 'firma_cliente.png');
     }
-    const firmaFile = new Blob([new Uint8Array(array)], { type: 'image/png' });
 
-    // 👇 Agregar al FormData
-    formData.append('firmaCliente', firmaFile, 'firma_cliente.png');
-  }
+    try {
+      const res = await fetch(`${API_BASE_URL}/evidencias/upload-multiple/${tareaId}`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData
+      });
 
-
-    const res = await fetch(`${API_BASE_URL}/evidencias/upload-multiple/${tareaId}`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` },
-      body: formData
-    });
-
-    const data = await res.json();
-    if (res.ok) {
-      alert('Evidencias subidas correctamente');
-      // Opcional: actualiza estado de tarea en la tabla
-      actualizarEstadoTarea(tareaId, 'Completada');
-    } else {
-      alert(data.msg || 'Error al subir evidencias');
+      const data = await res.json();
+      if (res.ok) {
+        alert('✅ Evidencias subidas correctamente');
+        actualizarEstadoTarea(tareaId, 'Completada');
+      } else {
+        console.error('Error del servidor:', data);
+        alert(data.msg || 'Error al subir evidencias');
+      }
+    } catch (err) {
+      console.error('❌ Error en fetch:', err);
+      alert('Error de conexión con el servidor.');
     }
   };
-
-  
 }
+
 
 function actualizarEstadoTarea(tareaId, nuevoEstado) {
   const fila = document.querySelector(`[data-tarea-id="${tareaId}"]`);
@@ -1644,42 +1672,21 @@ function agregarEvidencia(tareaId) {
 }
 
 
-const btnAgregar = document.getElementById('btnAgregarFoto');
-const contenedor = document.getElementById('contenedor-evidencias');
-
-
-btnAgregar.addEventListener('click', () => {
-  const div = document.createElement('div');
-  div.classList.add('card-evidencia');
-  div.innerHTML = `
-    <label>Título de la evidencia</label>
-    <input type="text" name="titulo[]" placeholder="Ej: Evidencia adicional">
-    <label class="label-file">
-      <i class="fa-solid fa-camera"></i> Tomar Foto / Elegir Archivo
-      <input type="file" name="archivos[]" accept="image/*">
-    </label>
-    <div class="preview-container">
-      <img class="preview-img" src="" alt="Vista previa" style="display:none;">
-    </div>
-  `;
-  contenedor.appendChild(div);
-});
-
 
 
 // 🔹 PREVISUALIZACIÓN DE IMÁGENES
 // 🔹 PREVISUALIZACIÓN GLOBAL (funciona también en recuadros nuevos)
-document.addEventListener('change', (e) => {
-  if (e.target.matches('input[type="file"][name="archivos[]"]') && e.target.files[0]) {
-    const reader = new FileReader();
-    const preview = e.target.closest('.card-evidencia').querySelector('.preview-img');
-    reader.onload = () => {
-      preview.src = reader.result;
-      preview.style.display = 'block';
-    };
-    reader.readAsDataURL(e.target.files[0]);
-  }
-});
+//document.addEventListener('change', (e) => {
+//  if (e.target.matches('input[type="file"][name="archivos[]"]') && e.target.files[0]) {
+//    const reader = new FileReader();
+//    const preview = e.target.closest('.card-evidencia').querySelector('.preview-img');
+//    reader.onload = () => {
+//      preview.src = reader.result;
+//      preview.style.display = 'block';
+//    };
+//    reader.readAsDataURL(e.target.files[0]);
+//  }
+//});
 
 
 // 🔹 FIRMA DEL CLIENTE
@@ -1697,7 +1704,7 @@ if (canvas) {
   canvas.addEventListener('mousemove', (e) => {
     if (!drawing) return;
     ctx.lineTo(e.offsetX, e.offsetY);
-    ctx.strokeStyle = '#2563eb';
+    ctx.strokeStyle = '#000000ff';
     ctx.lineWidth = 2;
     ctx.stroke();
   });
