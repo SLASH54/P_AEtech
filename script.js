@@ -1593,8 +1593,8 @@ function initEvidencias(tareaId) {
 
   // 🔹 Previsualización de imágenes
   container.addEventListener('change', (e) => {
-    if (e.target.matches('input[type="file"][name="archivos[]"]')) {
-      const file = e.target.files[0];
+    if (e.target.matches('input[type="file"][name="archivos"]')) {
+      const file = e.target.files[0]; 
       if (!file) return;
       const reader = new FileReader();
       const preview = e.target.closest('.card-evidencia').querySelector('.preview-img');
