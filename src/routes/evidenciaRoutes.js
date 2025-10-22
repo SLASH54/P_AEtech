@@ -22,13 +22,24 @@ console.log('Tipo de upload.array:', typeof upload.array);
 console.log('Tipo de evidenciaController.subirMultiplesEvidencias:', typeof evidenciaController.subirMultiplesEvidencias);
 
 
+//router.post(
+//  '/upload-multiple/:tareaId',
+//  protect,
+//  rol(['Admin', 'Residente', 'Practicante']),
+//  upload.array('archivos', 10), // ✅ función correcta de Multer
+//  evidenciaController.subirMultiplesEvidencias
+//);
+
+
 router.post(
-  '/upload-multiple/:tareaId',
-  protect,
-  rol(['Admin', 'Residente', 'Practicante']),
-  upload.array('archivos', 10), // ✅ función correcta de Multer
-  evidenciaController.subirMultiplesEvidencias
+  '/upload-multiple/:id',
+  upload.fields([
+    { name: 'archivos', maxCount: 10 },
+    { name: 'firmaCliente', maxCount: 1 }
+  ]),
+  subirMultiplesEvidencias
 );
+
 
 // =============================================================
 // 📋 RUTAS GENERALES DE EVIDENCIAS
