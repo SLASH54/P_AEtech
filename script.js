@@ -1612,7 +1612,7 @@ function initEvidencias(tareaId) {
 
     const formData = new FormData();
     const titulos = [...document.querySelectorAll('.titulo')].map(i => i.value);
-    const archivos = [...document.querySelectorAll('.archivo')];
+    const archivos = [...document.querySelectorAll('.archivos')];
     archivos.forEach(f => { if (f.files[0]) formData.append('archivos', f.files[0]); });
     formData.append('titulos', titulos.join(','));
 
