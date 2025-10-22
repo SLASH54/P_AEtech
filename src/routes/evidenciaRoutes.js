@@ -13,7 +13,14 @@ const rolesMonitoreo = ['Admin', 'Ingeniero'];
 // =============================================================
 // 📸 RUTA PARA SUBIR MÚLTIPLES EVIDENCIAS CON MULTER
 // =============================================================
-console.log('Tipo de upload:', typeof upload, 'Tipo de upload.array:', typeof upload.array);
+//console.log('Tipo de upload:', typeof upload, 'Tipo de upload.array:', typeof upload.array);
+console.log('Tipo de protect:', typeof protect);
+console.log('Tipo de rol:', typeof rol);
+console.log('Tipo de rol([...]):', typeof rol(['Admin', 'Residente', 'Practicante']));
+console.log('Tipo de upload:', typeof upload);
+console.log('Tipo de upload.array:', typeof upload.array);
+console.log('Tipo de evidenciaController.subirMultiplesEvidencias:', typeof evidenciaController.subirMultiplesEvidencias);
+
 
 router.post(
   '/upload-multiple/:tareaId',

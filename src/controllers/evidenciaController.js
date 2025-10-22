@@ -141,3 +141,15 @@ console.error(err);
 return res.status(500).json({ msg: 'Error al obtener evidencias' });
 }
 };
+
+
+// ... (todas tus funciones anteriores)
+
+// ✅ Exportación de todas las funciones
+module.exports = {
+  subirMultiplesEvidencias,
+  createEvidencia: exports.createEvidencia,
+  getAllEvidencias: exports.getAllEvidencias,
+  getEvidenciaByTareaId: exports.getEvidenciaByTareaId,
+  getEvidenciasByTarea: exports.getEvidenciasByTarea,
+};
