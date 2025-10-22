@@ -1,7 +1,7 @@
 // src/routes/evidenciaRoutes.js
 const express = require('express');
 const { protect, rol } = require('../middleware/authMiddleware');
-const { uploadMultiple } = require('../middleware/uploadMiddleware');
+//const { uploadMultiple } = require('../middleware/uploadMiddleware');
 const evidenciaController = require('../controllers/evidenciaController');
 const upload = require('../middleware/uploadMiddleware');
 
