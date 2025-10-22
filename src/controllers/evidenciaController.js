@@ -37,6 +37,10 @@ const subirMultiplesEvidencias = async (req, res) => {
 console.log("REQ.BODY =>", req.body);
 console.log("REQ.PARAMS =>", req.params);
 
+console.log("🟢 Campos recibidos:", Object.keys(req.body));
+console.log("🟣 Archivos recibidos:", req.files?.map(f => f.fieldname));
+
+
 };
 
 

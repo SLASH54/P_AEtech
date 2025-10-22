@@ -1582,7 +1582,7 @@ function initEvidencias(tareaId) {
       <input type="text" name="titulo[]" class="titulo" placeholder="Ej: Foto antes de la instalación">
       <label class="label-file">
         <i class="fa-solid fa-camera"></i> Tomar Foto / Elegir Archivo
-        <input type="file" name="archivos[]" accept="image/*" class="archivo">
+        <input type="file" name="archivos" accept="image/*" class="archivo">
       </label>
       <div class="preview-container">
         <img class="preview-img" src="" alt="Vista previa" style="display:none;">
