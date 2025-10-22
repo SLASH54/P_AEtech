@@ -13,6 +13,8 @@ const rolesMonitoreo = ['Admin', 'Ingeniero'];
 // =============================================================
 // 📸 RUTA PARA SUBIR MÚLTIPLES EVIDENCIAS CON MULTER
 // =============================================================
+console.log('Tipo de upload:', typeof upload, 'Tipo de upload.array:', typeof upload.array);
+
 router.post(
   '/upload-multiple/:tareaId',
   protect,

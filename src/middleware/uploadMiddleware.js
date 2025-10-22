@@ -1,20 +1,22 @@
-// src/middlewares/uploadMiddleware.js
+// src/middleware/uploadMiddleware.js
 const multer = require('multer');
 const path = require('path');
 
-const storage = multer.memoryStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/'),
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, Date.now() + '-' + file.fieldname + ext);
-  }
+// Configuración de almacenamiento (memoria)
+const storage = multer.memoryStorage();
+
+// Configuración del filtro y límites
+const upload = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
+  fileFilter: (req, file, cb) => {
+    const filetypes = /jpeg|jpg|png|pdf|webp/;
+    const mimetype = filetypes.test(file.mimetype);
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    if (mimetype && extname) return cb(null, true);
+    cb(new Error('Solo se permiten imágenes y archivos PDF.'));
+  },
 });
 
-const upload = multer({ storage });
-
-//const uploadMultiple = upload.array('archivos', 10); // ✅ función
-
-//module.exports = { uploadMultiple };
+// ✅ Exporta directamente la instancia, NO un objeto
 module.exports = upload;
-
-

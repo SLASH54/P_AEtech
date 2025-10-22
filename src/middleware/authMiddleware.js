@@ -64,3 +64,9 @@ exports.rol = (rolesPermitidos) => (req, res, next) => {
         });
     }
 };
+
+console.log('authMiddleware cargado correctamente:', {
+  protect: typeof exports.protect,
+  rol: typeof exports.rol,
+  admin: typeof exports.admin
+});
