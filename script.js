@@ -1537,466 +1537,6 @@ let firmaCanvas = null;
 // GESTIÓN DE LA SECCIÓN ACTIVIDADES Y EVIDENCIAS
 // =========================================================================
 
-/**
- * Inicializa la sección de Evidencias.
- */
-async function initEvidencias() {
-    console.log('Iniciando sección de Evidencias...');
-
-    // 1. Inicializar el pad de firmas
-    initSignaturePad();
-    
-    // 2. Cargar evidencias guardadas (si existe un endpoint)
-    // Asumimos que puedes tener un ID de Tarea o de Orden de Trabajo para cargar evidencias
-    // Por simplicidad, por ahora solo cargamos las actividades, asumiendo un ID fijo o global.
-    const actividades = await fetchData('/actividades-registro') || []; // Usar el endpoint real
-    renderActividades(actividades);
-
-    // 3. Resetear las variables de evidencia al cargar la página
-    resetEvidenciaForm();
-}
-
-/**
- * Resetea el formulario y las variables de evidencia.
- */
-function resetEvidenciaForm() {
-    // 1. Resetear variables globales
-    window.evidenciaData = {
-        fotoAntes: null,
-        fotoDespues: null,
-        fotosAdicionales: [],
-        firmas: []
-    };
-    
-    // 2. Resetear inputs de archivo
-    document.getElementById('upload-antes').value = '';
-    document.getElementById('upload-despues').value = '';
-    document.getElementById('upload-adicional').value = '';
-    
-    // 3. Resetear descripción
-    document.getElementById('descripcion').value = '';
-
-    // 4. Resetear previsualizaciones de imágenes fijas
-    document.getElementById('foto-antes').src = "https://placehold.co/300x200/cccccc/333333?text=ANTES";
-    document.getElementById('foto-despues').src = "https://placehold.co/300x200/cccccc/333333?text=DESPUÉS";
-
-    // 5. Resetear lista de fotos adicionales
-    document.getElementById('additional-photos-preview').innerHTML = '';
-
-    // 6. Resetear canvas y firmas guardadas
-    limpiarCanvas();
-    document.getElementById('firmas-guardadas-preview').innerHTML = '';
-}
-
-
-// --- 1. GESTIÓN DE FOTOS ---
-
-/**
- * Simula el clic en el input de tipo file oculto.
- * @param {string} id - ID del input file (ej. 'upload-antes').
- */
-function activarInput(id) {
-    document.getElementById(id).click();
-}
-
-/**
- * Muestra la vista previa de una sola imagen (Foto Antes/Después) y la guarda en base64.
- * @param {HTMLInputElement} input - El input file que disparó el evento.
- * @param {string} imgId - ID del elemento <img> de previsualización (ej. 'foto-antes').
- */
-function previewImage(input, imgId) {
-    if (input.files && input.files[0]) {
-        const file = input.files[0];
-        const reader = new FileReader();
-        const imgElement = document.getElementById(imgId);
-        
-        reader.onload = function(e) {
-            imgElement.src = e.target.result;
-            
-            // Guardar el Base64 en la variable global
-            if (imgId === 'foto-antes') {
-                window.evidenciaData.fotoAntes = e.target.result;
-            } else if (imgId === 'foto-despues') {
-                window.evidenciaData.fotoDespues = e.target.result;
-            }
-        };
-
-        reader.readAsDataURL(file);
-    }
-}
-
-/**
- * Añade múltiples fotos adicionales a la lista de previsualización y las guarda en base64.
- * @param {HTMLInputElement} input - El input file que disparó el evento.
- */
-function addAdditionalPhotos(input) {
-    const previewContainer = document.getElementById('additional-photos-preview');
-    // Limpiar el contenedor solo si no queremos acumular (en este caso SÍ queremos acumular)
-    // previewContainer.innerHTML = ''; 
-
-    if (input.files.length === 0) return;
-
-    // Inicializar el array de Base64 si estaba nulo/vacío
-    if (!Array.isArray(window.evidenciaData.fotosAdicionales)) {
-        window.evidenciaData.fotosAdicionales = [];
-    }
-
-    Array.from(input.files).forEach(file => {
-        const reader = new FileReader();
-
-        reader.onload = function(e) {
-            const base64Image = e.target.result;
-            
-            // Guardar Base64
-            window.evidenciaData.fotosAdicionales.push(base64Image);
-
-            // Crear miniatura y botón de eliminar
-            const previewWrapper = document.createElement('div');
-            previewWrapper.className = 'preview-item';
-            
-            const img = document.createElement('img');
-            img.src = base64Image;
-            img.className = 'preview-img-mini';
-            
-            const deleteBtn = document.createElement('button');
-            deleteBtn.textContent = 'x';
-            deleteBtn.className = 'delete-btn';
-            
-            deleteBtn.onclick = () => {
-                // Eliminar del array global
-                const index = window.evidenciaData.fotosAdicionales.indexOf(base64Image);
-                if (index > -1) {
-                    window.evidenciaData.fotosAdicionales.splice(index, 1);
-                }
-                // Eliminar del DOM
-                previewContainer.removeChild(previewWrapper);
-            };
-
-            previewWrapper.appendChild(img);
-            previewWrapper.appendChild(deleteBtn);
-            previewContainer.appendChild(previewWrapper);
-        };
-        
-        reader.readAsDataURL(file);
-    });
-}
-
-// Eliminar una foto adicional
-function removePhoto(index) {
-    additionalPhotos.splice(index, 1);
-    renderAdditionalPhotos();
-}
-
-
-// --- 2. GESTIÓN DE FIRMAS (Canvas) ---
-
-/**
- * Inicializa el Canvas de firmas para dibujar.
- */
-function initSignaturePad() {
-    firmaCanvas = document.getElementById('firmaCanvas');
-    if (!firmaCanvas) return;
-
-    ctx = firmaCanvas.getContext('2d');
-    ctx.strokeStyle = '#000000'; // Color de la firma
-    ctx.lineWidth = 2;           // Grosor de la línea
-    ctx.lineCap = 'round';
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, firmaCanvas.width, firmaCanvas.height); // Fondo blanco
-
-    // Eventos para dibujar con ratón
-    firmaCanvas.addEventListener('mousedown', startDrawing);
-    firmaCanvas.addEventListener('mouseup', stopDrawing);
-    firmaCanvas.addEventListener('mousemove', draw);
-    
-    // Eventos para dibujar con táctil (touch)
-    firmaCanvas.addEventListener('touchstart', (e) => {
-        e.preventDefault(); // Previene el scroll táctil
-        startDrawing(e.touches[0]);
-    });
-    firmaCanvas.addEventListener('touchend', stopDrawing);
-    firmaCanvas.addEventListener('touchmove', (e) => {
-        e.preventDefault();
-        draw(e.touches[0]);
-    });
-}
-
-function startDrawing(e) {
-    isDrawing = true;
-    ctx.beginPath();
-    // Obtener coordenadas relativas al canvas
-    const rect = firmaCanvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    ctx.moveTo(x, y);
-}
-
-function stopDrawing() {
-    isDrawing = false;
-    ctx.closePath();
-}
-
-function draw(e) {
-    if (!isDrawing) return;
-    const rect = firmaCanvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    ctx.lineTo(x, y);
-    ctx.stroke();
-}
-
-/**
- * Borra el contenido del Canvas de firmas.
- */
-function limpiarCanvas() {
-    if (ctx && firmaCanvas) {
-        ctx.fillRect(0, 0, firmaCanvas.width, firmaCanvas.height); // Restablecer a fondo blanco
-        // Re-establecer color de línea
-        ctx.strokeStyle = '#000000'; 
-        ctx.lineWidth = 2;
-    }
-}
-
-/**
- * Convierte el dibujo del canvas a base64, lo guarda y añade la miniatura.
- */
-function guardarFirma() {
-    if (!firmaCanvas || !ctx) return;
-
-    // 1. Obtener la DataURL del canvas CON LA FIRMA (lo que el usuario quiere guardar)
-    const firmaBase64 = firmaCanvas.toDataURL('image/png');
-    
-    // --- LÓGICA DE VALIDACIÓN CORREGIDA ---
-    
-    // 2. Limpiar el canvas para obtener la versión BLANCA
-    // Guardamos el estado actual del canvas (con la firma)
-    const estadoActualFirma = ctx.getImageData(0, 0, firmaCanvas.width, firmaCanvas.height);
-    
-    // Limpiamos el canvas para obtener el "cuerpo" de un canvas vacío
-    limpiarCanvas();
-    const blankDataUrl = firmaCanvas.toDataURL('image/png');
-    
-    // Restauramos la firma original inmediatamente
-    ctx.putImageData(estadoActualFirma, 0, 0);
-
-    // 3. Comparar la firma dibujada con la versión BLANCA
-    if (firmaBase64 === blankDataUrl) {
-        // Usamos una función que muestre un modal en lugar de alert()
-        // (Debe existir la función mostrarMensaje en tu script)
-        // Ya que la imagen original usa un modal, lo reemplazo aquí.
-        // Si no tienes mostrarMensaje, puedes volver a usar alert()
-        // alert('Por favor, dibuje una firma en el recuadro antes de guardar.');
-        mostrarMensaje('Aviso', 'Por favor, dibuje una firma en el recuadro antes de guardar.');
-        return;
-    }
-    
-    // --- LÓGICA DE GUARDADO (Mantenida por el Usuario) ---
-    
-    // 4. Guardar Base64 en variable global
-    // Importante: Si 'window.evidenciaData' no existe, esto dará error.
-    if (window.evidenciaData && window.evidenciaData.firmas) {
-         window.evidenciaData.firmas.push(firmaBase64);
-    } else {
-        console.error('window.evidenciaData o window.evidenciaData.firmas no están definidos.');
-        // Puedes agregar la firma a un array simple si el global no está listo
-        // console.log('Firma capturada con éxito pero no guardada en global.');
-    }
-   
-    // 5. Crear miniatura y botón de eliminar
-    const previewContainer = document.getElementById('firmas-guardadas-preview');
-    
-    if (previewContainer) {
-        const previewWrapper = document.createElement('div');
-        previewWrapper.className = 'preview-item';
-        
-        const img = document.createElement('img');
-        img.src = firmaBase64;
-        img.className = 'preview-img-mini';
-        img.alt = 'Firma Guardada';
-        
-        // Uso del botón de eliminar (CSS y JS son necesarios para que funcione bien)
-        const deleteBtn = document.createElement('button');
-        deleteBtn.textContent = 'x';
-        deleteBtn.className = 'delete-btn bg-red-500 text-white font-bold rounded-full w-6 h-6 absolute top-0 right-0 -mt-2 -mr-2 shadow-md hover:bg-red-700 transition duration-150';
-        
-        deleteBtn.onclick = () => {
-            // Eliminar del array global
-            if (window.evidenciaData && window.evidenciaData.firmas) {
-                const index = window.evidenciaData.firmas.indexOf(firmaBase64);
-                if (index > -1) {
-                    window.evidenciaData.firmas.splice(index, 1);
-                }
-            }
-            // Eliminar del DOM
-            previewContainer.removeChild(previewWrapper);
-        };
-
-        previewWrapper.appendChild(img);
-        previewWrapper.appendChild(deleteBtn);
-        // Asegúrate de que el wrapper tenga posición relativa para que el botón 'x' sea absoluto
-        previewWrapper.style.position = 'relative'; 
-        previewContainer.appendChild(previewWrapper);
-    }
-
-
-    // 6. Limpiar el canvas para una nueva firma
-    limpiarCanvas();
-    // alert('Firma guardada. Puede añadir otra si es necesario.');
-    mostrarMensaje('Éxito', 'Firma guardada. Puede añadir otra si es necesario.');
-}
-
-// Nota: Debes asegurarte de tener definida una función 'mostrarMensaje' 
-// para reemplazar el uso de alert(), como se recomienda para evitar interrupciones en la UI.
-function mostrarMensaje(titulo, mensaje) {
-    // Implementación simple de ejemplo (reemplazar con tu modal)
-    // Usar 'alert' solo si no hay alternativa de modal en tu proyecto.
-    console.log(`[Mensaje a Mostrar] ${titulo}: ${mensaje}`);
-    alert(mensaje); // Revertido temporalmente a alert para no romper la funcionalidad
-}
-
-
-// --- 3. ENVÍO DE DATOS Y RENDERIZACIÓN DE EVIDENCIAS ---
-
-/**
- * Recolecta todas las evidencias y las envía a la API.
- */
-async function agregarActividad() {
-    const descripcion = document.getElementById('descripcion').value.trim();
-    
-    if (!descripcion) {
-        alert('Por favor, ingrese una descripción de la actividad realizada.');
-        return;
-    }
-
-    // 1. Recolección final de datos
-    window.evidenciaData.descripcion = descripcion;
-    
-    const { fotoAntes, fotoDespues, fotosAdicionales, firmas } = window.evidenciaData;
-
-    // 2. Validación de evidencia mínima
-    if (!fotoAntes || !fotoDespues) {
-        alert('Se requieren la "Foto Antes" y "Foto Después" de la instalación.');
-        return;
-    }
-    if (firmas.length === 0) {
-         alert('Se requiere al menos una firma del cliente.');
-        return;
-    }
-    
-    // 3. Preparar el payload
-    const actividadData = {
-        // 🔑 CLAVE: Asumimos que tienes un ID de Tarea/OT/Cliente activo para vincular la evidencia.
-        // Aquí deberías vincular la evidencia a la tarea activa.
-        tareaId: 'ID_DE_LA_TAREA_ACTUAL', // 🛑 REEMPLAZAR CON EL ID REAL DE LA TAREA/OT ACTIVA
-        descripcion: descripcion,
-        // Almacenar Base64 en campos de la API
-        evidencias: { 
-            foto_antes: fotoAntes,
-            foto_despues: fotoDespues,
-            fotos_adicionales: fotosAdicionales,
-            firmas_cliente: firmas
-        },
-        fechaRegistro: new Date().toISOString()
-    };
-    
-    const mainButton = document.querySelector('.main-button');
-    mainButton.disabled = true;
-    mainButton.textContent = 'Guardando Evidencias... ⏳';
-
-    try {
-        // 4. Enviar a la API (Asumimos un endpoint para guardar registros de actividades/evidencias)
-        const endpoint = 'https://p-aetech.onrender.com/api/actividades-registro'; 
-        const result = await saveOrUpdateData(endpoint, 'POST', actividadData);
-        
-        if (result) {
-            alert('Actividad y Evidencias guardadas exitosamente.');
-            resetEvidenciaForm(); // Limpiar formulario después de guardar
-            initEvidencias(); // Recargar la lista de evidencias
-        } else {
-            alert('Error al guardar la actividad. Consulte la consola.');
-        }
-    } catch (error) {
-        console.error('Error al enviar la actividad:', error);
-        alert('Ocurrió un error de red o del servidor al guardar la actividad.');
-    } finally {
-        mainButton.disabled = false;
-        mainButton.textContent = '✅ Guardar Actividad y Evidencias';
-    }
-}
-
-/**
- * Renderiza la lista de actividades/evidencias guardadas.
- * @param {Array<Object>} actividades - Lista de registros de actividad.
- */
-function renderActividades(actividades) {
-    const contenedor = document.getElementById('evidencias-contenedor');
-    contenedor.innerHTML = '';
-    
-    if (!actividades || actividades.length === 0) {
-        contenedor.innerHTML = '<p style="text-align: center; color: #7f8c8d;">No hay actividades guardadas aún.</p>';
-        return;
-    }
-
-    actividades.forEach((actividad, index) => {
-        // Crear la tarjeta de evidencia
-        const card = document.createElement('div');
-        card.className = 'card-evidencia';
-        
-        // Contenido básico de la tarjeta
-        card.innerHTML = `
-            <h3>Registro #${index + 1} (${new Date(actividad.fechaRegistro).toLocaleDateString()})</h3>
-            <p><strong>Descripción:</strong> ${actividad.descripcion}</p>
-            <p><strong>Tarea Vinculada:</strong> ${actividad.tareaId || 'N/A'}</p>
-            <div class="gallery-evidencia">
-                <h4>Evidencias Fotográficas:</h4>
-                <div class="photo-group">
-                    <p class="photo-title">Antes:</p>
-                    <img src="${actividad.evidencias.foto_antes}" alt="Foto Antes" class="img-preview-mini">
-                </div>
-                <div class="photo-group">
-                    <p class="photo-title">Después:</p>
-                    <img src="${actividad.evidencias.foto_despues}" alt="Foto Después" class="img-preview-mini">
-                </div>
-                ${actividad.evidencias.fotos_adicionales.map((foto, i) => `
-                    <div class="photo-group">
-                        <p class="photo-title">Adicional ${i+1}:</p>
-                        <img src="${foto}" alt="Foto Adicional ${i+1}" class="img-preview-mini">
-                    </div>
-                `).join('')}
-                
-                <h4>Firmas:</h4>
-                ${actividad.evidencias.firmas_cliente.map((firma, i) => `
-                    <div class="photo-group">
-                        <p class="photo-title">Firma ${i+1}:</p>
-                        <img src="${firma}" alt="Firma Cliente ${i+1}" class="img-preview-mini signature-img">
-                    </div>
-                `).join('')}
-            </div>
-            <button onclick="deleteActividad('${actividad.id}')" class="delete-actividad-btn">Eliminar Registro</button>
-        `;
-
-        contenedor.appendChild(card);
-    });
-}
-
-/**
- * Función para eliminar un registro de actividad (Debe existir un endpoint DELETE)
- * @param {string} id - ID del registro de actividad.
- */
-async function deleteActividad(id) {
-    if (!window.confirm('¿Está seguro de que desea eliminar este registro de actividad y sus evidencias?')) {
-        return;
-    }
-    
-    // 🛑 REEMPLAZAR con el endpoint DELETE correcto si existe.
-    const endpoint = `https://p-aetech.onrender.com/api/actividades-registro/${id}`; 
-    const response = await deleteData(endpoint);
-
-    if (response) {
-        alert('Registro eliminado exitosamente.');
-        initEvidencias(); // Recargar
-    }
-}
 
 
 
@@ -2179,3 +1719,94 @@ if (canvas) {
 const path = require('path');
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// === 1) función que sube evidencias ===
+async function subirEvidencias(tareaId) {
+  const formData = new FormData();
+  const titulos = [...document.querySelectorAll('.titulo')].map(i => i.value);
+  const archivos = [...document.querySelectorAll('.archivo')];
+  archivos.forEach(f => { if (f.files[0]) formData.append('archivos', f.files[0]); });
+  formData.append('titulos', titulos.join(','));
+
+  // Firma desde #signature-pad (si existe)
+  const canvas = document.getElementById('signature-pad');
+  if (canvas) {
+    const firmaData = canvas.toDataURL('image/png');
+    const bin = atob(firmaData.split(',')[1]);
+    const arr = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+    formData.append('firmaCliente', new Blob([arr], { type: 'image/png' }), 'firma_cliente.png');
+  }
+
+  const token = localStorage.getItem('userToken');
+  const res = await fetch(`${API_BASE_URL}/evidencias/upload-multiple/${tareaId}`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData
+  });
+  const data = await res.json();
+  if (res.ok) {
+    alert('Evidencias subidas correctamente');
+    actualizarEstadoTarea(tareaId, 'Completada');
+  } else {
+    alert(data.msg || 'Error al subir evidencias');
+  }
+}
+
+// === 2) listener global para el botón ===
+document.addEventListener('DOMContentLoaded', () => {
+  const saveBtn = document.getElementById('btnGuardarEvidencias');
+  if (saveBtn) {
+    saveBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const tareaId = window.tareaActual; // o de donde la guardes
+      if (!tareaId) { alert('Selecciona primero una tarea.'); return; }
+      subirEvidencias(tareaId);
+    });
+  }
+
+  const addBtn = document.getElementById('btnAgregarFoto');
+  if (addBtn) {
+    addBtn.addEventListener('click', () => {
+      const container = document.getElementById('evidencias-container') || document.getElementById('contenedor-evidencias');
+      const div = document.createElement('div');
+      div.className = 'evidencia-item card-evidencia';
+      div.innerHTML = `
+        <input type="text" placeholder="Título de la evidencia" class="titulo">
+        <label class="label-file">
+          <i class="fa-solid fa-camera"></i> Tomar Foto / Elegir Archivo
+          <input type="file" accept="image/*" class="archivo">
+        </label>
+        <div class="preview-container"><img class="preview-img" style="display:none;"></div>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  // Previsualización delegada (sirve también para los nuevos campos)
+  document.addEventListener('change', (e) => {
+    if (e.target.matches('input.archivo') && e.target.files[0]) {
+      const reader = new FileReader();
+      const preview = e.target.closest('.card-evidencia').querySelector('.preview-img');
+      reader.onload = () => { preview.src = reader.result; preview.style.display = 'block'; };
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  });
+});
