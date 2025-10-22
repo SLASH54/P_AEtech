@@ -1592,19 +1592,20 @@ function initEvidencias(tareaId) {
   }
 
   // 🔹 Previsualización de imágenes
-  container.addEventListener('change', (e) => {
-    if (e.target.matches('input[type="file"][name="archivos"]')) {
-      const file = e.target.files[0]; 
-      if (!file) return;
-      const reader = new FileReader();
-      const preview = e.target.closest('.card-evidencia').querySelector('.preview-img');
-      reader.onload = () => {
-        preview.src = reader.result;
-        preview.style.display = 'block';
-      };
-      reader.readAsDataURL(file);
-    }
-  });
+  document.addEventListener("change", (e) => {
+  if (e.target.classList.contains("archivo") && e.target.files[0]) {
+    const reader = new FileReader();
+    const preview = e.target.closest(".card-evidencia").querySelector(".preview-img");
+    reader.onload = () => {
+      preview.src = reader.result;
+      preview.style.display = "block";
+    };
+    reader.readAsDataURL(e.target.files[0]);
+  }
+});
+
+
+  
 
   // 🔹 Guardar evidencias
   saveBtn.onclick = async (e) => {
@@ -1612,7 +1613,7 @@ function initEvidencias(tareaId) {
 
     const formData = new FormData();
     const titulos = [...document.querySelectorAll('.titulo')].map(i => i.value);
-    const archivos = [...document.querySelectorAll('.archivos')];
+    const archivos = [...document.querySelectorAll('.archivos')];//Posiblemente no lleve "s"(.archivo)
     archivos.forEach(f => { if (f.files[0]) formData.append('archivos', f.files[0]); });
     formData.append('titulos', titulos.join(','));
 
