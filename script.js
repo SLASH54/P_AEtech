@@ -1559,7 +1559,7 @@ let firmaCanvas = null;
 // Subida múltiple de evidencias
 // ============================
 function initEvidencias(tareaId) {
-  const container = document.getElementById('evidencias-container');
+  const container = document.getElementById('contenedor-evidencias');
   const addBtn = document.getElementById('btnAgregarFoto');
   const saveBtn = document.getElementById('btnGuardarEvidencias');
   const token = localStorage.getItem('userToken');
