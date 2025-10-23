@@ -9,7 +9,7 @@ const subirMultiplesEvidencias = async (req, res) => {
   try {
     // ✅ 1. Parámetros correctos
     const { id: tareaId } = req.params;
-    const usuarioId = req.user?.id || null;
+    const usuarioId = req.user.id;
 
     // ✅ 2. Archivos y firma
     const files = req.files?.archivos || [];
