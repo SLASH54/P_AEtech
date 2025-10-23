@@ -1840,39 +1840,47 @@ async function subirEvidencias(tareaId) {
 
 
 
+// Función para cargar las actividades (simulación)
+function cargarActividades() {
+    const actividades = ["Reunión con Cliente A", "Elaboración de Propuesta", "Seguimiento de Contrato"];
+    const listaActividades = document.getElementById("listaActividades");
 
-
-// Función para agregar una nueva evidencia
-function agregarEvidencia(titulo, imagenSrc) {
-    const contenedorEvidencias = document.getElementById('contenedorEvidencias');
-
-    // Limpia el mensaje de "Aún no hay evidencias" si existe
-    const mensajeInicial = contenedorEvidencias.querySelector('li');
-    if (mensajeInicial) {
-        mensajeInicial.remove();
-    }
-
-    // Crea el elemento de la lista
-    const evidenciaItem = document.createElement('li');
-
-    // Crea la imagen
-    const imagen = document.createElement('img');
-    imagen.src = imagenSrc;
-    imagen.alt = titulo;
-
-    // Crea el título
-    const tituloElement = document.createElement('h3');
-    tituloElement.textContent = titulo;
-
-    // Agrega la imagen y el título al elemento de la lista
-    evidenciaItem.appendChild(imagen);
-    evidenciaItem.appendChild(tituloElement);
-
-    // Agrega el elemento de la lista al contenedor principal
-    contenedorEvidencias.appendChild(evidenciaItem);
+    actividades.forEach(actividad => {
+        const li = document.createElement("li");
+        li.textContent = actividad;
+        listaActividades.appendChild(li);
+    });
 }
 
-// Ejemplo de uso (simulando la adición de una evidencia):
-// Supongamos que tienes una función que se llama al hacer clic en "Agregar Evidencia"
-// En esa función, puedes llamar a agregarEvidencia con el título y la URL de la imagen:
-// agregarEvidencia("Evidencia del Cliente A", "URL_DE_LA_IMAGEN");
+// Función para cargar las evidencias (simulación)
+function cargarEvidencias() {
+    const evidencias = [
+        { titulo: "Evidencia 1", imagenSrc: "https://via.placeholder.com/150" },
+        { titulo: "Evidencia 2", imagenSrc: "https://via.placeholder.com/150" },
+        { titulo: "Evidencia 3", imagenSrc: "https://via.placeholder.com/150" }
+    ];
+    const contenedorEvidencias = document.getElementById("contenedorEvidencias");
+
+    evidencias.forEach(evidencia => {
+        const img = document.createElement("img");
+        img.src = evidencia.imagenSrc;
+        img.alt = evidencia.titulo;
+        contenedorEvidencias.appendChild(img);
+    });
+}
+
+// Función para imprimir las evidencias en PDF (simulación)
+function imprimirPDF() {
+    alert("Función de impresión PDF en desarrollo...");
+    // Aquí iría la lógica para generar el PDF con las evidencias
+    // Puedes usar librerías como jsPDF para generar el PDF
+}
+
+// Cargar datos y asignar funcionalidad al botón al cargar la página
+document.addEventListener("DOMContentLoaded", function() {
+    cargarActividades();
+    cargarEvidencias();
+
+    const btnImprimirPDF = document.getElementById("btnImprimirPDF");
+    btnImprimirPDF.addEventListener("click", imprimirPDF);
+});
