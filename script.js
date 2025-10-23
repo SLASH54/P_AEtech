@@ -1649,7 +1649,7 @@ function initEvidencias(tareaId) {
   }
 
   // 🔹 Ocultar sección de evidencias
-  const seccionEvidencias = document.getElementById('seccionEvidencias'); // cambia el ID si tu contenedor tiene otro nombre
+  const seccionEvidencias = document.getElementById('Actividades'); // cambia el ID si tu contenedor tiene otro nombre
   if (seccionEvidencias) {
     seccionEvidencias.style.opacity = '0';
     setTimeout(() => {
