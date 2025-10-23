@@ -1198,12 +1198,12 @@ function renderTareasTable(tareas) {
         };
         
         // 🛑 CORRECCIÓN CLAVE 2: Definir las variables aplanadas DENTRO del bucle
-        const asignadoNombre = tarea.asignadoANombre || 'N/A'; // Asumimos que tu backend aplana el nombre
+        //const asignadoNombre = tarea.asignadoANombre || 'N/A'; // Asumimos que tu backend aplana el nombre
         const sucursalNombre = tarea.sucursal || 'General'; // Asumimos que tu backend aplana el nombre de sucursal
 
         row.innerHTML = `
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${tarea.nombre}</td> 
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${asignadoNombre}</td> 
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${tarea.asignadoANombre}</td> 
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sucursalNombre}</td> 
             <td class="px-6 py-4 whitespace-nowrap text-sm">${getStatusBadge(tarea.estado)}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(tarea.fechaLimite).toLocaleDateString()}</td>
