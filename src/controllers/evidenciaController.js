@@ -44,6 +44,13 @@ const subirMultiplesEvidencias = async (req, res) => {
       })
     );
 
+    // ✅ Actualizar estado de la tarea al completar
+    await Tarea.update(
+      { estado: 'Completada' },
+      { where: { id: tareaId } }
+    );
+
+
     console.log('✅ Evidencias guardadas:', evidencias.length);
 
     res.status(201).json({
