@@ -1844,6 +1844,7 @@ main {
 }
 
 #signature-pad {
+    touch-action: none; /* 🔑 Evita que se mueva la pantalla al firmar */
   border: 2px solid #2563eb;
   border-radius: 10px;
   width: 100%;

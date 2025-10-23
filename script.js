@@ -637,44 +637,36 @@ async function fetchData(endpoint) {
 
 // Función initAdminPanel - (OK, déjala global)
 async function initAdminPanel() {
-    const userRole = localStorage.getItem('userRol');
-    const adminSection = document.getElementById('Administracion'); // Obtenemos la referencia
-    
-    // 1. VERIFICACIÓN DE ROL TEMPRANA (CLAVE)
-    if (userRole !== 'Admin' && userRole !== 'Administrador') {
-        // Opcional: Ocultar la sección explícitamente si se logra mostrar
-        if (adminSection) {
-            adminSection.classList.remove('show');
-        }
-        // Devolvemos y salimos ANTES de cualquier llamada a fetchData
-        alert("Acceso denegado: No tienes permisos de administrador."); 
-        // Ya que la alerta está aquí, podemos quitarla de fetchData
-        return; 
-    }
-    
-    // 🔑 Si el rol es válido, aseguramos que la sección sea visible.
-    if (adminSection && !adminSection.classList.contains('show')) {
-        adminSection.classList.add('show');
-    }
-    
-    // 2. Carga de Usuarios (Solo si el rol es Admin)
-    const tbodyUsuarios = document.getElementById('datagridUsuariosRoles')?.querySelector('tbody');
-    const usuarios = await fetchData('/users'); 
-    if (usuarios && Array.isArray(usuarios) && tbodyUsuarios) { 
-        generarFilasUsuariosRoles(usuarios, tbodyUsuarios); 
-    }
-  
-    
-    
-    // 3. Carga de Clientes (Solo si el rol es Admin)
-    const tbodyClientes = document.getElementById('datagridClientes')?.querySelector('tbody');
-    const clientes = await fetchData('/clientes'); 
-    if (clientes && Array.isArray(clientes) && tbodyClientes) {
-        generarFilasClientes(clientes, tbodyClientes);
-    }
+  const userRole = localStorage.getItem('userRol');
+  const adminSection = document.getElementById('Administracion');
 
-    console.log('initAdminPanel finalizado y la sección debería ser visible.');
+  // 🔹 Si NO es admin, solo ocultamos el panel de administración
+  if (userRole !== 'Admin' && userRole !== 'Administrador') {
+    if (adminSection) adminSection.classList.remove('show');
+    console.log('Rol sin acceso al panel admin, pero puede usar el tablero.');
+    return;
+  }
+
+  // 🔹 Si es admin, mostrar sección y cargar datos
+  if (adminSection && !adminSection.classList.contains('show')) {
+    adminSection.classList.add('show');
+  }
+
+  const tbodyUsuarios = document.getElementById('datagridUsuariosRoles')?.querySelector('tbody');
+  const usuarios = await fetchData('/users');
+  if (usuarios && Array.isArray(usuarios) && tbodyUsuarios) {
+    generarFilasUsuariosRoles(usuarios, tbodyUsuarios);
+  }
+
+  const tbodyClientes = document.getElementById('datagridClientes')?.querySelector('tbody');
+  const clientes = await fetchData('/clientes');
+  if (clientes && Array.isArray(clientes) && tbodyClientes) {
+    generarFilasClientes(clientes, tbodyClientes);
+  }
+
+  console.log('initAdminPanel cargado correctamente.');
 }
+
 
 // Función generarFilasUsuariosRoles - (DEBE SER GLOBAL)
 function generarFilasUsuariosRoles(usuarios, tbodyElement) {
@@ -1643,6 +1635,22 @@ function initEvidencias(tareaId) {
       if (res.ok) {
         alert('✅ Evidencias subidas correctamente');
         actualizarEstadoTarea(tareaId, 'Completada');
+        // 🔹 Limpiar campos
+        document.querySelectorAll('.titulo').forEach(i => i.value = '');
+        document.querySelectorAll('.archivo').forEach(f => f.value = '');
+        const firmaCanvas = document.getElementById('signature-pad');
+        if (firmaCanvas) {
+        const ctx = firmaCanvas.getContext('2d');
+        ctx.clearRect(0, 0, firmaCanvas.width, firmaCanvas.height);
+        }
+
+        // 🔹 Ocultar la sección de evidencias
+        const seccionEvidencias = document.getElementById('Actividades');
+        if (seccionEvidencias) seccionEvidencias.style.display = 'none';
+
+        // 🔹 Refrescar tareas
+        if (typeof initTareas === 'function') initTareas();
+
       } else {
         console.error('Error del servidor:', data);
         alert(data.msg || 'Error al subir evidencias');
@@ -1700,6 +1708,12 @@ if (canvas) {
   const ctx = canvas.getContext('2d');
   let drawing = false;
 
+  // 🔹 Configuración de estilo
+  ctx.strokeStyle = '#000';
+  ctx.lineWidth = 2;
+  ctx.lineCap = 'round';
+
+  // 🔹 Eventos de ratón
   canvas.addEventListener('mousedown', (e) => {
     drawing = true;
     ctx.beginPath();
@@ -1709,14 +1723,41 @@ if (canvas) {
   canvas.addEventListener('mousemove', (e) => {
     if (!drawing) return;
     ctx.lineTo(e.offsetX, e.offsetY);
-    ctx.strokeStyle = '#000000ff';
-    ctx.lineWidth = 2;
     ctx.stroke();
   });
 
   canvas.addEventListener('mouseup', () => (drawing = false));
   canvas.addEventListener('mouseleave', () => (drawing = false));
 
+  // 🔹 Eventos táctiles
+  const getTouchPos = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: e.touches[0].clientX - rect.left,
+      y: e.touches[0].clientY - rect.top,
+    };
+  };
+
+  canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    drawing = true;
+    const pos = getTouchPos(e);
+    ctx.beginPath();
+    ctx.moveTo(pos.x, pos.y);
+  }, { passive: false });
+
+  canvas.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    if (!drawing) return;
+    const pos = getTouchPos(e);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+  }, { passive: false });
+
+  canvas.addEventListener('touchend', () => (drawing = false));
+  canvas.addEventListener('touchcancel', () => (drawing = false));
+
+  // 🔹 Botones de control
   document.getElementById('btnLimpiarFirma').addEventListener('click', () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   });
@@ -1724,9 +1765,10 @@ if (canvas) {
   document.getElementById('btnGuardarFirma').addEventListener('click', () => {
     const firmaData = canvas.toDataURL('image/png');
     console.log('Firma capturada:', firmaData);
-    alert('✅ Firma guardada temporalmente (aún falta subirla al servidor).');
+    alert('✅ Firma guardada temporalmente.');
   });
 }
+
 
 
 
