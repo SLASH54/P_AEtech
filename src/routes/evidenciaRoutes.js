@@ -31,8 +31,17 @@ console.log('Tipo de evidenciaController.subirMultiplesEvidencias:', typeof evid
 //);
 
 
+//router.post(
+//  '/upload-multiple/:id',
+//  upload.fields([
+//    { name: 'archivos', maxCount: 10 },
+//    { name: 'firmaCliente', maxCount: 1 }
+//  ]),
+//  evidenciaController.subirMultiplesEvidencias
+//);
+
 router.post(
-  '/upload-multiple/:tareaId',
+  '/upload-multiple/:Id',
   protect,  // ✅ primero verificamos el token y cargamos req.user
   upload.fields([
     { name: 'archivos', maxCount: 10 },
