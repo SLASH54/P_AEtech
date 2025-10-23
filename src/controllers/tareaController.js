@@ -43,17 +43,24 @@ exports.createTarea = async (req, res) => {
 // 2. Obtener TODAS las Tareas (GET) - Admin/Ingeniero
 // Aquí el Admin/Ingeniero ve TODAS las tareas para monitoreo.
 exports.getAllTareas = async (req, res) => {
-    try {
-        const tareas = await Tarea.findAll({ 
-            include: includeConfig,
-            order: [['createdAt', 'DESC']]
-        });
-        return res.json(tareas);
-    } catch (error) {
-        console.error('Error al obtener tareas:', error);
-        return res.status(500).json({ message: 'Error interno del servidor al obtener las tareas.' });
-    }
+  try {
+    const tareas = await Tarea.findAll({
+      include: [
+        { model: Usuario, as: 'AsignadoA', attributes: ['id', 'nombre', 'rol'] },
+        { model: Actividad, attributes: ['id', 'nombre', 'campos_evidencia'] },
+        { model: Sucursal, attributes: ['id', 'nombre', 'direccion'] },
+        { model: ClienteNegocio, attributes: ['id', 'nombre'] }
+      ],
+      order: [['createdAt', 'DESC']]
+    });
+
+    res.json(tareas);
+  } catch (error) {
+    console.error('Error al obtener tareas:', error);
+    res.status(500).json({ message: 'Error al obtener tareas' });
+  }
 };
+
 
 // 3. Obtener Tareas ASIGNADAS (GET) - Residente/Practicante
 // Aquí el Residente/Practicante solo ve las tareas que le fueron asignadas.
