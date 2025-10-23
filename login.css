@@ -1855,6 +1855,11 @@ main {
   cursor: crosshair;
 }
 
+#seccionEvidencias {
+  transition: opacity 0.4s ease;
+}
+
+
 /* BOTONES DE FIRMA */
 .firma-botones {
   display: flex;

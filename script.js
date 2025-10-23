@@ -614,8 +614,10 @@ async function fetchData(endpoint) {
         });
 
         if (response.status === 401 || response.status === 403) {
-            alert("No tiene permisos de administrador para ver estos datos.");
-            return null;
+            console.warn("⚠️ Acceso restringido al panel administrativo, pero usuario puede acceder al tablero.");
+            return null; // no bloquear el resto del sistema
+            //alert("No tiene permisos de administrador para ver estos datos.");
+            //return null;
         }
 
         if (!response.ok) {
@@ -1635,21 +1637,33 @@ function initEvidencias(tareaId) {
       if (res.ok) {
         alert('✅ Evidencias subidas correctamente');
         actualizarEstadoTarea(tareaId, 'Completada');
-        // 🔹 Limpiar campos
-        document.querySelectorAll('.titulo').forEach(i => i.value = '');
-        document.querySelectorAll('.archivo').forEach(f => f.value = '');
-        const firmaCanvas = document.getElementById('signature-pad');
-        if (firmaCanvas) {
-        const ctx = firmaCanvas.getContext('2d');
-        ctx.clearRect(0, 0, firmaCanvas.width, firmaCanvas.height);
-        }
+        // 🔹 Limpiar inputs
+  document.querySelectorAll('.titulo').forEach(i => i.value = '');
+  document.querySelectorAll('.archivo').forEach(f => f.value = '');
+  
+  // 🔹 Limpiar firma
+  const firmaCanvas = document.getElementById('signature-pad');
+  if (firmaCanvas) {
+    const ctx = firmaCanvas.getContext('2d');
+    ctx.clearRect(0, 0, firmaCanvas.width, firmaCanvas.height);
+  }
 
-        // 🔹 Ocultar la sección de evidencias
-        const seccionEvidencias = document.getElementById('Actividades');
-        if (seccionEvidencias) seccionEvidencias.style.display = 'none';
+  // 🔹 Ocultar sección de evidencias
+  const seccionEvidencias = document.getElementById('seccionEvidencias'); // cambia el ID si tu contenedor tiene otro nombre
+  if (seccionEvidencias) {
+    seccionEvidencias.style.opacity = '0';
+    setTimeout(() => {
+      seccionEvidencias.style.display = 'none';
+      seccionEvidencias.style.opacity = '1';
+    }, 400);
+  }
 
-        // 🔹 Refrescar tareas
-        if (typeof initTareas === 'function') initTareas();
+  // 🔹 Regresar al tablero automáticamente
+  if (typeof mostrarTablero === 'function') {
+    mostrarTablero();
+  } else if (document.getElementById('Tareas')) {
+    document.getElementById('Tareas').scrollIntoView({ behavior: 'smooth' });
+  }
 
       } else {
         console.error('Error del servidor:', data);
