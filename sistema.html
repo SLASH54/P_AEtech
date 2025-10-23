@@ -165,7 +165,7 @@
             </section>
 
 
-          <!-- NUEVO CONTENEDOR ORGANIZADOR DE TAREAS -->
+         <!-- NUEVO CONTENEDOR ORGANIZADOR DE TAREAS -->
 <!-- Sección de Tareas -->
 <section id="organizador-tareas" class="main-content">
     <div class="p-8">
@@ -178,30 +178,35 @@
             </button>
         </div>
 
-        <div class="bg-white shadow-xl rounded-xl overflow-hidden">
-            <table class="min-w-full divide-y divide-gray-200" id="tareasTable">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Título</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asignado a</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sucursal</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Límite</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200" id="tareasBody">
-                    <!-- Aquí se cargarán las tareas con JavaScript -->
-                    <tr>
-                        <td colspan="6" class="p-4 text-center text-gray-500">Cargando tareas...</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        <!-- Aquí se moverá el contenedor de la tabla -->
+
+    </div>
+
+    <!-- Contenedor de la tabla (MOVIDO AQUÍ) -->
+    <div class="bg-white shadow-xl rounded-xl overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200" id="tareasTable">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Título</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asignado a</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sucursal</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Límite</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200" id="tareasBody">
+                <!-- Aquí se cargarán las tareas con JavaScript -->
+                <tr>
+                    <td colspan="6" class="p-4 text-center text-gray-500">Cargando tareas...</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 
     <!-- MODAL para Agregar/Editar Tarea -->
-    <div id="tareaModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div id="tareaModal"
+        class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none transition-opacity duration-300">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6">
             <h3 id="tareaModalTitle" class="text-2xl font-semibold mb-4 border-b pb-2">Crear Nueva Tarea</h3>
             <form id="tareaForm">
@@ -209,49 +214,62 @@
 
                 <div class="mb-4">
                     <label for="tareaTitulo" class="block text-sm font-medium text-gray-700">Título</label>
-                    <input type="text" id="tareaTitulo" name="titulo" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    <input type="text" id="tareaTitulo" name="titulo" required
+                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
                 </div>
 
                 <div class="mb-4">
                     <label for="tareaDescripcion" class="block text-sm font-medium text-gray-700">Descripción</label>
-                    <textarea id="tareaDescripcion" name="descripcion" required rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                    <textarea id="tareaDescripcion" name="descripcion" required rows="3"
+                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label for="tareaAsignadoA" class="block text-sm font-medium text-gray-700">Asignar a Usuario</label>
-                        <select id="tareaAsignadoA" name="asignadoA" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        <label for="tareaAsignadoA" class="block text-sm font-medium text-gray-700">Asignar a
+                            Usuario</label>
+                        <select id="tareaAsignadoA" name="asignadoA" required
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
                             <option value="" disabled selected>-- Seleccione Usuario --</option>
                             <!-- Opciones cargadas dinámicamente -->
                         </select>
                     </div>
                     <div>
-                        <label for="tareaClienteId" class="block text-sm font-medium text-gray-700">Cliente Asociado</label>
-                        <select id="tareaClienteId" name="clienteId" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        <label for="tareaClienteId" class="block text-sm font-medium text-gray-700">Cliente
+                            Asociado</label>
+                        <select id="tareaClienteId" name="clienteId" required
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
                             <option value="" disabled selected>-- Seleccione Cliente --</option>
                         </select>
                     </div>
                     <div>
-                        <label for="tareaFechaLimite" class="block text-sm font-medium text-gray-700">Fecha Límite</label>
-                        <input type="date" id="tareaFechaLimite" name="fechaLimite" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        <label for="tareaFechaLimite" class="block text-sm font-medium text-gray-700">Fecha
+                            Límite</label>
+                        <input type="date" id="tareaFechaLimite" name="fechaLimite" required
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
                     </div>
                 </div>
 
                 <div class="mb-4">
-                    <label for="tareaDireccionCliente" class="block text-sm font-medium text-gray-700">Dirección del Cliente</label>
-                    <input type="text" id="tareaDireccionCliente" name="direccionCliente" readonly class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-gray-100 text-gray-600">
+                    <label for="tareaDireccionCliente" class="block text-sm font-medium text-gray-700">Dirección del
+                            Cliente</label>
+                    <input type="text" id="tareaDireccionCliente" name="direccionCliente" readonly
+                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-gray-100 text-gray-600">
                 </div>
 
                 <div class="mb-4">
-                    <label for="tareaActividadId" class="block text-sm font-medium text-gray-700">Tipo de Actividad</label>
-                    <select id="tareaActividadId" name="actividad" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    <label for="tareaActividadId" class="block text-sm font-medium text-gray-700">Tipo de
+                        Actividad</label>
+                    <select id="tareaActividadId" name="actividad" required
+                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
                         <option value="" disabled selected>-- Seleccione Actividad --</option>
                     </select>
                 </div>
 
                 <div class="mb-4">
                     <label for="tareaEstado" class="block text-sm font-medium text-gray-700">Estado</label>
-                    <select id="tareaEstado" name="estado" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    <select id="tareaEstado" name="estado" required
+                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
                         <option value="Pendiente">Pendiente</option>
                         <option value="En Progreso">En Progreso</option>
                         <option value="Completada">Completada</option>
@@ -260,7 +278,8 @@
                 </div>
 
                 <div class="flex justify-end space-x-3 mt-6">
-                    <button type="button" id="closeTareaModal" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-lg transition duration-300">
+                    <button type="button" id="closeTareaModal"
+                        class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-lg transition duration-300">
                         Cancelar
                     </button>
                     <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-300">
@@ -271,7 +290,6 @@
         </div>
     </div>
 </section>
-
 
             
      
