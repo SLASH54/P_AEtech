@@ -1899,7 +1899,9 @@ main {
     background-color: #475569; /* Gris más oscuro al pasar el mouse */
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px) and 
+(max-width: 1023px)
+{
     /* Modal en tablets */
     #tareaModal .modal-content {
         padding: 1rem;
