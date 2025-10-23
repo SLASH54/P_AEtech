@@ -1719,7 +1719,263 @@ main {
     letter-spacing: 0.05em;
 }
 
+/* Estilos generales para los botones en la tabla */
+#tareasTable .btn-accion {
+    padding: 0.25rem 0.5rem; /* Reduce el padding para hacerlos más pequeños */
+    font-size: 0.75rem; /* Reduce el tamaño de la fuente */
+    border-radius: 0.25rem; /* Reduce el border-radius para que coincida con el tamaño */
+    margin: 0.125rem; /* Añade un pequeño margen para separarlos */
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
 
+/* Estilo específico para el botón "Editar" */
+#tareasTable .btn-editar {
+    background-color: #63b3ed; /* Blue-300 */
+    color: white;
+}
+
+#tareasTable .btn-editar:hover {
+    background-color: #4299e1; /* Blue-500 */
+}
+
+/* Estilo específico para el botón "Eliminar" */
+#tareasTable .btn-eliminar {
+    background-color: #f56565; /* Red-500 */
+    color: white;
+}
+
+#tareasTable .btn-eliminar:hover {
+    background-color: #e53e3e; /* Red-700 */
+}
+
+/* Estilo específico para el botón "Agregar Evidencia" */
+#tareasTable .btn-agregar-evidencia {
+    background-color: #48bb78; /* Green-500 */
+    color: white;
+}
+
+#tareasTable .btn-agregar-evidencia:hover {
+    background-color: #38a169; /* Green-700 */
+}
+
+/* Estilos base (para pantallas más grandes) */
+#tareasTable {
+    width: 100%; /* Asegura que la tabla ocupe todo el ancho disponible */
+    table-layout: auto; /* Permite que las celdas se ajusten al contenido */
+}
+
+#tareasTable th,
+#tareasTable td {
+    padding: 0.75rem 1rem; /* Espaciado estándar */
+    font-size: 0.875rem;   /* Tamaño de fuente estándar */
+}
+
+#tareasTable tbody td button {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.75rem;
+}
+
+/* Media query para pantallas más pequeñas (ej., tablets) */
+@media (max-width: 768px) {
+    #tareasTable {
+        font-size: 0.75rem; /* Reduce el tamaño de la fuente en pantallas más pequeñas */
+    }
+
+    #tareasTable th,
+    #tareasTable td {
+        padding: 0.5rem; /* Reduce el espaciado en pantallas más pequeñas */
+    }
+
+    #tareasTable tbody td button {
+        padding: 0.2rem 0.4rem; /* Botones aún más pequeños */
+        font-size: 0.65rem;
+    }
+}
+
+/* Media query para pantallas aún más pequeñas (ej., teléfonos) */
+@media (max-width: 480px) {
+    #tareasTable {
+        display: block; /* Evita el desbordamiento horizontal */
+        overflow-x: auto; /* Permite el desplazamiento horizontal si es necesario */
+    }
+
+    #tareasTable thead {
+        display: none; /* Oculta la cabecera de la tabla en pantallas muy pequeñas */
+    }
+
+    #tareasTable tr {
+        display: block;
+        margin-bottom: 0.5rem; /* Espacio entre las filas */
+        border: 1px solid #ddd; /* Borde para cada fila */
+    }
+
+    #tareasTable td {
+        display: block;
+        border: none;
+        padding: 0.25rem;
+        text-align: left;
+        position: relative;
+        padding-left: 50%; /* Espacio para el "título" */
+    }
+
+    #tareasTable td:before {
+        content: attr(data-label); /* Muestra el nombre de la columna como "título" */
+        position: absolute;
+        left: 0;
+        width: 50%;
+        padding-left: 0.5rem;
+        font-weight: bold;
+        text-align: left;
+    }
+
+    #tareasTable td button {
+        width: 100%; /* Los botones ocupan todo el ancho */
+        margin: 0.25rem 0; /* Espacio vertical */
+        display: block;    /* Cada botón en una línea separada */
+    }
+}
+
+/* Contenedor del Modal */
+#tareaModal {
+    background-color: rgba(0, 0, 0, 0.6); /* Fondo semitransparente oscuro */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Fuente moderna y legible */
+}
+
+/* Contenido del Modal */
+#tareaModal .modal-content {
+    background-color: #e0f2f7; /* Un celeste muy claro para el fondo del contenido */
+    border-radius: 0.75rem; /* Bordes redondeados más pronunciados */
+    box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.3); /* Sombra sutil */
+    max-width: 90%; /* El modal ocupa hasta el 90% del ancho en pantallas grandes */
+    margin: 2rem auto; /* Centrado vertical y horizontal */
+    padding: 1.5rem; /* Espaciado interno reducido */
+}
+
+/* Título del Modal */
+#tareaModalTitle {
+    color: #1e3a8a; /* Azul oscuro para el título */
+    font-size: 1.75rem; /* Tamaño del título */
+    font-weight: 600; /* Negrita */
+    margin-bottom: 1.25rem; /* Espacio debajo del título */
+    border-bottom: 2px solid #94a3b8; /* Línea debajo del título */
+    padding-bottom: 0.75rem; /* Espacio debajo de la línea */
+}
+
+/* Etiquetas de los campos */
+#tareaForm label {
+    color: #334155; /* Gris oscuro para las etiquetas */
+    font-size: 0.9rem; /* Tamaño de la fuente */
+    font-weight: 500; /* Semibold */
+    margin-bottom: 0.3rem; /* Espacio debajo de las etiquetas */
+    display: block; /* Asegura que las etiquetas ocupen todo el ancho */
+}
+
+/* Campos de texto, textarea, select */
+#tareaForm input[type="text"],
+#tareaForm input[type="date"],
+#tareaForm textarea,
+#tareaForm select {
+    width: 100%; /* Ocupan todo el ancho */
+    padding: 0.6rem; /* Espaciado interno */
+    border: 1px solid #cbd5e0; /* Borde gris claro */
+    border-radius: 0.5rem; /* Bordes redondeados */
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08); /* Sombra interna sutil */
+    font-size: 0.85rem; /* Tamaño de la fuente */
+    color: #475569; /* Color del texto */
+    margin-bottom: 1rem; /* Espacio debajo de los campos */
+}
+
+/* Estilos específicos para el textarea */
+#tareaForm textarea {
+    resize: vertical; /* Permite redimensionar verticalmente */
+    min-height: 5rem; /* Altura mínima */
+}
+
+/* Estilos para los botones */
+#tareaForm .flex.justify-end button {
+    background-color: #3b82f6; /* Azul */
+    color: white; /* Texto blanco */
+    padding: 0.5rem 1rem; /* Espaciado interno */
+    border: none; /* Sin borde */
+    border-radius: 0.5rem; /* Bordes redondeados */
+    font-size: 0.8rem; /* Tamaño de la fuente */
+    font-weight: 500; /* Semibold */
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out; /* Transiciones suaves */
+}
+
+/* Hover para los botones */
+#tareaForm .flex.justify-end button:hover {
+    background-color: #2563eb; /* Azul más oscuro al pasar el mouse */
+    transform: translateY(-1px); /* Ligero efecto de elevación */
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.2); /* Sombra más pronunciada */
+}
+
+/* Estilo específico para el botón "Cancelar" */
+#tareaForm .flex.justify-end button:first-child {
+    background-color: #64748b; /* Gris azulado para "Cancelar" */
+}
+
+#tareaForm .flex.justify-end button:first-child:hover {
+    background-color: #475569; /* Gris más oscuro al pasar el mouse */
+}
+
+@media (max-width: 768px) {
+    /* Modal en tablets */
+    #tareaModal .modal-content {
+        padding: 1rem;
+    }
+
+    #tareaModalTitle {
+        font-size: 1.5rem;
+    }
+
+    #tareaForm label {
+        font-size: 0.8rem;
+    }
+
+    #tareaForm input[type="text"],
+    #tareaForm input[type="date"],
+    #tareaForm textarea,
+    #tareaForm select {
+        padding: 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    #tareaForm .flex.justify-end button {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Modal en teléfonos */
+    #tareaModal .modal-content {
+        padding: 0.75rem;
+    }
+
+    #tareaModalTitle {
+        font-size: 1.25rem;
+    }
+
+    #tareaForm label {
+        font-size: 0.7rem;
+    }
+
+    #tareaForm input[type="text"],
+    #tareaForm input[type="date"],
+    #tareaForm textarea,
+    #tareaForm select {
+        padding: 0.4rem;
+        font-size: 0.65rem;
+    }
+
+    #tareaForm .flex.justify-end button {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.6rem;
+    }
+}
 
 
 /*CSS del formulario de evidencias-Pablo T.
