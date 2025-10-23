@@ -1834,3 +1834,45 @@ async function subirEvidencias(tareaId) {
     alert(data.msg || 'Error al subir evidencias');
   }
 }
+
+
+
+
+
+
+
+
+// Función para agregar una nueva evidencia
+function agregarEvidencia(titulo, imagenSrc) {
+    const contenedorEvidencias = document.getElementById('contenedorEvidencias');
+
+    // Limpia el mensaje de "Aún no hay evidencias" si existe
+    const mensajeInicial = contenedorEvidencias.querySelector('li');
+    if (mensajeInicial) {
+        mensajeInicial.remove();
+    }
+
+    // Crea el elemento de la lista
+    const evidenciaItem = document.createElement('li');
+
+    // Crea la imagen
+    const imagen = document.createElement('img');
+    imagen.src = imagenSrc;
+    imagen.alt = titulo;
+
+    // Crea el título
+    const tituloElement = document.createElement('h3');
+    tituloElement.textContent = titulo;
+
+    // Agrega la imagen y el título al elemento de la lista
+    evidenciaItem.appendChild(imagen);
+    evidenciaItem.appendChild(tituloElement);
+
+    // Agrega el elemento de la lista al contenedor principal
+    contenedorEvidencias.appendChild(evidenciaItem);
+}
+
+// Ejemplo de uso (simulando la adición de una evidencia):
+// Supongamos que tienes una función que se llama al hacer clic en "Agregar Evidencia"
+// En esa función, puedes llamar a agregarEvidencia con el título y la URL de la imagen:
+// agregarEvidencia("Evidencia del Cliente A", "URL_DE_LA_IMAGEN");
