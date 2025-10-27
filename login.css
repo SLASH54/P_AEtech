@@ -2374,7 +2374,8 @@ main {
 
     padding: 1.5rem;
     border-radius: 1rem;
-    box-shadow: 0 20px 35px rgba(0, 0, 255, 0.2);
+    box-shadow: inset 0px 0px 20px 20px rgba(0, 0, 255, 0.2);
+    box-shadow: 0 20px 35px rgba(0, 0, 0, 0.4);
     max-height: 90vh;
     overflow-y: auto;
     transition: transform 0.3s ease, opacity 0.3s ease;
