@@ -565,34 +565,31 @@ const registroClienteForm = document.getElementById('registroClienteFrom');
 // 📄 script.js (Función para ocultar el ENLACE del menú y dar alerta)
 
 function restrictAdminSection() {
-    const userRole = localStorage.getItem('userRol');
-    // 🔑 USAMOS EL ID DEL ENLACE DEL MENÚ
-    const adminLink = document.getElementById('Panel de Administracion'); 
-    
-    // Si el enlace existe:
-    if (adminLink) {
-        if (userRole === 'Admin' || userRole === 'Administrador') {
-            // ✅ ROL VÁLIDO: Mostrar el enlace
-            adminLink.style.display = 'block'; // O el display original del menú
-        } else {
-            // ❌ ROL INVÁLIDO: Oculta el enlace
-            adminLink.style.display = 'none';
-        }
+  const userRole = localStorage.getItem('userRol');
+  const adminLink = document.getElementById('Panel de Administracion');
+  const adminSection = document.getElementById('Administracion');
+
+  // 🔹 Control del enlace del menú
+  if (adminLink) {
+    if (userRole === 'Admin' || userRole === 'Administrador') {
+      adminLink.style.display = 'block';
+    } else {
+      adminLink.style.display = 'none'; // lo ocultamos para roles no admin
     }
-    
-    // Si el usuario llega a la sección de administración directamente (Admin ya oculta el enlace)
-    // Asumimos que esta función se llama al inicio. Si el rol no es Admin, el usuario
-    // solo debería ver la sección activa por defecto (ej: Tablero).
-    
-    const currentSection = document.getElementById('Administracion');
-    if (currentSection && userRole !== 'Admin' && userRole !== 'Administrador') {
-        // Si el no-admin está en una página donde se carga la sección de Admin, la ocultamos y alertamos.
-        // Esto solo es necesario si las URLs no redirigen.
-        currentSection.classList.remove('show');
-        alert("Acceso denegado: No tienes permisos de administrador.");
-        // Opcional: Redirigir al tablero si está usando navegación basada en URL
-        // mostrarContenido('Tablero'); 
+  }
+
+  // 🔹 Control de la sección de administración
+  if (adminSection) {
+    if (userRole !== 'Admin' && userRole !== 'Administrador') {
+      adminSection.classList.remove('show'); // solo la ocultamos
+      console.log('Rol sin permisos de administrador: sección oculta.'); 
+      // 🔸 eliminamos el alert para que no moleste
+      // Opcional: puedes redirigir automáticamente al tablero
+      // mostrarContenido('Tablero');
+    } else {
+      adminSection.classList.add('show');
     }
+  }
 }
 
 // Función fetchData - (OK, déjala global)
