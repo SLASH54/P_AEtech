@@ -2370,7 +2370,7 @@ main {
 #tareaModal>div {
     /* Fondo azul oscuro para replicar el estilo de la imagen del usuario */
    
-    background: 000, 000, 100, 0.2;
+    background: rgba(98, 179, 255, 0.5);
 
     padding: 1.5rem;
     border-radius: 1rem;
