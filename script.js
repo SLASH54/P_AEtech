@@ -1848,20 +1848,51 @@ async function subirEvidencias(tareaId) {
     formData.append('firmaCliente', new Blob([arr], { type: 'image/png' }), 'firma_cliente.png');
   }
 
+
+
+
+
   const token = localStorage.getItem('userToken');
-  const res = await fetch(`${API_BASE_URL}/evidencias/upload-multiple/${tareaId}`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${token}` },
-    body: formData
-  });
-  const data = await res.json();
-  if (res.ok) {
-    alert('Evidencias subidas correctamente');
-    actualizarEstadoTarea(tareaId, 'Completada');
-  } else {
-    alert(data.msg || 'Error al subir evidencias');
-  }
-}
+const res = await fetch(`${API_BASE_URL}/evidencias/upload-multiple/${tareaId}`, {
+  method: 'POST',
+  headers: { Authorization: `Bearer ${token}` },
+  body: formData
+});
+
+const data = await res.json();
+
+if (res.ok) {
+  alert('✅ Evidencias subidas correctamente');
+
+  actualizarEstadoTarea(tareaId, 'Completada');
+
+  // 🕓 Esperar un poco antes de generar el PDF
+  setTimeout(async () => {
+    try {
+      const pdfUrl = `${API_BASE_URL}/reportes/pdf/${tareaId}`;
+      const response = await fetch(pdfUrl, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (!response.ok) throw new Error('Error al generar PDF');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      // 🔹 Abre el PDF en una nueva pestaña
+      window.open(url, '_blank');
+    } catch (err) {
+      console.error('❌ Error al generar PDF:', err);
+      alert('Las evidencias se guardaron, pero no se pudo generar el PDF automáticamente.');
+    }
+  }, 1500); // ⏱ Espera 1.5 segundos antes de generar el PDF
+
+} else {
+  alert(data.msg || 'Error al subir evidencias');
+}}
+
+
+
 
 
 
