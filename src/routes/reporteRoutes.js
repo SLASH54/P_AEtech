@@ -17,4 +17,3 @@ module.exports = router;
 
 
 
-router.get('/pdf/:tareaId', protect, reporteController.generateReportePDF);

@@ -1,80 +1,92 @@
-// src/controllers/reporteController.js
+const path = require('path');
+const fs = require('fs');
 const { Tarea, Actividad, Sucursal, ClienteNegocio, Evidencia, Usuario } = require('../models/relations');
-const PDFDocument = require('pdfkit'); 
+const PDFDocument = require('pdfkit');
 
-/**
- * Genera el reporte final de la tarea en formato PDF.
- * Solo accesible para Admin, Residente, e Ingeniero.
- */
 exports.generateReportePDF = async (req, res) => {
-    const { tareaId } = req.params;
+  const { tareaId } = req.params;
 
-    try {
-        // 1. Obtener todos los datos necesarios para el reporte
-        const reporteData = await Tarea.findByPk(tareaId, {
-            include: [
-                { model: Actividad, attributes: ['nombre', 'descripcion', 'campos_evidencia'] },
-                { model: Sucursal, attributes: ['nombre', 'direccion'] },
-                { model: ClienteNegocio, attributes: ['nombre'] },
-                { model: Usuario, as: 'AsignadoA', attributes: ['nombre'] },
-                { model: Evidencia, 
-                  attributes: ['datos_recopilados', 'observaciones', 'createdAt'],
-                  include: [{ model: Usuario, as: 'Autor', attributes: ['nombre'] }] 
-                }
-            ]
-        });
+  try {
+    const tarea = await Tarea.findByPk(tareaId, {
+      include: [
+        { model: Actividad, attributes: ['nombre', 'descripcion'] },
+        { model: Sucursal, attributes: ['nombre', 'direccion'] },
+        { model: ClienteNegocio, attributes: ['nombre'] },
+        { model: Usuario, as: 'AsignadoA', attributes: ['nombre'] },
+        { model: Evidencia, attributes: ['titulo', 'archivoUrl', 'createdAt'] }
+      ]
+    });
 
-        if (!reporteData) {
-            return res.status(404).json({ message: 'Tarea no encontrada.' });
+    if (!tarea) return res.status(404).json({ message: 'Tarea no encontrada.' });
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="Reporte_Tarea_${tareaId}.pdf"`);
+
+    const doc = new PDFDocument({ margin: 50 });
+    doc.pipe(res);
+
+    // ================================
+    // ENCABEZADO
+    // ================================
+    doc.fontSize(18).text('REPORTE DE SERVICIO COMPLETADO', { align: 'center' });
+    doc.moveDown();
+
+    // ================================
+    // DETALLES DEL SERVICIO
+    // ================================
+    doc.fontSize(14).text('Detalles del servicio', { underline: true });
+    doc.fontSize(12).moveDown(0.5);
+    doc.text(`Cliente: ${tarea.ClienteNegocio?.nombre || 'N/A'}`);
+    doc.text(`Sucursal: ${tarea.Sucursal?.nombre || 'N/A'}`);
+    doc.text(`Dirección: ${tarea.Sucursal?.direccion || 'N/A'}`);
+    doc.text(`Actividad: ${tarea.Actividad?.nombre || 'N/A'}`);
+    doc.text(`Asignado a: ${tarea.AsignadoA?.nombre || 'N/A'}`);
+    doc.text(`Fecha de finalización: ${tarea.createdAt.toLocaleDateString()}`);
+    doc.moveDown();
+
+    // ================================
+    // EVIDENCIAS CON IMÁGENES
+    // ================================
+    doc.fontSize(14).text('Evidencias Recopiladas:', { underline: true });
+    doc.moveDown(0.5);
+
+    if (!tarea.Evidencia || tarea.Evidencia.length === 0) {
+      doc.fontSize(12).text('No hay evidencias registradas.');
+    } else {
+      for (const ev of tarea.Evidencia) {
+        doc.fontSize(12).text(`• ${ev.titulo || 'Evidencia sin título'}`);
+        doc.moveDown(0.3);
+
+        // Verificar si hay imagen
+        if (ev.archivoUrl) {
+          try {
+            const imagePath = path.resolve(`./public/uploads/${path.basename(ev.archivoUrl)}`);
+            if (fs.existsSync(imagePath)) {
+              // Ajustar el tamaño automáticamente al ancho disponible
+              const imgY = doc.y; 
+              doc.image(imagePath, { fit: [450, 250], align: 'center', valign: 'center' });
+              doc.moveDown();
+            } else {
+              doc.fontSize(10).fillColor('gray').text('(No se encontró la imagen local)');
+            }
+          } catch (err) {
+            console.error('Error al agregar imagen:', err);
+            doc.fontSize(10).fillColor('red').text('(Error al cargar imagen)');
+          }
+        } else {
+          doc.fontSize(10).fillColor('gray').text('(Sin imagen adjunta)');
         }
-        if (reporteData.estado !== 'Completada' || !reporteData.Evidencium) {
-            return res.status(400).json({ message: 'El reporte solo puede generarse para tareas completadas y con evidencia.' });
-        }
 
-        // 2. Configurar el encabezado de la respuesta para PDF
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename=Reporte_Tarea_${tareaId}.pdf`);
+        doc.moveDown(1);
+        doc.fillColor('black'); // reset color
+      }
+    }
 
-        // 3. Crear el documento PDF y hacer el pipe al stream de respuesta
-        const doc = new PDFDocument();
-        doc.pipe(res); 
+    doc.end();
 
-        // 4. Contenido del PDF
-        doc.fontSize(18).text('REPORTE DE SERVICIO COMPLETADO', { align: 'center' });
-        doc.moveDown();
-
-        // Sección de Cliente y Servicio
-        doc.fontSize(14).text('Detalles del Servicio', { underline: true });
-        doc.fontSize(12).moveDown(0.5);
-        doc.text(`Cliente: ${reporteData.ClienteNegocio.nombre}`);
-        doc.text(`Ubicación: ${reporteData.Sucursal.nombre}`);
-        doc.text(`Dirección: ${reporteData.Sucursal.direccion}`);
-        doc.text(`Tipo de Actividad: ${reporteData.Actividad.nombre}`);
-        doc.text(`Asignado a: ${reporteData.AsignadoA.nombre}`);
-        doc.text(`Fecha de Finalización: ${reporteData.Evidencium.createdAt.toLocaleDateString()}`);
-        doc.moveDown();
-        
-        // Sección de Evidencia
-        doc.fontSize(14).text('EVIDENCIA RECOPILADA EN CAMPO', { underline: true });
-        doc.moveDown(0.5);
-        
-        const datos = reporteData.Evidencium.datos_recopilados;
-        for (const key in datos) {
-            doc.fontSize(12).text(`- ${key}:`, { continued: true })
-               .text(`${datos[key]}`);
-        }
-        
-        // Sección de Observaciones
-        doc.moveDown();
-        doc.fontSize(14).text('OBSERVACIONES DEL TÉCNICO', { underline: true });
-        doc.moveDown(0.5);
-        doc.fontSize(12).text(reporteData.Evidencium.observaciones || 'No se registraron observaciones adicionales.');
-
-        // 5. Finalizar el documento
-        doc.end();
-
-    } catch (error) {
-        console.error('Error en la generación de PDF:', error);
-        res.status(500).json({ message: 'Error interno del servidor al generar el PDF.' });
-    }
+  } catch (error) {
+    console.error('Error al generar PDF:', error);
+    res.status(500).json({ message: 'Error al generar PDF' });
+  }
 };
+
