@@ -4,70 +4,67 @@ const { sequelize } = require('../config/database');
 
 
 // src/controllers/evidenciaController.js
+// ✅ Nueva versión con Cloudinary
+const cloudinary = require('cloudinary').v2;
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 const subirMultiplesEvidencias = async (req, res) => {
   try {
-    // ✅ 1. Parámetros correctos
     const { id: tareaId } = req.params;
     const usuarioId = req.user.id;
 
-    // ✅ 2. Archivos y firma
     const files = req.files?.archivos || [];
     const firma = req.files?.firmaCliente?.[0] || null;
-
-    // ✅ 3. Titulos convertidos a array
     const titulos = req.body.titulos ? req.body.titulos.split(',') : [];
 
-    console.log('REQ.PARAMS =>', req.params);
-    console.log('REQ.BODY =>', req.body);
-    console.log('REQ.FILES =>', req.files);
-
-    // ✅ 4. Validación
-    if (!tareaId) {
-      return res.status(400).json({ msg: 'Falta el ID de la tarea.' });
-    }
-    if (files.length === 0 && !firma) {
+    if (!tareaId) return res.status(400).json({ msg: 'Falta el ID de la tarea.' });
+    if (files.length === 0 && !firma)
       return res.status(400).json({ msg: 'No se subieron archivos ni firma.' });
+
+    const evidencias = [];
+
+    // 📤 Subir imágenes a Cloudinary
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const titulo = titulos[i] || `Evidencia ${i + 1}`;
+
+      const result = await cloudinary.uploader.upload(file.path, {
+        folder: 'aetech_evidencias',
+        resource_type: 'auto'
+      });
+
+      const evidencia = await Evidencia.create({
+        tareaId,
+        usuarioId,
+        titulo,
+        archivoUrl: result.secure_url,
+        firmaClienteUrl: firma ? result.secure_url : null
+      });
+
+      evidencias.push(evidencia);
     }
 
-    // ✅ 5. Crear registros en DB
-    const evidencias = await Promise.all(
-      files.map(async (file, index) => {
-        const titulo = titulos[index] || `Evidencia ${index + 1}`;
-        return await Evidencia.create({
-          tareaId,
-          usuarioId,
-          titulo,
-          archivoUrl: `/uploads/${file.originalname}`,
-          firmaClienteUrl: firma ? `/uploads/${firma.originalname}` : null,
-        });
-      })
-    );
+    // ✅ Actualizar estado de la tarea
+    await Tarea.update({ estado: 'Completada' }, { where: { id: tareaId } });
 
-    // ✅ Actualizar estado de la tarea al completar
-    await Tarea.update(
-      { estado: 'Completada' },
-      { where: { id: tareaId } }
-    );
-
-
-    console.log('✅ Evidencias guardadas:', evidencias.length);
+    console.log(`✅ ${evidencias.length} evidencias subidas a Cloudinary`);
 
     res.status(201).json({
-      msg: 'Evidencias guardadas correctamente',
-      evidencias,
+      msg: 'Evidencias guardadas correctamente en Cloudinary',
+      evidencias
     });
 
-     // generar pdf
+    // 🧾 Generar PDF (ya con URLs de Cloudinary)
     await generarReportePDFInterno(tareaId, usuarioId);
-
-
   } catch (error) {
-    console.error('❌ Error en subirMultiplesEvidencias:', error);
-    res.status(500).json({ msg: 'Error al subir evidencias', error });
+    console.error('❌ Error al subir evidencias:', error);
+    res.status(500).json({ msg: 'Error interno al subir evidencias.' });
   }
 
-  
   console.log("REQ.FILES =>", req.files);
 console.log("REQ.BODY =>", req.body);
 console.log("REQ.PARAMS =>", req.params);
@@ -75,7 +72,6 @@ console.log("REQ.PARAMS =>", req.params);
 console.log("🟢 Campos recibidos:", Object.keys(req.body));
 console.log("🟣 Archivos recibidos:", req.files?.map(f => f.fieldname));
 };
-
 
 
 // Configuración de inclusión para GET (mostrar detalles de la Tarea relacionada)
@@ -244,15 +240,12 @@ async function generarReportePDFInterno(tareaId, usuarioId) {
     for (const ev of tarea.Evidencia) {
       doc.fontSize(12).text(`• ${ev.titulo}`);
       if (ev.archivoUrl) {
-        try {
-          const imgPath = path.join(__dirname, '../../', ev.archivoUrl);
-          if (fs.existsSync(imgPath)) {
-            doc.image(imgPath, { width: 200 });
-          }
-        } catch (e) {
-          console.warn(`No se pudo agregar imagen: ${e.message}`);
-        }
-      }
+  try {
+    doc.image(ev.archivoUrl, { width: 200 });
+  } catch {
+    doc.text(`(No se pudo cargar la imagen: ${ev.archivoUrl})`);
+  }
+}
       doc.moveDown();
     }
 

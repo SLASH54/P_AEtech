@@ -77,8 +77,7 @@ header h1 {
 nav {
     overflow: auto;
     scroll-behavior: smooth;
-    background: rgba(98, 179, 255, 0.5);
-    box-shadow: inset 0px 0px 20px 20px rgba(0, 0, 255, 0.2);
+    background-color: #333;
     color: white;
     padding: 0; /* Ajustado a 0 */
     width: 200px; /* Asumimos un ancho fijo en escritorio */
