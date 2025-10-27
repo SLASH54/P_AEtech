@@ -2369,6 +2369,7 @@ main {
 /* Apuntando al contenedor interno del modal */
 #tareaModal>div {
     /* Fondo azul oscuro para replicar el estilo de la imagen del usuario */
+    background-color: #A5F3FC;
     padding: 1.5rem;
     border-radius: 1rem;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
