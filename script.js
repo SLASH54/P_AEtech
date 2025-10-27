@@ -1619,6 +1619,21 @@ function initEvidencias(tareaId) {
   saveBtn.onclick = async (e) => {
     e.preventDefault();
 
+// 🔹 Guardar evidencias pdf
+    const pdfUrl = `${API_BASE_URL}/reportes/pdf/${tareaId}?token=${token}`;
+const responsePDF = await fetch(pdfUrl, { headers: { Authorization: `Bearer ${token}` } });
+const blob = await responsePDF.blob();
+const url = window.URL.createObjectURL(blob);
+const a = document.createElement('a');
+a.href = url;
+a.download = `Reporte_Tarea_${tareaId}.pdf`;
+document.body.appendChild(a);
+a.click();
+a.remove();
+window.URL.revokeObjectURL(url);
+
+
+
     const formData = new FormData();
     const titulos = [...document.querySelectorAll('.titulo')].map(i => i.value);
     const archivos = [...document.querySelectorAll('.archivo')];//Posiblemente no lleve "s"(.archivo)

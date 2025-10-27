@@ -14,3 +14,7 @@ router.route('/pdf/:tareaId')
     .get(protect, rol(rolesDescarga), reporteController.generateReportePDF);
 
 module.exports = router;
+
+
+
+router.get('/pdf/:tareaId', protect, reporteController.generateReportePDF);

@@ -57,6 +57,11 @@ const subirMultiplesEvidencias = async (req, res) => {
       msg: 'Evidencias guardadas correctamente',
       evidencias,
     });
+
+     // generar pdf
+    await generarReportePDFInterno(tareaId, usuarioId);
+
+
   } catch (error) {
     console.error('❌ Error en subirMultiplesEvidencias:', error);
     res.status(500).json({ msg: 'Error al subir evidencias', error });
@@ -190,4 +195,73 @@ module.exports = {
   getEvidenciaByTareaId: exports.getEvidenciaByTareaId,
   getEvidenciasByTarea: exports.getEvidenciasByTarea,
 };
+
+
+//pdf 
+
+const PDFDocument = require('pdfkit');
+const fs = require('fs');
+const path = require('path');
+
+async function generarReportePDFInterno(tareaId, usuarioId) {
+  try {
+    const tarea = await Tarea.findByPk(tareaId, {
+      include: [
+        { model: Actividad, attributes: ['nombre', 'descripcion'] },
+        { model: Sucursal, attributes: ['nombre', 'direccion'] },
+        { model: ClienteNegocio, attributes: ['nombre'] },
+        { model: Usuario, as: 'AsignadoA', attributes: ['nombre', 'rol'] },
+        { model: Evidencia, attributes: ['titulo', 'archivoUrl', 'createdAt'] }
+      ]
+    });
+
+    if (!tarea) return console.warn(`No se encontró tarea con ID ${tareaId}`);
+
+    // 📄 Crear directorio de reportes si no existe
+    const reportsDir = path.join(__dirname, '../../uploads/reportes');
+    if (!fs.existsSync(reportsDir)) fs.mkdirSync(reportsDir, { recursive: true });
+
+    // 🧾 Crear PDF
+    const pdfPath = path.join(reportsDir, `Reporte_Tarea_${tareaId}.pdf`);
+    const doc = new PDFDocument({ margin: 40 });
+    const stream = fs.createWriteStream(pdfPath);
+    doc.pipe(stream);
+
+    // Encabezado
+    doc.fontSize(20).text('Reporte de Evidencias', { align: 'center' });
+    doc.moveDown();
+    doc.fontSize(12).text(`Cliente: ${tarea.ClienteNegocio.nombre}`);
+    doc.text(`Sucursal: ${tarea.Sucursal.nombre}`);
+    doc.text(`Dirección: ${tarea.Sucursal.direccion}`);
+    doc.text(`Actividad: ${tarea.Actividad.nombre}`);
+    doc.text(`Asignado a: ${tarea.AsignadoA.nombre} (${tarea.AsignadoA.rol})`);
+    doc.moveDown();
+
+    // Evidencias
+    doc.fontSize(14).text('Evidencias Subidas:', { underline: true });
+    doc.moveDown(0.5);
+
+    for (const ev of tarea.Evidencia) {
+      doc.fontSize(12).text(`• ${ev.titulo}`);
+      if (ev.archivoUrl) {
+        try {
+          const imgPath = path.join(__dirname, '../../', ev.archivoUrl);
+          if (fs.existsSync(imgPath)) {
+            doc.image(imgPath, { width: 200 });
+          }
+        } catch (e) {
+          console.warn(`No se pudo agregar imagen: ${e.message}`);
+        }
+      }
+      doc.moveDown();
+    }
+
+    doc.end();
+    stream.on('finish', () => console.log(`✅ PDF generado: ${pdfPath}`));
+  } catch (error) {
+    console.error('Error al generar reporte PDF:', error);
+  }
+}
+
+
 
