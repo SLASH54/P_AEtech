@@ -29,11 +29,14 @@ ClienteNegocio.hasMany(Tarea, { foreignKey: 'clienteNegocioId' });
 
 
 // 5. Relación Evidencia -> Tarea
-// Una Evidencia documenta una Tarea
+// Una Tarea puede tener muchas Evidencias
 Evidencia.belongsTo(Tarea, { foreignKey: 'tareaId' });
-Tarea.hasOne(Evidencia, { foreignKey: 'tareaId' }); // Una Tarea tiene una única Evidencia
+Tarea.hasMany(Evidencia, { foreignKey: 'tareaId', as: 'Evidencias' });
 //Probablemente habra que cambiar esto a:
 //Tarea.hasMany(Evidencia, {foreignKey: 'tareaId });  
+
+
+
 
 // 6. Relación Evidencia -> Usuario (Autor del Reporte)
 // Una Evidencia fue creada por un Usuario

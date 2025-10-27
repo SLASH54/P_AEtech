@@ -1846,7 +1846,7 @@ async function subirEvidencias(tareaId) {
     const arr = new Uint8Array(bin.length);
     for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
     formData.append('firmaCliente', new Blob([arr], { type: 'image/png' }), 'firma_cliente.png');
-  }
+  }}
 
 
 
@@ -1889,7 +1889,7 @@ if (res.ok) {
 
 } else {
   alert(data.msg || 'Error al subir evidencias');
-}}
+}
 
 
 
