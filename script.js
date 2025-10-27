@@ -1028,30 +1028,46 @@ document.addEventListener('DOMContentLoaded', function () {
  * 2. Carga la lista de usuarios para el selector de asignación.
  * 3. Configura el comportamiento del modal de creación/edición.
  */
+/**
+ * Inicializa la sección de Tareas:
+ * 1. Carga la lista de tareas desde la API.
+ * 2. Carga la lista de usuarios para el selector de asignación.
+ * 3. Configura el comportamiento del modal de creación/edición.
+ */
 async function initTareas() {
-    console.log('Iniciando sección de Tareas...');
-    const tareasBody = document.getElementById('tareasBody');
-    if (!tareasBody) return;
+  console.log('Iniciando sección de Tareas...');
+  const tareasBody = document.getElementById('tareasBody');
+  if (!tareasBody) return;
 
-    tareasBody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">Cargando tareas...</td></tr>';
-    
-    // Cargar Tareas
-    const tareas = await fetchData('/tareas');
-    
-    if (tareas && tareas.length > 0) {
-        renderTareasTable(tareas);
-    } else {
-        tareasBody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">No hay tareas asignadas.</td></tr>';
-    }
+  tareasBody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">Cargando tareas...</td></tr>';
 
-    // Configurar Modal (Esto solo funciona si renderTareasTable no falló)
-    setupTareaModal();
-    
-    // Cargar recursos
-    loadUsersForTareaSelect();
-    loadClientesForTareaSelect();
-    loadActividadesForTareaSelect();
+  // 🔹 Detectar rol del usuario logueado
+  const rol = localStorage.getItem('userRol') || '';
+  let endpoint = '/tareas'; // Por defecto (Admin, Ingeniero)
+
+  // 🔸 Para residentes o practicantes usamos la ruta personalizada
+  if (rol === 'Residente' || rol === 'Practicante' || rol === 'Técnico') {
+    endpoint = '/tareas/mis-tareas';
+  }
+
+  // 🔹 Cargar Tareas según el rol
+  const tareas = await fetchData(endpoint);
+
+  if (tareas && tareas.length > 0) {
+    renderTareasTable(tareas);
+  } else {
+    tareasBody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">No hay tareas asignadas.</td></tr>';
+  }
+
+  // 🔹 Configurar modal (solo si renderTareasTable no falló)
+  setupTareaModal();
+
+  // 🔹 Cargar recursos
+  loadUsersForTareaSelect();
+  loadClientesForTareaSelect();
+  loadActividadesForTareaSelect();
 }
+
 
 /**
  * Carga usuarios y llena el SELECT del modal de tareas.
