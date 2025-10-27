@@ -1227,6 +1227,10 @@ function renderTareasTable(tareas) {
                 <button onclick="agregarEvidencia('${tarea.id}')" class="text-red-600 hover:text-red-900">
                     Agregar Evidencias
                 </button>
+                <button onclick="descargarReportePDF(${tarea.id})" 
+        class="text-blue-600 hover:text-blue-900 ml-2">
+    📄 PDF
+</button>
             </td>
         `;
         tareasBody.appendChild(row);
@@ -1943,3 +1947,48 @@ document.addEventListener("DOMContentLoaded", function() {
     const btnImprimirPDF = document.getElementById("btnImprimirPDF");
     btnImprimirPDF.addEventListener("click", imprimirPDF);
 });
+
+
+
+
+
+
+
+// 🔹 Otras funciones como abrirModalEvidencias(), renderTareasTable(), etc...
+
+// ---------------------------------------------------------
+// 📄 Función para descargar reporte PDF de una tarea
+// ---------------------------------------------------------
+async function descargarReportePDF(tareaId) {
+  const token = localStorage.getItem('userToken');
+  if (!token) {
+    alert('No hay sesión activa.');
+    return;
+  }
+
+  try {
+    const pdfUrl = `${API_BASE_URL}/reportes/pdf/${tareaId}`;
+    const response = await fetch(pdfUrl, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!response.ok) throw new Error('Error al generar PDF');
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Reporte_Tarea_${tareaId}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    window.URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error('❌ Error al descargar PDF:', err);
+    alert('No se pudo generar el PDF. Asegúrate de que la tarea tenga evidencias.');
+  }
+}
+
+// Si tienes algo como initApp() o window.onload, deja esto después
