@@ -2481,3 +2481,28 @@ main {
             margin-right: 10px;
             object-fit: cover;
         }
+
+
+
+
+/* ESTILOS DEL MODAL DE EDITAR REGISTROS DEL PANEL DE ADMINISTRACION*/
+#editModal {
+    backdrop-filter: blur(4px);
+}
+
+#editModal>div {
+    /* Fondo azul oscuro para replicar el estilo de la imagen del usuario */
+   
+    background: rgba(98, 179, 255, 0.5);
+
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: inset 0px 0px 20px 20px rgba(0, 0, 255, 0.2);
+    max-height: 90vh;
+    overflow-y: auto;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+#editModal label{
+    color: white;
+}
