@@ -1695,6 +1695,26 @@ function initEvidencias(tareaId) {
     }, 400);
   }
 
+
+  // 🔹 Mostrar automáticamente el organizador de tareas
+const organizador = document.getElementById('organizador-tareas');
+if (organizador) {
+  organizador.style.display = 'block';
+  organizador.scrollIntoView({ behavior: 'smooth' });
+}
+
+
+// 🔹 Si existe función mostrarTablero, úsala
+if (typeof mostrarTablero === 'function') {
+  mostrarTablero();
+}
+
+console.log('✅ Evidencias subidas y regreso automático al organizador de tareas');
+
+
+
+
+
   // 🔹 Regresar al organizador-tareas automáticamente
   if (typeof organizador-tareas === 'function') {
     mostrarTablero();
