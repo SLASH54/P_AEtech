@@ -99,7 +99,7 @@ const tareaRoutes = require('./src/routes/tareaRoutes');
 const evidenciaRoutes = require('./src/routes/evidenciaRoutes');
 const reporteRoutes = require('./src/routes/reporteRoutes');
 const uploadRoutes = require('./src/routes/uploadRoutes');
-
+const NotificacionRoutes = require('./src/routes/NotificacionRoutes');
 
 
 
@@ -123,9 +123,7 @@ app.use('/api/tareas', tareaRoutes);
 app.use('/api/evidencias', evidenciaRoutes);
 app.use('/api/reportes', reporteRoutes);
 app.use('/api/upload', uploadRoutes)
-
-// notificaciones
-app.use('/api/notificaciones', require('./routes/NotificacionRoutes'));
+app.use('/api/notificaciones', NotificacionRoutes)
 
 
 
