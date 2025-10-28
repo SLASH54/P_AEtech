@@ -2,7 +2,7 @@ const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
-// { tareaId } = req.params;
+const { tareaId } = req.params;
 const id = typeof tareaId === 'object' ? tareaId.tareaId : tareaId;
 
 const { Tarea, Actividad, Sucursal, ClienteNegocio, Evidencia, Usuario } = require('../models/relations');
