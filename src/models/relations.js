@@ -51,3 +51,29 @@ module.exports = {
     Tarea,
     Evidencia // ¡Asegúrate de exportarlo!
 };
+
+
+
+
+
+
+
+
+
+// Notificaciones
+
+const Notificacion = require('./Notificacion');
+
+// ...
+Usuario.hasMany(Notificacion, { foreignKey: 'usuarioId', as: 'Notificaciones' });
+Notificacion.belongsTo(Usuario, { foreignKey: 'usuarioId', as: 'Usuario' });
+
+module.exports = {
+  Usuario,
+  Notificacion,
+  Actividad,
+  Sucursal,
+  ClienteNegocio,
+  Tarea,
+  Evidencia
+};

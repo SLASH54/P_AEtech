@@ -19,20 +19,32 @@
             <img src="img/logoAEtech.png" width="80px" height="80px">
                          <section class="login-section">
     <div class="login-menu">
-        <button id="login-button" aria-label="Perfil de usuario">
-            <i class="fas fa-user-circle"></i>
+    
+    <!-- 🔔 BOTÓN DE NOTIFICACIONES -->
+    <div class="notificaciones-container">
+        <button id="btnNotificaciones" class="notif-btn" aria-label="Notificaciones">
+            🔔 <span id="numNotificaciones">0</span>
         </button>
-        <div class="dropdown-menu" id="dropdown-menu">
-            <!-- Información del perfil -->
-            <div class="profile-info" id="profile-info">
-                <img src="img/perfil.jpg" alt="perfil.jpg" class="profile-image">
-                <p class="profile-name">Nombre del Usuario</p>
-                <p class="profile-email">usuario@email.com</p>
-            </div>
-            <!-- Botón de cerrar sesión -->
-            <button id="logout-button" onclick="logout('logout-button')">Cerrar Sesión</button>
-        </div>
+        <ul id="listaNotificaciones" class="notificaciones-lista"></ul>
     </div>
+
+    <!-- 👤 BOTÓN DE PERFIL -->
+    <button id="login-button" aria-label="Perfil de usuario">
+        <i class="fas fa-user-circle"></i>
+    </button>
+
+    <div class="dropdown-menu" id="dropdown-menu">
+        <!-- Información del perfil -->
+        <div class="profile-info" id="profile-info">
+            <img src="img/perfil.jpg" alt="perfil.jpg" class="profile-image">
+            <p class="profile-name">Nombre del Usuario</p>
+            <p class="profile-email">usuario@email.com</p>
+        </div>
+        <!-- Botón de cerrar sesión -->
+        <button id="logout-button" onclick="logout('logout-button')">Cerrar Sesión</button>
+    </div>
+</div>
+
 
     <script>
         const loginButton = document.getElementById('login-button');

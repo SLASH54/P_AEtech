@@ -102,6 +102,7 @@ const uploadRoutes = require('./src/routes/uploadRoutes');
 
 
 
+
 // Monta las rutas de autenticación en /api/auth
 // Las peticiones a /api/auth/register y /api/auth/login funcionarán aquí.
 app.use('/api/auth', authRoutes); 
@@ -149,5 +150,8 @@ if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
 // Servir estáticos:
 app.use('/uploads', express.static(uploadsDir));  // <— URL pública: https://tu-backend/uploads/filename
+
+// notificaciones
+app.use('/api/notificaciones', require('./routes/notificacionRoutes'));
 
 

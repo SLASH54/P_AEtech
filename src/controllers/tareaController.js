@@ -1,8 +1,10 @@
 // src/controllers/tareaController.js
-const { Tarea, Usuario, Actividad, Sucursal, ClienteNegocio } = require('../models/relations');
+const { Tarea, Usuario, Actividad, Sucursal, ClienteNegocio, Notificacion } = require('../models/relations');
 const { sequelize } = require('../config/database');
 
-// Configuración de inclusión para GET (detalles completos de la tarea)
+// ===============================
+// CONFIGURACIÓN DE INCLUSIÓN
+// ===============================
 const includeConfig = [
     { model: Usuario, as: 'AsignadoA', attributes: ['id', 'nombre', 'rol'] },
     { model: Actividad, attributes: ['id', 'nombre', 'campos_evidencia'] },
@@ -10,7 +12,9 @@ const includeConfig = [
     { model: ClienteNegocio, attributes: ['id', 'nombre'] }
 ];
 
-// 1. Crear Tarea (POST) - Solo Admin/Ingeniero
+// ===============================
+// 1. CREAR TAREA (POST)
+// ===============================
 exports.createTarea = async (req, res) => {
     try {
         const { 
@@ -18,20 +22,27 @@ exports.createTarea = async (req, res) => {
             sucursalId, clienteNegocioId, fechaLimite, prioridad 
         } = req.body;
         
-        // Verificación básica de IDs necesarios
+        // Validación de campos obligatorios
         if (!nombre || !usuarioAsignadoId || !actividadId || !sucursalId || !clienteNegocioId) {
             return res.status(400).json({ 
                 message: 'Faltan campos requeridos (nombre, asignado, actividad, sucursal o cliente).' 
             });
         }
 
+        // Crear la tarea
         const tarea = await Tarea.create({
             nombre, usuarioAsignadoId, actividadId, 
             sucursalId, clienteNegocioId, fechaLimite, prioridad 
         });
 
-        // Devolver la tarea con los detalles de las relaciones
+        // Obtener detalles de la tarea creada
         const tareaCreada = await Tarea.findByPk(tarea.id, { include: includeConfig });
+
+        // ✅ Crear notificación automática para el usuario asignado
+        await crearNotificacion(
+            usuarioAsignadoId,
+            `Se te ha asignado una nueva tarea: "${nombre}".`
+        );
 
         return res.status(201).json({ message: 'Tarea asignada con éxito.', tarea: tareaCreada });
     } catch (error) {
@@ -40,17 +51,13 @@ exports.createTarea = async (req, res) => {
     }
 };
 
-// 2. Obtener TODAS las Tareas (GET) - Admin/Ingeniero
-// Aquí el Admin/Ingeniero ve TODAS las tareas para monitoreo.
+// ===============================
+// 2. OBTENER TODAS LAS TAREAS (GET)
+// ===============================
 exports.getAllTareas = async (req, res) => {
   try {
     const tareas = await Tarea.findAll({
-      include: [
-        { model: Usuario, as: 'AsignadoA', attributes: ['id', 'nombre', 'rol'] },
-        { model: Actividad, attributes: ['id', 'nombre', 'campos_evidencia'] },
-        { model: Sucursal, attributes: ['id', 'nombre', 'direccion'] },
-        { model: ClienteNegocio, attributes: ['id', 'nombre'] }
-      ],
+      include: includeConfig,
       order: [['createdAt', 'DESC']]
     });
 
@@ -61,9 +68,9 @@ exports.getAllTareas = async (req, res) => {
   }
 };
 
-
-// 3. Obtener Tareas ASIGNADAS (GET) - Residente/Practicante
-// Aquí el Residente/Practicante solo ve las tareas que le fueron asignadas.
+// ===============================
+// 3. OBTENER TAREAS ASIGNADAS (GET)
+// ===============================
 exports.getTareasAsignadas = async (req, res) => {
     try {
         // req.user.id fue adjuntado por el middleware 'protect'
@@ -79,7 +86,10 @@ exports.getTareasAsignadas = async (req, res) => {
     }
 };
 
-// 4. Actualizar Tarea (PUT) - Admin/Ingeniero (para reasignar o cambiar estado/prioridad)
+// ===============================
+// 4. ACTUALIZAR TAREA (PUT)
+
+// ===============================
 exports.updateTarea = async (req, res) => {
     try {
         const { id } = req.params;
@@ -96,7 +106,9 @@ exports.updateTarea = async (req, res) => {
     }
 };
 
-// 5. Eliminar Tarea (DELETE) - Solo Admin
+// ===============================
+// 5. ELIMINAR TAREA (DELETE)
+// ===============================
 exports.deleteTarea = async (req, res) => {
     try {
         const { id } = req.params;
@@ -108,6 +120,22 @@ exports.deleteTarea = async (req, res) => {
         return res.status(404).json({ message: 'Tarea no encontrada.' });
     } catch (error) {
         console.error('Error al eliminar tarea:', error);
-        return res.status(500).json({ message: 'Error interno del servidor al eliminar la tarea.' });
-    }
+        return res.status(500).json({ message: 'Error interno del servidor al eliminar la tarea.' });
+    }
 };
+
+// ===============================
+// 6. FUNCIÓN INTERNA: CREAR NOTIFICACIÓN
+// ===============================
+async function crearNotificacion(usuarioId, mensaje) {
+    try {
+        await Notificacion.create({
+            usuarioId,
+            mensaje,
+            leida: false
+        });
+        console.log(`📩 Notificación creada para usuario ${usuarioId}: ${mensaje}`);
+    } catch (error) {
+        console.error('❌ Error al crear notificación:', error);
+    }
+}

@@ -1705,6 +1705,7 @@ if (typeof mostrarContenido === 'function') {
   }
 }
 
+
       } else {
         console.error('Error del servidor:', data);
         alert(data.msg || 'Error al subir evidencias');
@@ -1995,3 +1996,53 @@ async function descargarReportePDF(tareaId) {
 }
 
 // Si tienes algo como initApp() o window.onload, deja esto después
+
+
+
+
+
+
+
+
+
+// notificaciones xd ajajajajaja 
+
+const token = localStorage.getItem('userToken');
+
+async function cargarNotificaciones() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/notificaciones`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const data = await res.json();
+
+    const num = document.getElementById('numNotificaciones');
+    const lista = document.getElementById('listaNotificaciones');
+
+    num.textContent = data.filter(n => !n.leida).length;
+    lista.innerHTML = '';
+
+    data.forEach(n => {
+      const li = document.createElement('li');
+      li.textContent = n.mensaje;
+      if (!n.leida) li.style.fontWeight = 'bold';
+      lista.appendChild(li);
+    });
+
+  } catch (err) {
+    console.error('Error al cargar notificaciones:', err);
+  }
+}
+
+// Mostrar/ocultar lista
+document.getElementById('btnNotificaciones').addEventListener('click', () => {
+  const lista = document.getElementById('listaNotificaciones');
+  lista.style.display = lista.style.display === 'block' ? 'none' : 'block';
+});
+
+// Recargar automáticamente cada 30 segundos
+setInterval(cargarNotificaciones, 30000);
+
+// Cargar al iniciar
+cargarNotificaciones();
+
