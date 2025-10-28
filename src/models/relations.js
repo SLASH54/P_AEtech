@@ -7,6 +7,7 @@ const ClienteNegocio = require('./ClienteNegocio');
 const Tarea = require('./Tarea');
 const Evidencia = require('./Evidencia');
 
+
 // 1. Relación Tarea -> Usuario (Asignación)
 // Una Tarea es asignada a un Usuario
 Tarea.belongsTo(Usuario, { foreignKey: 'usuarioAsignadoId', as: 'AsignadoA' });
@@ -34,11 +35,13 @@ Evidencia.belongsTo(Tarea, { foreignKey: 'tareaId' });
 //Tarea.hasOne(Evidencia, { foreignKey: 'tareaId' }); // Una Tarea tiene una única Evidencia
 //Probablemente habra que cambiar esto a:
 Tarea.hasMany(Evidencia, { 
-  foreignKey: 'tareaId', 
-  onDelete: 'CASCADE', 
-  hooks: true 
+  foreignKey: 'tareaId',
+  onDelete: 'CASCADE',   // 🔹 elimina evidencias automáticamente
+  hooks: true            // 🔹 asegura que Sequelize ejecute el borrado en cascada
 });
+
 Evidencia.belongsTo(Tarea, { foreignKey: 'tareaId' });
+
 
 
 
@@ -64,7 +67,7 @@ module.exports = {
 
 
 
-// Notificaciones
+// Notificaciones 
 
 const Notificacion = require('./Notificacion');
 

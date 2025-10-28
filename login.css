@@ -2524,6 +2524,7 @@ main {
   display: none;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
   z-index: 999;
+  
 }
 
 .notificaciones-lista li {
@@ -2531,6 +2532,7 @@ main {
   border-bottom: 1px solid #eee;
   cursor: pointer;
   font-size: 0.9rem;
+  color: #000000;
 }
 
 .notificaciones-lista li:last-child {
