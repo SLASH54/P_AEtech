@@ -106,23 +106,27 @@ exports.updateTarea = async (req, res) => {
     }
 };
 
-// ===============================
-// 5. ELIMINAR TAREA (DELETE)
-// ===============================
+// 5. Eliminar Tarea (DELETE) - Solo Admin
 exports.deleteTarea = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const deleted = await Tarea.destroy({ where: { id } });
+  try {
+    const { id } = req.params;
 
-        if (deleted) {
-            return res.json({ message: 'Tarea eliminada con éxito.' });
-        }
-        return res.status(404).json({ message: 'Tarea no encontrada.' });
-    } catch (error) {
-        console.error('Error al eliminar tarea:', error);
-        return res.status(500).json({ message: 'Error interno del servidor al eliminar la tarea.' });
+    // 🔹 Primero eliminar las evidencias relacionadas
+    await sequelize.query(`DELETE FROM "Evidencias" WHERE "tareaId" = ${id}`);
+
+    // 🔹 Luego eliminar la tarea
+    const deleted = await Tarea.destroy({ where: { id } });
+
+    if (deleted) {
+      return res.json({ message: 'Tarea y evidencias eliminadas con éxito.' });
     }
+    return res.status(404).json({ message: 'Tarea no encontrada.' });
+  } catch (error) {
+    console.error('Error al eliminar tarea:', error);
+    return res.status(500).json({ message: 'Error interno del servidor al eliminar la tarea.' });
+  }
 };
+
 
 // ===============================
 // 6. FUNCIÓN INTERNA: CREAR NOTIFICACIÓN

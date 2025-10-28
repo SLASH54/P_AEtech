@@ -33,8 +33,12 @@ ClienteNegocio.hasMany(Tarea, { foreignKey: 'clienteNegocioId' });
 Evidencia.belongsTo(Tarea, { foreignKey: 'tareaId' });
 //Tarea.hasOne(Evidencia, { foreignKey: 'tareaId' }); // Una Tarea tiene una única Evidencia
 //Probablemente habra que cambiar esto a:
-Tarea.hasMany(Evidencia, {foreignKey: 'tareaId' });  
-
+Tarea.hasMany(Evidencia, { 
+  foreignKey: 'tareaId', 
+  onDelete: 'CASCADE', 
+  hooks: true 
+});
+Evidencia.belongsTo(Tarea, { foreignKey: 'tareaId' });
 
 
 
