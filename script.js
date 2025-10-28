@@ -1624,17 +1624,17 @@ function initEvidencias(tareaId) {
     e.preventDefault();
 
 // 🔹 Guardar evidencias pdf
-    const pdfUrl = `${API_BASE_URL}/reportes/pdf/${tareaId}?token=${token}`;
-const responsePDF = await fetch(pdfUrl, { headers: { Authorization: `Bearer ${token}` } });
-const blob = await responsePDF.blob();
-const url = window.URL.createObjectURL(blob);
-const a = document.createElement('a');
-a.href = url;
-a.download = `Reporte_Tarea_${tareaId}.pdf`;
-document.body.appendChild(a);
-a.click();
-a.remove();
-window.URL.revokeObjectURL(url);
+ //   const pdfUrl = `${API_BASE_URL}/reportes/pdf/${tareaId}?token=${token}`;
+// const responsePDF = await fetch(pdfUrl, { headers: { Authorization: `Bearer ${token}` } });
+// const blob = await responsePDF.blob();
+//const url = window.URL.createObjectURL(blob);
+// const a = document.createElement('a');
+//a.href = url;
+//a.download = `Reporte_Tarea_${tareaId}.pdf`;
+//document.body.appendChild(a);
+//a.click();
+// a.remove();
+// window.URL.revokeObjectURL(url);
 
 
 
@@ -1932,12 +1932,7 @@ function cargarEvidencias() {
     });
 }
 
-// Función para imprimir las evidencias en PDF (simulación)
-function imprimirPDF() {
-    alert("Función de impresión PDF en desarrollo...");
-    // Aquí iría la lógica para generar el PDF con las evidencias
-    // Puedes usar librerías como jsPDF para generar el PDF
-}
+
 
 // Cargar datos y asignar funcionalidad al botón al cargar la página
 document.addEventListener("DOMContentLoaded", function() {
