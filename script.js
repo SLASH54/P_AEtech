@@ -1975,7 +1975,8 @@ async function descargarReportePDF(tareaId) {
     alert('No hay sesión activa.');
     return;
   }
-
+  // Mostrar loader
+  loader.style.display = 'flex';
   try {
     const pdfUrl = `${API_BASE_URL}/reportes/pdf/${tareaId}`;
     const response = await fetch(pdfUrl, {
@@ -1998,6 +1999,9 @@ async function descargarReportePDF(tareaId) {
   } catch (err) {
     console.error('❌ Error al descargar PDF:', err);
     alert('No se pudo generar el PDF. Asegúrate de que la tarea tenga evidencias.');
+  } finally {
+    // Ocultar loader
+    loader.style.display = 'none';
   }
 }
 
