@@ -1659,6 +1659,9 @@ function initEvidencias(tareaId) {
       const firmaFile = new Blob([new Uint8Array(array)], { type: 'image/png' });
       formData.append('firmaCliente', firmaFile, 'firma_cliente.png');
     }
+    
+    // Mostrar loader
+    loader.style.display = 'flex';
 
     try {
       const res = await fetch(`${API_BASE_URL}/evidencias/upload-multiple/${tareaId}`, {
@@ -1713,7 +1716,10 @@ if (typeof mostrarContenido === 'function') {
     } catch (err) {
       console.error('❌ Error en fetch:', err);
       alert('Error de conexión con el servidor.');
-    }
+    } finally {
+    // Ocultar loader
+    loader.style.display = 'none';
+  }
   };
 }
 
