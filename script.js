@@ -1695,32 +1695,15 @@ function initEvidencias(tareaId) {
     }, 400);
   }
 
-
-  // 🔹 Mostrar automáticamente el organizador de tareas
-const organizador = document.getElementById('organizador-tareas');
-if (organizador) {
-  organizador.style.display = 'block';
-  organizador.scrollIntoView({ behavior: 'smooth' });
-}
-
-
-// 🔹 Si existe función mostrarTablero, úsala
-if (typeof mostrarTablero === 'function') {
-  mostrarTablero();
-}
-
-console.log('✅ Evidencias subidas y regreso automático al organizador de tareas');
-
-
-
-
-
-  // 🔹 Regresar al organizador-tareas automáticamente
-  if (typeof organizador-tareas === 'function') {
-    mostrarTablero();
-  } else if (document.getElementById('organizador-tareas')) {
-    document.getElementById('organizador-tareas').scrollIntoView({ behavior: 'smooth' });
+if (typeof mostrarContenido === 'function') {
+  mostrarContenido('Tablero'); // 🔹 Esto redirige directamente al Tablero
+} else {
+  const tablero = document.getElementById('Tablero');
+  if (tablero) {
+    tablero.style.display = 'block';
+    tablero.scrollIntoView({ behavior: 'smooth' });
   }
+}
 
       } else {
         console.error('Error del servidor:', data);
