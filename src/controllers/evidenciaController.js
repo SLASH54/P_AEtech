@@ -37,13 +37,35 @@ const subirMultiplesEvidencias = async (req, res) => {
         resource_type: 'auto'
       });
 
-      const evidencia = await Evidencia.create({
-        tareaId,
-        usuarioId,
-        titulo,
-        archivoUrl: result.secure_url,
-        firmaClienteUrl: firma ? result.secure_url : null
-      });
+
+      let firmaUrl = null;
+
+// 📤 Subir la firma del cliente (solo si existe)
+if (firma) {
+  const firmaResult = await cloudinary.uploader.upload(firma.path, {
+    folder: 'aetech_firmas',
+    resource_type: 'auto'
+  });
+  firmaUrl = firmaResult.secure_url;
+}
+
+// 💾 Guardar evidencia con su firma correspondiente
+const evidencia = await Evidencia.create({
+  tareaId,
+  usuarioId,
+  titulo,
+  archivoUrl: result.secure_url,
+  firmaClienteUrl: firmaUrl
+});
+
+
+      //const evidencia = await Evidencia.create({
+      //  tareaId,
+      // usuarioId,
+      //  titulo,
+      //  archivoUrl: result.secure_url,
+      //  firmaClienteUrl: firma ? result.secure_url : null
+      //});
 
       evidencias.push(evidencia);
     }
