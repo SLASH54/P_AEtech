@@ -2506,3 +2506,44 @@ main {
 #editModal label{
     color: white;
 }
+
+
+
+
+/* 🔔 Lista desplegable notificaciones */
+.notificaciones-lista {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  width: 260px;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  list-style: none;
+  padding: 10px;
+  display: none;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  z-index: 999;
+}
+
+.notificaciones-lista li {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.notificaciones-lista li:last-child {
+  border-bottom: none;
+}
+
+
+/* 🔔 Parpadeo cuando hay nuevas notificaciones */
+@keyframes parpadeoNotificacion {
+  0%, 100% { color: #0d4e6c; transform: scale(1); }
+  50% { color: #ff4444; transform: scale(1.2); }
+}
+
+.notif-animada {
+  animation: parpadeoNotificacion 0.6s ease-in-out infinite;
+}

@@ -124,6 +124,8 @@ app.use('/api/evidencias', evidenciaRoutes);
 app.use('/api/reportes', reporteRoutes);
 app.use('/api/upload', uploadRoutes)
 
+// notificaciones
+app.use('/api/notificaciones', require('./routes/NotificacionRoutes'));
 
 
 
@@ -151,7 +153,5 @@ if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 // Servir estáticos:
 app.use('/uploads', express.static(uploadsDir));  // <— URL pública: https://tu-backend/uploads/filename
 
-// notificaciones
-app.use('/api/notificaciones', require('./routes/notificacionRoutes'));
 
 
