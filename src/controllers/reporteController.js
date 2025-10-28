@@ -1,14 +1,15 @@
-const PDFDocument = require('pdfkit');
+const PDFDocument = require('pdfkit'); 
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
-const { tareaId } = req.params;
-const id = typeof tareaId === 'object' ? tareaId.tareaId : tareaId;
-
 const { Tarea, Actividad, Sucursal, ClienteNegocio, Evidencia, Usuario } = require('../models/relations');
 
-async function generateReportePDF(tareaId, usuarioId) {
+// 🔹 Controlador principal
+exports.generateReportePDF = async (req, res) => {
   try {
+    const { tareaId } = req.params;
+    const id = typeof tareaId === 'object' ? tareaId.tareaId : tareaId;
+
     const tarea = await Tarea.findByPk(Number(id), {
       include: [
         { model: Actividad, attributes: ['nombre', 'descripcion'] },
@@ -19,16 +20,16 @@ async function generateReportePDF(tareaId, usuarioId) {
       ]
     });
 
-    if (!tarea) return console.warn(`⚠️ No se encontró tarea con ID ${tareaId}`);
+    if (!tarea) {
+      return res.status(404).json({ message: `No se encontró la tarea con ID ${id}` });
+    }
 
-    // 📄 Crear directorio de reportes si no existe
-    const reportsDir = path.join(__dirname, '../../uploads/reportes');
-    if (!fs.existsSync(reportsDir)) fs.mkdirSync(reportsDir, { recursive: true });
+    // 📄 Configurar cabeceras para el PDF
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="Reporte_Tarea_${id}.pdf"`);
 
-    const pdfPath = path.join(reportsDir, `Reporte_Tarea_${tareaId}.pdf`);
     const doc = new PDFDocument({ margin: 40 });
-    const stream = fs.createWriteStream(pdfPath);
-    doc.pipe(stream);
+    doc.pipe(res);
 
     // 🔹 ENCABEZADO
     doc.fontSize(18).text('REPORTE DE SERVICIO COMPLETADO', { align: 'center' });
@@ -52,7 +53,6 @@ async function generateReportePDF(tareaId, usuarioId) {
 
       if (ev.archivoUrl) {
         try {
-          // 📥 Descargar imagen desde Cloudinary
           const response = await axios.get(ev.archivoUrl, { responseType: 'arraybuffer' });
           const imgBuffer = Buffer.from(response.data, 'binary');
           doc.image(imgBuffer, { width: 200 });
@@ -87,11 +87,12 @@ async function generateReportePDF(tareaId, usuarioId) {
     }
 
     doc.end();
-    stream.on('finish', () => console.log(`✅ PDF generado correctamente: ${pdfPath}`));
 
   } catch (error) {
     console.error('❌ Error al generar reporte PDF:', error);
+    res.status(500).json({ message: 'Error interno al generar el PDF' });
   }
-}
+};
 
-module.exports = { generateReportePDF };
+
+//module.exports = { generateReportePDF };
