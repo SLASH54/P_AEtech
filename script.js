@@ -1623,6 +1623,8 @@ function initEvidencias(tareaId) {
   saveBtn.onclick = async (e) => {
     e.preventDefault();
 
+    
+
 // 🔹 Guardar evidencias pdf
  //   const pdfUrl = `${API_BASE_URL}/reportes/pdf/${tareaId}?token=${token}`;
 // const responsePDF = await fetch(pdfUrl, { headers: { Authorization: `Bearer ${token}` } });
@@ -1666,6 +1668,9 @@ function initEvidencias(tareaId) {
       });
 
       const data = await res.json();
+
+      
+      
       if (res.ok) {
         alert('✅ Evidencias subidas correctamente');
         actualizarEstadoTarea(tareaId, 'Completada');
@@ -1690,11 +1695,11 @@ function initEvidencias(tareaId) {
     }, 400);
   }
 
-  // 🔹 Regresar al tablero automáticamente
-  if (typeof mostrarTablero === 'function') {
+  // 🔹 Regresar al organizador-tareas automáticamente
+  if (typeof organizador-tareas === 'function') {
     mostrarTablero();
-  } else if (document.getElementById('Tareas')) {
-    document.getElementById('Tareas').scrollIntoView({ behavior: 'smooth' });
+  } else if (document.getElementById('organizador-tareas')) {
+    document.getElementById('organizador-tareas').scrollIntoView({ behavior: 'smooth' });
   }
 
       } else {
