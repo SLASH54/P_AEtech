@@ -2,11 +2,14 @@ const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
+const { tareaId } = req.params;
+const id = typeof tareaId === 'object' ? tareaId.tareaId : tareaId;
+
 const { Tarea, Actividad, Sucursal, ClienteNegocio, Evidencia, Usuario } = require('../models/relations');
 
 async function generateReportePDF(tareaId, usuarioId) {
   try {
-    const tarea = await Tarea.findByPk(tareaId, {
+    const tarea = await Tarea.findByPk(Number(id), {
       include: [
         { model: Actividad, attributes: ['nombre', 'descripcion'] },
         { model: Sucursal, attributes: ['nombre', 'direccion'] },
