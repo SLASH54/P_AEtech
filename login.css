@@ -2440,8 +2440,10 @@ main {
     background-color: #9fb4e6;
 }
 
-/* Responsivo del usuario */
-@media (max-width: 768px) {
+
+
+/* Responsivo del usuario (Teléfonos + Tabletas) */
+@media (max-width: 1180px) {
     #organizador-tareas {
         padding: 1rem;
     }
@@ -2457,7 +2459,7 @@ main {
         grid-template-columns: 1fr !important;
     }
 
-    #tareaModal>div {
+    #tareaModal > div {
         padding: 1rem;
     }
 }
