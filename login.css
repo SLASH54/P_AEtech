@@ -551,196 +551,208 @@ main {
     color: #666;
     font-size: 0.9em;
 }
-/* --- Estilos para la sección de Usuarios (Formulario de Registro) --- */
-.form-container {
-    display: flex;
-    flex-direction: column;
-    width: auto;
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 30px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
 
-/* Estilos para la pantalla de bienvenida */
-#welcome-screen {
-    text-align: center;
-}
 
-#welcome-screen h2 {
-    color: #333;
-    margin-bottom: 25px;
-}
+/* ===========================
+   BREAKPOINT 1: Teléfonos + Tabletas (≤1180px)
+   Mantiene el estilo que ya te gustó en tareas, y lo extiende al resto
+   =========================== */
+@media (max-width: 1180px) {
+  /* ---- Layout general ---- */
+  .container,
+  .page-wrapper,
+  main {
+    padding: 1rem;
+  }
 
-#welcome-screen button {
-    background-color: #007bff;
-    color: white;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1.1em;
-    transition: background-color 0.3s ease;
-    margin: 10px;
-}
+  /* ---- Topbar / Header ---- */
+  .topbar,
+  header,
+  .navbar {
+    padding: .5rem 1rem;
+    gap: .75rem;
+  }
 
-#welcome-screen button:hover {
-    background-color: #0056b3;
-}
+  /* Botón de notificaciones + perfil */
+  #btnNotificaciones {
+    transform-origin: center;
+  }
+  .login-menu {
+    gap: .5rem;
+  }
+  #login-button i { font-size: 1.6rem; }
 
-/* Estilos adicionales */
-.form-group {
-    margin-bottom: 20px;
-}
+  /* ---- Grid principal si lo usas ---- */
+  .grid-2,
+  .grid-3 {
+    display: grid;
+    gap: 1rem;
+  }
+  .grid-2 { grid-template-columns: 1fr; }
+  .grid-3 { grid-template-columns: 1fr; }
 
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: bold;
-    color: #555;
-}
+  /* ---- Cards y contenedores ---- */
+  .card,
+  .panel,
+  .widget {
+    padding: 1rem;
+  }
+  .card h3,
+  .panel h3 { font-size: 1rem; }
 
-.form-group input[type="text"],
-.form-group input[type="email"],
-.form-group input[type="password"] {
+  /* ---- Tabla de tareas (igual que antes) ---- */
+  #organizador-tareas { padding: 1rem; }
+
+  #tareasTable {
     width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    box-sizing: border-box;
-    font-size: 1em;
-}
+    border-collapse: collapse;
+    table-layout: auto;
+  }
+  #tareasTable th,
+  #tareasTable td {
+    font-size: 0.8rem;
+    padding: 0.5rem;
+    white-space: nowrap; /* evitar saltos feos */
+  }
 
-.form-group input:focus {
-    border-color: #80bdff;
-    outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-}
-
-.form-container button[type="submit"] {
-    background-color: #007bff;
-    color: white;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+  /* Contenedor para hacer scroll horizontal si la tabla no cabe */
+  .table-responsive {
     width: 100%;
-    font-size: 1.1em;
-    transition: background-color 0.3s ease;
-    margin-top: 10px;
-}
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 
-.form-container button[type="submit"]:hover {
-    background-color: #0056b3;
-}
+  /* ---- Formulario de tareas ---- */
+  #tareaForm .grid { grid-template-columns: 1fr !important; }
+  #tareaModal > div { padding: 1rem; }
 
-.back-btn {
-    background-color: #6c757d; /* Color de fondo grisáceo */
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1em;
-    transition: background-color 0.3s ease;
-    margin-top: 10px;
-}
+  /* Inputs y selects más cómodos */
+  input[type="text"],
+  input[type="date"],
+  input[type="number"],
+  select,
+  textarea {
+    font-size: 0.95rem;
+    min-height: 40px;
+  }
 
-.back-btn:hover {
-    background-color: #5a6268; /* Color de fondo grisáceo más oscuro al pasar el ratón */
-}
+  /* Botones */
+  .btn,
+  button {
+    min-height: 40px;
+    padding: .6rem .9rem;
+    font-size: .95rem;
+  }
 
-.form-group a {
-  color: #007bff;
-  text-decoration: none;
-}
-
-.form-group a:hover {
-  text-decoration: underline;
-}
-/* Estilos para el contenedor del logo dentro del formulario */
-.logo-container {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.logo-container img {
-    max-width: 200px;
+  /* ---- Evidencias / Galería ---- */
+  .evidencia-item,
+  .card-evidencia {
+    padding: .75rem;
+  }
+  .preview-container img,
+  .img-preview,
+  .img-preview-mini {
+    max-width: 100%;
     height: auto;
-}
+  }
 
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: bold;
-    color: #555;
-}
-
-.form-group input[type="text"],
-.form-group input[type="email"],
-.form-group input[type="password"],
-.form-group input[type="date"],
-.form-group input[type="time"],
-.form-group input[type="telefono"],
-.form-group input[type="direccion"],
-.form-group select {
+  /* ---- Firma (canvas) ---- */
+  #signature-pad {
     width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    box-sizing: border-box;
-    font-size: 1em;
+    max-width: 520px;
+    height: auto;
+    aspect-ratio: 16/9; /* mantiene proporción en pantallas angostas */
+    border: 1px dashed #cbd5e1;
+    background: #fff;
+  }
+
+  /* ---- Modales genéricos ---- */
+  .modal,
+  [role="dialog"] {
+    padding: 1rem;
+  }
+  .modal .modal-body { max-height: 70vh; overflow-y: auto; }
+
+  /* ---- Listas/Tablas compactas ---- */
+  .list,
+  .list-item {
+    gap: .5rem;
+  }
 }
 
-.form-group select {
-    height: 40px;
-    background-color: #fff;
+/* ===========================
+   BREAKPOINT 2: Teléfonos medianos (≤900px)
+   Ajustes de densidad y mejores toques táctiles
+   =========================== */
+@media (max-width: 900px) {
+  .topbar .brand { font-size: 1rem; }
+  .btn,
+  button { padding: .55rem .85rem; }
+
+  /* Tabla: reduce columnas forzando saltos cuando haga falta */
+  #tareasTable th,
+  #tareasTable td {
+    white-space: normal; /* permitir salto de línea si ya no cabe */
+  }
+
+  /* Menú de perfil */
+  .dropdown-menu {
+    right: .5rem;
+    left: auto;
+    min-width: 220px;
+  }
 }
 
-.form-group input:focus,
-.form-group select:focus {
-    border-color: #80bdff;
-    outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-}
+/* ===========================
+   BREAKPOINT 3: Teléfonos pequeños (≤600px)
+   Pila casi todo y maximiza tocabilidad
+   =========================== */
+@media (max-width: 600px) {
+  .topbar,
+  header,
+  .navbar {
+    flex-wrap: wrap;
+    gap: .5rem;
+  }
 
-.form-container button[type="submit"] {
-    background-color: #007bff;
-    color: white;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+  /* Botones principales a ancho completo si están en el flujo de contenido */
+  .btn-primary,
+  .btn-cta {
     width: 100%;
-    font-size: 1.1em;
-    transition: background-color 0.3s ease;
-    margin-top: 10px;
+  }
+
+  /* Tabla dentro de wrapper para scroll horizontal */
+  .table-responsive { margin: 0 -.5rem; padding: 0 .5rem; }
+
+  /* Filtros / acciones arriba de la tabla en columna */
+  .table-actions { display: grid; grid-template-columns: 1fr; gap: .5rem; }
+
+  /* Firma: más alta en móviles chicos */
+  #signature-pad { aspect-ratio: 4/3; }
 }
 
-.form-container button[type="submit"]:hover {
-    background-color: #0056b3;
+/* ===========================
+   Helpers suaves (opcionales)
+   =========================== */
+
+/* Animación para notificaciones (si la usas) */
+.notif-animada {
+  animation: bell-bounce .6s ease-in-out 0s 4;
 }
-.back-btn {
-    background-color: #6c757d; /* Color de fondo grisáceo */
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1em;
-    transition: background-color 0.3s ease;
-    margin-top: 10px;
+@keyframes bell-bounce {
+  0%,100% { transform: rotate(0deg); }
+  25% { transform: rotate(-12deg); }
+  75% { transform: rotate(12deg); }
 }
 
-.back-btn:hover {
-    background-color: #5a6268; /* Color de fondo grisáceo más oscuro al pasar el ratón */
-}
+/* Suaviza transiciones cuando ocultes/mostrando secciones */
+.fade-out { opacity: 0; transition: opacity .35s ease; }
+.fade-in  { opacity: 1; transition: opacity .35s ease; }
+
+/* Asegurar imágenes responsivas globalmente */
+img { max-width: 100%; height: auto; display: block; }
+
+/* Si usas contenedor para tabla, envuelve la tabla con .table-responsive */
 
 /* Estilos para la sección de lista de comentarios */
 #lista-comentarios {
