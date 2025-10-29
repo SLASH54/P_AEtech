@@ -2593,3 +2593,115 @@ main {
     transform: rotate(360deg);
   }
 }
+
+
+
+
+
+
+/* ==========================
+   📱 AJUSTES RESPONSIVOS
+   ========================== */
+
+/* 🌐 Pantallas pequeñas (celulares hasta 480px) */
+@media (max-width: 480px) {
+  body {
+    font-size: 14px;
+    padding: 0 10px;
+  }
+
+  header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  nav, .sidebar {
+    width: 100%;
+    position: relative;
+    height: auto;
+  }
+
+  .main-content {
+    margin-left: 0;
+    padding: 10px;
+  }
+
+  button, input, select, textarea {
+    width: 100%;
+    font-size: 14px;
+  }
+
+  table {
+    font-size: 12px;
+    display: block;
+    overflow-x: auto;
+  }
+
+  .login-menu {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+  }
+
+  #btnNotificaciones {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+  }
+}
+
+/* 💻 Pantallas medianas (tabletas: 481px a 1024px) */
+@media (min-width: 481px) and (max-width: 1024px) {
+  body {
+    font-size: 15px;
+  }
+
+  header {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .sidebar {
+    width: 220px;
+    position: fixed;
+  }
+
+  .main-content {
+    margin-left: 230px;
+  }
+
+  button {
+    font-size: 15px;
+    padding: 8px 12px;
+  }
+
+  .card, .form-container {
+    width: 90%;
+    margin: 10px auto;
+  }
+}
+
+/* 🖥️ Pantallas grandes (PC/laptop) */
+@media (min-width: 1025px) {
+  body {
+    font-size: 16px;
+  }
+
+  .main-content {
+    padding: 20px 40px;
+  }
+
+  .card, .form-container {
+    width: 70%;
+    margin: 0 auto;
+  }
+
+  #btnNotificaciones {
+    position: absolute;
+    top: 15px;
+    right: 70px;
+    cursor: pointer;
+  }
+}
+
