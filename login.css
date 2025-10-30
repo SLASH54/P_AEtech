@@ -2722,20 +2722,6 @@ body::after {
 
 /* === Fondos dinámicos para el tablero AEtech === */
 /* Extiende el fondo dinámico a toda el área del tablero */
-#TableroAetech,
-#TableroAetech .main-content-area {
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  transition: background 3s ease-in-out;
-}
-
-/* Asegura que el contenido se mantenga legible */
-#TableroAetech .main-content-area {
-  background-color: rgba(255, 255, 255, 0.05); /* opcional: leve transparencia */
-  backdrop-filter: blur(2px); /* efecto sutil de vidrio esmerilado */
-}
-
 
 
 /* === FONDO COMPLETO DEL TABLERO AETECH === */
@@ -2767,13 +2753,6 @@ body::after {
   z-index: 1;
 }
 
-/* Subfondo difuminado dentro de la tarjeta */
-#TableroAetech .dashboard-card {
-  backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.35);
-  border-radius: 15px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
-}
 
 /* Colores dinámicos según hora */
 .tablero-manana {
