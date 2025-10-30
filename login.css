@@ -2672,3 +2672,23 @@ main {
 
 
 
+/* === EVITA DESBORDAMIENTO HORIZONTAL (scroll lateral) === */
+html, body {
+  width: 100%;
+  overflow-x:auto;
+  margin: 0;
+  padding: 0;
+}
+
+/* Corrige contenedores con sombras o bordes */
+.container, .form-container, .background, .wrapper {
+  max-width: 85vw;
+  overflow-x: hidden;
+}
+
+/* Si usas gradientes o fondos con imagen */
+body::before,
+body::after {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
