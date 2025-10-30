@@ -2752,12 +2752,12 @@ body::after {
 
 
 .dashboard-card {
-  background: rgba(255, 255, 255, 0.8);
+  background: rgb(255 255 255 / 44%);
   border-radius: 15px;
   padding: 2rem;
   width: 90%;
   max-width: 450px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 25px 20px rgba(0, 0, 0, 0.15);
   text-align: center;
   color: #1a1a1a;
   backdrop-filter: blur(10px);
@@ -2790,7 +2790,7 @@ body::after {
 @media (max-width: 768px) {
   .dashboard-card {
     padding: 1.5rem;
-    width: 95%;
+    width: 80%;
   }
   .dashboard-card h2 {
     font-size: 1.3rem;
