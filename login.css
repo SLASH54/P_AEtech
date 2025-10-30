@@ -2735,7 +2735,7 @@ body::after {
 }
 
 /* 🌇 Tarde */
-.tablero-tarde::before {
+.tablero-tarde {
   background-image:
     linear-gradient(to bottom, rgba(255,255,255,0.15), rgba(0,0,0,0.25)),
     url('https://burst.shopifycdn.com/photos/sunsets-behind-dark-clouds-in-orange-sky.jpg?exif=0&iptc=0');
@@ -2743,7 +2743,7 @@ body::after {
 
 /* 🌃 Noche */
 /* Noche (oscuro, ciudad o cielo nocturno) */
-.tablero-noche::before {
+.tablero-noche {
   background-image:
     linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.6)),
     url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=80');
