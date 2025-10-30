@@ -2717,8 +2717,8 @@ body::after {
   background: transparent;
 }
 
-/* === Fondos del tablero según hora === */
-#Tablero .tablero-container {
+/* === Fondos dinámicos para el tablero AEtech === */
+#TableroAetech {
   transition: background 1s ease-in-out;
   background-size: cover;
   background-position: center;
@@ -2739,6 +2739,7 @@ body::after {
 .tablero-noche {
   background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
 }
+
 
 
 .dashboard-card {

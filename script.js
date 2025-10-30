@@ -2173,9 +2173,10 @@ setInterval(mostrarSaludoPersonalizado, 60000); // se actualiza cada minuto
 
 // === Cambiar fondo del tablero según la hora ===
 function cambiarFondoSegunHora() {
-  const tablero = document.getElementById('Tablero');
-  const hora = new Date().getHours();
+  const tablero = document.getElementById('TableroAetech');
+  if (!tablero) return;
 
+  const hora = new Date().getHours();
   tablero.classList.remove('tablero-manana', 'tablero-tarde', 'tablero-noche');
 
   if (hora >= 5 && hora < 12) {
@@ -2187,6 +2188,5 @@ function cambiarFondoSegunHora() {
   }
 }
 
-// Ejecutar al cargar y cada hora
 cambiarFondoSegunHora();
 setInterval(cambiarFondoSegunHora, 3600000);
