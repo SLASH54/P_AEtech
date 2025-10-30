@@ -2694,37 +2694,58 @@ body::after {
 }
 
 
-#tablero {
+
+/* === TARJETA DEL TABLERO === */
+.tablero-aetech {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 70vh;
+  min-height: 60vh;
+  background: transparent;
 }
 
 .dashboard-card {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.8);
   border-radius: 15px;
   padding: 2rem;
-  color: #fff;
-  text-align: center;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
   width: 90%;
   max-width: 450px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  color: #1a1a1a;
+  backdrop-filter: blur(10px);
   animation: fadeIn 1s ease;
 }
 
 .dashboard-card h2 {
-  font-size: 1.6rem;
-  color: #4ecdc4;
+  color: #009688;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.dashboard-card p {
+  font-size: 1rem;
+  margin: 0.4rem 0;
 }
 
 .info-extra p {
-  margin: 0.5rem 0;
-  font-size: 1rem;
+  font-size: 0.95rem;
+  color: #444;
 }
 
+/* Sutil animación */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .dashboard-card {
+    padding: 1.5rem;
+    width: 95%;
+  }
+  .dashboard-card h2 {
+    font-size: 1.3rem;
+  }
 }

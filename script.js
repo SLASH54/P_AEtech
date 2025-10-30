@@ -2098,39 +2098,57 @@ cargarNotificaciones();
 
 
 /* Animaciones y cosas para que se vea chida la pagina*/
-// === TABLERO DINÁMICO ===
+// === TABLERO AEtech ===
 
-// 1️⃣ Reloj y fecha
+// 1️⃣ Mostrar nombre del usuario logeado
+const nombreUsuario = localStorage.getItem('nombreUsuario') || 'Usuario';
+document.getElementById('nombreUsuario').textContent = nombreUsuario;
+
+// 2️⃣ Fecha y hora actual
 function actualizarFechaHora() {
   const ahora = new Date();
   const hora = ahora.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
   const fecha = ahora.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
   document.getElementById('horaActual').textContent = hora;
-  document.getElementById('fechaActual').textContent = fecha.charAt(0).toUpperCase() + fecha.slice(1);
+  document.getElementById('fechaActual').textContent =
+    fecha.charAt(0).toUpperCase() + fecha.slice(1);
 }
 setInterval(actualizarFechaHora, 1000);
 actualizarFechaHora();
 
-// 2️⃣ Frase del día aleatoria
+// 3️⃣ Frase del día aleatoria
 const frases = [
-  "La tecnología es mejor cuando une a las personas.",
+  "La innovación comienza con una idea.",
   "Crea, falla, aprende, mejora. Ese es el ciclo.",
   "Cada línea de código es un paso hacia el futuro.",
-  "Si puedes imaginarlo, puedes programarlo.",
+  "La tecnología es mejor cuando une a las personas.",
   "El límite no está en la máquina, está en la mente."
 ];
-document.getElementById('fraseDia').textContent = frases[Math.floor(Math.random() * frases.length)];
+document.getElementById('fraseDia').textContent =
+  frases[Math.floor(Math.random() * frases.length)];
 
-// 3️⃣ Clima actual (usando API gratuita)
+// 4️⃣ Clima actual en Atlixco, Puebla (usando Open Meteo API)
 async function obtenerClima() {
   try {
-    const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=18.9&longitude=-98.43&current_weather=true');
+    const res = await fetch(
+      'https://api.open-meteo.com/v1/forecast?latitude=18.9&longitude=-98.43&current_weather=true'
+    );
     const data = await res.json();
     const temp = data.current_weather.temperature;
-    const icono = data.current_weather.weathercode < 3 ? "☀️" : "☁️";
-    document.getElementById('climaActual').textContent = `${icono} ${temp}°C en Tochimilco`;
-  } catch (error) {
-    document.getElementById('climaActual').textContent = "No se pudo obtener el clima.";
+    const codigo = data.current_weather.weathercode;
+
+    let icono = "☀️";
+    if (codigo >= 2 && codigo <= 3) icono = "⛅";
+    else if (codigo >= 45 && codigo <= 48) icono = "🌫️";
+    else if (codigo >= 51 && codigo <= 67) icono = "🌧️";
+    else if (codigo >= 71 && codigo <= 77) icono = "❄️";
+    else if (codigo >= 80) icono = "🌦️";
+
+    document.getElementById('climaActual').textContent =
+      `${icono} ${temp}°C en Atlixco, Puebla`;
+  } catch {
+    document.getElementById('climaActual').textContent =
+      "No se pudo obtener el clima.";
   }
 }
 obtenerClima();
