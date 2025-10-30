@@ -2170,9 +2170,10 @@ function mostrarSaludoPersonalizado() {
 mostrarSaludoPersonalizado();
 setInterval(mostrarSaludoPersonalizado, 60000); // se actualiza cada minuto
 
+
 // === Cambiar fondo del tablero según la hora ===
 function cambiarFondoSegunHora() {
-  const tablero = document.getElementById('tablero');
+  const tablero = document.getElementById('Tablero');
   const hora = new Date().getHours();
 
   tablero.classList.remove('tablero-manana', 'tablero-tarde', 'tablero-noche');
