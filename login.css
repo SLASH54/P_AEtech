@@ -2725,19 +2725,27 @@ body::after {
   background-repeat: no-repeat;
 }
 
-/* Mañana */
+
+
+/* 🌅 Mañana */
 .tablero-manana {
-  background: linear-gradient(135deg, #a8edea, #fed6e3);
+  background-image:
+    linear-gradient(to bottom, rgba(255,255,255,0.2), rgba(255,255,255,0.1)),
+    url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80');
 }
 
-/* Tarde */
+/* 🌇 Tarde */
 .tablero-tarde {
-  background: linear-gradient(135deg, #89f7fe, #66a6ff);
+  background-image:
+    linear-gradient(to bottom, rgba(255,255,255,0.15), rgba(0,0,0,0.25)),
+    url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=80');
 }
 
-/* Noche */
+/* 🌃 Noche */
 .tablero-noche {
-  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  background-image:
+    linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.6)),
+    url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80');
 }
 
 
@@ -2780,7 +2788,7 @@ body::after {
 @media (max-width: 768px) {
   .dashboard-card {
     padding: 1.5rem;
-    width: 95%;
+    width: 80%;
   }
   .dashboard-card h2 {
     font-size: 1.3rem;
