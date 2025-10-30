@@ -2756,41 +2756,6 @@ body::after {
   z-index: 1;
 }
 
-/* === Fondos con imágenes realistas === */
-
-/* 🌅 Fondo de mañana */
-.tablero-manana {
-  background-image:
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1)),
-    url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-}
-
-/* 🌇 Fondo de tarde */
-.tablero-tarde {
-  background-image:
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.15), rgba(0, 0, 0, 0.25)),
-    url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=80');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-}
-
-/* 🌃 Fondo de noche */
-.tablero-noche {
-  background-image:
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6)),
-    url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-}
-
 
 .dashboard-card {
   background: rgb(255 255 255 / 44%);
