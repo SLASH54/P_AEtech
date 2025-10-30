@@ -2056,3 +2056,81 @@ setInterval(cargarNotificaciones, 30000);
 // Cargar al iniciar
 cargarNotificaciones();
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Animaciones y cosas para que se vea chida la pagina*/
+// === TABLERO DINÁMICO ===
+
+// 1️⃣ Reloj y fecha
+function actualizarFechaHora() {
+  const ahora = new Date();
+  const hora = ahora.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+  const fecha = ahora.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
+  document.getElementById('horaActual').textContent = hora;
+  document.getElementById('fechaActual').textContent = fecha.charAt(0).toUpperCase() + fecha.slice(1);
+}
+setInterval(actualizarFechaHora, 1000);
+actualizarFechaHora();
+
+// 2️⃣ Frase del día aleatoria
+const frases = [
+  "La tecnología es mejor cuando une a las personas.",
+  "Crea, falla, aprende, mejora. Ese es el ciclo.",
+  "Cada línea de código es un paso hacia el futuro.",
+  "Si puedes imaginarlo, puedes programarlo.",
+  "El límite no está en la máquina, está en la mente."
+];
+document.getElementById('fraseDia').textContent = frases[Math.floor(Math.random() * frases.length)];
+
+// 3️⃣ Clima actual (usando API gratuita)
+async function obtenerClima() {
+  try {
+    const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=18.9&longitude=-98.43&current_weather=true');
+    const data = await res.json();
+    const temp = data.current_weather.temperature;
+    const icono = data.current_weather.weathercode < 3 ? "☀️" : "☁️";
+    document.getElementById('climaActual').textContent = `${icono} ${temp}°C en Tochimilco`;
+  } catch (error) {
+    document.getElementById('climaActual').textContent = "No se pudo obtener el clima.";
+  }
+}
+obtenerClima();

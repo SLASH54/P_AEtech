@@ -2692,3 +2692,39 @@ body::after {
   max-width: 100vw;
   overflow-x: hidden;
 }
+
+
+#tablero {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 70vh;
+}
+
+.dashboard-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  border-radius: 15px;
+  padding: 2rem;
+  color: #fff;
+  text-align: center;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 450px;
+  animation: fadeIn 1s ease;
+}
+
+.dashboard-card h2 {
+  font-size: 1.6rem;
+  color: #4ecdc4;
+}
+
+.info-extra p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
