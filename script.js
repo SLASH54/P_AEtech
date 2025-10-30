@@ -2187,3 +2187,20 @@ function cambiarFondoSegunHora() {
 cambiarFondoSegunHora();
 setInterval(cambiarFondoSegunHora, 3600000);
 
+
+document.addEventListener("DOMContentLoaded", () => {
+  const tablero = document.getElementById("TableroAetech");
+  if (!tablero) return;
+
+  const hora = new Date().getHours();
+  tablero.classList.remove("tablero-manana", "tablero-tarde", "tablero-noche");
+
+  if (hora >= 6 && hora < 12) {
+    tablero.classList.add("tablero-manana");
+  } else if (hora >= 12 && hora < 18) {
+    tablero.classList.add("tablero-tarde");
+  } else {
+    tablero.classList.add("tablero-noche");
+  }
+});
+
