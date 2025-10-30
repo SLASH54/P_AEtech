@@ -2800,36 +2800,52 @@ body::after {
   }
 }
 
-/* === Ajustes globales para que el fondo se vea siempre === */
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
-}
-
-main {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Asegura que el fondo cubra todo el tablero */
-#TableroAetech {
-  min-height: 100vh; /* altura completa */
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
+/* === FONDO COMPLETO DEL TABLERO AETECH === */
+#Tablero {
+  background: none !important; /* evita fondos estáticos */
   position: relative;
-  background-attachment: fixed; /* mantiene el fondo estable al hacer scroll */
   z-index: 0;
 }
 
-/* Asegura que el contenido principal no tape el fondo */
-#TableroAetech .main-content-area {
+.tablero-container {
+  background: none !important;
+  position: relative;
+  z-index: 0;
+}
+
+/* Sección principal con fondo dinámico */
+#TableroAetech {
+  min-height: 100vh;
+  width: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background 1.5s ease-in-out;
   position: relative;
   z-index: 1;
-  padding-bottom: 2rem;
+}
+
+/* Subfondo difuminado dentro de la tarjeta */
+#TableroAetech .dashboard-card {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 15px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* Colores dinámicos según hora */
+.tablero-manana {
+  background: linear-gradient(135deg, #a8edea, #fed6e3);
+}
+
+.tablero-tarde {
+  background: linear-gradient(135deg, #89f7fe, #66a6ff);
+}
+
+.tablero-noche {
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
 }
