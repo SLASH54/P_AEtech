@@ -2714,43 +2714,40 @@ body::after {
   justify-content: center;
   align-items: center;
   min-height: 60vh;
-  background: none !important; /* permite que se herede el fondo dinámico */
-  position: relative;
-  z-index: 0;
+  background: transparent;
 }
 
-
-/* === Fondos dinámicos para el tablero AEtech === */
-/* Extiende el fondo dinámico a toda el área del tablero */
-
-
-/* === Fondo dinámico con imágenes === */
-
-
-/* Efecto de desenfoque sobre el fondo (opcional) */
-#TableroAetech::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.25);
-  backdrop-filter: blur(2px);
-  z-index: 0;
+/* === Fondos del tablero según hora === */
+#Tablero .tablero-container {
+  transition: background 1s ease-in-out;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
-/* Mantiene la tarjeta visible por encima del fondo */
-#TableroAetech .dashboard-card {
-  position: relative;
-  z-index: 1;
+/* Mañana */
+.tablero-manana {
+  background: linear-gradient(135deg, #a8edea, #fed6e3);
+}
+
+/* Tarde */
+.tablero-tarde {
+  background: linear-gradient(135deg, #89f7fe, #66a6ff);
+}
+
+/* Noche */
+.tablero-noche {
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
 }
 
 
 .dashboard-card {
-  background: rgb(255 255 255 / 44%);
+  background: rgba(255, 255, 255, 0.8);
   border-radius: 15px;
   padding: 2rem;
-  width: 90%;
+  width: 85%;
   max-width: 450px;
-  box-shadow: 0 8px 25px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   text-align: center;
   color: #1a1a1a;
   backdrop-filter: blur(10px);
@@ -2783,47 +2780,9 @@ body::after {
 @media (max-width: 768px) {
   .dashboard-card {
     padding: 1.5rem;
-    width: 80%;
+    width: 95%;
   }
   .dashboard-card h2 {
     font-size: 1.3rem;
   }
-}
-
-/* === Fondo dinámico para TableroAetech === */
-#TableroAetech {
-  min-height: 100vh;
-  transition: background-image 1s ease-in-out;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-}
-
-/* 🌅 Mañana */
-#TableroAetech.tablero-manana {
-  background-image:
-    linear-gradient(to bottom, rgba(255,255,255,0.2), rgba(255,255,255,0.1)),
-    url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80');
-}
-
-/* 🌇 Tarde */
-#TableroAetech.tablero-tarde {
-  background-image:
-    linear-gradient(to bottom, rgba(255,255,255,0.15), rgba(0,0,0,0.25)),
-    url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=80');
-}
-
-/* 🌃 Noche */
-#TableroAetech.tablero-noche {
-  background-image:
-    linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.6)),
-    url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80');
-}
-
-
-
-/* 🔹 Evita que el fondo gris tape el fondo dinámico */
-body, .container, main, .tablero-container {
-  background: transparent !important;
 }
