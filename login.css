@@ -2714,17 +2714,20 @@ body::after {
   justify-content: center;
   align-items: center;
   min-height: 60vh;
-  background: transparent;
+  background: none !important; /* permite que se herede el fondo dinámico */
+  position: relative;
+  z-index: 0;
 }
+
 
 /* === Fondos dinámicos para el tablero AEtech === */
 /* Extiende el fondo dinámico a toda el área del tablero */
 #TableroAetech,
 #TableroAetech .main-content-area {
+  transition: background 3s ease-in-out;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  transition: background 1s ease-in-out;
 }
 
 /* Asegura que el contenido se mantenga legible */
