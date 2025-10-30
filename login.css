@@ -2682,7 +2682,7 @@ html, body {
 
 /* Corrige contenedores con sombras o bordes */
 .container, .form-container, .background, .wrapper {
-  max-width: 85vw;
+  max-width: 83vw;
   overflow-x: hidden;
 }
 
