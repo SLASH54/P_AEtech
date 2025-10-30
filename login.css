@@ -2718,12 +2718,21 @@ body::after {
 }
 
 /* === Fondos dinámicos para el tablero AEtech === */
-#TableroAetech {
-  transition: background 1s ease-in-out;
+/* Extiende el fondo dinámico a toda el área del tablero */
+#TableroAetech,
+#TableroAetech .main-content-area {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  transition: background 1s ease-in-out;
 }
+
+/* Asegura que el contenido se mantenga legible */
+#TableroAetech .main-content-area {
+  background-color: rgba(255, 255, 255, 0.05); /* opcional: leve transparencia */
+  backdrop-filter: blur(2px); /* efecto sutil de vidrio esmerilado */
+}
+
 
 /* Mañana */
 .tablero-manana {
