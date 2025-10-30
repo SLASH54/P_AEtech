@@ -2722,12 +2722,38 @@ body::after {
 
 /* === Fondos dinámicos para el tablero AEtech === */
 /* Extiende el fondo dinámico a toda el área del tablero */
-#TableroAetech,
+/* === Ajustes globales para que el fondo se vea siempre === */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+main {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Asegura que el fondo cubra todo el tablero */
+#TableroAetech {
+  min-height: 100vh; /* altura completa */
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  position: relative;
+  background-attachment: fixed; /* mantiene el fondo estable al hacer scroll */
+  z-index: 0;
+}
+
+/* Asegura que el contenido principal no tape el fondo */
 #TableroAetech .main-content-area {
-  transition: background 3s ease-in-out;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  position: relative;
+  z-index: 1;
+  padding-bottom: 2rem;
 }
 
 /* Asegura que el contenido se mantenga legible */
