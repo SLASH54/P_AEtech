@@ -2718,7 +2718,7 @@ body::after {
 }
 
 /* === Fondos del tablero según hora === */
-#tablero {
+#Tablero {
   transition: background 1s ease-in-out;
   background-size: cover;
   background-position: center;
