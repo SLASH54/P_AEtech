@@ -556,15 +556,18 @@ main {
 
 /* --- Estilos para la sección de Usuarios (Formulario de Registro) --- */
 .form-container {
+    background: rgba(98, 179, 255, 0.5);
+    box-shadow: inset 0px 0px 20px 20px rgba(0, 0, 255, 0.2);
+
     display: flex;
     flex-direction: column;
     width: auto;
     max-width: 600px;
     margin: 0 auto;
     padding: 30px;
-    background-color: #fff;
+    /*background-color: #fff;*/
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /*box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);*/
 }
 
 /* Estilos para la pantalla de bienvenida */
@@ -573,7 +576,7 @@ main {
 }
 
 #welcome-screen h2 {
-    color: #333;
+    color: #006983;
     margin-bottom: 25px;
 }
 
@@ -665,6 +668,7 @@ main {
 }
 /* Estilos para el contenedor del logo dentro del formulario */
 .logo-container {
+    
     text-align: center;
     margin-bottom: 20px;
 }
@@ -693,12 +697,15 @@ main {
 .form-group input[type="telefono"],
 .form-group input[type="direccion"],
 .form-group select {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
+    
     box-sizing: border-box;
     font-size: 1em;
+    width: 100%;
+      padding-right: 35px;
+      border:none;
+      outline: none;
+      border-radius: 35px;
+      transition: all 0.3s ease;
 }
 
 .form-group select {
@@ -708,6 +715,8 @@ main {
 
 .form-group input:focus,
 .form-group select:focus {
+    background-color: #006983;
+    color: white;
     border-color: #80bdff;
     outline: 0;
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
@@ -826,7 +835,7 @@ main {
     display: block;
     margin-bottom: 5px;
     font-weight: bold;
-    color: #555;
+    color: #006983;
 }
 
 .form-group textarea {
@@ -1325,14 +1334,25 @@ main {
 }
 
 /* --- Estilos para la sección de Usuarios (Formulario de Registro) --- */
+#Usuarios {
+    width: 100%;
+    /*max-width: 325px;*/
+    text-align: center;
+    transition: all 0.3s ease;
+    
+}
+
 .form-container {
     width: 100%;
     max-width: 600px;
     margin: 0 auto;
     padding: 30px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(15px);
+    background: rgba(255, 255, 255, 0.6);
+    /*background-color: #fff;*/
+    border-radius: 10px;
+    box-shadow: inset 0px 0px 20px 20px rgba(0, 0, 255, 0.2);
+    /*box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);*/
 }
 
 
@@ -1348,6 +1368,10 @@ main {
     .password-container input {
       width: 100%;
       padding-right: 35px;
+      border:none;
+      outline: none;
+      border-radius: 35px;
+      
     }
 
     .toggle-password {
