@@ -2101,7 +2101,7 @@ cargarNotificaciones();
 // === TABLERO AEtech ===
 
 // 1️⃣ Mostrar nombre del usuario logeado
-const nombreUsuario = localStorage.getItem('nombreUsuario') || 'Usuario';
+const nombreUsuario = localStorage.getItem('userName') || 'Usuario';
 document.getElementById('nombreUsuario').textContent = nombreUsuario;
 
 // 2️⃣ Fecha y hora actual
@@ -2152,3 +2152,40 @@ async function obtenerClima() {
   }
 }
 obtenerClima();
+
+// 5️⃣ Saludo dinámico según la hora
+function obtenerSaludo() {
+  const hora = new Date().getHours();
+  if (hora >= 5 && hora < 12) return "🌅 Buenos días";
+  if (hora >= 12 && hora < 19) return "☀️ Buenas tardes";
+  return "🌙 Buenas noches";
+}
+
+// 6️⃣ Mostrar saludo + nombre de usuario
+function mostrarSaludoPersonalizado() {
+  const nombre = localStorage.getItem('userName') || 'Usuario';
+  document.getElementById('nombreUsuario').textContent = `${obtenerSaludo()}, ${nombre}`;
+}
+
+mostrarSaludoPersonalizado();
+setInterval(mostrarSaludoPersonalizado, 60000); // se actualiza cada minuto
+
+// === Cambiar fondo del tablero según la hora ===
+function cambiarFondoSegunHora() {
+  const tablero = document.getElementById('tablero');
+  const hora = new Date().getHours();
+
+  tablero.classList.remove('tablero-manana', 'tablero-tarde', 'tablero-noche');
+
+  if (hora >= 5 && hora < 12) {
+    tablero.classList.add('tablero-manana');
+  } else if (hora >= 12 && hora < 19) {
+    tablero.classList.add('tablero-tarde');
+  } else {
+    tablero.classList.add('tablero-noche');
+  }
+}
+
+// Ejecutar al cargar y cada hora
+cambiarFondoSegunHora();
+setInterval(cambiarFondoSegunHora, 3600000);

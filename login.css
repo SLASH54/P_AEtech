@@ -2695,6 +2695,19 @@ body::after {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+/*Estilos extras xd*/
 /* === TARJETA DEL TABLERO === */
 .tablero-aetech {
   display: flex;
@@ -2703,6 +2716,30 @@ body::after {
   min-height: 60vh;
   background: transparent;
 }
+
+/* === Fondos del tablero según hora === */
+#tablero {
+  transition: background 1s ease-in-out;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Mañana */
+.tablero-manana {
+  background: linear-gradient(135deg, #a8edea, #fed6e3);
+}
+
+/* Tarde */
+.tablero-tarde {
+  background: linear-gradient(135deg, #89f7fe, #66a6ff);
+}
+
+/* Noche */
+.tablero-noche {
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+}
+
 
 .dashboard-card {
   background: rgba(255, 255, 255, 0.8);
