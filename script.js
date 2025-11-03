@@ -1212,7 +1212,7 @@ function renderTareasTable(tareas) {
         row.innerHTML = `
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${tarea.nombre}</td> 
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${asignadoNombre}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sucursalNombre}</td> 
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${Direccion }</td> 
             <td class="px-6 py-4 whitespace-nowrap text-sm">${getStatusBadge(tarea.estado)}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(tarea.fechaLimite).toLocaleDateString()}</td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
