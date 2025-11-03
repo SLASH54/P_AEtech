@@ -1181,6 +1181,7 @@ function updateClientAddress() {
  * Renderiza la lista de tareas en la tabla.
  * @param {Array<Object>} tareas - La lista de tareas a mostrar.
  */
+
 function renderTareasTable(tareas) {
     const tareasBody = document.getElementById('tareasBody');
     if (!tareasBody) return;
@@ -1204,9 +1205,8 @@ function renderTareasTable(tareas) {
 
         // Datos relacionados
         const asignadoNombre = tarea.AsignadoA?.nombre || 'N/A';
-        const sucursalDireccion = tarea.Sucursal
-            ? `${tarea.Sucursal.nombre} – ${tarea.Sucursal.direccion}`
-            : 'Sin dirección asignada';
+        const clienteNombre = tarea.ClienteNegocio?.nombre || 'Sin cliente';
+        const clienteDireccion = tarea.ClienteNegocio?.direccion || 'Sin dirección registrada';
 
         // Fila de la tabla
         row.innerHTML = `
@@ -1217,7 +1217,10 @@ function renderTareasTable(tareas) {
                 ${asignadoNombre}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                ${sucursalDireccion}
+                ${clienteDireccion}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${clienteNombre}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm">
                 ${getStatusBadge(tarea.estado)}
@@ -1244,6 +1247,11 @@ function renderTareasTable(tareas) {
         tareasBody.appendChild(row);
     });
 }
+
+
+
+
+
 
 
 /**
