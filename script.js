@@ -1212,10 +1212,14 @@ function renderTareasTable(tareas) {
         row.innerHTML = `
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${tarea.nombre}</td> 
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${asignadoNombre}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sucursalNombre}</td> 
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sucursalDireccion}</td> 
             <td class="px-6 py-4 whitespace-nowrap text-sm">${getStatusBadge(tarea.estado)}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(tarea.fechaLimite).toLocaleDateString()}</td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+
+
+
+            
                 <!-- 🛑 CORRECCIÓN CLAVE 3: Pasar solo el ID para evitar fallos de JSON.stringify -->
                 <button onclick="openTareaModal('${tarea.id}', 'edit')" 
                     class="text-indigo-600 hover:text-indigo-900 mr-3">
