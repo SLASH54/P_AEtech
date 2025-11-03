@@ -1184,17 +1184,15 @@ function updateClientAddress() {
 function renderTareasTable(tareas) {
     const tareasBody = document.getElementById('tareasBody');
     if (!tareasBody) return;
-    
-    tareasBody.innerHTML = ''; // Limpiar contenido
-    
-    // 🛑 CORRECCIÓN CLAVE 1: Almacenar la lista de tareas globalmente
-    window.tareasList = tareas;
-    
+
+    tareasBody.innerHTML = ''; // Limpiar contenido previo
+    window.tareasList = tareas; // Guardar globalmente (opcional)
+
     tareas.forEach(tarea => {
         const row = document.createElement('tr');
         row.className = 'hover:bg-gray-100 transition duration-150';
 
-        // Función auxiliar para obtener el estilo del estado
+        // Estado visual
         const getStatusBadge = (estado) => {
             let color = 'bg-gray-200 text-gray-800';
             if (estado === 'Completada') color = 'bg-green-100 text-green-800';
@@ -1203,43 +1201,50 @@ function renderTareasTable(tareas) {
             else if (estado === 'Bloqueada') color = 'bg-red-100 text-red-800';
             return `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${color}">${estado}</span>`;
         };
-        
-        // 🛑 CORRECCIÓN CLAVE 2: Definir las variables aplanadas DENTRO del bucle
-        //const asignadoNombre = tarea.asignadoANombre || 'N/A'; // Asumimos que tu backend aplana el nombre
+
+        // Datos relacionados
         const asignadoNombre = tarea.AsignadoA?.nombre || 'N/A';
-        const sucursalNombre = tarea.sucursal || 'General'; // Asumimos que tu backend aplana el nombre de sucursal
+        const sucursalDireccion = tarea.Sucursal
+            ? `${tarea.Sucursal.nombre} – ${tarea.Sucursal.direccion}`
+            : 'Sin dirección asignada';
 
+        // Fila de la tabla
         row.innerHTML = `
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${tarea.nombre}</td> 
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${asignadoNombre}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${Direccion }</td> 
-            <td class="px-6 py-4 whitespace-nowrap text-sm">${getStatusBadge(tarea.estado)}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(tarea.fechaLimite).toLocaleDateString()}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                ${tarea.nombre}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${asignadoNombre}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${sucursalDireccion}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                ${getStatusBadge(tarea.estado)}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${new Date(tarea.fechaLimite).toLocaleDateString('es-MX')}
+            </td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-
-
-
-            
-                <!-- 🛑 CORRECCIÓN CLAVE 3: Pasar solo el ID para evitar fallos de JSON.stringify -->
-                <button onclick="openTareaModal('${tarea.id}', 'edit')" 
-                    class="text-indigo-600 hover:text-indigo-900 mr-3">
+                <button onclick="openTareaModal('${tarea.id}', 'edit')" class="text-indigo-600 hover:text-indigo-900 mr-3">
                     Editar
                 </button>
                 <button onclick="deleteTarea('${tarea.id}')" class="text-red-600 hover:text-red-900">
                     Eliminar
                 </button>
-                <button onclick="agregarEvidencia('${tarea.id}')" class="text-red-600 hover:text-red-900">
+                <button onclick="agregarEvidencia('${tarea.id}')" class="text-green-600 hover:text-green-900">
                     Agregar Evidencias
                 </button>
-                <button onclick="descargarReportePDF(${tarea.id})" 
-        class="text-blue-600 hover:text-blue-900 ml-2">
-    📄 PDF
-</button>
+                <button onclick="descargarReportePDF(${tarea.id})" class="text-blue-600 hover:text-blue-900 ml-2">
+                    📄 PDF
+                </button>
             </td>
         `;
+
         tareasBody.appendChild(row);
     });
 }
+
 
 /**
  * Configura los event listeners para el modal de tareas (abrir/cerrar/enviar).
