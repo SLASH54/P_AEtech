@@ -2197,7 +2197,7 @@ function cambiarFondoSegunHora() {
   tablero.classList.remove('tablero-manana', 'tablero-tarde', 'tablero-noche');
 
   if (hora >= 6 && hora < 15) tablero.classList.add('tablero-manana');
-  else if (hora >= 18 && hora < 19) tablero.classList.add('tablero-tarde');
+  else if (hora >= 15 && hora < 19) tablero.classList.add('tablero-tarde');
   else tablero.classList.add('tablero-noche');
 }
 
