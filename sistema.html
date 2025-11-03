@@ -722,35 +722,81 @@
 </section>
 
 <section id="Clientes" class="main-content">
-    <div class="form-container">
-        <div class="logo-container">
-        <img src="img/logoAEtech.png" alt="imgae.jpg">
-        </div>
-        <form id="registroClienteForm"> 
-            <div class="form-group">
-                <label for="client-nombre">Nombre:</label>
-                <input type="text" id="client-nombre" name="nombre" required> 
-            </div>
-            <div class="form-group">
-                <label for="client-email">Email:</label>
-                <input type="email" id="client-email" name="email" required>
-            </div>
-            <div class="form-group">
-                <label for="client-direccion">Direccion:</label>
-                <input type="text" id="client-direccion" name="direccion" required>
-            </div>
-            <div class="form-group">
-                <label for="client-telefono">Telefono:</label>
-                <input type="text" id="client-telefono" name="Telefono" required> 
-            </div>
-            
-            <button type="submit">Registrar Cliente</button>
-        </form>
-        <button type="button" class="back-btn">Volver</button>
+  <div class="form-container">
+    <div class="logo-container">
+      <img src="img/logoAEtech.png" alt="logoAEtech">
     </div>
 
-    
+    <form id="registroClienteForm"> 
+      <div class="form-group">
+        <label for="client-nombre">Nombre:</label>
+        <input type="text" id="client-nombre" name="nombre" required> 
+      </div>
+
+      <div class="form-group">
+        <label for="client-email">Email (opcional):</label>
+        <input type="email" id="client-email" name="email" placeholder="Ej. usuario@correo.com">
+      </div>
+
+      <div class="form-group">
+        <label for="client-telefono">Teléfono:</label>
+        <input type="text" id="client-telefono" name="telefono" placeholder="Ej. 2441234567" required> 
+      </div>
+
+      <div class="form-group">
+        <label for="client-estado">Estado:</label>
+        <select id="client-estado" name="estado" required>
+          <option value="">Selecciona un estado</option>
+          <option value="Aguascalientes">Aguascalientes</option>
+          <option value="Baja California">Baja California</option>
+          <option value="Baja California Sur">Baja California Sur</option>
+          <option value="Campeche">Campeche</option>
+          <option value="Chiapas">Chiapas</option>
+          <option value="Chihuahua">Chihuahua</option>
+          <option value="Ciudad de México">Ciudad de México</option>
+          <option value="Coahuila">Coahuila</option>
+          <option value="Colima">Colima</option>
+          <option value="Durango">Durango</option>
+          <option value="Estado de México">Estado de México</option>
+          <option value="Guanajuato">Guanajuato</option>
+          <option value="Guerrero">Guerrero</option>
+          <option value="Hidalgo">Hidalgo</option>
+          <option value="Jalisco">Jalisco</option>
+          <option value="Michoacán">Michoacán</option>
+          <option value="Morelos">Morelos</option>
+          <option value="Nayarit">Nayarit</option>
+          <option value="Nuevo León">Nuevo León</option>
+          <option value="Oaxaca">Oaxaca</option>
+          <option value="Puebla">Puebla</option>
+          <option value="Querétaro">Querétaro</option>
+          <option value="Quintana Roo">Quintana Roo</option>
+          <option value="San Luis Potosí">San Luis Potosí</option>
+          <option value="Sinaloa">Sinaloa</option>
+          <option value="Sonora">Sonora</option>
+          <option value="Tabasco">Tabasco</option>
+          <option value="Tamaulipas">Tamaulipas</option>
+          <option value="Tlaxcala">Tlaxcala</option>
+          <option value="Veracruz">Veracruz</option>
+          <option value="Yucatán">Yucatán</option>
+          <option value="Zacatecas">Zacatecas</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="client-municipio">Municipio:</label>
+        <input type="text" id="client-municipio" name="municipio" placeholder="Ej. Atlixco" required>
+      </div>
+
+      <div class="form-group">
+        <label for="client-direccion">Dirección:</label>
+        <input type="text" id="client-direccion" name="direccion" placeholder="Calle, número, colonia..." required>
+      </div>
+
+      <button type="submit">Registrar Cliente</button>
+    </form>
+  </div>
 </section>
+
 
 
 

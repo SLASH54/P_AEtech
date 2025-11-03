@@ -2188,3 +2188,22 @@ cambiarFondoSegunHora();
 setInterval(cambiarFondoSegunHora, 3600000);
 
 
+
+
+
+// estados y municpios xd 
+
+const estado = document.getElementById('client-estado').value.trim();
+const municipio = document.getElementById('client-municipio').value.trim();
+const direccion = document.getElementById('client-direccion').value.trim();
+
+const clientData = {
+  nombre,
+  telefono,
+  email: email || null,
+  direccion,
+  estado,
+  municipio
+};
+
+
