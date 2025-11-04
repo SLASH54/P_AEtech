@@ -1905,8 +1905,6 @@ if (res.ok) {
   alert('✅ Evidencias subidas correctamente');
 
   actualizarEstadoTarea(tareaId, 'Completada');
-  await cargarNotificaciones();
-
 
   // 🕓 Esperar un poco antes de generar el PDF
   setTimeout(async () => {
@@ -1976,7 +1974,7 @@ function cargarEvidencias() {
 document.addEventListener("DOMContentLoaded", function() {
     cargarActividades();
     cargarEvidencias();
-    cargarNotificaciones();
+     cargarNotificaciones();
 
 
     const btnImprimirPDF = document.getElementById("btnImprimirPDF");
