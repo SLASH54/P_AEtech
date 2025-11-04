@@ -2,12 +2,13 @@
 const { Notificacion } = require('../models/relations');
 
 // 🟢 Obtener todas las notificaciones del usuario logueado
-exports.getNotificacionesUsuario = async (req, res) => {
+
+exports.getNotificaciones = async (req, res) => {
   try {
-    const usuarioId = req.user.id;
     const notificaciones = await Notificacion.findAll({
-      where: { usuarioId },
-      order: [['createdAt', 'DESC']]
+      where: { estado: 'pendiente' }, // o visto = false
+      order: [['createdAt', 'DESC']],
+      include: [{ model: Tarea, as: 'Tarea' }]
     });
     res.json(notificaciones);
   } catch (error) {
@@ -15,6 +16,10 @@ exports.getNotificacionesUsuario = async (req, res) => {
     res.status(500).json({ message: 'Error al obtener notificaciones' });
   }
 };
+
+
+
+
 
 // 🟢 Marcar una notificación como leída
 exports.marcarLeida = async (req, res) => {

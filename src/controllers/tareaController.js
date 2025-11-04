@@ -118,6 +118,18 @@ exports.updateTarea = async (req, res) => {
   }
 };
 
+// Después de actualizar la tarea...
+if (tarea.estado === 'Completada') {
+  try {
+    await Notificacion.destroy({
+      where: { tareaId: tarea.id }
+    });
+    console.log(`🔔 Notificaciones eliminadas para la tarea completada: ${tarea.nombre}`);
+  } catch (error) {
+    console.error('Error al eliminar notificaciones de tarea completada:', error);
+  }
+}
+
 
 
 // 5. Eliminar Tarea (DELETE) - Solo Admin

@@ -16,3 +16,12 @@ const Notificacion = sequelize.define('Notificacion', {
 module.exports = Notificacion;
 
 
+async function cargarNotificaciones() {
+  const res = await fetch('/api/notificaciones');
+  const notificaciones = await res.json();
+
+  const pendientes = notificaciones.filter(n => n.estado === 'pendiente');
+  actualizarCampana(pendientes);
+}
+
+setInterval(cargarNotificaciones, 30000); // cada 30 segundos
