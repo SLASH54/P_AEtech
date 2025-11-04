@@ -1217,8 +1217,13 @@ function renderTareasTable(tareas) {
                 ${asignadoNombre}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                ${clienteDireccion}
+                <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(clienteDireccion)}"
+                    target="_blank"
+                    class="text-blue-600 hover:underline">
+                    ${clienteDireccion}
+                </a>
             </td>
+
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 ${clienteNombre}
             </td>
