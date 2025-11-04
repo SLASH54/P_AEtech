@@ -91,6 +91,8 @@ exports.getTareasAsignadas = async (req, res) => {
 
 // ===============================
 
+
+
 exports.updateTarea = async (req, res) => {
   try {
     const { id } = req.params;
@@ -118,17 +120,7 @@ exports.updateTarea = async (req, res) => {
   }
 };
 
-// Después de actualizar la tarea...
-if (tarea.estado === 'Completada') {
-  try {
-    await Notificacion.destroy({
-      where: { tareaId: tarea.id }
-    });
-    console.log(`🔔 Notificaciones eliminadas para la tarea completada: ${tarea.nombre}`);
-  } catch (error) {
-    console.error('Error al eliminar notificaciones de tarea completada:', error);
-  }
-}
+
 
 
 

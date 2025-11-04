@@ -1974,8 +1974,6 @@ function cargarEvidencias() {
 document.addEventListener("DOMContentLoaded", function() {
     cargarActividades();
     cargarEvidencias();
-     cargarNotificaciones();
-
 
     const btnImprimirPDF = document.getElementById("btnImprimirPDF");
     btnImprimirPDF.addEventListener("click", imprimirPDF);
