@@ -1220,7 +1220,7 @@ function renderTareasTable(tareas) {
                 <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(clienteDireccion)}"
                     target="_blank"
                     class="text-blue-600 hover:underline">
-                    ${clienteDireccion}
+                    ${clienteDireccion}📍
                 </a>
             </td>
 
