@@ -1905,6 +1905,8 @@ if (res.ok) {
   alert('✅ Evidencias subidas correctamente');
 
   actualizarEstadoTarea(tareaId, 'Completada');
+  await cargarNotificaciones();
+
 
   // 🕓 Esperar un poco antes de generar el PDF
   setTimeout(async () => {

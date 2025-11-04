@@ -91,9 +91,6 @@ exports.getTareasAsignadas = async (req, res) => {
 
 // ===============================
 
-
-
-
 exports.updateTarea = async (req, res) => {
   try {
     const { id } = req.params;
@@ -102,10 +99,10 @@ exports.updateTarea = async (req, res) => {
     if (updated) {
       const tareaActualizada = await Tarea.findByPk(id, { include: includeConfig });
 
-      // ✅ Si la tarea pasa a estado "Completada", eliminar notificaciones asociadas
+      // ✅ Si la tarea se marca como COMPLETADA, eliminar las notificaciones vinculadas
       if (tareaActualizada.estado === 'Completada') {
         await Notificacion.destroy({ where: { tareaId: id } });
-        console.log(`🔔 Notificaciones eliminadas automáticamente para tarea ID: ${id}`);
+        console.log(`🔔 Notificaciones eliminadas para tarea completada ID: ${id}`);
       }
 
       return res.json({
@@ -117,13 +114,9 @@ exports.updateTarea = async (req, res) => {
     return res.status(404).json({ message: 'Tarea no encontrada.' });
   } catch (error) {
     console.error('Error al actualizar tarea:', error);
-    return res.status(500).json({
-      message: 'Error interno del servidor al actualizar la tarea.'
-    });
+    res.status(500).json({ message: 'Error interno del servidor al actualizar la tarea.' });
   }
 };
-
-
 
 
 
