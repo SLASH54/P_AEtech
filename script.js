@@ -1300,6 +1300,8 @@ function setupTareaModal() {
             alert('Tarea guardada exitosamente.'); 
             modal.style.display = 'none'; 
             initTareas(); // Recargar la lista de tareas
+            await cargarNotificaciones();
+
         }
     };
     
@@ -1694,6 +1696,8 @@ function initEvidencias(tareaId) {
       if (res.ok) {
         alert('✅ Evidencias subidas correctamente');
         actualizarEstadoTarea(tareaId, 'Completada');
+        await cargarNotificaciones();
+
         // 🔹 Limpiar inputs
   document.querySelectorAll('.titulo').forEach(i => i.value = '');
   document.querySelectorAll('.archivo').forEach(f => f.value = '');
@@ -2071,8 +2075,8 @@ document.getElementById('btnNotificaciones').addEventListener('click', () => {
 setInterval(cargarNotificaciones, 30000);
 
 // Cargar al iniciar
-//cargarNotificaciones();
-await cargarNotificaciones();
+cargarNotificaciones();
+//await cargarNotificaciones();
 
 
 
