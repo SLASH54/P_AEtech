@@ -2072,6 +2072,7 @@ setInterval(cargarNotificaciones, 30000);
 
 // Cargar al iniciar
 cargarNotificaciones();
+await cargarNotificaciones();
 
 
 
