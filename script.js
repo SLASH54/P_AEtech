@@ -2225,6 +2225,3 @@ const clientData = {
 
 
 
-// adicional notificaciones
-await cargarNotificaciones();
-
