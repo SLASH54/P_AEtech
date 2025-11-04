@@ -2071,7 +2071,7 @@ document.getElementById('btnNotificaciones').addEventListener('click', () => {
 setInterval(cargarNotificaciones, 30000);
 
 // Cargar al iniciar
-cargarNotificaciones();
+//cargarNotificaciones();
 await cargarNotificaciones();
 
 
