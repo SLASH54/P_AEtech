@@ -2943,3 +2943,17 @@ form input:focus {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+.firma-card {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.firma-card img {
+  width: 200px;
+  max-width: 90%;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  padding: 5px;
+  background: #fff;
+}

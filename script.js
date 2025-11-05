@@ -2000,33 +2000,40 @@ async function verEvidencias(tareaId) {
     const res = await fetch(`${API_BASE_URL}/evidencias/tarea/${tareaId}`, {
       headers: { Authorization: `Bearer ${token}` }
     });
+
     if (!res.ok) throw new Error('Error al cargar evidencias');
     let evidencias = await res.json();
 
-    // 🔹 Si el backend devuelve un solo objeto en lugar de un array:
-    if (!Array.isArray(evidencias)) {
-      evidencias = [evidencias];
-    }
+    // Si el backend devuelve un solo objeto, lo convertimos en array
+    if (!Array.isArray(evidencias)) evidencias = [evidencias];
 
-    if (evidencias.length === 0 || evidencias[0] == null) {
+    if (evidencias.length === 0) {
       contenedor.innerHTML = '<p>No hay evidencias disponibles para esta tarea.</p>';
       return;
     }
 
-    // 🔹 Render de evidencias
-    contenedor.innerHTML = evidencias
-      .map(ev => `
-        <div class="evidencia-card">
-          <h4>${ev.titulo || 'Sin título'}</h4>
-          ${ev.archivoUrl
-            ? `<img src="${ev.archivoUrl}" alt="Evidencia" />`
-            : '<p>📄 (Archivo no disponible)</p>'}
-          ${ev.firmaClienteUrl
-            ? `<p><strong>Firma del cliente:</strong><br><img src="${ev.firmaClienteUrl}" alt="Firma del cliente" /></p>`
-            : ''}
+    // 🟩 Renderizar las evidencias (sin incluir firma todavía)
+    let html = evidencias.map(ev => `
+      <div class="evidencia-card">
+        <h4>${ev.titulo || 'Sin título'}</h4>
+        ${ev.archivoUrl
+          ? `<img src="${ev.archivoUrl}" alt="Evidencia" />`
+          : '<p>📄 (Archivo no disponible)</p>'}
+      </div>
+    `).join('');
+
+    // 🟦 Mostrar la firma del cliente una sola vez, si existe en cualquiera de las evidencias
+    const evidenciaConFirma = evidencias.find(ev => ev.firmaClienteUrl);
+    if (evidenciaConFirma?.firmaClienteUrl) {
+      html += `
+        <div class="firma-card">
+          <h4>✍️ Firma del Cliente</h4>
+          <img src="${evidenciaConFirma.firmaClienteUrl}" alt="Firma del cliente" />
         </div>
-      `)
-      .join('');
+      `;
+    }
+
+    contenedor.innerHTML = html;
 
   } catch (err) {
     contenedor.innerHTML = `<p style="color:red;">❌ Error: ${err.message}</p>`;
