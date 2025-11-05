@@ -2914,6 +2914,10 @@ form input:focus {
   animation: aparecer 0.3s ease;
 }
 
+.modal-content h2 {
+    color: #000;
+}
+
 .close {
   float: right;
   font-size: 25px;

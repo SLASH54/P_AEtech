@@ -172,23 +172,24 @@ exports.getAllEvidencias = async (req, res) => {
 
 // 3. Obtener Evidencias por Tarea (GET por ID) - Todos los roles con permiso de lectura
 exports.getEvidenciaByTareaId = async (req, res) => {
-    try {
-        const { tareaId } = req.params;
-        const evidencia = await Evidencia.findOne({
-            where: { tareaId },
-            include: includeConfig
-        });
+  try {
+    const { tareaId } = req.params;
+    const evidencias = await Evidencia.findAll({
+      where: { tareaId },
+      order: [['createdAt', 'ASC']]
+    });
 
-        if (!evidencia) {
-            return res.status(404).json({ message: 'Evidencia no encontrada para esta Tarea.' });
-        }
+    if (!evidencias || evidencias.length === 0) {
+      return res.status(404).json({ message: 'No se encontraron evidencias para esta tarea.' });
+    }
 
-        return res.json(evidencia);
-    } catch (error) {
-        console.error('Error al obtener evidencia:', error);
-        return res.status(500).json({ message: 'Error interno del servidor al obtener la evidencia.' });
-    }
+    return res.json(evidencias);
+  } catch (error) {
+    console.error('Error al obtener evidencias:', error);
+    return res.status(500).json({ message: 'Error interno del servidor al obtener las evidencias.' });
+  }
 };
+
 
 
 exports.getEvidenciasByTarea = async (req, res) => {
