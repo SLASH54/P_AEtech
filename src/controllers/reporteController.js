@@ -14,7 +14,7 @@ exports.generateReportePDF = async (req, res) => {
       include: [
         { model: Actividad, attributes: ['nombre', 'descripcion'] },
         { model: Sucursal, attributes: ['nombre', 'direccion'] },
-        { model: ClienteNegocio, attributes: ['nombre'] },
+        { model: ClienteNegocio, attributes: ['nombre', 'direccion'] },
         { model: Usuario, as: 'AsignadoA', attributes: ['nombre', 'rol'] },
         { model: Evidencia, attributes: ['titulo', 'archivoUrl', 'firmaClienteUrl', 'createdAt'] }
       ]
@@ -38,7 +38,7 @@ exports.generateReportePDF = async (req, res) => {
     doc.fontSize(14).text('Detalles del servicio', { underline: true });
     doc.fontSize(12).moveDown(0.5);
     doc.text(`Cliente: ${tarea.ClienteNegocio.nombre}`);
-    doc.text(`Cliente: ${tarea.ClienteNegocio.direccion}`);
+    doc.text(`Direccion del Cliente: ${tarea.ClienteNegocio.direccion}`);
     doc.text(`Sucursal: ${tarea.Sucursal.nombre}`);
     doc.text(`Dirección: ${tarea.Sucursal.direccion}`);
     doc.text(`Actividad: ${tarea.Actividad.nombre}`);
