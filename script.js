@@ -1993,7 +1993,7 @@ async function verEvidencias(tareaId) {
   const token = localStorage.getItem('userToken');
   const modal = document.getElementById('modalEvidencias');
   const contenedor = document.getElementById('contenedorEvidencias');
-  contenedor.innerHTML = '<p>Cargando evidencias...</p>';
+  contenedor.innerHTML = '<p>📸 Cargando evidencias...</p>';
   modal.style.display = 'flex';
 
   try {
@@ -2001,27 +2001,35 @@ async function verEvidencias(tareaId) {
       headers: { Authorization: `Bearer ${token}` }
     });
     if (!res.ok) throw new Error('Error al cargar evidencias');
-    const evidencias = await res.json();
+    let evidencias = await res.json();
 
-    if (!evidencias || evidencias.length === 0) {
+    // 🔹 Si el backend devuelve un solo objeto en lugar de un array:
+    if (!Array.isArray(evidencias)) {
+      evidencias = [evidencias];
+    }
+
+    if (evidencias.length === 0 || evidencias[0] == null) {
       contenedor.innerHTML = '<p>No hay evidencias disponibles para esta tarea.</p>';
       return;
     }
 
-    contenedor.innerHTML = evidencias.map(ev => `
-      <div class="evidencia-card">
-        <h4>${ev.titulo || 'Sin título'}</h4>
-        ${ev.archivoUrl
-          ? `<img src="${ev.archivoUrl}" alt="Evidencia" />`
-          : '<p>📄 (Archivo no disponible)</p>'}
-        ${ev.firmaClienteUrl
-          ? `<p><strong>Firma del cliente:</strong><br><img src="${ev.firmaClienteUrl}" alt="Firma del cliente" /></p>`
-          : ''}
-      </div>
-    `).join('');
+    // 🔹 Render de evidencias
+    contenedor.innerHTML = evidencias
+      .map(ev => `
+        <div class="evidencia-card">
+          <h4>${ev.titulo || 'Sin título'}</h4>
+          ${ev.archivoUrl
+            ? `<img src="${ev.archivoUrl}" alt="Evidencia" />`
+            : '<p>📄 (Archivo no disponible)</p>'}
+          ${ev.firmaClienteUrl
+            ? `<p><strong>Firma del cliente:</strong><br><img src="${ev.firmaClienteUrl}" alt="Firma del cliente" /></p>`
+            : ''}
+        </div>
+      `)
+      .join('');
 
   } catch (err) {
-    contenedor.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
+    contenedor.innerHTML = `<p style="color:red;">❌ Error: ${err.message}</p>`;
   }
 }
 
