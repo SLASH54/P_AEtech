@@ -2012,6 +2012,7 @@ async function verEvidencias(tareaId) {
       return;
     }
 
+    document.getElementById('contenedorEvidencias').dataset.tareaId = tareaId;
     // 🟩 Renderizar las evidencias (sin incluir firma todavía)
     let html = evidencias.map(ev => `
       <div class="evidencia-card">
@@ -2057,12 +2058,33 @@ async function descargarEvidencias() {
   const zip = new JSZip();
   const carpeta = zip.folder('evidencias');
 
-  // Mostrar mensaje mientras se descarga
+  // Obtener información adicional
+  const tareaActual = window.tareasList?.find(t => contenedor.dataset.tareaId == t.id);
+  const usuario = JSON.parse(localStorage.getItem('userData') || '{}');
+  const nombreTarea = tareaActual?.nombre || 'Tarea sin nombre';
+  const asignado = tareaActual?.AsignadoA?.nombre || 'Sin asignar';
+  const cliente = tareaActual?.ClienteNegocio?.nombre || 'Sin cliente';
+  const fecha = new Date().toLocaleString('es-MX');
+
+  // 📝 Crear archivo info.txt
+  const info = `
+TAREA: ${nombreTarea}
+ASIGNADO A: ${asignado}
+CLIENTE: ${cliente}
+FECHA DESCARGA: ${fecha}
+USUARIO QUE DESCARGÓ: ${usuario?.nombre || 'Desconocido'}
+
+Total de evidencias: ${imagenes.length}
+`.trim();
+
+  zip.file('info.txt', info);
+
+  // Mostrar mensaje mientras se genera
   const boton = document.getElementById('btnDescargarEvidencias');
   boton.textContent = '📦 Preparando ZIP...';
   boton.disabled = true;
 
-  // Descargar todas las imágenes
+  // Descargar las imágenes y agregarlas al ZIP
   const promesas = Array.from(imagenes).map(async (img, i) => {
     try {
       const response = await fetch(img.src);
@@ -2075,11 +2097,11 @@ async function descargarEvidencias() {
 
   await Promise.all(promesas);
 
-  // Generar ZIP
+  // Generar ZIP final
   const blobZip = await zip.generateAsync({ type: 'blob' });
-  saveAs(blobZip, 'evidencias.zip');
+  saveAs(blobZip, `Evidencias_${nombreTarea.replace(/\s+/g, '_')}.zip`);
 
-  // Restaurar botón
+  // Restaurar el botón
   boton.textContent = '⬇️ Descargar todas';
   boton.disabled = false;
 }
