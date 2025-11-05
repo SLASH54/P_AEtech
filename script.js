@@ -1255,6 +1255,11 @@ function renderTareasTable(tareas) {
                         class="inline-block px-3 py-1 text-sm rounded bg-gray-300 text-gray-600 cursor-not-allowed ml-2">
                         📄 PDF
                     </button>`}
+                <button onclick="verEvidencias(${tarea.id})"
+                    class="text-purple-600 hover:text-purple-900 ml-2">
+                    👁 Ver Evidencias
+                </button>
+
 
             </td>
         `;
@@ -1981,6 +1986,47 @@ function cargarEvidencias() {
         img.alt = evidencia.titulo;
         contenedorEvidencias.appendChild(img);
     });
+}
+
+
+async function verEvidencias(tareaId) {
+  const token = localStorage.getItem('userToken');
+  const modal = document.getElementById('modalEvidencias');
+  const contenedor = document.getElementById('contenedorEvidencias');
+  contenedor.innerHTML = '<p>Cargando evidencias...</p>';
+  modal.style.display = 'flex';
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/evidencias/tarea/${tareaId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error('Error al cargar evidencias');
+    const evidencias = await res.json();
+
+    if (!evidencias || evidencias.length === 0) {
+      contenedor.innerHTML = '<p>No hay evidencias disponibles para esta tarea.</p>';
+      return;
+    }
+
+    contenedor.innerHTML = evidencias.map(ev => `
+      <div class="evidencia-card">
+        <h4>${ev.titulo || 'Sin título'}</h4>
+        ${ev.archivoUrl
+          ? `<img src="${ev.archivoUrl}" alt="Evidencia" />`
+          : '<p>📄 (Archivo no disponible)</p>'}
+        ${ev.firmaClienteUrl
+          ? `<p><strong>Firma del cliente:</strong><br><img src="${ev.firmaClienteUrl}" alt="Firma del cliente" /></p>`
+          : ''}
+      </div>
+    `).join('');
+
+  } catch (err) {
+    contenedor.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
+  }
+}
+
+function cerrarModalEvidencias() {
+  document.getElementById('modalEvidencias').style.display = 'none';
 }
 
 
