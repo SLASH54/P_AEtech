@@ -33,10 +33,12 @@ exports.generateReportePDF = async (req, res) => {
 
     // 🔹 ENCABEZADO
     doc.fontSize(18).text('REPORTE DE SERVICIO COMPLETADO', { align: 'center' });
+    doc.fontSize(15).text(`TRABAJO REALIZADO: ${tarea.nombre}`, { align: 'center' });
     doc.moveDown();
     doc.fontSize(14).text('Detalles del servicio', { underline: true });
     doc.fontSize(12).moveDown(0.5);
     doc.text(`Cliente: ${tarea.ClienteNegocio.nombre}`);
+    doc.text(`Cliente: ${tarea.ClienteNegocio.direccion}`);
     doc.text(`Sucursal: ${tarea.Sucursal.nombre}`);
     doc.text(`Dirección: ${tarea.Sucursal.direccion}`);
     doc.text(`Actividad: ${tarea.Actividad.nombre}`);
