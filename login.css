@@ -127,7 +127,7 @@ nav li.active button {
 /* ============================================== */
 
 
-@media (max-width: 768px) {
+@media (max-width: 910px) {
     
     /* CRÍTICO 1: Deshabilita el grid para que los elementos se apilen */
      .container {
