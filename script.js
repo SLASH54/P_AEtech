@@ -1243,9 +1243,17 @@ function renderTareasTable(tareas) {
                 <button onclick="agregarEvidencia('${tarea.id}')" class="text-green-600 hover:text-green-900">
                     Agregar Evidencias
                 </button>
-                <button onclick="descargarReportePDF(${tarea.id})" class="text-blue-600 hover:text-blue-900 ml-2">
-                    📄 PDF
-                </button>
+                <!-- Botón PDF (solo activo si la tarea está completada) -->
+                ${tarea.estado === 'Completada'
+                ? `<button onclick="descargarReportePDF(${tarea.id})" 
+                        class="inline-block px-3 py-1 text-sm rounded bg-green-600 text-white hover:bg-green-700 ml-2">
+                        📄 PDF
+                    </button>`
+                : `<button disabled title="Solo disponible cuando la tarea esté completada" 
+                        class="inline-block px-3 py-1 text-sm rounded bg-gray-300 text-gray-600 cursor-not-allowed ml-2">
+                        📄 PDF
+                    </button>`}
+
             </td>
         `;
 
@@ -2003,7 +2011,15 @@ async function descargarReportePDF(tareaId) {
   }
   // Mostrar loader
   loader.style.display = 'flex';
+  
   try {
+        // Validar que la tarea esté completada antes de generar PDF
+    const tarea = (window.tareasList || []).find(t => Number(t.id) === Number(tareaId));
+    if (tarea && tarea.estado !== 'Completada') {
+    alert('⚠️ No puedes generar un PDF hasta que la tarea esté completada.');
+    return;
+    }
+
     const pdfUrl = `${API_BASE_URL}/reportes/pdf/${tareaId}`;
     const response = await fetch(pdfUrl, {
       headers: { Authorization: `Bearer ${token}` },
