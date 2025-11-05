@@ -2045,6 +2045,48 @@ function cerrarModalEvidencias() {
 }
 
 
+async function descargarEvidencias() {
+  const contenedor = document.getElementById('contenedorEvidencias');
+  const imagenes = contenedor.querySelectorAll('img');
+
+  if (imagenes.length === 0) {
+    alert('No hay evidencias para descargar.');
+    return;
+  }
+
+  const zip = new JSZip();
+  const carpeta = zip.folder('evidencias');
+
+  // Mostrar mensaje mientras se descarga
+  const boton = document.getElementById('btnDescargarEvidencias');
+  boton.textContent = '📦 Preparando ZIP...';
+  boton.disabled = true;
+
+  // Descargar todas las imágenes
+  const promesas = Array.from(imagenes).map(async (img, i) => {
+    try {
+      const response = await fetch(img.src);
+      const blob = await response.blob();
+      carpeta.file(`evidencia_${i + 1}.jpg`, blob);
+    } catch (e) {
+      console.error(`Error al descargar ${img.src}:`, e);
+    }
+  });
+
+  await Promise.all(promesas);
+
+  // Generar ZIP
+  const blobZip = await zip.generateAsync({ type: 'blob' });
+  saveAs(blobZip, 'evidencias.zip');
+
+  // Restaurar botón
+  boton.textContent = '⬇️ Descargar todas';
+  boton.disabled = false;
+}
+
+
+
+
 
 // Cargar datos y asignar funcionalidad al botón al cargar la página
 document.addEventListener("DOMContentLoaded", function() {

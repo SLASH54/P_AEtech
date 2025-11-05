@@ -2957,3 +2957,19 @@ form input:focus {
   padding: 5px;
   background: #fff;
 }
+
+
+.btn-descargar {
+  background-color: #009688;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin-top: 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+.btn-descargar:hover {
+  background-color: #00796b;
+}
