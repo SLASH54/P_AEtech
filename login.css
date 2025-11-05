@@ -2857,3 +2857,27 @@ form input:focus {
   box-shadow: 0 0 5px rgba(0,150,136,0.3);
 }
 
+
+
+/* COLORES DE STATUS*/
+/* === BADGES DE ESTADO DE TAREAS === */
+.badge {
+  padding: 3px 8px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-block;
+  text-align: center;
+  min-width: 80px;
+}
+
+.bg-gray-200 { background-color: #e5e7eb; color: #374151; }
+.bg-green-100 { background-color: #d1fae5; color: #065f46; }
+.bg-blue-100 { background-color: #bfdbfe; color: #1e40af; }
+.bg-yellow-100 { background-color: #fef9c3; color: #92400e; }
+.bg-red-100 { background-color: #fecaca; color: #7f1d1d; }
+
+/* Transiciones suaves al actualizar el estado */
+.badge {
+  transition: background-color 0.3s, color 0.3s;
+}

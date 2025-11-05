@@ -1194,14 +1194,16 @@ function renderTareasTable(tareas) {
         row.className = 'hover:bg-gray-100 transition duration-150';
 
         // Estado visual
-        const getStatusBadge = (estado) => {
-            let color = 'bg-gray-200 text-gray-800';
-            if (estado === 'Completada') color = 'bg-green-100 text-green-800';
-            else if (estado === 'En Progreso') color = 'bg-blue-100 text-blue-800';
-            else if (estado === 'Pendiente') color = 'bg-yellow-100 text-yellow-800';
-            else if (estado === 'Bloqueada') color = 'bg-red-100 text-red-800';
-            return `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${color}">${estado}</span>`;
-        };
+       function getStatusBadge(estado) {
+            let color = 'bg-gray-200';
+            if (estado === 'Completada') color = 'bg-green-100';
+            else if (estado === 'En Progreso') color = 'bg-blue-100';
+            else if (estado === 'Pendiente') color = 'bg-yellow-100';
+            else if (estado === 'Bloqueada') color = 'bg-red-100';
+
+            return `<span class="badge ${color}">${estado}</span>`;
+        }
+
 
         // Datos relacionados
         const asignadoNombre = tarea.AsignadoA?.nombre || 'N/A';
