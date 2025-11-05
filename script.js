@@ -2013,7 +2013,14 @@ async function descargarReportePDF(tareaId) {
   loader.style.display = 'flex';
   
   try {
-    
+    // Validar que la tarea esté completada antes de generar PDF
+const tarea = (window.tareasList || []).find(t => Number(t.id) === Number(tareaId));
+if (tarea && tarea.estado !== 'Completada') {
+  alert('⚠️ No puedes generar un PDF hasta que la tarea esté completada.');
+  return;
+}
+
+
     const pdfUrl = `${API_BASE_URL}/reportes/pdf/${tareaId}`;
     const response = await fetch(pdfUrl, {
       headers: { Authorization: `Bearer ${token}` },
