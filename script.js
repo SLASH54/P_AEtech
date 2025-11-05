@@ -1233,7 +1233,7 @@ function renderTareasTable(tareas) {
                 ${getStatusBadge(tarea.estado)}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                ${new Date(tarea.fechaLimite).toLocaleDateString('es-MX')}
+                ${formatearFechaLocal(tarea.fechaLimite)}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <button onclick="openTareaModal('${tarea.id}', 'edit')" class="text-indigo-600 hover:text-indigo-900 mr-3">
@@ -1271,6 +1271,12 @@ function renderTareasTable(tareas) {
 
 
 
+function formatearFechaLocal(fecha) {
+  if (!fecha) return '';
+  const partes = fecha.split('-'); // [año, mes, día]
+  const [year, month, day] = partes;
+  return `${day}/${month}/${year}`;
+}
 
 
 
