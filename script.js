@@ -2272,74 +2272,71 @@ cargarNotificaciones();
 
 
 //NOTIFICACIONES VERSION POLLOS
-async function initPush() {
+
+// ======================================================
+// 🔔 CONFIGURACIÓN DE NOTIFICACIONES FCM (Frontend)
+// ======================================================
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBa6KYyhwI4scIblnOY_VKb-1kSwwO9_Ts",
+  authDomain: "aetech-notificaciones.firebaseapp.com",
+  projectId: "aetech-notificaciones",
+  storageBucket: "aetech-notificaciones.firebasestorage.app",
+  messagingSenderId: "742322294289",
+  appId: "1:742322294289:web:5bd9e894ad92dbef4dabb0",
+  measurementId: "G-ZLZ2LWQ1XE"
+};
+
+const app = initializeApp(firebaseConfig);
+const messaging = getMessaging(app);
+
+// 🧩 Pedir permiso y registrar token
+async function solicitarPermisoNotificaciones() {
   try {
-    if (!('serviceWorker' in navigator)) {
-      console.warn('SW no soportado en este navegador');
-      return;
-    }
-    if (!window.firebase || !window.FB_CONFIG) {
-      console.warn('Firebase o FB_CONFIG no cargado');
-      return;
-    }
-
-    // 1) Inicializar Firebase app
-    const app = firebase.initializeApp(window.FB_CONFIG);
-    const messaging = firebase.messaging();
-
-    // 2) Registrar Service Worker
-    const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-
-    // 3) Pedir permiso
     const permission = await Notification.requestPermission();
-    if (permission !== 'granted') {
-      console.warn('Permiso de notificaciones no concedido.');
-      return;
-    }
-
-    // 4) Obtener token FCM de este device/navegador
-    const token = await messaging.getToken({
-      vapidKey: window.FB_CONFIG.vapidKey,
-      serviceWorkerRegistration: registration
-    });
-    if (!token) {
-      console.warn('No se pudo obtener token FCM');
-      return;
-    }
-    console.log('FCM token -> ', token);
-
-    // 5) Enviar token a tu backend para asociarlo al usuario
-    const jwt = localStorage.getItem('userToken');
-    if (jwt) {
-      await fetch(`${API_BASE_URL}/users/me/fcm-token`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${jwt}` },
-        body: JSON.stringify({ token })
+    if (permission === 'granted') {
+      const tokenFCM = await getToken(messaging, {
+        vapidKey: "BOTEAlz-7hYedgFy9YSbo3txG_14XJaf0tt4qCCwS3ifs67umn8UDn5fLirfmTmSh17P5r_cUMhrL8uDnZsiWys"
       });
+
+      console.log("✅ Token FCM del navegador:", tokenFCM);
+
+      // 🔹 Enviar token al backend
+      const jwt = localStorage.getItem('userToken');
+      if (jwt) {
+        await fetch(`${API_BASE_URL}/users/me/fcm-token`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${jwt}`
+          },
+          body: JSON.stringify({ fcmToken: tokenFCM })
+        });
+      }
+    } else {
+      console.warn("❌ Permiso de notificaciones denegado");
     }
-
-    // 6) Mensajes cuando la app está abierta (foreground)
-    messaging.onMessage((payload) => {
-      console.log('Notificación en foreground:', payload);
-      const { title, body } = payload.notification || {};
-      // Muestra algo simple (puedes cambiarlo por un toast bonito)
-      if (title || body) alert(`🔔 ${title || 'Notificación'}\n${body || ''}`);
-    });
-
   } catch (err) {
-    console.error('initPush error:', err);
+    console.error("Error al obtener token FCM:", err);
   }
 }
 
-// Llamar después de login o al cargar si ya hay sesión
-initPush();
+// 🔹 Mostrar notificaciones cuando el usuario tiene abierta la web
+onMessage(messaging, (payload) => {
+  console.log('🔔 Notificación recibida en primer plano:', payload);
+  const { title, body } = payload.notification;
+  if (title || body) {
+    new Notification(title, { body, icon: '/img/logoAEtech.png' });
+  }
+});
 
-
-
-
-
-
-
+// 🔹 Llamar después de login (esperar 2s para que el token esté guardado)
+setTimeout(() => {
+  if (localStorage.getItem('userToken')) solicitarPermisoNotificaciones();
+}, 2000);
 
 
 
