@@ -10,6 +10,9 @@ router.get('/', protect, notificacionController.getNotificacionesUsuario);
 // 🔹 Marcar una notificación como leída
 router.put('/:id/leida', protect, notificacionController.marcarLeida);
 
+router.put('/mark-read-by-tarea/:tareaId', protect, notificacionController.markReadByTarea);
+
+
 // 🔹 Eliminar notificación
 router.delete('/:id', protect, notificacionController.eliminarNotificacion);
 

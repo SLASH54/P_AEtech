@@ -1,6 +1,7 @@
 // src/controllers/tareaController.js
 const { Tarea, Usuario, Actividad, Sucursal, ClienteNegocio, Notificacion } = require('../models/relations');
 const { sequelize } = require('../config/database');
+const { sendPushToUser } = require('../utils/push');
 
 // ===============================
 // CONFIGURACIÓN DE INCLUSIÓN
@@ -43,12 +44,29 @@ exports.createTarea = async (req, res) => {
             usuarioAsignadoId,
             `Se te ha asignado una nueva tarea: "${nombre}".`
         );
+        
+// ... dentro de createTarea, justo después de crear `tareaCreada`
+await Notificacion.create({
+  usuarioId: usuarioAsignadoId,
+  tareaId: tareaCreada.id,
+  mensaje: `Tienes una nueva tarea: ${tareaCreada.nombre}`,
+  leida: false
+});
 
-        return res.status(201).json({ message: 'Tarea asignada con éxito.', tarea: tareaCreada });
-    } catch (error) {
+sendPushToUser(
+  usuarioAsignadoId,
+  'Nueva tarea asignada',
+  `${tareaCreada.nombre} · fecha límite: ${new Date(tareaCreada.fechaLimite).toLocaleDateString('es-MX')}`,
+  { tareaId: String(tareaCreada.id) }
+);
+        
+      return res.status(201).json({ message: 'Tarea asignada con éxito.', tarea: tareaCreada });  
+      
+      } catch (error) {
         console.error('Error al crear tarea:', error);
         return res.status(500).json({ message: 'Error interno del servidor al crear la tarea.' });
     }
+    
 };
 
 // ===============================

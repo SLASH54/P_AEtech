@@ -1,6 +1,8 @@
 // src/controllers/evidenciaController.js
-const { Evidencia, Tarea, Usuario } = require('../models/relations');
+const { Evidencia, Tarea, Usuario, Notificacion } = require('../models/relations');
 const { sequelize } = require('../config/database');
+const { sendPushToUser } = require('../utils/push');
+
 
 
 // src/controllers/evidenciaController.js
@@ -74,6 +76,27 @@ const evidencia = await Evidencia.create({
     await Tarea.update({ estado: 'Completada' }, { where: { id: tareaId } });
 
     console.log(`✅ ${evidencias.length} evidencias subidas a Cloudinary`);
+
+    
+// ... después de marcar la tarea "Completada"
+const tarea = await Tarea.findByPk(tareaId);
+
+// Marcar como leídas/eliminar notificaciones previas de esa tarea
+await Notificacion.update(
+  { leida: true },
+  { where: { tareaId } }
+);
+
+// Enviar push al asignado (opcional también al admin)
+if (tarea?.usuarioAsignadoId) {
+  sendPushToUser(
+    tarea.usuarioAsignadoId,
+    'Tarea completada ✔',
+    `Se completó: ${tarea.nombre}`,
+    { tareaId: String(tarea.id) }
+  );
+}
+
 
     res.status(201).json({
       msg: 'Evidencias guardadas correctamente en Cloudinary',

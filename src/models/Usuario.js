@@ -26,6 +26,12 @@ const Usuario = sequelize.define('Usuario', {
         defaultValue: 'Practicante',
         allowNull: false,
     },
+    fcmToken: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    }
+
+
     // Aquí puedes añadir foto_perfil_url, sucursalId, etc.
 });
 

@@ -11,10 +11,10 @@ const { sequelize } = require('./src/config/database');
 
 connectDB().then(async () => {
   try {
-    await sequelize.sync(); // 🔥 CREA o actualiza tablas automáticamente
+    await sequelize.sync({ alter: true });
     console.log('✅ Tablas sincronizadas correctamente');
   } catch (err) {
-    console.error('❌ Error al sincronizar tablas:', err);
+    console.error('❌ Error al sincronizar modelos:', err);
   }
 
   app.listen(process.env.PORT, () =>

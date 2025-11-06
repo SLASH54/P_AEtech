@@ -1931,6 +1931,14 @@ if (res.ok) {
   alert('✅ Evidencias subidas correctamente');
 
   actualizarEstadoTarea(tareaId, 'Completada');
+  await fetch(`${API_BASE_URL}/notificaciones/mark-read-by-tarea/${tareaId}`, {
+  method: 'PUT',
+  headers: { Authorization: `Bearer ${token}` }
+});
+
+// 🔹 Vuelve a cargar las notificaciones para reflejar cambios
+cargarNotificaciones();
+
 
   // 🕓 Esperar un poco antes de generar el PDF
   setTimeout(async () => {
@@ -2197,7 +2205,8 @@ const token = localStorage.getItem('userToken');
 
 async function cargarNotificaciones() {
   try {
-    const res = await fetch(`${API_BASE_URL}/notificaciones`, {
+    // 🔹 Solo pedimos las no leídas
+    const res = await fetch(`${API_BASE_URL}/notificaciones?soloNoLeidas=1`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     const data = await res.json();
@@ -2205,12 +2214,27 @@ async function cargarNotificaciones() {
     const num = document.getElementById('numNotificaciones');
     const lista = document.getElementById('listaNotificaciones');
 
-    num.textContent = data.filter(n => !n.leida).length;
+    // 🔹 Contador solo de no leídas
+    num.textContent = data.length;
     lista.innerHTML = '';
+
+    // 🔹 Render dinámico
+    if (data.length === 0) {
+      const li = document.createElement('li');
+      li.textContent = 'No tienes notificaciones nuevas 🎉';
+      li.style.color = '#777';
+      lista.appendChild(li);
+      return;
+    }
 
     data.forEach(n => {
       const li = document.createElement('li');
       li.textContent = n.mensaje;
+      li.style.cursor = 'pointer';
+      li.style.padding = '5px 8px';
+      li.style.borderBottom = '1px solid #eee';
+
+      // Si no está leída, resaltamos
       if (!n.leida) li.style.fontWeight = 'bold';
       lista.appendChild(li);
     });
@@ -2219,6 +2243,7 @@ async function cargarNotificaciones() {
     console.error('Error al cargar notificaciones:', err);
   }
 }
+
 
 // Mostrar/ocultar lista
 document.getElementById('btnNotificaciones').addEventListener('click', () => {
@@ -2236,6 +2261,78 @@ cargarNotificaciones();
 
 
 
+
+
+
+
+
+
+
+
+
+
+//NOTIFICACIONES VERSION POLLOS
+async function initPush() {
+  try {
+    if (!('serviceWorker' in navigator)) {
+      console.warn('SW no soportado en este navegador');
+      return;
+    }
+    if (!window.firebase || !window.FB_CONFIG) {
+      console.warn('Firebase o FB_CONFIG no cargado');
+      return;
+    }
+
+    // 1) Inicializar Firebase app
+    const app = firebase.initializeApp(window.FB_CONFIG);
+    const messaging = firebase.messaging();
+
+    // 2) Registrar Service Worker
+    const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+
+    // 3) Pedir permiso
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') {
+      console.warn('Permiso de notificaciones no concedido.');
+      return;
+    }
+
+    // 4) Obtener token FCM de este device/navegador
+    const token = await messaging.getToken({
+      vapidKey: window.FB_CONFIG.vapidKey,
+      serviceWorkerRegistration: registration
+    });
+    if (!token) {
+      console.warn('No se pudo obtener token FCM');
+      return;
+    }
+    console.log('FCM token -> ', token);
+
+    // 5) Enviar token a tu backend para asociarlo al usuario
+    const jwt = localStorage.getItem('userToken');
+    if (jwt) {
+      await fetch(`${API_BASE_URL}/users/me/fcm-token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${jwt}` },
+        body: JSON.stringify({ token })
+      });
+    }
+
+    // 6) Mensajes cuando la app está abierta (foreground)
+    messaging.onMessage((payload) => {
+      console.log('Notificación en foreground:', payload);
+      const { title, body } = payload.notification || {};
+      // Muestra algo simple (puedes cambiarlo por un toast bonito)
+      if (title || body) alert(`🔔 ${title || 'Notificación'}\n${body || ''}`);
+    });
+
+  } catch (err) {
+    console.error('initPush error:', err);
+  }
+}
+
+// Llamar después de login o al cargar si ya hay sesión
+initPush();
 
 
 

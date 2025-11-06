@@ -1,7 +1,23 @@
 // src/controllers/userController.js
 const bcrypt = require('bcrypt');
-const Usuario = require('../models/Usuario');
+//const Usuario = require('../models/Usuario');
 const SALT_ROUNDS = 10;
+const { Usuario } = require('../models/relations');
+
+//exports.saveFcmToken = async (req, res) => {
+//  try {
+//    const userId = req.user.id;
+//    const { token } = req.body;
+//    if (!token) return res.status(400).json({ message: 'Falta token' });
+//
+//    await Usuario.update({ fcmToken: token }, { where: { id: userId } });
+//    res.json({ message: 'FCM token guardado' });
+//  } catch (e) {
+//    console.error('saveFcmToken error:', e);
+//    res.status(500).json({ message: 'Error guardando token' });
+//  }
+//};
+
 
 // 1. VER TODOS LOS USUARIOS
 exports.getAllUsers = async (req, res) => {
@@ -113,6 +129,32 @@ exports.getUserById = async (req, res) => {
     }
 };
 
+// =============================================================
+// 🔔 Guardar token de notificaciones FCM
+// =============================================================
+exports.saveFcmToken = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { fcmToken } = req.body;
+
+    if (!fcmToken) {
+      return res.status(400).json({ message: 'Token FCM no proporcionado' });
+    }
+
+    const usuario = await Usuario.findByPk(userId);
+    if (!usuario) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    usuario.fcmToken = fcmToken;
+    await usuario.save();
+
+    res.status(200).json({ message: 'Token FCM guardado correctamente' });
+  } catch (error) {
+    console.error('Error al guardar token FCM:', error);
+    res.status(500).json({ message: 'Error interno al guardar token FCM' });
+  }
+};
 
 
 // 🔑 ¡CRÍTICO! DEJA SOLO UNA EXPORTACIÓN AL FINAL si defines todas las funciones individualmente
@@ -121,4 +163,5 @@ module.exports = {
     updateUser: exports.updateUser,
     deleteUser: exports.deleteUser,
     getUserById: exports.getUserById, // <-- Esta línea funciona gracias a la corrección 1
+    saveFcmToken: exports.saveFcmToken
 };
