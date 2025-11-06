@@ -2420,3 +2420,91 @@ const clientData = {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ======================================================
+// 🔔 CONFIGURACIÓN DE NOTIFICACIONES PUSH (versión estable sin módulos)
+// ======================================================
+
+// Cargar scripts de Firebase dinámicamente
+const script1 = document.createElement("script");
+script1.src = "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js";
+document.head.appendChild(script1);
+
+const script2 = document.createElement("script");
+script2.src = "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js";
+document.head.appendChild(script2);
+
+script2.onload = () => {
+  // Inicializar Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyBa6KYyhwI4scIblnOY_VKb-1kSwwO9_Ts",
+    authDomain: "aetech-notificaciones.firebaseapp.com",
+    projectId: "aetech-notificaciones",
+    storageBucket: "aetech-notificaciones.firebasestorage.app",
+    messagingSenderId: "742322294289",
+    appId: "1:742322294289:web:5bd9e894ad92dbef4dabb0",
+    measurementId: "G-ZLZ2LWQ1XE"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const messaging = firebase.messaging();
+
+  async function solicitarPermisoNotificaciones() {
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission === "granted") {
+        const tokenFCM = await messaging.getToken({
+          vapidKey: "BOTEAlz-7hYedgFy9YSbo3txG_14XJaf0tt4qCCwS3ifs67umn8UDnZsiWys"
+        });
+        console.log("✅ Token FCM generado:", tokenFCM);
+
+        // Guardar en backend
+        const jwt = localStorage.getItem("userToken");
+        if (jwt && tokenFCM) {
+          await fetch(`${API_BASE_URL}/users/me/fcm-token`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${jwt}`,
+            },
+            body: JSON.stringify({ fcmToken: tokenFCM }),
+          });
+        }
+      } else {
+        console.warn("❌ Permiso denegado por el usuario");
+      }
+    } catch (err) {
+      console.error("⚠️ Error al solicitar permiso de notificación:", err);
+    }
+  }
+
+  // Recibir mensajes en primer plano
+  messaging.onMessage((payload) => {
+    console.log("🔔 Notificación recibida:", payload);
+    const { title, body } = payload.notification;
+    if (title || body) {
+      new Notification(title, { body, icon: "/img/logoAEtech.png" });
+    }
+  });
+
+  // Llamar al iniciar sesión
+  setTimeout(() => {
+    if (localStorage.getItem("userToken")) solicitarPermisoNotificaciones();
+  }, 2500);
+};
+
+
