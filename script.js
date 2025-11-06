@@ -363,6 +363,11 @@ const loginUser = async (e) => {
         // 3. Redirigir o cambiar la vista
         //mostrarContenido('Tablero');
         window.location.href = "sistema.html";
+
+        // Llamar al iniciar sesión
+  setTimeout(() => {
+    if (localStorage.getItem("userToken")) solicitarPermisoNotificaciones();
+  }, 2500);
         
     } catch (error) {
         console.error("Error de login:", error.message);
@@ -2501,10 +2506,7 @@ script2.onload = () => {
     }
   });
 
-  // Llamar al iniciar sesión
-  setTimeout(() => {
-    if (localStorage.getItem("userToken")) solicitarPermisoNotificaciones();
-  }, 2500);
+  
 };
 
 
