@@ -80,15 +80,14 @@ exports.loginUser = async (req, res) => {
             rol: user.rol,
             usuarioId: user.id
         });
-        
-// Llamar cuando el usuario inicie sesión
-solicitarPermisoNotificaciones();
 
     } catch (error) {
         console.error('Error al iniciar sesión:', error);
         res.status(500).json({ message: 'Error interno del servidor.' });
     }
 };
+
+
 
 // ==============================================
 // 3. CIERRE DE SESIÓN (LOGOUT)
