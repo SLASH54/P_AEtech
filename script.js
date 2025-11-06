@@ -181,70 +181,6 @@ window.onclick = function(event) {
 
 
 
-// ======================================================
-// 🔔 CONFIGURACIÓN DE NOTIFICACIONES FCM (Frontend)
-// ======================================================
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBa6KYyhwI4scIblnOY_VKb-1kSwwO9_Ts",
-  authDomain: "aetech-notificaciones.firebaseapp.com",
-  projectId: "aetech-notificaciones",
-  storageBucket: "aetech-notificaciones.firebasestorage.app",
-  messagingSenderId: "742322294289",
-  appId: "1:742322294289:web:5bd9e894ad92dbef4dabb0",
-  measurementId: "G-ZLZ2LWQ1XE"
-};
-
-const app = initializeApp(firebaseConfig);
-const messaging = getMessaging(app);
-
-// 🧩 Pedir permiso y registrar token
-async function solicitarPermisoNotificaciones() {
-  try {
-    const permission = await Notification.requestPermission();
-    if (permission === 'granted') {
-      const tokenFCM = await getToken(messaging, {
-        vapidKey: "BOTEAlz-7hYedgFy9YSbo3txG_14XJaf0tt4qCCwS3ifs67umn8UDn5fLirfmTmSh17P5r_cUMhrL8uDnZsiWys"
-      });
-
-      console.log("✅ Token FCM del navegador:", tokenFCM);
-
-      // 🔹 Enviar token al backend
-      const jwt = localStorage.getItem('userToken');
-      if (jwt) {
-        await fetch(`${API_BASE_URL}/users/me/fcm-token`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${jwt}`
-          },
-          body: JSON.stringify({ fcmToken: tokenFCM })
-        });
-      }
-    } else {
-      console.warn("❌ Permiso de notificaciones denegado");
-    }
-  } catch (err) {
-    console.error("Error al obtener token FCM:", err);
-  }
-}
-
-// 🔹 Mostrar notificaciones cuando el usuario tiene abierta la web
-onMessage(messaging, (payload) => {
-  console.log('🔔 Notificación recibida en primer plano:', payload);
-  const { title, body } = payload.notification;
-  if (title || body) {
-    new Notification(title, { body, icon: '/img/logoAEtech.png' });
-  }
-});
-
-// 🔹 Llamar después de login (esperar 2s para que el token esté guardado)
-setTimeout(() => {
-  if (localStorage.getItem('userToken')) solicitarPermisoNotificaciones();
-}, 2000);
 
 
 
@@ -2336,6 +2272,11 @@ cargarNotificaciones();
 
 
 //NOTIFICACIONES VERSION POLLOS
+
+
+
+
+
 
 
 
