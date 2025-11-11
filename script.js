@@ -2215,37 +2215,22 @@ const token = localStorage.getItem('userToken');
 
 async function cargarNotificaciones() {
   try {
-    // 🔹 Solo pedimos las no leídas
+    const jwt = localStorage.getItem('userToken');
     const res = await fetch(`${API_BASE_URL}/notificaciones?soloNoLeidas=1`, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${jwt}` }
     });
     const data = await res.json();
 
     const num = document.getElementById('numNotificaciones');
     const lista = document.getElementById('listaNotificaciones');
 
-    // 🔹 Contador solo de no leídas
     num.textContent = data.length;
     lista.innerHTML = '';
-
-    // 🔹 Render dinámico
-    if (data.length === 0) {
-      const li = document.createElement('li');
-      li.textContent = 'No tienes notificaciones nuevas 🎉';
-      li.style.color = '#777';
-      lista.appendChild(li);
-      return;
-    }
 
     data.forEach(n => {
       const li = document.createElement('li');
       li.textContent = n.mensaje;
-      li.style.cursor = 'pointer';
-      li.style.padding = '5px 8px';
-      li.style.borderBottom = '1px solid #eee';
-
-      // Si no está leída, resaltamos
-      if (!n.leida) li.style.fontWeight = 'bold';
+      li.style.fontWeight = 'bold';
       lista.appendChild(li);
     });
 
@@ -2253,6 +2238,7 @@ async function cargarNotificaciones() {
     console.error('Error al cargar notificaciones:', err);
   }
 }
+
 
 
 // Mostrar/ocultar lista

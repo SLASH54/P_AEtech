@@ -4,6 +4,17 @@ const router = express.Router();
 const { protect } = require('../middleware/authMiddleware');
 const notificacionController = require('../controllers/notificacionController');
 
+
+
+// 🟢 Marcar como leídas las notificaciones de una tarea completada o eliminada
+router.put('/mark-read-by-tarea/:tareaId', protect, notificacionController.markReadByTarea);
+
+// 🟡 Obtener solo notificaciones no leídas
+router.get('/', protect, notificacionController.getNotificacionesNoLeidas);
+
+
+
+
 // 🔹 Obtener notificaciones del usuario logueado
 router.get('/', protect, notificacionController.getNotificacionesUsuario);
 

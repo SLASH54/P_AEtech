@@ -18,19 +18,32 @@ exports.getNotificacionesUsuario = async (req, res) => {
 };
 
 
+
+
 exports.markReadByTarea = async (req, res) => {
   try {
     const { tareaId } = req.params;
-    await Notificacion.update(
-      { leida: true },
-      { where: { tareaId } }
-    );
-    res.json({ message: 'Notificaciones marcadas como leídas' });
+    await Notificacion.update({ leida: true }, { where: { tareaId } });
+    res.json({ message: '✅ Notificaciones marcadas como leídas' });
   } catch (error) {
-    console.error('Error al marcar notificaciones:', error);
-    res.status(500).json({ message: 'Error al marcar notificaciones como leídas' });
+    console.error('Error al marcar notificación como leída:', error);
+    res.status(500).json({ message: 'Error al marcar notificación' });
   }
 };
+
+exports.getNotificacionesNoLeidas = async (req, res) => {
+  try {
+    const notificaciones = await Notificacion.findAll({
+      where: { usuarioId: req.user.id, leida: false },
+      order: [['createdAt', 'DESC']]
+    });
+    res.json(notificaciones);
+  } catch (error) {
+    console.error('Error al obtener notificaciones:', error);
+    res.status(500).json({ message: 'Error al cargar notificaciones' });
+  }
+};
+
 
 
 
