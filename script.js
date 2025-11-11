@@ -2310,6 +2310,18 @@ script2.onload = () => {
   firebase.initializeApp(firebaseConfig);
   const messaging = firebase.messaging();
 
+  // Registrar el service worker antes de pedir permisos
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/firebase-messaging-sw.js')
+    .then(reg => {
+      console.log('✅ Service Worker registrado correctamente:', reg);
+    })
+    .catch(err => {
+      console.error('❌ Error registrando Service Worker:', err);
+    });
+}
+
+
   async function solicitarPermisoNotificaciones() {
     try {
       const permission = await Notification.requestPermission();

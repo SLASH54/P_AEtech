@@ -1,5 +1,7 @@
-importScripts("https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js");
-importScripts("https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js");
+// firebase-messaging-sw.js
+
+importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js');
 
 firebase.initializeApp({
   apiKey: "AIzaSyBa6KYyhwI4scIblnOY_VKb-1kSwwO9_Ts",
@@ -13,13 +15,15 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-messaging.onBackgroundMessage((payload) => {
-  console.log('[firebase-messaging-sw.js] Recibido en segundo plano:', payload);
+// 📩 Recibir notificaciones en segundo plano
+messaging.onBackgroundMessage(function (payload) {
+  console.log('🔔 [Service Worker] Notificación recibida:', payload);
+
   const notificationTitle = payload.notification.title;
   const notificationOptions = {
     body: payload.notification.body,
-    icon: "/img/logoAEtech.png"
+    icon: '/img/logoAEtech.png'
   };
 
-  self.registration.showNotification(notificationTitle, notificationOptions);
+  return self.registration.showNotification(notificationTitle, notificationOptions);
 });
