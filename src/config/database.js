@@ -1,6 +1,9 @@
 const { Sequelize } = require('sequelize');
 require('dotenv').config();
 
+console.log("Intentando conectar a:", process.env.DB_HOST);
+console.log("Con usuario:", process.env.DB_USER);
+console.log("Base de datos:", process.env.DB_NAME);
 
 const sequelize = new Sequelize(
   process.env.DB_NAME,
@@ -8,24 +11,26 @@ const sequelize = new Sequelize(
   process.env.DB_PASSWORD,
   {
     host: process.env.DB_HOST,
+    port: process.env.DB_PORT || 5432,
     dialect: 'postgres',
-    logging: false,
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false
+      }
+    },
+    logging: false
   }
 );
 
-// Función opcional para probar la conexión
-const connectDB = async () => {
+async function connectDB() {
   try {
     await sequelize.authenticate();
-    console.log('✅ Conexión exitosa a la base de datos');
+    console.log('✅ Conexión a la base de datos PostgreSQL exitosa.');
   } catch (error) {
-    console.error('❌ Error al conectar con la base de datos:', error);
+    console.error('❌ Error al conectar o sincronizar la base de datos:', error.message);
   }
-};
-
-module.exports = sequelize;
-module.exports.connectDB = connectDB;
-
+}
 
 //module.exports = { sequelize, connectDB };
 
@@ -68,22 +73,22 @@ module.exports.connectDB = connectDB;
 
 
 
-//module.exports = {
-//   connectDB,
-//  development: {
-//    username: process.env.DB_USER,
-//    password: process.env.DB_PASSWORD,
-//    database: process.env.DB_NAME,
-//    host: process.env.DB_HOST,
-//    dialect: 'postgres', // 👈 agrega el dialecto aquí
-//    logging: false
-//  },
-//  production: {
-//    use_env_variable: 'DATABASE_URL',
-//    dialect: 'postgres',
-//   protocol: 'postgres',
-//    dialectOptions: {
-//      ssl: { require: true, rejectUnauthorized: false }
-//    }
-//  }
-//};
+module.exports = {
+   connectDB,
+  development: {
+    username: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    host: process.env.DB_HOST,
+    dialect: 'postgres', // 👈 agrega el dialecto aquí
+    logging: false
+  },
+  production: {
+    use_env_variable: 'DATABASE_URL',
+    dialect: 'postgres',
+   protocol: 'postgres',
+    dialectOptions: {
+      ssl: { require: true, rejectUnauthorized: false }
+    }
+  }
+};
