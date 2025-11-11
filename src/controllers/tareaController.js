@@ -1,6 +1,7 @@
 // src/controllers/tareaController.js
 const { Tarea, Usuario, Actividad, Sucursal, ClienteNegocio, Notificacion } = require('../models/relations');
-const { sequelize } = require('../config/database');
+//const { sequelize } = require('../config/database');
+const sequelize = require('../config/database');
 const { sendPushToUser } = require('../utils/push');
 const admin = require("../config/firebaseadmin");
 
