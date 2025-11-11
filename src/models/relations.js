@@ -9,7 +9,7 @@ const Evidencia = require('./Evidencia');
 
 const sequelize = require('../config/database');
 
-// ...otros modelos
+// ...otros modelos 
 
 
 // 1. Relación Tarea -> Usuario (Asignación)
