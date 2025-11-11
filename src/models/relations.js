@@ -7,6 +7,10 @@ const ClienteNegocio = require('./ClienteNegocio');
 const Tarea = require('./Tarea');
 const Evidencia = require('./Evidencia');
 
+const sequelize = require('../config/database');
+
+// ...otros modelos
+
 
 // 1. Relación Tarea -> Usuario (Asignación)
 // Una Tarea es asignada a un Usuario
