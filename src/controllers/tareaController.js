@@ -147,62 +147,56 @@ exports.getTareasAsignadas = async (req, res) => {
 
 // ===============================
 // 4. ACTUALIZAR TAREA (PUT)
-
 // ===============================
-
-
-
 exports.updateTarea = async (req, res) => {
   try {
     const { id } = req.params;
     const [updated] = await Tarea.update(req.body, { where: { id } });
 
-    if (updated) {
-      const tareaActualizada = await Tarea.findByPk(id, { include: includeConfig });
+    if (!updated) return res.status(404).json({ message: 'Tarea no encontrada.' });
 
-      // ✅ Si la tarea se marca como COMPLETADA, eliminar las notificaciones vinculadas
-      if (tareaActualizada.estado === 'Completada') {
-        await Notificacion.destroy({ where: { tareaId: id } });
-        console.log(`🔔 Notificaciones eliminadas para tarea completada ID: ${id}`);
-      }
+    const tareaActualizada = await Tarea.findByPk(id, { include: includeConfig });
 
-      return res.json({
-        message: 'Tarea actualizada con éxito.',
-        tarea: tareaActualizada
-      });
+    // ✅ Si la tarea se marca como COMPLETADA → eliminar notificaciones
+    if (tareaActualizada.estado === 'Completada') {
+      await Notificacion.destroy({ where: { tareaId: id } });
+      console.log(`🧹 Notificaciones eliminadas para tarea completada ID: ${id}`);
     }
 
-    return res.status(404).json({ message: 'Tarea no encontrada.' });
+    res.json({ message: 'Tarea actualizada con éxito.', tarea: tareaActualizada });
+
   } catch (error) {
     console.error('Error al actualizar tarea:', error);
     res.status(500).json({ message: 'Error interno del servidor al actualizar la tarea.' });
   }
 };
 
-
-
-
-
-// 5. Eliminar Tarea (DELETE) - Solo Admin
+// ===============================
+// 5. ELIMINAR TAREA (DELETE)
+// ===============================
 exports.deleteTarea = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // 🔹 Primero eliminar las evidencias relacionadas
+    // 🔹 Eliminar evidencias relacionadas
     await sequelize.query(`DELETE FROM "Evidencias" WHERE "tareaId" = ${id}`);
 
-    // 🔹 Luego eliminar la tarea
-    const deleted = await Tarea.destroy({ where: { id } });
+    // 🔹 Eliminar notificaciones vinculadas
+    await Notificacion.destroy({ where: { tareaId: id } });
+    console.log(`🧹 Notificaciones eliminadas para tarea eliminada ID: ${id}`);
 
-    if (deleted) {
-      return res.json({ message: 'Tarea y evidencias eliminadas con éxito.' });
-    }
-    return res.status(404).json({ message: 'Tarea no encontrada.' });
+    // 🔹 Eliminar la tarea
+    const deleted = await Tarea.destroy({ where: { id } });
+    if (!deleted) return res.status(404).json({ message: 'Tarea no encontrada.' });
+
+    res.json({ message: 'Tarea, evidencias y notificaciones eliminadas correctamente.' });
+
   } catch (error) {
     console.error('Error al eliminar tarea:', error);
-    return res.status(500).json({ message: 'Error interno del servidor al eliminar la tarea.' });
+    res.status(500).json({ message: 'Error interno del servidor al eliminar la tarea.' });
   }
 };
+
 
 
 // ===============================
