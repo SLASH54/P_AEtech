@@ -74,7 +74,7 @@ async function connectDB() {
 
 
 module.exports = {
-   connectDB,
+  sequelize, connectDB,
   development: {
     username: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
