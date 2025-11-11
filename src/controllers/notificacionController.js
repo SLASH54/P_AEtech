@@ -1,5 +1,7 @@
 // src/controllers/notificacionController.js
 const { Notificacion } = require('../models/relations');
+const sequelize = require('../config/database');
+
 
 // 🟢 Obtener todas las notificaciones del usuario logueado
 
