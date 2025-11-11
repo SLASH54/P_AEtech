@@ -12,7 +12,7 @@ router.put('/mark-read-by-tarea/:tareaId', protect, notificacionController.markR
 // 🟡 Obtener solo notificaciones no leídas
 router.get('/', protect, notificacionController.getNotificacionesNoLeidas);
 
-router.delete('/clean-orphans', protect, notifController.cleanOrphanNotificaciones);
+router.delete('/clean-orphans', protect, notificacionController.cleanOrphanNotificaciones);
 
 
 
