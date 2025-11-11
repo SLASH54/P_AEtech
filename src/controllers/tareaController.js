@@ -1,7 +1,9 @@
 // src/controllers/tareaController.js
-const { Tarea, Usuario, Actividad, Sucursal, ClienteNegocio, Notificacion } = require('../models/relations');
+const { Tarea, Usuario, Actividad, Sucursal, ClienteNegocio, Notificacion, Usuario } = require('../models/relations');
 const { sequelize } = require('../config/database');
 const { sendPushToUser } = require('../utils/push');
+const admin = require("../config/firebaseadmin");
+
 
 // ===============================
 // CONFIGURACIÓN DE INCLUSIÓN
@@ -53,21 +55,60 @@ await Notificacion.create({
   leida: false
 });
 
-sendPushToUser(
-  usuarioAsignadoId,
-  'Nueva tarea asignada',
-  `${tareaCreada.nombre} · fecha límite: ${new Date(tareaCreada.fechaLimite).toLocaleDateString('es-MX')}`,
-  { tareaId: String(tareaCreada.id) }
-);
-        
-      return res.status(201).json({ message: 'Tarea asignada con éxito.', tarea: tareaCreada });  
-      
-      } catch (error) {
-        console.error('Error al crear tarea:', error);
-        return res.status(500).json({ message: 'Error interno del servidor al crear la tarea.' });
+// ✅ 🔔 Enviar notificación Push FCM
+    try {
+      const usuarioAsignado = await Usuario.findByPk(usuarioAsignadoId);
+      if (usuarioAsignado && usuarioAsignado.fcmToken) {
+        const mensaje = {
+          notification: {
+            title: "Nueva tarea asignada",
+            body: `Se te ha asignado la tarea: "${tareaCreada.nombre}".`,
+          },
+          token: usuarioAsignado.fcmToken,
+        };
+        await admin.messaging().send(mensaje);
+        console.log("✅ Notificación FCM enviada a:", usuarioAsignado.nombre);
+      } else {
+        console.warn("⚠️ Usuario sin token FCM o no encontrado");
+      }
+    } catch (error) {
+      console.error("❌ Error enviando notificación FCM:", error);
     }
+
+    // 🔹 Responder al frontend
+    return res.status(201).json({
+      message: "Tarea asignada con éxito.",
+      tarea: tareaCreada
+    });
+
+  } catch (error) {
+    console.error("Error al crear tarea:", error);
+    return res.status(500).json({
+      message: "Error interno del servidor al crear la tarea."
+    });
+  }
+
+
+
+
+
+
+//sendPushToUser(
+//  usuarioAsignadoId,
+//  'Nueva tarea asignada',
+//  `${tareaCreada.nombre} · fecha límite: ${new Date(tareaCreada.fechaLimite).toLocaleDateString('es-MX')}`,
+//  { tareaId: String(tareaCreada.id) }
+//);
+        
+//      return res.status(201).json({ message: 'Tarea asignada con éxito.', tarea: tareaCreada });  
+      
+//      } catch (error) {
+//        console.error('Error al crear tarea:', error);
+//        return res.status(500).json({ message: 'Error interno del servidor al crear la tarea.' });
+//    }
     
 };
+
 
 // ===============================
 // 2. OBTENER TODAS LAS TAREAS (GET)
