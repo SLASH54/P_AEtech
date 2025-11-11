@@ -80,21 +80,27 @@ exports.eliminarNotificacion = async (req, res) => {
   }
 };
 
-// 🧹 Limpia notificaciones de tareas que ya no existen o están completadas
+
+
+// ✅ Limpia notificaciones de tareas que ya no existen o están completadas
 exports.cleanOrphanNotificaciones = async (req, res) => {
   try {
     const [result] = await sequelize.query(`
       DELETE FROM "Notificacions"
       WHERE "tareaId" IS NOT NULL
       AND (
-        "tareaId" NOT IN (SELECT id FROM "Tareas")
-        OR "tareaId" IN (SELECT id FROM "Tareas" WHERE estado = 'Completada')
+        "tareaId" NOT IN (SELECT "id" FROM "Tareas")
+        OR "tareaId" IN (
+          SELECT "id" FROM "Tareas" WHERE "estado" = 'Completada'
+        )
       )
+      RETURNING *;
     `);
-    console.log('🧹 Limpieza automática de notificaciones obsoletas completada.');
-    res.json({ message: 'Notificaciones antiguas eliminadas.' });
+
+    console.log(`🧹 ${result?.length || 0} notificaciones obsoletas eliminadas.`);
+    res.json({ message: 'Notificaciones antiguas eliminadas.', eliminadas: result?.length || 0 });
   } catch (err) {
-    console.error('Error limpiando notificaciones:', err);
-    res.status(500).json({ message: 'Error limpiando notificaciones.' });
+    console.error('❌ Error limpiando notificaciones:', err);
+    res.status(500).json({ message: 'Error limpiando notificaciones.', error: err.message });
   }
 };
