@@ -44,6 +44,9 @@ const sequelize = isProduction
 
 
 async function connectDB() {
+        console.log('Intentando conectar a:', process.env.DB_HOST);
+        console.log('Con usuario:', process.env.DB_USER);
+        console.log('Base de datos:', process.env.DB_NAME);
     try {
         await sequelize.authenticate();
         console.log('✅ Conexión a la base de datos PostgreSQL exitosa.');
