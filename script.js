@@ -1656,6 +1656,65 @@ function initEvidencias(tareaId) {
       </div>
     `;
     container.appendChild(div);
+
+
+
+    // ============================
+// SECCIÓN DE MATERIAL OCUPADO
+// ============================
+const materialContainer = document.createElement("div");
+materialContainer.className = "material-container";
+materialContainer.style.marginTop = "30px";
+materialContainer.style.textAlign = "center";
+materialContainer.innerHTML = `
+  <h3 style="color:#003366; margin-bottom:15px;">🧱 Material Ocupado</h3>
+  <div style="display:flex; justify-content:center; gap:10px; align-items:center; flex-wrap:wrap;">
+    <input type="text" id="insumo" placeholder="Insumo" 
+           style="padding:8px; width:200px; border:1px solid #ccc; border-radius:8px;">
+    <input type="number" id="cantidad" placeholder="Cantidad" min="0" 
+           style="padding:8px; width:100px; border:1px solid #ccc; border-radius:8px;">
+    <select id="unidad" style="padding:8px; border:1px solid #ccc; border-radius:8px;">
+      <option value="Kilogramos">Kilogramos</option>
+      <option value="Metros">Metros</option>
+    </select>
+    <button id="btnAgregarMaterial" 
+            style="padding:8px 15px; background-color:#28a745; color:white; border:none; border-radius:8px; cursor:pointer;">
+      ➕ Agregar
+    </button>
+  </div>
+  <ul id="listaMateriales" 
+      style="list-style-type:disc; margin-top:20px; text-align:left; width:60%; margin-left:auto; margin-right:auto;">
+  </ul>
+`;
+container.appendChild(materialContainer);
+
+// ---- lógica JS de materiales ----
+const listaMateriales = materialContainer.querySelector("#listaMateriales");
+const btnAgregarMaterial = materialContainer.querySelector("#btnAgregarMaterial");
+
+btnAgregarMaterial.addEventListener("click", () => {
+  const insumo = document.getElementById("insumo").value.trim();
+  const cantidad = document.getElementById("cantidad").value.trim();
+  const unidad = document.getElementById("unidad").value;
+
+  if (!insumo || !cantidad) {
+    alert("Por favor completa todos los campos del material.");
+    return;
+  }
+
+  const li = document.createElement("li");
+  li.textContent = `${insumo} - ${cantidad} ${unidad}`;
+  listaMateriales.appendChild(li);
+
+  // Limpiar campos
+  document.getElementById("insumo").value = "";
+  document.getElementById("cantidad").value = "";
+  document.getElementById("unidad").value = "Kilogramos";
+});
+
+
+
+
   }
 
   // 🔹 Previsualización de imágenes

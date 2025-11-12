@@ -2973,3 +2973,88 @@ form input:focus {
 .btn-descargar:hover {
   background-color: #00796b;
 }
+
+
+
+
+/* === Sección de Material Ocupado === */
+.material-container {
+  margin-top: 40px;
+  text-align: center;
+  background: #f9fbff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.material-container h3 {
+  color: #003366;
+  font-size: 1.3rem;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* === Inputs alineados === */
+.material-container .inputs {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.material-container input,
+.material-container select {
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+  font-size: 0.95rem;
+  transition: 0.2s;
+}
+
+.material-container input:focus,
+.material-container select:focus {
+  border-color: #0066cc;
+  box-shadow: 0 0 4px rgba(0, 102, 204, 0.3);
+}
+
+/* === Botón Agregar === */
+.material-container button {
+  padding: 8px 16px;
+  background-color: #28a745;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.material-container button:hover {
+  background-color: #218838;
+  transform: scale(1.03);
+}
+
+/* === Lista de materiales === */
+#listaMateriales {
+  list-style-type: disc;
+  margin-top: 15px;
+  text-align: left;
+  padding-left: 40px;
+}
+
+#listaMateriales li {
+  padding: 6px 0;
+  font-size: 0.95rem;
+  color: #333;
+  border-bottom: 1px solid #eee;
+}
