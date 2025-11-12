@@ -1927,7 +1927,7 @@ materialContainer.innerHTML = `
     <select id="unidad">
       <option value="Kilogramos">Kilogramos</option>
       <option value="Metros">Metros</option>
-      <option value="Metros">Unidades</option>
+      <option value="Unidades">Unidades</option>
     </select>
     <button id="btnAgregarMaterial">➕ Agregar</button>
   </div>
@@ -2097,18 +2097,20 @@ async function verEvidencias(tareaId) {
   contenedor.innerHTML = '<p>📸 Cargando evidencias...</p>';
 
 // === Mostrar materiales usados si existen ===
-if (evidencias[0]?.materiales && evidencias[0].materiales.length > 0) {
-  const lista = evidencias[0].materiales;
+const materiales = evidencias[0]?.materiales ? evidencias[0].materiales : [];
+
+if (Array.isArray(materiales) && materiales.length > 0) {
   let materialesHTML = `
     <div class="materiales-card">
       <h4>🧱 Material Ocupado</h4>
       <ul style="list-style-type:disc; padding-left:25px;">
-        ${lista.map(m => `<li>${m}</li>`).join('')}
+        ${materiales.map(m => `<li>${m}</li>`).join('')}
       </ul>
     </div>
   `;
   contenedor.innerHTML += materialesHTML;
 }
+
 
 
   modal.style.display = 'flex';
