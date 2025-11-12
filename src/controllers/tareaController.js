@@ -42,10 +42,10 @@ exports.createTarea = async (req, res) => {
         const tareaCreada = await Tarea.findByPk(tarea.id, { include: includeConfig });
 
         // ✅ Crear notificación automática para el usuario asignado
-        await crearNotificacion(
-            usuarioAsignadoId,
-            `Se te ha asignado una nueva tarea: "${nombre}".`
-        );
+        //await crearNotificacion(
+        //    usuarioAsignadoId,
+        //    `Se te ha asignado una nueva tarea: "${nombre}".`
+        //);
         
 // ... dentro de createTarea, justo después de crear `tareaCreada`
 await Notificacion.create({
@@ -203,15 +203,15 @@ exports.deleteTarea = async (req, res) => {
 // ===============================
 // 6. FUNCIÓN INTERNA: CREAR NOTIFICACIÓN
 // ===============================
-async function crearNotificacion(usuarioId, mensaje) {
-    try {
-        await Notificacion.create({
-            usuarioId,
-            mensaje,
-            leida: false
-        });
-        console.log(`📩 Notificación creada para usuario ${usuarioId}: ${mensaje}`);
-    } catch (error) {
-        console.error('❌ Error al crear notificación:', error);
-    }
-}
+//async function crearNotificacion(usuarioId, mensaje) {
+//    try {
+//        await Notificacion.create({
+//            usuarioId,
+//            mensaje,
+//            leida: false
+//        });
+//        console.log(`📩 Notificación creada para usuario ${usuarioId}: ${mensaje}`);
+//    } catch (error) {
+//        console.error('❌ Error al crear notificación:', error);
+//    }
+//}
