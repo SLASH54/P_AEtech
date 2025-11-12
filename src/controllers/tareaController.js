@@ -182,7 +182,8 @@ exports.deleteTarea = async (req, res) => {
     await sequelize.query(`DELETE FROM "Evidencias" WHERE "tareaId" = ${id}`);
 
     // 🔹 Eliminar notificaciones vinculadas
-    await Notificacion.destroy({ where: { tareaId: id } });
+    await sequelize.query(`DELETE FROM "Notificacions" WHERE "tareaId" = ${id}`);
+    //await Notificacion.destroy({ where: { id } });
     console.log(`🧹 Notificaciones eliminadas para tarea eliminada ID: ${id}`);
 
     // 🔹 Eliminar la tarea
