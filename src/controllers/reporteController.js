@@ -96,7 +96,7 @@ exports.generateReportePDF = async (req, res) => {
     if (evidenciaConMateriales) {
       // Si la firma ya ocupó una página nueva, esto seguirá ahí; si no, agrega un salto
       doc.addPage();
-      doc.fontSize(14).fillColor('#003366').text('🧱 Material Ocupado', { align: 'center', underline: true });
+      doc.fontSize(14).fillColor('#003366').text('Material Ocupado', { align: 'center', underline: true });
       doc.moveDown(0.5);
       doc.fillColor('black');
 

@@ -2096,23 +2096,6 @@ async function verEvidencias(tareaId) {
   const contenedor = document.getElementById('contenedorEvidencias');
   contenedor.innerHTML = '<p>📸 Cargando evidencias...</p>';
 
-// === Mostrar materiales usados si existen ===
-const materiales = evidencias[0]?.materiales ? evidencias[0].materiales : [];
-
-if (Array.isArray(materiales) && materiales.length > 0) {
-  let materialesHTML = `
-    <div class="materiales-card">
-      <h4>🧱 Material Ocupado</h4>
-      <ul style="list-style-type:disc; padding-left:25px;">
-        ${materiales.map(m => `<li>${m}</li>`).join('')}
-      </ul>
-    </div>
-  `;
-  contenedor.innerHTML += materialesHTML;
-}
-
-
-
   modal.style.display = 'flex';
 
   try {
@@ -2121,9 +2104,8 @@ if (Array.isArray(materiales) && materiales.length > 0) {
     });
 
     if (!res.ok) throw new Error('Error al cargar evidencias');
-    let evidencias = await res.json();
 
-    // Si el backend devuelve un solo objeto, lo convertimos en array
+    let evidencias = await res.json();
     if (!Array.isArray(evidencias)) evidencias = [evidencias];
 
     if (evidencias.length === 0) {
@@ -2131,32 +2113,52 @@ if (Array.isArray(materiales) && materiales.length > 0) {
       return;
     }
 
-    document.getElementById('contenedorEvidencias').dataset.tareaId = tareaId;
-    // 🟩 Renderizar las evidencias (sin incluir firma todavía)
-    let html = evidencias.map(ev => `
-      <div class="evidencia-card">
-        <h4>${ev.titulo || 'Sin título'}</h4>
-        ${ev.archivoUrl
-          ? `<img src="${ev.archivoUrl}" alt="Evidencia" />`
-          : '<p>📄 (Archivo no disponible)</p>'}
-      </div>
-    `).join('');
+    // 🧱 Mostrar materiales (si existen)
+    const materiales = evidencias[0]?.materiales
+      ? (Array.isArray(evidencias[0].materiales)
+          ? evidencias[0].materiales
+          : JSON.parse(evidencias[0].materiales || '[]'))
+      : [];
 
-    // 🟦 Mostrar la firma del cliente una sola vez, si existe en cualquiera de las evidencias
+    let html = evidencias
+      .map(
+        ev => `
+        <div class="evidencia-card">
+          <h4>${ev.titulo || 'Sin título'}</h4>
+          ${
+            ev.archivoUrl
+              ? `<img src="${ev.archivoUrl}" alt="Evidencia" />`
+              : '<p>📄 (Archivo no disponible)</p>'
+          }
+        </div>`
+      )
+      .join('');
+
+    // ✍️ Mostrar firma del cliente si existe
     const evidenciaConFirma = evidencias.find(ev => ev.firmaClienteUrl);
     if (evidenciaConFirma?.firmaClienteUrl) {
       html += `
         <div class="firma-card">
           <h4>✍️ Firma del Cliente</h4>
           <img src="${evidenciaConFirma.firmaClienteUrl}" alt="Firma del cliente" />
-        </div>
-      `;
+        </div>`;
+    }
+
+    // 🧱 Agregar materiales debajo de las evidencias
+    if (Array.isArray(materiales) && materiales.length > 0) {
+      html += `
+        <div class="materiales-card">
+          <h4>🧱 Material Ocupado</h4>
+          <ul style="list-style-type:disc; padding-left:25px;">
+            ${materiales.map(m => `<li>${m}</li>`).join('')}
+          </ul>
+        </div>`;
     }
 
     contenedor.innerHTML = html;
-
   } catch (err) {
-    contenedor.innerHTML = `<p style="color:red;">❌ Error: ${err.message}</p>`;
+    console.error('❌ Error al cargar evidencias:', err);
+    contenedor.innerHTML = `<p style="color:red;">❌ ${err.message}</p>`;
   }
 }
 
