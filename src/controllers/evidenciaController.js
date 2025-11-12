@@ -22,6 +22,11 @@ const subirMultiplesEvidencias = async (req, res) => {
     const files = req.files?.archivos || [];
     const firma = req.files?.firmaCliente?.[0] || null;
     const titulos = req.body.titulos ? req.body.titulos.split(',') : [];
+    
+// 🧱 Capturar materiales ocupados (enviados desde el frontend)
+const materiales = req.body.materiales ? JSON.parse(req.body.materiales) : [];
+
+
 
     if (!tareaId) return res.status(400).json({ msg: 'Falta el ID de la tarea.' });
     if (files.length === 0 && !firma)
@@ -151,14 +156,22 @@ exports.createEvidencia = async (req, res) => {
             await transaction.rollback();
             return res.status(400).json({ message: 'La Tarea ya está en estado: ${tarea.estado}.' });
         }
+
+
         
         // 2. Crear la Evidencia
         const evidencia = await Evidencia.create({
-            tareaId,
-            usuarioId, // Usuario que reporta (obtenido del token)
-            datos_recopilados,
-            observaciones,
-        }, { transaction });
+  tareaId,
+  usuarioId,
+  titulo,
+  archivoUrl: result.secure_url,
+  firmaClienteUrl: firmaUrl,
+  materiales // ← 🧱 guarda el arreglo de materiales
+});
+
+
+
+
 
         // 3. Actualizar la Tarea a 'Completada'
         await Tarea.update(
@@ -294,6 +307,31 @@ async function generarReportePDFInterno(tareaId, usuarioId) {
 }
       doc.moveDown();
     }
+
+
+    // === 🧱 MATERIALES OCUPADOS ===
+const evidenciaConMateriales = tarea.Evidencia.find(ev => ev.materiales && ev.materiales.length > 0);
+if (evidenciaConMateriales) {
+  doc.addPage();
+  doc.fontSize(14).fillColor('#003366').text('🧱 Material Ocupado', { underline: true });
+  doc.moveDown(0.5);
+  doc.fillColor('black');
+
+  try {
+    const listaMateriales = Array.isArray(evidenciaConMateriales.materiales)
+      ? evidenciaConMateriales.materiales
+      : JSON.parse(evidenciaConMateriales.materiales || '[]');
+
+    listaMateriales.forEach(m => {
+      doc.fontSize(12).text(`• ${m}`);
+    });
+  } catch (err) {
+    doc.fontSize(12).fillColor('gray').text('(Error al mostrar materiales)');
+  }
+
+  doc.moveDown();
+}
+
 
     doc.end();
     stream.on('finish', () => console.log(`✅ PDF generado: ${pdfPath}`));

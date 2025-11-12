@@ -1703,6 +1703,22 @@ function initEvidencias(tareaId) {
     archivos.forEach(f => { if (f.files[0]) formData.append('archivos', f.files[0]); });
     formData.append('titulos', titulos.join(','));
 
+
+
+
+    // === 🧱 Capturar materiales usados ===
+const materiales = [];
+document.querySelectorAll('#listaMateriales li').forEach(li => {
+  materiales.push(li.textContent);
+});
+
+// Agregar al FormData (como texto JSON)
+formData.append('materiales', JSON.stringify(materiales));
+
+
+
+
+
     console.log('🧾 Archivos a enviar:', archivos.map(f => f.files[0]?.name));
 
 
@@ -1911,6 +1927,7 @@ materialContainer.innerHTML = `
     <select id="unidad">
       <option value="Kilogramos">Kilogramos</option>
       <option value="Metros">Metros</option>
+      <option value="Metros">Unidades</option>
     </select>
     <button id="btnAgregarMaterial">➕ Agregar</button>
   </div>
@@ -1938,7 +1955,7 @@ btnAgregarMaterial.addEventListener("click", () => {
 
 
 
-  
+
 
   // Limpiar campos
   document.getElementById("insumo").value = "";
@@ -2078,6 +2095,22 @@ async function verEvidencias(tareaId) {
   const modal = document.getElementById('modalEvidencias');
   const contenedor = document.getElementById('contenedorEvidencias');
   contenedor.innerHTML = '<p>📸 Cargando evidencias...</p>';
+
+// === Mostrar materiales usados si existen ===
+if (evidencias[0]?.materiales && evidencias[0].materiales.length > 0) {
+  const lista = evidencias[0].materiales;
+  let materialesHTML = `
+    <div class="materiales-card">
+      <h4>🧱 Material Ocupado</h4>
+      <ul style="list-style-type:disc; padding-left:25px;">
+        ${lista.map(m => `<li>${m}</li>`).join('')}
+      </ul>
+    </div>
+  `;
+  contenedor.innerHTML += materialesHTML;
+}
+
+
   modal.style.display = 'flex';
 
   try {

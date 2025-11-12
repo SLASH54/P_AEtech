@@ -12,10 +12,18 @@ const Evidencia = sequelize.define('Evidencia', {
   titulo: { type: DataTypes.STRING, allowNull: false },
   archivoUrl: { type: DataTypes.STRING, allowNull: false },
   firmaClienteUrl: { type: DataTypes.STRING, allowNull: true },
+  materiales: {
+  type: DataTypes.JSON, // o DataTypes.TEXT si tu DB no soporta JSON
+  allowNull: true
+},
+
 }, {
   tableName: 'Evidencias',
   timestamps: true,
 });
+
+
+
 
 module.exports = Evidencia;
 

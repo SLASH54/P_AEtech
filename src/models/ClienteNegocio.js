@@ -20,7 +20,7 @@ const ClienteNegocio = sequelize.define('ClienteNegocio', {
     email: {
         type: DataTypes.STRING,
         allowNull: true, // Puede que no todos tengan correo
-        unique: true,
+        unique: false,
     },
     telefono: {
         type: DataTypes.STRING,

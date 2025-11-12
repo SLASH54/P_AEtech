@@ -88,6 +88,39 @@ exports.generateReportePDF = async (req, res) => {
       }
     }
 
+
+
+        // 🔹 MATERIALES OCUPADOS
+    const evidenciaConMateriales = tarea.Evidencia.find(ev => ev.materiales && ev.materiales.length > 0);
+
+    if (evidenciaConMateriales) {
+      // Si la firma ya ocupó una página nueva, esto seguirá ahí; si no, agrega un salto
+      doc.addPage();
+      doc.fontSize(14).fillColor('#003366').text('🧱 Material Ocupado', { align: 'center', underline: true });
+      doc.moveDown(0.5);
+      doc.fillColor('black');
+
+      try {
+        const listaMateriales = Array.isArray(evidenciaConMateriales.materiales)
+          ? evidenciaConMateriales.materiales
+          : JSON.parse(evidenciaConMateriales.materiales || '[]');
+
+        if (listaMateriales.length > 0) {
+          listaMateriales.forEach((m, i) => {
+            doc.fontSize(12).text(`• ${m}`);
+          });
+        } else {
+          doc.fontSize(12).fillColor('gray').text('(Sin materiales registrados)');
+        }
+      } catch (e) {
+        doc.fontSize(12).fillColor('gray').text('(Error al cargar los materiales)');
+      }
+
+      doc.moveDown(1);
+    }
+
+    
+
     doc.end();
 
   } catch (error) {
