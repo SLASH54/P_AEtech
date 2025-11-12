@@ -62,8 +62,10 @@ const evidencia = await Evidencia.create({
   usuarioId,
   titulo,
   archivoUrl: result.secure_url,
-  firmaClienteUrl: firmaUrl
+  firmaClienteUrl: firmaUrl,
+  materiales // 🧱 se guarda correctamente el array enviado
 });
+
 
 
       //const evidencia = await Evidencia.create({
