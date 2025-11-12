@@ -268,7 +268,7 @@ async function generarReportePDFInterno(tareaId, usuarioId) {
         { model: Sucursal, attributes: ['nombre', 'direccion'] },
         { model: ClienteNegocio, attributes: ['nombre'] },
         { model: Usuario, as: 'AsignadoA', attributes: ['nombre', 'rol'] },
-        { model: Evidencia, attributes: ['titulo', 'archivoUrl', 'createdAt'] }
+        { model: Evidencia, attributes: ['titulo', 'archivoUrl', 'createdAt', 'materiales'] }
       ]
     });
 

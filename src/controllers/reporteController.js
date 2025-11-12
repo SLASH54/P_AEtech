@@ -16,7 +16,7 @@ exports.generateReportePDF = async (req, res) => {
         { model: Sucursal, attributes: ['nombre', 'direccion'] },
         { model: ClienteNegocio, attributes: ['nombre', 'direccion'] },
         { model: Usuario, as: 'AsignadoA', attributes: ['nombre', 'rol'] },
-        { model: Evidencia, attributes: ['titulo', 'archivoUrl', 'firmaClienteUrl', 'createdAt'] }
+        { model: Evidencia, attributes: ['titulo', 'archivoUrl', 'firmaClienteUrl', 'createdAt', 'materiales'] }
       ]
     });
 
