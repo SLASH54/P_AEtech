@@ -1927,7 +1927,7 @@ materialContainer.innerHTML = `
     <select id="unidad">
       <option value="Kilogramos">Kilogramos</option>
       <option value="Metros">Metros</option>
-      <option value="Metros">Unidades</option>
+      <option value="Unidades">Unidades</option>
     </select>
     <button id="btnAgregarMaterial">➕ Agregar</button>
   </div>
