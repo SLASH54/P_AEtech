@@ -4,13 +4,21 @@ const ClienteNegocio = require('../models/ClienteNegocio');
 // 1. CREAR Cliente de Negocio (Solo Admin)
 exports.createClienteNegocio = async (req, res) => {
     try {
-        const cliente = await ClienteNegocio.create(req.body);
+        const body = req.body;
+
+        // 🧱 Limpia emails vacíos para evitar errores por duplicados
+        if (body.email !== undefined && body.email.trim() === '') {
+            body.email = null;
+        }
+
+        const cliente = await ClienteNegocio.create(body);
         return res.status(201).json({ message: 'Cliente registrado con éxito', cliente });
     } catch (error) {
         console.error("Error al registrar cliente:", error);
         return res.status(500).json({ message: 'Error interno del servidor al crear cliente.' });
     }
 };
+
 
 // 2. OBTENER TODOS los Clientes (Solo Admin)
 exports.getAllClientesNegocio = async (req, res) => {
@@ -26,7 +34,14 @@ exports.getAllClientesNegocio = async (req, res) => {
 // 3. ACTUALIZAR Cliente (Solo Admin)
 exports.updateClienteNegocio = async (req, res) => {
     try {
-        const [updated] = await ClienteNegocio.update(req.body, {
+        const body = req.body;
+
+        // 🧱 Limpia emails vacíos
+        if (body.email !== undefined && body.email.trim() === '') {
+            body.email = null;
+        }
+
+        const [updated] = await ClienteNegocio.update(body, {
             where: { id: req.params.id }
         });
 
@@ -40,6 +55,7 @@ exports.updateClienteNegocio = async (req, res) => {
         return res.status(500).json({ message: 'Error interno del servidor al actualizar cliente.' });
     }
 };
+
 
 // 4. ELIMINAR Cliente (Solo Admin)
 exports.deleteClienteNegocio = async (req, res) => {
