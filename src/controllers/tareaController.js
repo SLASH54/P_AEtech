@@ -48,12 +48,12 @@ exports.createTarea = async (req, res) => {
         );
         
 // ... dentro de createTarea, justo después de crear `tareaCreada`
-//await Notificacion.create({
-//  usuarioId: usuarioAsignadoId,
-//  tareaId: tareaCreada.id,
-  //mensaje: `Tienes una nueva tarea: ${tareaCreada.nombre}`,
-//  leida: false
-//});
+await Notificacion.create({
+  usuarioId: usuarioAsignadoId,
+  tareaId: tareaCreada.id,
+  mensaje: `Tienes una nueva tarea: ${tareaCreada.nombre}`,
+  leida: false
+});
 
 // ✅ 🔔 Enviar notificación Push FCM
     try {
