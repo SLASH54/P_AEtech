@@ -1707,14 +1707,15 @@ function initEvidencias(tareaId) {
 
 
     // === 🧱 Capturar materiales usados ===
-const materiales = [];
-document.querySelectorAll('#listaMateriales li').forEach(li => {
-  materiales.push(li.textContent);
-});
+//const materiales = [];
+//document.querySelectorAll('#listaMateriales li').forEach(li => {
+//  materiales.push(li.textContent);
+//});
 
 // Agregar al FormData (como texto JSON)
-formData.append('materiales', JSON.stringify(materiales));
+//formData.append('materiales', JSON.stringify(materiales));
 
+  formData.append("materiales", JSON.stringify(materialesList));
 
 
 
