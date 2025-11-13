@@ -2031,7 +2031,6 @@ btnAgregarMaterial.addEventListener("click", () => {
     return;
   }
 
-  // Validaciones de campos extra
   if (insumoOriginal === "Fuente de poder centralizada" && extra === "") {
     alert("Debes especificar el modelo de la fuente centralizada.");
     return;
@@ -2042,9 +2041,8 @@ btnAgregarMaterial.addEventListener("click", () => {
     return;
   }
 
+  // Unidad
   let unidad;
-  
-  // Caso especial: insumo "Otro"
   if (insumoOriginal === "Otro") {
     const unidadOtro = document.getElementById("unidadOtro").value;
     if (!unidadOtro) {
@@ -2056,59 +2054,95 @@ btnAgregarMaterial.addEventListener("click", () => {
     unidad = unidadesPorInsumo[insumoOriginal] || "Unidades";
   }
 
-  // Combinar extra si aplica
+  // Armar insumo final
   let insumo = extra ? `${insumoOriginal} (${extra})` : insumoOriginal;
-
-  // Crear elemento
   const categoria = categoriaPorInsumo[insumoOriginal] || "Otros";
 
-  const li = document.createElement("li");
-  li.dataset.categoria = categoria;
+  // ❗ Detectar duplicado y sumar cantidades
+  const existente = materialesList.find(
+    m => m.insumo === insumo && m.unidad === unidad
+  );
 
-  li.innerHTML = `
-    ${insumo} - ${cantidad} ${unidad}
-    <button class="btnEliminarMaterial" 
-      style="margin-left:10px; background:#ff4444; color:white; border:none; padding:2px 6px; border-radius:5px; cursor:pointer;">
-      ❌
-    </button>
-  `;
+  if (existente) {
+    existente.cantidad += parseFloat(cantidad);
+    renderMateriales();
+    limpiarInputs();
+    return;
+  }
 
+  // Agregar a la lista interna
+  materialesList.push({
+    insumo,
+    categoria,
+    cantidad: parseFloat(cantidad),
+    unidad
+  });
 
-  listaMateriales.appendChild(li);
-  
-  // Ordenar por categoría
-const items = Array.from(listaMateriales.querySelectorAll("li"));
-
-items.sort((a, b) => {
-  const catA = a.dataset.categoria.toLowerCase();
-  const catB = b.dataset.categoria.toLowerCase();
-
-  if (catA < catB) return -1;
-  if (catA > catB) return 1;
-
-  // Si son de la misma categoría, ordenar alfabéticamente
-  const textA = a.textContent.toLowerCase();
-  const textB = b.textContent.toLowerCase();
-  return textA.localeCompare(textB);
+  // Renderizar todo
+  renderMateriales();
+  limpiarInputs();
 });
 
-// Volver a pintar ordenados
-listaMateriales.innerHTML = "";
-items.forEach(li => listaMateriales.appendChild(li));
 
+function renderMateriales() {
+  // Vaciar la UL
+  listaMateriales.innerHTML = "";
 
-  li.querySelector(".btnEliminarMaterial").onclick = () => li.remove();
+  // Agrupar por categoría
+  const grupos = {};
 
-  // Limpiar inputs
+  materialesList.forEach(mat => {
+    if (!grupos[mat.categoria]) grupos[mat.categoria] = [];
+    grupos[mat.categoria].push(mat);
+  });
+
+  // Ordenar categorías alfabéticamente
+  const categoriasOrdenadas = Object.keys(grupos).sort();
+
+  categoriasOrdenadas.forEach(cat => {
+
+    // 🔵 Encabezado de categoría
+    const header = document.createElement("li");
+    header.innerHTML = `<strong>${cat}</strong>`;
+    header.style.marginTop = "15px";
+    header.style.listStyle = "none";
+    header.style.color = "#003366";
+    listaMateriales.appendChild(header);
+
+    // Ordenar materiales dentro de categoría
+    grupos[cat].sort((a, b) => a.insumo.localeCompare(b.insumo));
+
+    // 🔹 Materiales
+    grupos[cat].forEach(mat => {
+      const li = document.createElement("li");
+
+      li.innerHTML = `
+        ${mat.insumo} - ${mat.cantidad} ${mat.unidad}
+        <button class="btnEliminarMaterial" 
+          style="margin-left:10px; background:#ff4444; color:white; border:none; padding:2px 6px; border-radius:5px; cursor:pointer;">
+          ❌
+        </button>
+      `;
+
+      // Botón eliminar
+      li.querySelector(".btnEliminarMaterial").onclick = () => {
+        materialesList = materialesList.filter(m => !(m.insumo === mat.insumo && m.unidad === mat.unidad));
+        renderMateriales();
+      };
+
+      listaMateriales.appendChild(li);
+    });
+  });
+}
+
+function limpiarInputs() {
   document.getElementById("insumo").selectedIndex = 0;
   document.getElementById("cantidad").value = "";
   document.getElementById("insumoExtra").value = "";
   document.getElementById("insumoExtra").style.display = "none";
   document.getElementById("unidadOtro").value = "";
   document.getElementById("unidadOtro").style.display = "none";
-});
-
-
+}
 
 
 
