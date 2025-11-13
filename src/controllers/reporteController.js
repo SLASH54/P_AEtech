@@ -46,7 +46,7 @@ exports.generateReportePDF = async (req, res) => {
     } catch {}
 
     // -----------------------------
-    // 🔵 ENCABEZADO CORPORATIVO
+    // 🔵 ENCABEZADO CORPORATIVO 2.0
     // -----------------------------
     const logoPath = path.join(__dirname, "../public/logo.png");
     if (fs.existsSync(logoPath)) {
