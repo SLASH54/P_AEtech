@@ -2001,35 +2001,44 @@ const unidadesPorInsumo = {
 
 btnAgregarMaterial.addEventListener("click", () => {
 
-  let insumo = document.getElementById("insumo").value;
+  let insumoOriginal = document.getElementById("insumo").value;
   const extra = document.getElementById("insumoExtra").value.trim();
   const cantidad = document.getElementById("cantidad").value.trim();
 
-  // 🛑 Validación básica
-  if (!insumo || !cantidad) {
+  if (!insumoOriginal || !cantidad) {
     alert("Por favor completa todos los campos.");
     return;
   }
 
-  // 🛑 Si es "Fuente de poder centralizada", modelo es obligatorio
-  if (insumo === "Fuente de poder centralizada" && extra === "") {
+  // Validaciones de campos extra
+  if (insumoOriginal === "Fuente de poder centralizada" && extra === "") {
     alert("Debes especificar el modelo de la fuente centralizada.");
     return;
   }
 
-  // 🛑 Si eligieron "Otro", también debe llenar el campo extra
-  if (insumo === "Otro" && extra === "") {
-    alert("Especifica el insumo (campo extra).");
+  if (insumoOriginal === "Otro" && extra === "") {
+    alert("Especifica el insumo para 'Otro'.");
     return;
   }
 
-  // Convertir insumo + extra si aplica
-  if (extra) insumo = `${insumo} (${extra})`;
+  let unidad;
+  
+  // Caso especial: insumo "Otro"
+  if (insumoOriginal === "Otro") {
+    const unidadOtro = document.getElementById("unidadOtro").value;
+    if (!unidadOtro) {
+      alert("Selecciona la unidad para el insumo 'Otro'.");
+      return;
+    }
+    unidad = unidadOtro;
+  } else {
+    unidad = unidadesPorInsumo[insumoOriginal] || "Unidades";
+  }
 
-  // 🧠 Unidad automática
-  const unidad = unidadesPorInsumo[insumo] || "Unidades";
+  // Combinar extra si aplica
+  let insumo = extra ? `${insumoOriginal} (${extra})` : insumoOriginal;
 
-  // Insertar en lista
+  // Crear elemento
   const li = document.createElement("li");
   li.innerHTML = `
     ${insumo} - ${cantidad} ${unidad}
@@ -2043,13 +2052,15 @@ btnAgregarMaterial.addEventListener("click", () => {
 
   li.querySelector(".btnEliminarMaterial").onclick = () => li.remove();
 
-  // Limpiar campos
+  // Limpiar inputs
   document.getElementById("insumo").selectedIndex = 0;
   document.getElementById("cantidad").value = "";
-  document.getElementById("unidad").value = "";
   document.getElementById("insumoExtra").value = "";
   document.getElementById("insumoExtra").style.display = "none";
+  document.getElementById("unidadOtro").value = "";
+  document.getElementById("unidadOtro").style.display = "none";
 });
+
 
 
 
@@ -2057,14 +2068,25 @@ btnAgregarMaterial.addEventListener("click", () => {
 function mostrarCampoExtra() {
   const insumo = document.getElementById("insumo").value;
   const extra = document.getElementById("insumoExtra");
+  const unidadOtro = document.getElementById("unidadOtro");
 
+  // Mostrar campo extra para "centralizada" u "Otro"
   if (insumo === "Fuente de poder centralizada" || insumo === "Otro") {
     extra.style.display = "inline-block";
   } else {
     extra.style.display = "none";
     extra.value = "";
   }
+
+  // Mostrar select de unidad SOLO si insumo = "Otro"
+  if (insumo === "Otro") {
+    unidadOtro.style.display = "inline-block";
+  } else {
+    unidadOtro.style.display = "none";
+    unidadOtro.value = "";
+  }
 }
+
 
 
 
