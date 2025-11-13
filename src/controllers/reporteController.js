@@ -42,16 +42,22 @@ exports.generateReportePDF = async (req, res) => {
     try {
   const watermarkPath = path.join(__dirname, "..", "..", "public", "watermark.png");
   if (fs.existsSync(watermarkPath)) {
+
+    const pageWidth = doc.page.width;
+    const pageHeight = doc.page.height;
+
     doc.save();
-    doc.opacity(0.08);
-    doc.image(watermarkPath, 100, 180, { width: 400 });
-    doc.opacity(1);
+    doc.opacity(0.18); // 👈 más visible pero profesional
+    doc.image(
+      watermarkPath,
+      pageWidth / 2 - 250,  // centrado
+      pageHeight / 2 - 250, // centrado
+      { width: 500 }        // tamaño grande y proporcional
+    );
     doc.restore();
-  } else {
-    console.log("⚠ watermark.png no encontrado en /public");
   }
 } catch (e) {
-  console.log("⚠ Error cargando watermark:", e.message);
+  console.log("Error watermark:", e.message);
 }
 
 
@@ -73,7 +79,10 @@ exports.generateReportePDF = async (req, res) => {
     // -----------------------------
     // 🔵 DATOS DE LA TAREA
     // -----------------------------
-    doc.fontSize(17).fillColor("#003366").text("📋 Detalles del servicio", { underline: true });
+    doc.fontSize(17).fillColor("#003366").text("Trabajo Realizado:");
+    doc.text(`${tarea.nombre}`);
+    doc.moveDown();
+    doc.fontSize(17).fillColor("#003366").text("Detalles del servicio", { underline: true });
     doc.moveDown();
 
     doc.fontSize(12).fillColor("#222");
@@ -91,7 +100,7 @@ exports.generateReportePDF = async (req, res) => {
     // -----------------------------
     // 🖼️ EVIDENCIAS
     // -----------------------------
-    doc.fontSize(17).fillColor("#003366").text("📸 Evidencias Recopiladas", { underline: true });
+    doc.fontSize(17).fillColor("#003366").text("Evidencias Recopiladas", { underline: true });
     doc.moveDown(1);
 
     for (const ev of tarea.Evidencia) {
@@ -119,7 +128,7 @@ exports.generateReportePDF = async (req, res) => {
     if (evFirma?.firmaClienteUrl) {
       doc.addPage();
 
-      doc.fontSize(18).fillColor("#003366").text("✍️ Firma del Cliente", { align: "center", underline: true });
+      doc.fontSize(18).fillColor("#003366").text("Firma del Cliente", { align: "center", underline: true });
       doc.moveDown(1);
 
       try {
@@ -160,7 +169,7 @@ exports.generateReportePDF = async (req, res) => {
 
       doc.addPage();
 
-      doc.fontSize(18).fillColor("#003366").text("🧱 Material Ocupado", { underline: true, align: "center" });
+      doc.fontSize(18).fillColor("#003366").text("Material Ocupado", { underline: true, align: "center" });
       doc.moveDown(1);
 
       categoriasOrdenadas.forEach(cat => {
