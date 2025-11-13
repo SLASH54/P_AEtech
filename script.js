@@ -2059,7 +2059,7 @@ btnAgregarMaterial.addEventListener("click", () => {
   const categoria = categoriaPorInsumo[insumoOriginal] || "Otros";
 
   // ❗ Detectar duplicado y sumar cantidades
-  const existente = materialesList.find(
+  const existente = listaMateriales.find(
     m => m.insumo === insumo && m.unidad === unidad
   );
 
@@ -2071,7 +2071,7 @@ btnAgregarMaterial.addEventListener("click", () => {
   }
 
   // Agregar a la lista interna
-  materialesList.push({
+  listaMateriales.push({
     insumo,
     categoria,
     cantidad: parseFloat(cantidad),
@@ -2091,7 +2091,7 @@ function renderMateriales() {
   // Agrupar por categoría
   const grupos = {};
 
-  materialesList.forEach(mat => {
+  listaMateriales.forEach(mat => {
     if (!grupos[mat.categoria]) grupos[mat.categoria] = [];
     grupos[mat.categoria].push(mat);
   });
@@ -2126,7 +2126,7 @@ function renderMateriales() {
 
       // Botón eliminar
       li.querySelector(".btnEliminarMaterial").onclick = () => {
-        materialesList = materialesList.filter(m => !(m.insumo === mat.insumo && m.unidad === mat.unidad));
+        listaMateriales = listaMateriales.filter(m => !(m.insumo === mat.insumo && m.unidad === mat.unidad));
         renderMateriales();
       };
 
