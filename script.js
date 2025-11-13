@@ -1978,6 +1978,27 @@ firmaContainer.insertAdjacentElement("afterend", materialContainer);
 // --- lógica JS ---
 const listaMateriales = materialContainer.querySelector("#listaMateriales");
 const btnAgregarMaterial = materialContainer.querySelector("#btnAgregarMaterial");
+const categoriaPorInsumo = {
+  "Transceptor": "Transceptor",
+
+  "Conector de corriente": "Conectores",
+
+  "12vdc 1A": "Fuentes de poder",
+  "12vdc 1.5A": "Fuentes de poder",
+  "12vdc 2A": "Fuentes de poder",
+  "12vdc 4.1A": "Fuentes de poder",
+  "12vdc 5A": "Fuentes de poder",
+  "Fuente de poder centralizada": "Fuentes de poder",
+
+  "Cable": "Cableado",
+
+  "Caja estanca": "Cajas",
+  "Caja plástica 180x125x57": "Cajas",
+  "Caja plástica 190x290x140": "Cajas",
+
+  "Otro": "Otros"
+};
+
 const unidadesPorInsumo = {
   "Transceptor": "Unidades",
   "Conector de corriente": "Unidades",
@@ -2039,7 +2060,11 @@ btnAgregarMaterial.addEventListener("click", () => {
   let insumo = extra ? `${insumoOriginal} (${extra})` : insumoOriginal;
 
   // Crear elemento
+  const categoria = categoriaPorInsumo[insumoOriginal] || "Otros";
+
   const li = document.createElement("li");
+  li.dataset.categoria = categoria;
+
   li.innerHTML = `
     ${insumo} - ${cantidad} ${unidad}
     <button class="btnEliminarMaterial" 
@@ -2048,7 +2073,29 @@ btnAgregarMaterial.addEventListener("click", () => {
     </button>
   `;
 
+
   listaMateriales.appendChild(li);
+  
+  // Ordenar por categoría
+const items = Array.from(listaMateriales.querySelectorAll("li"));
+
+items.sort((a, b) => {
+  const catA = a.dataset.categoria.toLowerCase();
+  const catB = b.dataset.categoria.toLowerCase();
+
+  if (catA < catB) return -1;
+  if (catA > catB) return 1;
+
+  // Si son de la misma categoría, ordenar alfabéticamente
+  const textA = a.textContent.toLowerCase();
+  const textB = b.textContent.toLowerCase();
+  return textA.localeCompare(textB);
+});
+
+// Volver a pintar ordenados
+listaMateriales.innerHTML = "";
+items.forEach(li => listaMateriales.appendChild(li));
+
 
   li.querySelector(".btnEliminarMaterial").onclick = () => li.remove();
 
