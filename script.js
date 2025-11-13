@@ -1965,7 +1965,7 @@ materialContainer.innerHTML = `
        style="display:none; margin-top:10px; width:200px;">
 
     <input type="number" id="cantidad" placeholder="Cantidad" min="0">
-    <select id="unidad">
+    <select id="unidad" style="display:none;">
       <option value="Metros">Metros</option>
       <option value="Unidades">Unidades</option>
     </select>
@@ -1978,22 +1978,58 @@ firmaContainer.insertAdjacentElement("afterend", materialContainer);
 // --- lógica JS ---
 const listaMateriales = materialContainer.querySelector("#listaMateriales");
 const btnAgregarMaterial = materialContainer.querySelector("#btnAgregarMaterial");
+const unidadesPorInsumo = {
+  "Transceptor": "Unidades",
+  "Conector de corriente": "Unidades",
+
+  "12vdc 1A": "Unidades",
+  "12vdc 1.5A": "Unidades",
+  "12vdc 2A": "Unidades",
+  "12vdc 4.1A": "Unidades",
+  "12vdc 5A": "Unidades",
+
+  "Fuente de poder centralizada": "Unidades",
+
+  "Caja estanca": "Unidades",
+  "Caja plástica 180x125x57": "Unidades",
+  "Caja plástica 190x290x140": "Unidades",
+
+  "Cable": "Metros", // si lo agregas como insumo principal
+  "Otro": "Unidades" // editable, pero definimos algo por defecto
+};
+
 
 btnAgregarMaterial.addEventListener("click", () => {
 
   let insumo = document.getElementById("insumo").value;
-  const extra = document.getElementById("insumoExtra").value;
+  const extra = document.getElementById("insumoExtra").value.trim();
   const cantidad = document.getElementById("cantidad").value.trim();
-  const unidad = document.getElementById("unidad").value;
 
+  // 🛑 Validación básica
   if (!insumo || !cantidad) {
-    alert("Por favor completa los campos.");
+    alert("Por favor completa todos los campos.");
     return;
   }
 
-  // Si eligió insumo con campo extra
+  // 🛑 Si es "Fuente de poder centralizada", modelo es obligatorio
+  if (insumo === "Fuente de poder centralizada" && extra === "") {
+    alert("Debes especificar el modelo de la fuente centralizada.");
+    return;
+  }
+
+  // 🛑 Si eligieron "Otro", también debe llenar el campo extra
+  if (insumo === "Otro" && extra === "") {
+    alert("Especifica el insumo (campo extra).");
+    return;
+  }
+
+  // Convertir insumo + extra si aplica
   if (extra) insumo = `${insumo} (${extra})`;
 
+  // 🧠 Unidad automática
+  const unidad = unidadesPorInsumo[insumo] || "Unidades";
+
+  // Insertar en lista
   const li = document.createElement("li");
   li.innerHTML = `
     ${insumo} - ${cantidad} ${unidad}
@@ -2007,13 +2043,14 @@ btnAgregarMaterial.addEventListener("click", () => {
 
   li.querySelector(".btnEliminarMaterial").onclick = () => li.remove();
 
-  // limpiar campos
+  // Limpiar campos
   document.getElementById("insumo").selectedIndex = 0;
   document.getElementById("cantidad").value = "";
-  document.getElementById("unidad").value = "Unidades";
+  document.getElementById("unidad").value = "";
   document.getElementById("insumoExtra").value = "";
   document.getElementById("insumoExtra").style.display = "none";
 });
+
 
 
 
