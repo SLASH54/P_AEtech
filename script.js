@@ -2059,7 +2059,7 @@ btnAgregarMaterial.addEventListener("click", () => {
   const categoria = categoriaPorInsumo[insumoOriginal] || "Otros";
 
   // ❗ Detectar duplicado y sumar cantidades
-  const existente = listaMateriales.find(
+  const existente = materialesList.find(
     m => m.insumo === insumo && m.unidad === unidad
   );
 
@@ -2071,7 +2071,7 @@ btnAgregarMaterial.addEventListener("click", () => {
   }
 
   // Agregar a la lista interna
-  listaMateriales.push({
+  materialesList.push({
     insumo,
     categoria,
     cantidad: parseFloat(cantidad),
@@ -2083,6 +2083,15 @@ btnAgregarMaterial.addEventListener("click", () => {
   limpiarInputs();
 });
 
+function limpiarInputs() {
+  document.getElementById("insumo").selectedIndex = 0;
+  document.getElementById("cantidad").value = "";
+  document.getElementById("insumoExtra").value = "";
+  document.getElementById("insumoExtra").style.display = "none";
+  document.getElementById("unidadOtro").value = "";
+  document.getElementById("unidadOtro").style.display = "none";
+}
+
 
 function renderMateriales() {
   // Vaciar la UL
@@ -2091,7 +2100,7 @@ function renderMateriales() {
   // Agrupar por categoría
   const grupos = {};
 
-  listaMateriales.forEach(mat => {
+  materialesList.forEach(mat => {
     if (!grupos[mat.categoria]) grupos[mat.categoria] = [];
     grupos[mat.categoria].push(mat);
   });
@@ -2126,7 +2135,7 @@ function renderMateriales() {
 
       // Botón eliminar
       li.querySelector(".btnEliminarMaterial").onclick = () => {
-        listaMateriales = listaMateriales.filter(m => !(m.insumo === mat.insumo && m.unidad === mat.unidad));
+        materialesList = materialesList.filter(m => !(m.insumo === mat.insumo && m.unidad === mat.unidad));
         renderMateriales();
       };
 
@@ -2135,14 +2144,6 @@ function renderMateriales() {
   });
 }
 
-function limpiarInputs() {
-  document.getElementById("insumo").selectedIndex = 0;
-  document.getElementById("cantidad").value = "";
-  document.getElementById("insumoExtra").value = "";
-  document.getElementById("insumoExtra").style.display = "none";
-  document.getElementById("unidadOtro").value = "";
-  document.getElementById("unidadOtro").style.display = "none";
-}
 
 
 
