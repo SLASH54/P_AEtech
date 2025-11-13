@@ -1965,7 +1965,7 @@ materialContainer.innerHTML = `
        style="display:none; margin-top:10px; width:200px;">
 
     <input type="number" id="cantidad" placeholder="Cantidad" min="0">
-    <select id="unidad" style="display:none;">
+    <select id="unidadOtro" style="display:none;">
       <option value="Metros">Metros</option>
       <option value="Unidades">Unidades</option>
     </select>
@@ -1995,7 +1995,7 @@ const unidadesPorInsumo = {
   "Caja plástica 190x290x140": "Unidades",
 
   "Cable": "Metros", // si lo agregas como insumo principal
-  //"Otro": "Unidades" // editable, pero definimos algo por defecto
+  "Otro": "Unidades" // editable, pero definimos algo por defecto
 };
 
 
@@ -2025,7 +2025,7 @@ btnAgregarMaterial.addEventListener("click", () => {
   
   // Caso especial: insumo "Otro"
   if (insumoOriginal === "Otro") {
-    const unidadOtro = document.getElementById("unidad").value;
+    const unidadOtro = document.getElementById("unidadOtro").value;
     if (!unidadOtro) {
       alert("Selecciona la unidad para el insumo 'Otro'.");
       return;
