@@ -115,51 +115,63 @@ exports.generateReportePDF = async (req, res) => {
     const sharp = require("sharp");
 
     for (const ev of tarea.Evidencia) {
-    
-      // título de la evidencia
       doc.fontSize(12).fillColor("black").text(`• ${ev.titulo || "Evidencia"}`);
       doc.moveDown(0.5);
 
       try {
-        // 1️⃣ Descargar imagen
+        // 1️⃣ descargar imagen
         const response = await axios.get(ev.archivoUrl, { responseType: "arraybuffer" });
 
-        // 2️⃣ Reparar rotación EXIF + convertir a PNG compatible
+        // 2️⃣ optimizar + corregir rotación + limitar tamaño máximo
         const fixedBuffer = await sharp(response.data)
-          .rotate()        // 👈 corrige rotación automáticamente
-          .png()           // 👈 elimina EXIF y formatos raros
+          .rotate()                 // corrige rotación EXIF
+          .resize({
+            width: 1500,            // limita tamaño máximo (evita PDF corruptos)
+            withoutEnlargement: true
+          })
+          .png()
           .toBuffer();
 
-        // 3️⃣ Cargar imagen corregida en PDF
         const img = doc.openImage(fixedBuffer);
-        const originalWidth = img.width;
-        const originalHeight = img.height;
 
-        // 4️⃣ Ajustar al ancho del PDF
-        const maxWidth = 520; // ancho real de página con márgenes
-        const scale = maxWidth / originalWidth;
-        const displayHeight = originalHeight * scale;
+        const maxWidth = 500;   // ancho útil elegancia
+        const maxHeight = 500;  // evita ocupar toda la página
 
-        // 5️⃣ Si no cabe en esta página -> nueva página
-        if (doc.y + displayHeight > doc.page.height - 80) {
+        const imgWidth = img.width;
+        const imgHeight = img.height;
+
+        // 3️⃣ calcular escala correcta
+        const scale = Math.min(
+          maxWidth / imgWidth,
+          maxHeight / imgHeight,
+        );
+
+        const finalWidth = imgWidth * scale;
+        const finalHeight = imgHeight * scale;
+
+        // 4️⃣ si no cabe -> nueva página
+        if (doc.y + finalHeight > doc.page.height - 100) {
           doc.addPage();
           doc.moveDown(1);
         }
 
-        // 6️⃣ Dibujar imagen centrada
-        doc.image(fixedBuffer, {
-          width: maxWidth,
-          align: "center"
+        // 5️⃣ dibujar imagen centrada
+        const centerX = (doc.page.width - finalWidth) / 2;
+
+        doc.image(fixedBuffer, centerX, doc.y, {
+          width: finalWidth,
+          height: finalHeight,
         });
 
         doc.moveDown(1.5);
 
       } catch (e) {
-        console.log("Error cargando imagen", ev.archivoUrl, e.message);
+        console.log("Error en evidencia:", ev.archivoUrl, e.message);
         doc.text("(Imagen no disponible)");
         doc.moveDown(1);
       }
     }
+
 
 
 
