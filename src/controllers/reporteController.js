@@ -112,23 +112,50 @@ exports.generateReportePDF = async (req, res) => {
     // -----------------------------
     doc.fontSize(17).fillColor("#003366").text("Evidencias Recopiladas", { underline: true });
     doc.moveDown(1);
+    
+    for (const ev of evidencias) {
 
-    for (const ev of tarea.Evidencia) {
-      doc.fontSize(13).fillColor("#333").text(`• ${ev.titulo}`);
+      // Título de la evidencia
+      doc.fontSize(12).fillColor("black").text(`• ${ev.titulo || "Evidencia"}`, { underline: false });
       doc.moveDown(0.5);
 
-      if (ev.archivoUrl) {
-        try {
-          const resp = await axios.get(ev.archivoUrl, { responseType: "arraybuffer" });
-          const buffer = Buffer.from(resp.data);
-          doc.image(buffer, { width: 300, align: "center" });
-        } catch {
-          doc.fillColor("gray").text("(Imagen no disponible)");
-        }
-      }
+      // Cargar imagen desde URL o ruta
+      try {
+        const response = await axios.get(ev.archivoUrl, { responseType: "arraybuffer" });
+        const imgBuffer = Buffer.from(response.data, "binary");
 
-      doc.moveDown(1);
+        // Obtener dimensiones originales
+        const img = doc.openImage(imgBuffer);
+        const originalWidth = img.width;
+        const originalHeight = img.height;
+
+        // Ancho máximo permitido
+        const maxWidth = 400; // ajusta si quieres más ancho
+        const scale = maxWidth / originalWidth;
+
+        const displayWidth = originalWidth * scale;
+        const displayHeight = originalHeight * scale;
+
+        // Si no cabe => nueva página
+        if (doc.y + displayHeight > doc.page.height - 80) {
+          doc.addPage(); // tu marca de agua ya aparece por pageAdded
+          doc.moveDown(1);
+        }
+
+        // Dibujar imagen con tamaño ajustado
+        doc.image(imgBuffer, {
+          fit: [maxWidth, displayHeight],
+          align: "center"
+        });
+
+        doc.moveDown(1.5);
+
+      } catch (e) {
+        console.log("Error cargando imagen:", ev.archivoUrl, e.message);
+        doc.text("(Imagen no disponible)");
+      }
     }
+
 
     // -----------------------------
     // ✍️ FIRMA DEL CLIENTE
