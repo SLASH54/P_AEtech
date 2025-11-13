@@ -112,8 +112,8 @@ exports.generateReportePDF = async (req, res) => {
     // -----------------------------
     doc.fontSize(17).fillColor("#003366").text("Evidencias Recopiladas", { underline: true });
     doc.moveDown(1);
-    
-    for (const ev of evidencias) {
+
+    for (const ev of tarea.Evidencia) {
 
       // Título de la evidencia
       doc.fontSize(12).fillColor("black").text(`• ${ev.titulo || "Evidencia"}`, { underline: false });
