@@ -1925,7 +1925,6 @@ materialContainer.innerHTML = `
     <input type="text" id="insumo" placeholder="Insumo">
     <input type="number" id="cantidad" placeholder="Cantidad" min="0">
     <select id="unidad">
-      <option value="Kilogramos">Kilogramos</option>
       <option value="Metros">Metros</option>
       <option value="Unidades">Unidades</option>
     </select>
