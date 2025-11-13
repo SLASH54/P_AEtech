@@ -1922,7 +1922,17 @@ materialContainer.style.textAlign = "center";
 materialContainer.innerHTML = `
   <h3>🧱 Material Ocupado</h3>
   <div class="inputs">
-    <input type="text" id="insumo" placeholder="Insumo">
+    <select id="insumo">
+      <option value="" disabled selected>Seleccione insumo</option>
+      <option value="Cable">Cable</option>
+      <option value="Conector">Conector</option>
+      <option value="Tubería">Tubería</option>
+      <option value="Tornillos">Tornillos</option>
+      <option value="Cinta aislante">Cinta aislante</option>
+      <option value="Canaleta">Canaleta</option>
+      <option value="Soporte">Soporte</option>
+      <option value="Otro">Otro</option>
+    </select>
     <input type="number" id="cantidad" placeholder="Cantidad" min="0">
     <select id="unidad">
       <option value="Metros">Metros</option>
@@ -1949,8 +1959,24 @@ btnAgregarMaterial.addEventListener("click", () => {
   }
 
   const li = document.createElement("li");
-  li.textContent = `${insumo} - ${cantidad} ${unidad}`;
-  listaMateriales.appendChild(li);
+li.innerHTML = `
+  ${insumo} - ${cantidad} ${unidad}
+  <button class="btnEliminarMaterial" style="
+    margin-left:10px;
+    background:#ff4444;
+    color:white;
+    border:none;
+    padding:2px 6px;
+    border-radius:5px;
+    cursor:pointer;
+  ">❌</button>
+`;
+listaMateriales.appendChild(li);
+
+li.querySelector(".btnEliminarMaterial").addEventListener("click", () => {
+  li.remove();
+});
+
 
 
 
