@@ -4,7 +4,7 @@ const path = require('path');
 const axios = require('axios');
 const { Tarea, Actividad, Sucursal, ClienteNegocio, Evidencia, Usuario } = require('../models/relations');
 
-const publicDir = path.join(__dirname, '..', '..', 'public');
+const publicDir = path.join(__dirname, '..', 'public');
 
 
 exports.generateReportePDF = async (req, res) => {
@@ -30,82 +30,56 @@ exports.generateReportePDF = async (req, res) => {
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `inline; filename="Reporte_Tarea_${id}.pdf"`);
 
-   const doc = new PDFDocument({
+    const doc = new PDFDocument({
       margin: 40,
       size: "A4"
     });
     doc.pipe(res);
 
     // -----------------------------
-    // 🔵 MARCA DE AGUA (fondo)
+    // 🔵 WATERMARK DE FONDO
     // -----------------------------
     try {
-      const watermarkPath = path.join(publicDir, 'watermark.png');
+      const watermarkPath = path.join(__dirname, "../public/watermark.png");
       if (fs.existsSync(watermarkPath)) {
-        // centramos la marca de agua
-        const centerX = doc.page.width / 2 - 200;
-        const centerY = doc.page.height / 2 - 200;
-
-        doc.save();
-        doc.opacity(0.06);
-        doc.image(watermarkPath, centerX, centerY, { width: 400 });
+        doc.opacity(0.08);
+        doc.image(watermarkPath, 100, 180, { width: 400 });
         doc.opacity(1);
-        doc.restore();
       }
-    } catch (e) {
-      console.log('No se pudo cargar watermark:', e.message);
-    }
+    } catch {}
 
     // -----------------------------
-    // 🔵 ENCABEZADO CORPORATIVO
+    // 🔵 ENCABEZADO CORPORATIVO 2.0
     // -----------------------------
-    try {
-      const logoPath = path.join(publicDir, 'logo.png');
-      if (fs.existsSync(logoPath)) {
-        doc.image(logoPath, 50, 40, { width: 80 });
-      }
-    } catch (e) {
-      console.log('No se pudo cargar logo:', e.message);
+    const logoPath = path.join(__dirname, "../public/logo.png");
+    if (fs.existsSync(logoPath)) {
+      doc.image(logoPath, 40, 35, { width: 80 });
     }
 
-    // Título grande centrado
-    doc.fontSize(18).fillColor('#000000')
-      .text('REPORTE DE SERVICIO', 0, 40, { align: 'center' });
+    doc.fontSize(22).fillColor("#003366").text("AE TECH", 140, 40);
+    doc.fontSize(12).fillColor("#777").text("Reporte oficial de servicio", 140, 65);
 
-    // Subtítulo: trabajo realizado (título de la tarea o actividad)
-    const trabajoRealizado = tarea.titulo || tarea.Actividad?.nombre || '';
-    doc.fontSize(12)
-      .text(`TRABAJO REALIZADO: ${trabajoRealizado}`, {
-        align: 'center'
-      });
+    doc.moveTo(40, 90).lineTo(550, 90).stroke("#003366");
 
     doc.moveDown(2);
 
-    // Línea separadora
-    doc.moveTo(40, doc.y).lineTo(550, doc.y).strokeColor('#003366');
-    doc.moveDown(1.5);
-
     // -----------------------------
-    // 🔵 DETALLES DEL SERVICIO
+    // 🔵 DATOS DE LA TAREA
     // -----------------------------
-    doc.fontSize(14).fillColor('#003366')
-      .text('Detalles del servicio', { underline: true });
+    doc.fontSize(17).fillColor("#003366").text("📋 Detalles del servicio", { underline: true });
+    doc.moveDown();
 
-    doc.moveDown(0.7);
-
-    doc.fontSize(12).fillColor('#000000');
-    doc.text(`Cliente: ${tarea.ClienteNegocio?.nombre || 'N/D'}`);
-    doc.text(`Dirección del Cliente: ${tarea.ClienteNegocio?.direccion || 'N/D'}`);
-    doc.text(`Sucursal: ${tarea.Sucursal?.nombre || 'N/D'}`);
-    doc.text(`Dirección de la Sucursal: ${tarea.Sucursal?.direccion || 'N/D'}`);
-    doc.text(`Actividad: ${tarea.Actividad?.nombre || 'N/D'}`);
-    doc.text(`Asignado a: ${tarea.AsignadoA?.nombre || 'N/D'} (${tarea.AsignadoA?.rol || ''})`);
+    doc.fontSize(12).fillColor("#222");
+    doc.text(`Cliente: ${tarea.ClienteNegocio.nombre}`);
+    doc.text(`Dirección: ${tarea.ClienteNegocio.direccion}`);
+    doc.text(`Sucursal: ${tarea.Sucursal.nombre}`);
+    doc.text(`Actividad: ${tarea.Actividad.nombre}`);
+    doc.text(`Asignado a: ${tarea.AsignadoA.nombre} (${tarea.AsignadoA.rol})`);
     doc.text(`Fecha de finalización: ${tarea.createdAt.toLocaleDateString()}`);
 
     doc.moveDown(1);
-    doc.moveTo(40, doc.y).lineTo(550, doc.y).strokeColor('#CCCCCC');
+    doc.moveTo(40, doc.y).lineTo(550, doc.y).strokeColor("#cccccc");
     doc.moveDown(1.5);
-
 
     // -----------------------------
     // 🖼️ EVIDENCIAS
