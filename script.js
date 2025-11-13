@@ -1922,17 +1922,48 @@ materialContainer.style.textAlign = "center";
 materialContainer.innerHTML = `
   <h3>🧱 Material Ocupado</h3>
   <div class="inputs">
-    <select id="insumo">
-      <option value="" disabled selected>Seleccione insumo</option>
-      <option value="Cable">Cable</option>
-      <option value="Conector">Conector</option>
-      <option value="Tubería">Tubería</option>
-      <option value="Tornillos">Tornillos</option>
-      <option value="Cinta aislante">Cinta aislante</option>
-      <option value="Canaleta">Canaleta</option>
-      <option value="Soporte">Soporte</option>
-      <option value="Otro">Otro</option>
+    <select id="insumo" onchange="mostrarCampoExtra()">
+      <option value="" disabled selected>Seleccione un insumo</option>
+
+      <optgroup label="Cable">
+        <option value="Cable">Cable</option>
+      </optgroup>
+
+      <optgroup label="Transceptor">
+        <option value="Transceptor">Transceptor</option>
+      </optgroup>
+
+      <optgroup label="Conectores">
+        <option value="Conector de corriente">Conector de corriente</option>
+      </optgroup>
+
+      <optgroup label="Fuente de poder 12V">
+        <option value="12vdc 1A">12vdc 1A</option>
+        <option value="12vdc 1.5A">12vdc 1.5A</option>
+        <option value="12vdc 2A">12vdc 2A</option>
+        <option value="12vdc 4.1A">12vdc 4.1A</option>
+        <option value="12vdc 5A">12vdc 5A</option>
+      </optgroup>
+
+      <optgroup label="Fuente centralizada">
+        <option value="Fuente de poder centralizada">Fuente de poder centralizada</option>
+      </optgroup>
+
+      <optgroup label="Cajas">
+        <option value="Caja estanca">Caja estanca</option>
+        <option value="Caja plástica 180x125x57">Caja plástica 180x125x57</option>
+        <option value="Caja plástica 190x290x140">Caja plástica 190x290x140</option>
+      </optgroup>
+
+      <optgroup label="Otro">
+        <option value="Otro">Otro (especificar)</option>
+      </optgroup>
     </select>
+
+<!-- Campo extra dinámico -->
+<input type="text" id="insumoExtra" placeholder="Especificar modelo..." 
+       style="display:none; margin-top:10px; width:200px;">
+
     <input type="number" id="cantidad" placeholder="Cantidad" min="0">
     <select id="unidad">
       <option value="Metros">Metros</option>
@@ -1949,48 +1980,54 @@ const listaMateriales = materialContainer.querySelector("#listaMateriales");
 const btnAgregarMaterial = materialContainer.querySelector("#btnAgregarMaterial");
 
 btnAgregarMaterial.addEventListener("click", () => {
-  const insumo = document.getElementById("insumo").value.trim();
+
+  let insumo = document.getElementById("insumo").value;
+  const extra = document.getElementById("insumoExtra").value;
   const cantidad = document.getElementById("cantidad").value.trim();
   const unidad = document.getElementById("unidad").value;
 
   if (!insumo || !cantidad) {
-    alert("Por favor completa todos los campos del material.");
+    alert("Por favor completa los campos.");
     return;
   }
 
+  // Si eligió insumo con campo extra
+  if (extra) insumo = `${insumo} (${extra})`;
+
   const li = document.createElement("li");
-li.innerHTML = `
-  ${insumo} - ${cantidad} ${unidad}
-  <button class="btnEliminarMaterial" style="
-    margin-left:10px;
-    background:#ff4444;
-    color:white;
-    border:none;
-    padding:2px 6px;
-    border-radius:5px;
-    cursor:pointer;
-  ">❌</button>
-`;
-listaMateriales.appendChild(li);
+  li.innerHTML = `
+    ${insumo} - ${cantidad} ${unidad}
+    <button class="btnEliminarMaterial" 
+      style="margin-left:10px; background:#ff4444; color:white; border:none; padding:2px 6px; border-radius:5px; cursor:pointer;">
+      ❌
+    </button>
+  `;
 
-li.querySelector(".btnEliminarMaterial").addEventListener("click", () => {
-  li.remove();
-});
+  listaMateriales.appendChild(li);
 
+  li.querySelector(".btnEliminarMaterial").onclick = () => li.remove();
 
-
-
-
-
-  // Limpiar campos
-  document.getElementById("insumo").value = "";
+  // limpiar campos
+  document.getElementById("insumo").selectedIndex = 0;
   document.getElementById("cantidad").value = "";
-  document.getElementById("unidad").value = "Kilogramos";
+  document.getElementById("unidad").value = "Unidades";
+  document.getElementById("insumoExtra").value = "";
+  document.getElementById("insumoExtra").style.display = "none";
 });
 
 
 
+function mostrarCampoExtra() {
+  const insumo = document.getElementById("insumo").value;
+  const extra = document.getElementById("insumoExtra");
 
+  if (insumo === "Fuente de poder centralizada" || insumo === "Otro") {
+    extra.style.display = "inline-block";
+  } else {
+    extra.style.display = "none";
+    extra.value = "";
+  }
+}
 
 
 
