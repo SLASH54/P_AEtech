@@ -40,18 +40,25 @@ exports.generateReportePDF = async (req, res) => {
     // 🔵 WATERMARK DE FONDO
     // -----------------------------
     try {
-      const watermarkPath = path.join(__dirname, "../public/watermark.png");
-      if (fs.existsSync(watermarkPath)) {
-        doc.opacity(0.08);
-        doc.image(watermarkPath, 100, 180, { width: 400 });
-        doc.opacity(1);
-      }
-    } catch {}
+  const watermarkPath = path.join(__dirname, "..", "..", "public", "watermark.png");
+  if (fs.existsSync(watermarkPath)) {
+    doc.save();
+    doc.opacity(0.08);
+    doc.image(watermarkPath, 100, 180, { width: 400 });
+    doc.opacity(1);
+    doc.restore();
+  } else {
+    console.log("⚠ watermark.png no encontrado en /public");
+  }
+} catch (e) {
+  console.log("⚠ Error cargando watermark:", e.message);
+}
+
 
     // -----------------------------
     // 🔵 ENCABEZADO CORPORATIVO 2.0
     // -----------------------------
-    const logoPath = path.join(__dirname, "../public/logo.png");
+    const logoPath = path.join(__dirname, "..", "..", "public", "logo.png");
     if (fs.existsSync(logoPath)) {
       doc.image(logoPath, 40, 35, { width: 80 });
     }
