@@ -6,6 +6,7 @@ require('dotenv').config();
 require('./src/models/relations');
 const path = require('path');
 
+
 const { sequelize } = require('./src/config/database');
 
 
@@ -108,6 +109,8 @@ const NotificacionRoutes = require('./src/routes/NotificacionRoutes');
 app.use('/api/auth', authRoutes); 
 // Servir archivos de imágenes subidas
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
 
 

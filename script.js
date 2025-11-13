@@ -2353,69 +2353,113 @@ async function verEvidencias(tareaId) {
     // ORDENAR CATEGORÍAS A-Z
     const categoriasOrdenadas = Object.keys(grupos).sort();
 
-    let html = "";
+    let html = `
+  <div style="text-align:center; margin-bottom:25px;">
+    <h2 style="color:#003366; font-size:26px; margin:0;">📸 Evidencias</h2>
+  </div>
+`;
 
-    // ========== Evidencias (fotos) ==========
-    html += evidencias
-      .map(ev => `
-        <div class="evidencia-card">
-          <h4>${ev.titulo || 'Sin título'}</h4>
-          ${
-            ev.archivoUrl
-              ? `<img src="${ev.archivoUrl}" alt="Evidencia" />`
-              : '<p>📄 (Archivo no disponible)</p>'
-          }
-        </div>
-      `)
-      .join('');
+// ========== Evidencias (fotos) ==========
+html += evidencias
+  .map(ev => `
+    <div style="
+      background:#fff;
+      padding:18px;
+      margin:15px auto;
+      border-radius:12px;
+      box-shadow:0 3px 10px rgba(0,0,0,0.12);
+      max-width:90%;
+      text-align:center;
+    ">
+      <h3 style="color:#003366; margin:0 0 12px;">
+        ${ev.titulo || 'Sin título'}
+      </h3>
 
-    // ========== Firma si existe ==========
-    const evidenciaConFirma = evidencias.find(ev => ev.firmaClienteUrl);
-    if (evidenciaConFirma?.firmaClienteUrl) {
-      html += `
-        <div class="firma-card">
-          <h4>✍️ Firma del Cliente</h4>
-          <img src="${evidenciaConFirma.firmaClienteUrl}" alt="Firma del cliente" />
-        </div>
-      `;
-    }
+      ${
+        ev.archivoUrl
+          ? `<img src="${ev.archivoUrl}" 
+                style="max-width:95%; border-radius:12px;
+                box-shadow:0 3px 10px rgba(0,0,0,0.2);" />`
+          : '<p style="color:#777;">📄 Imagen no disponible</p>'
+      }
+    </div>
+  `)
+  .join('');
 
-    // ========== MATERIAL OCUPADO AGRUPADO ==========
-    if (materiales.length > 0) {
-      html += `
-        <div class="materiales-card">
-          <h3 style="margin-top:20px;">🧱 Material Ocupado</h3>
-          <ul style="list-style:none; padding-left:0;">
-      `;
 
-      categoriasOrdenadas.forEach(cat => {
+// ========== Firma del cliente ==========
+const evidenciaConFirma = evidencias.find(ev => ev.firmaClienteUrl);
+if (evidenciaConFirma?.firmaClienteUrl) {
+  html += `
+    <div style="
+      background:#fff;
+      padding:18px;
+      margin:15px auto;
+      border-radius:12px;
+      box-shadow:0 3px 10px rgba(0,0,0,0.12);
+      max-width:90%;
+      text-align:center;
+    ">
+      <h3 style="color:#003366; margin-bottom:10px;">
+        ✍️ Firma del Cliente
+      </h3>
+
+      <img src="${evidenciaConFirma.firmaClienteUrl}"
+           style="max-width:80%; border-radius:8px;
+           box-shadow:0 2px 6px rgba(0,0,0,0.15);" />
+    </div>
+  `;
+}
+
+
+// ========== MATERIAL OCUPADO AGRUPADO ==========
+if (materiales.length > 0) {
+  html += `
+    <div style="
+      background:#fff;
+      padding:22px;
+      margin:18px auto 30px;
+      border-radius:12px;
+      box-shadow:0 3px 10px rgba(0,0,0,0.12);
+      max-width:90%;
+    ">
+      <h3 style="color:#003366; margin-bottom:15px;">
+        🧱 Material Ocupado
+      </h3>
+      <ul style="list-style:none; padding-left:0; margin:0;">
+  `;
+
+  categoriasOrdenadas.forEach(cat => {
+    html += `
+      <li style="margin-top:15px;">
+        <strong style="color:#444; font-size:16px;">• ${cat}</strong>
+        <ul style="list-style:disc; margin-left:35px; margin-top:8px;">
+    `;
+
+    grupos[cat]
+      .sort((a, b) => a.insumo.localeCompare(b.insumo))
+      .forEach(m => {
         html += `
-          <li style="margin-top:12px;">
-            <strong>• ${cat}</strong>
-            <ul style="list-style:disc; margin-left:25px; margin-top:6px;">
-        `;
-
-        grupos[cat]
-          .sort((a, b) => a.insumo.localeCompare(b.insumo))
-          .forEach(m => {
-            html += `
-              <li>${m.insumo} — ${m.cantidad} ${m.unidad}</li>
-            `;
-          });
-
-        html += `
-            </ul>
+          <li style="margin:5px 0; font-size:15px;">
+            ${m.insumo} — ${m.cantidad} ${m.unidad}
           </li>
         `;
       });
 
-      html += `
-          </ul>
-        </div>
-      `;
-    }
+    html += `
+        </ul>
+      </li>
+    `;
+  });
 
-    contenedor.innerHTML = html;
+  html += `
+      </ul>
+    </div>
+  `;
+}
+
+contenedor.innerHTML = html;
+
 
   } catch (err) {
     console.error('❌ Error al cargar evidencias:', err);
