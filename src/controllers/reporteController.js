@@ -90,34 +90,80 @@ exports.generateReportePDF = async (req, res) => {
 
 
 
-        // 🔹 MATERIALES OCUPADOS
-    const evidenciaConMateriales = tarea.Evidencia.find(ev => ev.materiales && ev.materiales.length > 0);
+        // ================================================
+// 🔥   MATERIALES OCUPADOS (Agrupados y Ordenados)
+// ================================================
+try {
+  // Extraer TODOS los materiales de todas las evidencias
+  const materialesRaw = [];
 
-    if (evidenciaConMateriales) {
-      // Si la firma ya ocupó una página nueva, esto seguirá ahí; si no, agrega un salto
-      doc.addPage();
-      doc.fontSize(14).fillColor('#003366').text('Material Ocupado', { align: 'center', underline: true });
-      doc.moveDown(0.5);
-      doc.fillColor('black');
-
-      try {
-        const listaMateriales = Array.isArray(evidenciaConMateriales.materiales)
-          ? evidenciaConMateriales.materiales
-          : JSON.parse(evidenciaConMateriales.materiales || '[]');
-
-        if (listaMateriales.length > 0) {
-          listaMateriales.forEach((m, i) => {
-            doc.fontSize(12).text(`• ${m}`);
-          });
-        } else {
-          doc.fontSize(12).fillColor('gray').text('(Sin materiales registrados)');
+  tarea.Evidencia.forEach(ev => {
+    if (ev.materiales) {
+      if (Array.isArray(ev.materiales)) {
+        materialesRaw.push(...ev.materiales);
+      } else {
+        try {
+          materialesRaw.push(...JSON.parse(ev.materiales));
+        } catch {
+          console.log("Material en formato incompatible:", ev.materiales);
         }
-      } catch (e) {
-        doc.fontSize(12).fillColor('gray').text('(Error al cargar los materiales)');
       }
-
-      doc.moveDown(1);
     }
+  });
+
+  if (materialesRaw.length > 0) {
+    // Crear estructura uniforme
+    const materiales = materialesRaw.map(m => {
+      if (typeof m === "string") {
+        // "Cable - 3 Metros"
+        const [insumoPart, cantPart] = m.split(" - ");
+        const [cantidad, unidad] = cantPart.split(" ");
+        return {
+          categoria: "Otros",
+          insumo: insumoPart,
+          cantidad,
+          unidad
+        };
+      }
+      return m; // ya viene como objeto desde el frontend
+    });
+
+    // AGRUPAR POR CATEGORÍA
+    const grupos = {};
+    materiales.forEach(m => {
+      if (!grupos[m.categoria]) grupos[m.categoria] = [];
+      grupos[m.categoria].push(m);
+    });
+
+    // ORDENAR CATEGORÍAS Y MATERIALES
+    const categoriasOrdenadas = Object.keys(grupos).sort();
+
+    // Nueva página para materiales
+    doc.addPage();
+    doc.fontSize(18).fillColor('#003366').text('Material Ocupado', { align: 'center', underline: true });
+    doc.moveDown(1);
+
+    categoriasOrdenadas.forEach(cat => {
+      doc.fontSize(14).fillColor('black').text(`• ${cat}`);
+      doc.moveDown(0.2);
+
+      // Ordenamos materiales dentro de la categoría
+      grupos[cat].sort((a, b) => a.insumo.localeCompare(b.insumo));
+
+      // Mostrar cada material con formato limpio
+      grupos[cat].forEach(m => {
+        doc.fontSize(12).fillColor('#333').text(`   - ${m.insumo} — ${m.cantidad} ${m.unidad}`);
+      });
+
+      doc.moveDown(1); // espacio entre categorías
+    });
+  }
+
+} catch (err) {
+  console.error("Error procesando materiales:", err);
+}
+
+
 
     
 

@@ -2318,16 +2318,45 @@ async function verEvidencias(tareaId) {
       return;
     }
 
-    // 🧱 Mostrar materiales (si existen)
-    const materiales = evidencias[0]?.materiales
+    // ====== FORMATEAR MATERIALES ======
+    const materialesRaw = evidencias[0]?.materiales
       ? (Array.isArray(evidencias[0].materiales)
           ? evidencias[0].materiales
           : JSON.parse(evidencias[0].materiales || '[]'))
       : [];
 
-    let html = evidencias
-      .map(
-        ev => `
+    // Si el backend guarda objetos, todo ok
+    // Si guarda solo strings, conviértelos en objetos básicos
+    const materiales = materialesRaw.map(m => {
+      if (typeof m === "string") {
+        // ejemplo: "Cable - 5 Metros"
+        const [insumoPart, cantidadPart] = m.split(" - ");
+        const [cantidad, unidad] = cantidadPart.split(" ");
+        return {
+          insumo: insumoPart,
+          cantidad,
+          unidad,
+          categoria: "Otros" // fallback
+        };
+      }
+      return m;
+    });
+
+    // AGRUPAR POR CATEGORÍA
+    const grupos = {};
+    materiales.forEach(m => {
+      if (!grupos[m.categoria]) grupos[m.categoria] = [];
+      grupos[m.categoria].push(m);
+    });
+
+    // ORDENAR CATEGORÍAS A-Z
+    const categoriasOrdenadas = Object.keys(grupos).sort();
+
+    let html = "";
+
+    // ========== Evidencias (fotos) ==========
+    html += evidencias
+      .map(ev => `
         <div class="evidencia-card">
           <h4>${ev.titulo || 'Sin título'}</h4>
           ${
@@ -2335,37 +2364,64 @@ async function verEvidencias(tareaId) {
               ? `<img src="${ev.archivoUrl}" alt="Evidencia" />`
               : '<p>📄 (Archivo no disponible)</p>'
           }
-        </div>`
-      )
+        </div>
+      `)
       .join('');
 
-    // ✍️ Mostrar firma del cliente si existe
+    // ========== Firma si existe ==========
     const evidenciaConFirma = evidencias.find(ev => ev.firmaClienteUrl);
     if (evidenciaConFirma?.firmaClienteUrl) {
       html += `
         <div class="firma-card">
           <h4>✍️ Firma del Cliente</h4>
           <img src="${evidenciaConFirma.firmaClienteUrl}" alt="Firma del cliente" />
-        </div>`;
+        </div>
+      `;
     }
 
-    // 🧱 Agregar materiales debajo de las evidencias
-    if (Array.isArray(materiales) && materiales.length > 0) {
+    // ========== MATERIAL OCUPADO AGRUPADO ==========
+    if (materiales.length > 0) {
       html += `
         <div class="materiales-card">
-          <h4>🧱 Material Ocupado</h4>
-          <ul style="list-style-type:disc; padding-left:25px;">
-            ${materiales.map(m => `<li>${m}</li>`).join('')}
+          <h3 style="margin-top:20px;">🧱 Material Ocupado</h3>
+          <ul style="list-style:none; padding-left:0;">
+      `;
+
+      categoriasOrdenadas.forEach(cat => {
+        html += `
+          <li style="margin-top:12px;">
+            <strong>• ${cat}</strong>
+            <ul style="list-style:disc; margin-left:25px; margin-top:6px;">
+        `;
+
+        grupos[cat]
+          .sort((a, b) => a.insumo.localeCompare(b.insumo))
+          .forEach(m => {
+            html += `
+              <li>${m.insumo} — ${m.cantidad} ${m.unidad}</li>
+            `;
+          });
+
+        html += `
+            </ul>
+          </li>
+        `;
+      });
+
+      html += `
           </ul>
-        </div>`;
+        </div>
+      `;
     }
 
     contenedor.innerHTML = html;
+
   } catch (err) {
     console.error('❌ Error al cargar evidencias:', err);
     contenedor.innerHTML = `<p style="color:red;">❌ ${err.message}</p>`;
   }
 }
+
 
 function cerrarModalEvidencias() {
   document.getElementById('modalEvidencias').style.display = 'none';
