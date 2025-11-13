@@ -112,49 +112,55 @@ exports.generateReportePDF = async (req, res) => {
     // -----------------------------
     doc.fontSize(17).fillColor("#003366").text("Evidencias Recopiladas", { underline: true });
     doc.moveDown(1);
+    const sharp = require("sharp");
 
     for (const ev of tarea.Evidencia) {
-
-      // Título de la evidencia
-      doc.fontSize(12).fillColor("black").text(`• ${ev.titulo || "Evidencia"}`, { underline: false });
+    
+      // título de la evidencia
+      doc.fontSize(12).fillColor("black").text(`• ${ev.titulo || "Evidencia"}`);
       doc.moveDown(0.5);
 
-      // Cargar imagen desde URL o ruta
       try {
+        // 1️⃣ Descargar imagen
         const response = await axios.get(ev.archivoUrl, { responseType: "arraybuffer" });
-        const imgBuffer = Buffer.from(response.data, "binary");
 
-        // Obtener dimensiones originales
-        const img = doc.openImage(imgBuffer);
+        // 2️⃣ Reparar rotación EXIF + convertir a PNG compatible
+        const fixedBuffer = await sharp(response.data)
+          .rotate()        // 👈 corrige rotación automáticamente
+          .png()           // 👈 elimina EXIF y formatos raros
+          .toBuffer();
+
+        // 3️⃣ Cargar imagen corregida en PDF
+        const img = doc.openImage(fixedBuffer);
         const originalWidth = img.width;
         const originalHeight = img.height;
 
-        // Ancho máximo permitido
-        const maxWidth = 400; // ajusta si quieres más ancho
+        // 4️⃣ Ajustar al ancho del PDF
+        const maxWidth = 520; // ancho real de página con márgenes
         const scale = maxWidth / originalWidth;
-
-        const displayWidth = originalWidth * scale;
         const displayHeight = originalHeight * scale;
 
-        // Si no cabe => nueva página
+        // 5️⃣ Si no cabe en esta página -> nueva página
         if (doc.y + displayHeight > doc.page.height - 80) {
-          doc.addPage(); // tu marca de agua ya aparece por pageAdded
+          doc.addPage();
           doc.moveDown(1);
         }
 
-        // Dibujar imagen con tamaño ajustado
-        doc.image(imgBuffer, {
-          fit: [maxWidth, displayHeight],
+        // 6️⃣ Dibujar imagen centrada
+        doc.image(fixedBuffer, {
+          width: maxWidth,
           align: "center"
         });
 
         doc.moveDown(1.5);
 
       } catch (e) {
-        console.log("Error cargando imagen:", ev.archivoUrl, e.message);
+        console.log("Error cargando imagen", ev.archivoUrl, e.message);
         doc.text("(Imagen no disponible)");
+        doc.moveDown(1);
       }
     }
+
 
 
     // -----------------------------
