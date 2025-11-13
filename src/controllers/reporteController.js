@@ -36,30 +36,40 @@ exports.generateReportePDF = async (req, res) => {
     });
     doc.pipe(res);
 
-    // -----------------------------
-    // 🔵 WATERMARK DE FONDO
-    // -----------------------------
-    try {
-  const watermarkPath = path.join(__dirname, "..", "..", "public", "watermark.png");
-  if (fs.existsSync(watermarkPath)) {
 
-    const pageWidth = doc.page.width;
-    const pageHeight = doc.page.height;
+    // =============================
+    // MARCA DE AGUA GLOBAL (TODAS LAS PÁGINAS)
+    // =============================
+    function drawWatermark() {
+      try {
+        const watermarkPath = path.join(__dirname, "..", "..", "public", "watermark.png");
+        if (fs.existsSync(watermarkPath)) {
 
-    doc.save();
-    doc.opacity(0.18); // 👈 más visible pero profesional
-    doc.image(
-      watermarkPath,
-      pageWidth / 2 - 250,  // centrado
-      pageHeight / 2 - 250, // centrado
-      { width: 500 }        // tamaño grande y proporcional
-    );
-    doc.restore();
-  }
-} catch (e) {
-  console.log("Error watermark:", e.message);
-}
+          const pageWidth = doc.page.width;
+          const pageHeight = doc.page.height;
 
+          doc.save();
+          doc.opacity(0.25); // 👈 Más visible pero no molesta
+          doc.image(
+            watermarkPath,
+            pageWidth / 2 - 300,   // centrado
+            pageHeight / 2 - 300,  // centrado
+            { width: 600 }         // 👈 Más grande
+          );
+          doc.restore();
+        }
+      } catch (e) {
+        console.log("Error watermark:", e.message);
+      }
+    }
+
+    // Dibujar marca en la primera página
+    drawWatermark();
+
+    // Dibujar marca automáticamente en TODAS las páginas nuevas
+    doc.on("pageAdded", drawWatermark);
+
+    
 
     // -----------------------------
     // 🔵 ENCABEZADO CORPORATIVO 2.0
@@ -79,8 +89,8 @@ exports.generateReportePDF = async (req, res) => {
     // -----------------------------
     // 🔵 DATOS DE LA TAREA
     // -----------------------------
-    doc.fontSize(17).fillColor("#003366").text("Trabajo Realizado:");
-    doc.text(`${tarea.nombre}`);
+    doc.fontSize(17).fillColor("#003366");
+    doc.text(`Trabajo Realizado: ${tarea.nombre}`);
     doc.moveDown();
     doc.fontSize(17).fillColor("#003366").text("Detalles del servicio", { underline: true });
     doc.moveDown();
