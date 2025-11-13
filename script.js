@@ -1978,6 +1978,8 @@ firmaContainer.insertAdjacentElement("afterend", materialContainer);
 // --- lógica JS ---
 const listaMateriales = materialContainer.querySelector("#listaMateriales");
 const btnAgregarMaterial = materialContainer.querySelector("#btnAgregarMaterial");
+let materialesList = [];
+
 const categoriaPorInsumo = {
   "Transceptor": "Transceptor",
 
