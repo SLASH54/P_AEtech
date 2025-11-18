@@ -13,6 +13,7 @@ const publicDir = path.join(__dirname, '..', 'public');
 // =============================
 
 // Marca de agua centrada en la página
+
 function drawWatermark(doc) {
   try {
     const watermarkPath = path.join(publicDir, 'watermark.png');
@@ -37,22 +38,37 @@ function drawWatermark(doc) {
 }
 
 // Encabezado corporativo
-function drawHeader(doc, tarea) {
-  try {
-    const logoPath = path.join(publicDir, 'logo.png');
-    if (fs.existsSync(logoPath)) {
-      doc.image(logoPath, 40, 35, { width: 80 });
-    }
-  } catch (e) {
-    console.log('Error logo:', e.message);
-  }
 
-  doc.fontSize(22).fillColor('#003366').text('AE TECH', 140, 40);
-  doc.fontSize(12).fillColor('#777').text('Reporte oficial de servicio', 140, 65);
+function drawHeader(doc) {
+  const headerY = 20;
 
-  doc.moveTo(40, 90).lineTo(550, 90).stroke('#003366');
-  doc.moveDown(2);
+  // LOGO
+  doc.image(path.join(__dirname, "../public/logo.png"), 40, headerY, {
+    width: 90
+  });
+
+  // TÍTULO
+  doc.fontSize(16)
+     .fillColor("#0A3D62")
+     .text("AE TECH", 140, headerY + 10);
+
+  doc.fontSize(10)
+     .fillColor("#555")
+     .text("Reporte oficial de servicio", 140, headerY + 30);
+
+  // LINEA
+  doc.moveTo(40, headerY + 60)
+     .lineTo(doc.page.width - 40, headerY + 60)
+     .stroke("#0A3D62");
 }
+
+
+drawHeader(doc);
+
+doc.on("pageAdded", () => {
+  drawHeader(doc);
+});
+
 
 // Footer sencillo
 function drawFooter(doc) {
