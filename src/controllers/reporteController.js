@@ -7,7 +7,7 @@ const axios = require("axios");
 const sharp = require("sharp");
 const path = require("path");
 const fs = require("fs");
-const { Tarea, Actividad, Sucursal, ClienteNegocio, Usuario, Evidencia } = require("../models");
+const { Tarea, Actividad, Sucursal, ClienteNegocio, Usuario, Evidencia } = require("../models/relations");
 
 // -------------------------------------------
 //   UTIL: Comprimir cualquier imagen grande
