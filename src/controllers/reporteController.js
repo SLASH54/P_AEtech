@@ -139,33 +139,61 @@ async function drawEvidences(doc, evidencias) {
     doc.moveDown(0.3);
 
     try {
-      const resImg = await axios.get(ev.archivoUrl, { responseType: "arraybuffer" });
+      // 1️⃣ Descargar imagen con stream (consume MUCHA menos RAM)
+      const response = await axios.get(ev.archivoUrl, {
+        responseType: "arraybuffer",
+        maxContentLength: 5 * 1024 * 1024, // evitar imágenes gigantes
+      });
 
-      const jpegBuffer = await sharp(resImg.data)
-        .rotate()
+      // 2️⃣ Reducir tamaño ANTES de PDFKit
+      let jpegBuffer = await sharp(response.data)
+        .rotate() // corregir rotación
         .resize({
-          width: MAX_WIDTH,
-          height: MAX_HEIGHT,
-          fit: "inside"
+          width: 1280,    // tamaño max seguro
+          height: 1280,
+          fit: "inside",
+          withoutEnlargement: true
         })
-        .jpeg({ quality: 85 })
+        .jpeg({ quality: 70 }) // compresión ligera
         .toBuffer();
 
+      // Liberar la imagen original de memoria
+      response.data = null;
+
+      // 3️⃣ Abrir imagen optimizada
       const img = doc.openImage(jpegBuffer);
 
-      if (doc.y + img.height > doc.page.height - 120) doc.addPage();
+      // 4️⃣ Calcular tamaño para PDF
+      const scale = Math.min(
+        MAX_WIDTH / img.width,
+        MAX_HEIGHT / img.height
+      );
+      const w = img.width * scale;
+      const h = img.height * scale;
 
-      const x = (doc.page.width - img.width) / 2;
-      doc.image(jpegBuffer, x, doc.y);
+      if (doc.y + h > doc.page.height - 120) {
+        doc.addPage();
+      }
+
+      const x = (doc.page.width - w) / 2;
+      doc.image(jpegBuffer, x, doc.y, { width: w });
+
+      // 5️⃣ Liberar memoria del buffer
+      jpegBuffer = null;
 
       doc.moveDown(1.2);
 
     } catch (err) {
+      console.log("⚠ Error insertando imagen:", err.message);
       doc.text("(Imagen no disponible)");
       doc.moveDown(1);
     }
+
+    // 6️⃣ Forzar GC entre imágenes (evita crash por memoria)
+    if (global.gc) global.gc();
   }
 }
+
 
 
 // =============================
