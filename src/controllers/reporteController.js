@@ -277,6 +277,9 @@ function drawMaterials(doc, evidencias) {
 // =============================
 // 🔵 CONTROLADOR PRINCIPAL
 // =============================
+console.log("=== DATOS DE LA TAREA ===");
+console.log(JSON.stringify(tarea, null, 2));
+
 exports.generateReportePDF = async (req, res) => {
   try {
     const { tareaId } = req.params;
