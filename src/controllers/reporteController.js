@@ -308,6 +308,8 @@ exports.generateReportePDF = async (req, res) => {
 
     // DETALLES
     drawServiceDetails(doc, tarea);
+
+    // EVIDENCIAS
     await drawEvidences(doc, tarea.Evidencia);
 
 
