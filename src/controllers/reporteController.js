@@ -31,10 +31,11 @@ function drawWatermark(doc) {
 
 
 // =============================
-// 🔵 ENCABEZADO GLOBAL (todas páginas menos portada)
+// 🔵 ENCABEZADO GLOBAL (páginas de contenido)
 // =============================
 function drawHeader(doc, tarea) {
-  if (doc.page.number === 1) return; // no encabezado en portada
+  // Si quieres que la portada NO tenga header, descomenta:
+  // if (doc.page.number === 1) return;
 
   // Logo pequeño
   if (fs.existsSync(logoPath)) {
@@ -47,7 +48,8 @@ function drawHeader(doc, tarea) {
 
   // Subtítulo también con posición fija y sin wrap
   doc.fontSize(10).fillColor("#555")
-    .text(`Cliente: ${tarea.ClienteNegocio?.nombre || ""}  ·  Sucursal: ${tarea.Sucursal?.nombre || ""}`,
+    .text(
+      `Cliente: ${tarea.ClienteNegocio?.nombre || ""}  ·  Sucursal: ${tarea.Sucursal?.nombre || ""}`,
       120,
       48,
       { lineBreak: false }
@@ -56,8 +58,7 @@ function drawHeader(doc, tarea) {
   // Línea inferior del header
   doc.moveTo(40, 70).lineTo(550, 70).stroke("#003366");
 
-  // MUY IMPORTANTE:
-  // Mover manualmente la posición del cursor para evitar saltos automáticos
+  // Posición del cursor para contenido
   doc.y = 90;
 }
 
@@ -75,14 +76,16 @@ function drawFooter(doc) {
   doc.moveTo(40, bottom).lineTo(550, bottom).stroke("#003366");
 
   doc.fontSize(9).fillColor("#555")
-    .text("AE TECH · www.aetech.com.mx · Servicio Técnico 24/7",
+    .text(
+      "AE TECH · www.aetech.com.mx · Servicio Técnico 24/7",
       40,
       bottom + 5,
       { lineBreak: false }
     );
 
   doc.fontSize(9).fillColor("#777")
-    .text(`Página ${doc.page.number}`,
+    .text(
+      `Página ${doc.page.number}`,
       500,
       bottom + 5,
       { lineBreak: false }
@@ -94,8 +97,10 @@ function drawFooter(doc) {
 // 🔵 PORTADA
 // =============================
 function drawCoverPage(doc, tarea) {
+  // Marca de agua en portada
   drawWatermark(doc);
 
+  // Logo grande
   if (fs.existsSync(logoPath)) {
     doc.image(logoPath, 50, 50, { width: 120 });
   }
@@ -108,16 +113,22 @@ function drawCoverPage(doc, tarea) {
   doc.fontSize(15).fillColor("#777")
     .text("AE TECH", { align: "center" });
 
-  doc.moveDown(3);
+  doc.moveDown(2);
+
+  doc.fontSize(14).fillColor("#000")
+    .text(`Trabajo Realizado: ${tarea.titulo || tarea.Actividad?.nombre || ""}`, { align: "center" });
+
+  doc.moveDown(1.5);
 
   doc.fontSize(14).fillColor("#000")
     .text(`Cliente: ${tarea.ClienteNegocio?.nombre}`, { align: "center" });
+  doc.text(`Dirección: ${tarea.ClienteNegocio?.direccion}`, { align: "center" });
   doc.text(`Sucursal: ${tarea.Sucursal?.nombre}`, { align: "center" });
-  doc.text(`Dirección: ${tarea.Sucursal?.direccion}`, { align: "center" });
   doc.text(`Actividad: ${tarea.Actividad?.nombre}`, { align: "center" });
-  doc.text(`Trabajo Realizado: ${tarea.titulo || tarea.Actividad?.nombre}`, { align: "center" });
+  doc.text(`Fecha de finalización: ${tarea.createdAt.toLocaleDateString()}`, { align: "center" });
 
-  doc.addPage();
+  // Termina portada. NO agregamos página aquí.
+  // La siguiente página la controlamos en generateReportePDF.
 }
 
 
@@ -152,13 +163,15 @@ function drawServiceDetails(doc, tarea) {
 // 🔵 EVIDENCIAS (IMÁGENES) — OPTIMIZADO
 // =============================
 async function drawEvidences(doc, evidencias) {
+  if (!evidencias || evidencias.length === 0) return;
+
   doc.fontSize(18).fillColor("#003366")
     .text("Evidencias Recopiladas", { underline: true });
 
   doc.moveDown(1);
 
-  const MAX_WIDTH = 420;   // ancho máximo
-  const MAX_HEIGHT = 550;  // alto máximo
+  const MAX_WIDTH = 420;   // ancho máximo en la página
+  const MAX_HEIGHT = 550;  // alto máximo en la página
 
   for (const ev of evidencias) {
     // Título
@@ -169,7 +182,8 @@ async function drawEvidences(doc, evidencias) {
     try {
       // 1. Descargar imagen en buffer
       const imgResponse = await axios.get(ev.archivoUrl, {
-        responseType: "arraybuffer"
+        responseType: "arraybuffer",
+        maxContentLength: 8 * 1024 * 1024 // evita imágenes ridículamente grandes
       });
 
       // 2. Optimizar SIEMPRE a JPEG pequeño
@@ -187,7 +201,7 @@ async function drawEvidences(doc, evidencias) {
       // 3. Abrir en PDFKit
       const img = doc.openImage(jpegBuffer);
 
-      // 4. Calcular escala límite
+      // 4. Calcular escala límite para esta página
       const scale = Math.min(
         MAX_WIDTH / img.width,
         MAX_HEIGHT / img.height
@@ -196,12 +210,15 @@ async function drawEvidences(doc, evidencias) {
       const finalW = img.width * scale;
       const finalH = img.height * scale;
 
-      // 5. Si NO cabe → Crear página nueva ANTES de dibujar
+      // 5. Si NO cabe → Página nueva controlada por nosotros
       if (doc.y + finalH > doc.page.height - 100) {
         doc.addPage();
+        drawWatermark(doc);
+        // header/footer ya están dibujados para esta página en generateReportePDF
+        doc.y = 90; // aseguramos comenzar bajo header
       }
 
-      // 6. Dibujar centrado y PROPORCIONAL
+      // 6. Dibujar centrado y proporcional
       const x = (doc.page.width - finalW) / 2;
 
       doc.image(jpegBuffer, x, doc.y, {
@@ -219,7 +236,7 @@ async function drawEvidences(doc, evidencias) {
       doc.moveDown(1);
     }
 
-    // Liberar memoria entre imágenes
+    // Liberar memoria entre imágenes (si Node se lanzó con --expose-gc)
     if (global.gc) global.gc();
   }
 }
@@ -267,35 +284,35 @@ exports.generateReportePDF = async (req, res) => {
       ]
     });
 
+    if (!tarea) {
+      return res.status(404).json({ error: "Tarea no encontrada" });
+    }
+
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `inline; filename="Reporte_${tareaId}.pdf"`);
 
     const doc = new PDFDocument({ margin: 40, size: "A4" });
     doc.pipe(res);
 
-    // Marca en TODAS las páginas nuevas
-    doc.on("pageAdded", () => {
-      drawWatermark(doc);
-      drawHeader(doc, tarea);
-      drawFooter(doc);
-    });
-
-    // PORTADA
+    // ========= PÁGINA 1: PORTADA =========
     drawCoverPage(doc, tarea);
+    drawFooter(doc); // si quieres pie de página en portada
 
-    // ENCABEZADO + FOOTER
+    // ========= PÁGINA 2: DETALLES + EVIDENCIAS =========
+    doc.addPage();
+    drawWatermark(doc);
     drawHeader(doc, tarea);
     drawFooter(doc);
 
-    drawWatermark(doc);
+
 
     // DETALLES
     drawServiceDetails(doc, tarea);
-
-    // EVIDENCIAS
     await drawEvidences(doc, tarea.Evidencia);
 
-    // AGRUPAR MATERIALES
+
+
+    // ========= PÁGINA 3+: MATERIALES (si existen) =========
     const materialesRaw = [];
     tarea.Evidencia.forEach(ev => {
       if (ev.materiales) {
@@ -305,14 +322,20 @@ exports.generateReportePDF = async (req, res) => {
       }
     });
 
-    const grupos = {};
-    materialesRaw.forEach(m => {
-      if (!grupos[m.categoria]) grupos[m.categoria] = [];
-      grupos[m.categoria].push(m);
-    });
+    if (materialesRaw.length > 0) {
+      const grupos = {};
+      materialesRaw.forEach(m => {
+        if (!grupos[m.categoria]) grupos[m.categoria] = [];
+        grupos[m.categoria].push(m);
+      });
 
-    // TABLA MATERIALES
-    if (materialesRaw.length > 0) drawMaterials(doc, grupos);
+      doc.addPage();
+      drawWatermark(doc);
+      drawHeader(doc, tarea);
+      drawFooter(doc);
+
+      drawMaterials(doc, grupos);
+    }
 
     doc.end();
 
