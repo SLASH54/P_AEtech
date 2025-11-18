@@ -36,34 +36,57 @@ function drawWatermark(doc) {
 function drawHeader(doc, tarea) {
   if (doc.page.number === 1) return; // no encabezado en portada
 
-  if (fs.existsSync(logoPath)) doc.image(logoPath, 40, 25, { width: 55 });
+  // Logo pequeño
+  if (fs.existsSync(logoPath)) {
+    doc.image(logoPath, 40, 25, { width: 55 });
+  }
 
+  // Título SIEMPRE en coordenadas fijas (sin wrap)
   doc.fontSize(14).fillColor("#003366")
-    .text("AE TECH – Reporte de Servicio", 120, 30);
+    .text("AE TECH – Reporte de Servicio", 120, 30, { lineBreak: false });
 
+  // Subtítulo también con posición fija y sin wrap
   doc.fontSize(10).fillColor("#555")
-    .text(
-      `Cliente: ${tarea.ClienteNegocio?.nombre || ""}  ·  Sucursal: ${tarea.Sucursal?.nombre || ""}`,
+    .text(`Cliente: ${tarea.ClienteNegocio?.nombre || ""}  ·  Sucursal: ${tarea.Sucursal?.nombre || ""}`,
       120,
-      48
+      48,
+      { lineBreak: false }
     );
 
+  // Línea inferior del header
   doc.moveTo(40, 70).lineTo(550, 70).stroke("#003366");
-  doc.moveDown(2);
+
+  // MUY IMPORTANTE:
+  // Mover manualmente la posición del cursor para evitar saltos automáticos
+  doc.y = 90;
 }
+
+
+
 
 
 // =============================
 // 🔵 PIE DE PÁGINA GLOBAL
 // =============================
+
 function drawFooter(doc) {
   const bottom = doc.page.height - 40;
+
   doc.moveTo(40, bottom).lineTo(550, bottom).stroke("#003366");
 
   doc.fontSize(9).fillColor("#555")
-    .text("AE TECH · www.aetech.com.mx · Servicio Técnico 24/7", 40, bottom + 5);
+    .text("AE TECH · www.aetech.com.mx · Servicio Técnico 24/7",
+      40,
+      bottom + 5,
+      { lineBreak: false }
+    );
 
-  doc.text(`Página ${doc.page.number}`, 500, bottom + 5);
+  doc.fontSize(9).fillColor("#777")
+    .text(`Página ${doc.page.number}`,
+      500,
+      bottom + 5,
+      { lineBreak: false }
+    );
 }
 
 
@@ -125,71 +148,78 @@ function drawServiceDetails(doc, tarea) {
 // =============================
 // 🔵 EVIDENCIAS (IMÁGENES)
 // =============================
+// =============================
+// 🔵 EVIDENCIAS (IMÁGENES) — OPTIMIZADO
+// =============================
 async function drawEvidences(doc, evidencias) {
   doc.fontSize(18).fillColor("#003366")
     .text("Evidencias Recopiladas", { underline: true });
+
   doc.moveDown(1);
 
-  const MAX_WIDTH = 480;
-  const MAX_HEIGHT = 620;
+  const MAX_WIDTH = 420;   // ancho máximo
+  const MAX_HEIGHT = 550;  // alto máximo
 
   for (const ev of evidencias) {
+    // Título
     doc.fontSize(12).fillColor("black")
       .text(`• ${ev.titulo || "Evidencia"}`);
-    doc.moveDown(0.3);
+    doc.moveDown(0.4);
 
     try {
-      // 1️⃣ Descargar imagen con stream (consume MUCHA menos RAM)
-      const response = await axios.get(ev.archivoUrl, {
-        responseType: "arraybuffer",
-        maxContentLength: 5 * 1024 * 1024, // evitar imágenes gigantes
+      // 1. Descargar imagen en buffer
+      const imgResponse = await axios.get(ev.archivoUrl, {
+        responseType: "arraybuffer"
       });
 
-      // 2️⃣ Reducir tamaño ANTES de PDFKit
-      let jpegBuffer = await sharp(response.data)
-        .rotate() // corregir rotación
+      // 2. Optimizar SIEMPRE a JPEG pequeño
+      let jpegBuffer = await sharp(imgResponse.data)
+        .rotate()
         .resize({
-          width: 1280,    // tamaño max seguro
-          height: 1280,
+          width: 1400,
+          height: 1400,
           fit: "inside",
           withoutEnlargement: true
         })
-        .jpeg({ quality: 70 }) // compresión ligera
+        .jpeg({ quality: 70 })
         .toBuffer();
 
-      // Liberar la imagen original de memoria
-      response.data = null;
-
-      // 3️⃣ Abrir imagen optimizada
+      // 3. Abrir en PDFKit
       const img = doc.openImage(jpegBuffer);
 
-      // 4️⃣ Calcular tamaño para PDF
+      // 4. Calcular escala límite
       const scale = Math.min(
         MAX_WIDTH / img.width,
         MAX_HEIGHT / img.height
       );
-      const w = img.width * scale;
-      const h = img.height * scale;
 
-      if (doc.y + h > doc.page.height - 120) {
+      const finalW = img.width * scale;
+      const finalH = img.height * scale;
+
+      // 5. Si NO cabe → Crear página nueva ANTES de dibujar
+      if (doc.y + finalH > doc.page.height - 100) {
         doc.addPage();
       }
 
-      const x = (doc.page.width - w) / 2;
-      doc.image(jpegBuffer, x, doc.y, { width: w });
+      // 6. Dibujar centrado y PROPORCIONAL
+      const x = (doc.page.width - finalW) / 2;
 
-      // 5️⃣ Liberar memoria del buffer
-      jpegBuffer = null;
+      doc.image(jpegBuffer, x, doc.y, {
+        width: finalW,
+        height: finalH
+      });
 
       doc.moveDown(1.2);
 
-    } catch (err) {
-      console.log("⚠ Error insertando imagen:", err.message);
+      jpegBuffer = null;
+
+    } catch (error) {
+      console.log("⚠ Error procesando imagen:", ev.archivoUrl, error.message);
       doc.text("(Imagen no disponible)");
       doc.moveDown(1);
     }
 
-    // 6️⃣ Forzar GC entre imágenes (evita crash por memoria)
+    // Liberar memoria entre imágenes
     if (global.gc) global.gc();
   }
 }
