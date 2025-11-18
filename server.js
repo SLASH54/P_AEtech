@@ -156,3 +156,10 @@ app.use('/uploads', express.static(uploadsDir));  // <— URL pública: https://
 
 
 
+
+
+// me lo dio no se pa que 
+//app.use("/static", express.static(path.join(__dirname, "public")));
+
+
+

@@ -43,7 +43,7 @@ function drawHeader(doc) {
   const headerY = 20;
 
   // LOGO
-  doc.image(path.join(__dirname, "../public/logo.png"), 40, headerY, {
+  doc.image(path.join(publicDir, 'logo.png'), 40, headerY, {
     width: 90
   });
 
