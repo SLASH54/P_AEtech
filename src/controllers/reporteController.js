@@ -112,74 +112,54 @@ function drawServiceDetails(doc, tarea) {
 }
 
 // Evidencias con imágenes optimizadas
-async function drawEvidences(doc, evidencias) {
-  if (!evidencias || evidencias.length === 0) return;
 
-  doc.fontSize(17).fillColor('#003366')
-    .text('Evidencias Recopiladas', { underline: true });
-  doc.moveDown(1);
 
-  const MAX_WIDTH = 420;
-  const MAX_HEIGHT = 420;
+async function drawImages(doc, evidencias) {
+  const MAX_WIDTH = 500;
+  const MAX_HEIGHT = 600;
 
   for (const ev of evidencias) {
-    // Título de la evidencia
-    doc.fontSize(12).fillColor('black')
-      .text(`• ${ev.titulo || 'Evidencia'}`);
-    doc.moveDown(0.3);
-
-    if (!ev.archivoUrl) {
-      doc.fillColor('gray').text('(Sin imagen asociada)');
-      doc.fillColor('black');
-      doc.moveDown(0.5);
-      continue;
-    }
-
     try {
+      doc.fontSize(13).fillColor("#004080").text(ev.titulo || "Evidencia");
+      doc.moveDown(0.5);
+
+      // Descargar imagen
       const response = await axios.get(ev.archivoUrl, {
-        responseType: 'arraybuffer',
-        timeout: 15000,
-        maxContentLength: 7 * 1024 * 1024 // 7MB
+        responseType: "arraybuffer",
       });
 
-      // Optimizar imagen: rotación + tamaño + compresión
-      const jpegBuffer = await sharp(response.data)
-        .rotate()
+      // Convertir SIEMPRE a JPEG comprimido
+      const buffer = await sharp(response.data)
+        .rotate() // corrige rotación EXIF
         .resize({
-          width: 1280,
-          height: 1280,
-          fit: 'inside',
-          withoutEnlargement: true
+          width: MAX_WIDTH,
+          height: MAX_HEIGHT,
+          fit: "inside",
+          withoutEnlargement: true,
         })
-        .jpeg({ quality: 72 })
+        .jpeg({ quality: 70 }) // compresión fuerte
         .toBuffer();
 
-      const img = doc.openImage(jpegBuffer);
+      const img = doc.openImage(buffer);
 
-      const scale = Math.min(
-        MAX_WIDTH / img.width,
-        MAX_HEIGHT / img.height,
-        1
-      );
-      const w = img.width * scale;
-      const h = img.height * scale;
-
-      // Si no cabe en esta página, saltar a la siguiente
-      if (doc.y + h > doc.page.height - 80) {
+      // Crear página si no cabe
+      if (doc.y + img.height > doc.page.height - 80) {
         doc.addPage();
       }
 
-      const x = (doc.page.width - w) / 2;
-      doc.image(jpegBuffer, x, doc.y, { width: w, height: h });
-      doc.moveDown(1.2);
-    } catch (e) {
-      console.log('⚠ Error procesando imagen:', ev.archivoUrl, e.message);
-      doc.fillColor('gray').text('(Imagen no disponible)');
-      doc.fillColor('black');
-      doc.moveDown(0.8);
+      const x = (doc.page.width - img.width) / 2;
+
+      doc.image(img, x, doc.y);
+      doc.moveDown(1.5);
+
+    } catch (err) {
+      console.error("⚠ Error insertando imagen:", err.message);
+      doc.text("(Imagen no disponible)");
+      doc.moveDown(1);
     }
   }
 }
+
 
 // Firma del cliente
 async function drawSignature(doc, evidencias) {
@@ -324,7 +304,7 @@ exports.generateReportePDF = async (req, res) => {
     drawServiceDetails(doc, tarea);
 
     // Evidencias con imágenes optimizadas
-    await drawEvidences(doc, tarea.Evidencia);
+    await drawImages(doc, tarea.Evidencia);
 
     // Firma del cliente
     await drawSignature(doc, tarea.Evidencia);
