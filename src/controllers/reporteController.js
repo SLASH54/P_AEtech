@@ -277,8 +277,6 @@ function drawMaterials(doc, evidencias) {
 // =============================
 // 🔵 CONTROLADOR PRINCIPAL
 // =============================
-console.log("=== DATOS DE LA TAREA ===");
-console.log(JSON.stringify(tarea, null, 2));
 
 exports.generateReportePDF = async (req, res) => {
   try {
@@ -294,6 +292,10 @@ exports.generateReportePDF = async (req, res) => {
         { model: Evidencia, attributes: ['titulo', 'archivoUrl', 'firmaClienteUrl', 'createdAt', 'materiales'] }
       ]
     });
+
+    console.log("=== DATOS DE LA TAREA ===");
+    console.log(JSON.stringify(tarea, null, 2));
+
 
     if (!tarea) {
       return res.status(404).json({ message: `No se encontró la tarea con ID ${id}` });
