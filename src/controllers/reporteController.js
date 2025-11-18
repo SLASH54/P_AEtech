@@ -6,7 +6,9 @@ const sharp = require('sharp');
 const { Tarea, Actividad, Sucursal, ClienteNegocio, Evidencia, Usuario } = require('../models/relations');
 
 // 📁 Carpeta public: src/public (logo.png, watermark.png)
-const publicDir = path.join(__dirname, '..', 'public');
+const publicDir = path.join(process.cwd(), "public");
+
+
 
 // =============================
 // 🔵 HELPERS VISUALES
