@@ -63,11 +63,6 @@ function drawHeader(doc) {
 }
 
 
-drawHeader(doc);
-
-doc.on("pageAdded", () => {
-  drawHeader(doc);
-});
 
 
 // Footer sencillo
