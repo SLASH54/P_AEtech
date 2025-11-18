@@ -107,70 +107,71 @@ exports.generateReportePDF = async (req, res) => {
     doc.moveTo(40, doc.y).lineTo(550, doc.y).strokeColor("#cccccc");
     doc.moveDown(1.5);
 
-    // -----------------------------
-    // 🖼️ EVIDENCIAS
-    // -----------------------------
-    doc.fontSize(17).fillColor("#003366").text("Evidencias Recopiladas", { underline: true });
-    doc.moveDown(1);
-    const sharp = require("sharp");
 
-    for (const ev of tarea.Evidencia) {
-      doc.fontSize(12).fillColor("black").text(`• ${ev.titulo || "Evidencia"}`);
-      doc.moveDown(0.5);
 
-      try {
-        // 1️⃣ descargar imagen
-        const response = await axios.get(ev.archivoUrl, { responseType: "arraybuffer" });
 
-        // 2️⃣ optimizar + corregir rotación + limitar tamaño máximo
-        const fixedBuffer = await sharp(response.data)
-          .rotate()                 // corrige rotación EXIF
-          .resize({
-            width: 1500,            // limita tamaño máximo (evita PDF corruptos)
-            withoutEnlargement: true
-          })
-          .png()
-          .toBuffer();
 
-        const img = doc.openImage(fixedBuffer);
 
-        const maxWidth = 500;   // ancho útil elegancia
-        const maxHeight = 500;  // evita ocupar toda la página
 
-        const imgWidth = img.width;
-        const imgHeight = img.height;
 
-        // 3️⃣ calcular escala correcta
-        const scale = Math.min(
-          maxWidth / imgWidth,
-          maxHeight / imgHeight,
-        );
 
-        const finalWidth = imgWidth * scale;
-        const finalHeight = imgHeight * scale;
 
-        // 4️⃣ si no cabe -> nueva página
-        if (doc.y + finalHeight > doc.page.height - 100) {
-          doc.addPage();
-          doc.moveDown(1);
-        }
 
-        // 5️⃣ dibujar imagen centrada
-        const centerX = (doc.page.width - finalWidth) / 2;
+  // -----------------------------
+// 🖼️ EVIDENCIAS (OPTIMIZADO)
+// -----------------------------
+doc.fontSize(17).fillColor("#003366").text("Evidencias Recopiladas", { underline: true });
+doc.moveDown(1);
 
-        doc.image(fixedBuffer, centerX, doc.y, {
-          width: finalWidth,
-          height: finalHeight,
-        });
+const sharp = require("sharp");
 
-        doc.moveDown(1.5);
+// límites elegantes
+const MAX_WIDTH = 480;
+const MAX_HEIGHT = 620;
 
-      } catch (e) {
-        console.log("Error en evidencia:", ev.archivoUrl, e.message);
-        doc.text("(Imagen no disponible)");
-        doc.moveDown(1);
-      }
+for (const ev of tarea.Evidencia) {
+
+  doc.fontSize(12).fillColor("black").text(`• ${ev.titulo || "Evidencia"}`);
+  doc.moveDown(0.3);
+
+  try {
+    // 1 ➤ descargar imagen original
+    const resImg = await axios.get(ev.archivoUrl, { responseType: "arraybuffer" });
+
+    // 2 ➤ convertir SIEMPRE a JPEG (mucho más estable para PDFKit)
+    const jpegBuffer = await sharp(resImg.data)
+      .rotate() // corrige rotación EXIF
+      .resize({
+        width: MAX_WIDTH,
+        height: MAX_HEIGHT,
+        fit: "inside",
+        withoutEnlargement: true
+      })
+      .jpeg({ quality: 85 })  // calidad alta sin romper PDF
+      .toBuffer();
+
+    // 3 ➤ abrir imagen
+    const img = doc.openImage(jpegBuffer);
+
+    // 4 ➤ verificar espacio disponible
+    if (doc.y + img.height > doc.page.height - 100) {
+      doc.addPage();
+      doc.moveDown(1);
     }
+
+    // 5 ➤ centrar en la página
+    const x = (doc.page.width - img.width) / 2;
+
+    doc.image(jpegBuffer, x, doc.y);
+
+    doc.moveDown(1.2);
+
+  } catch (err) {
+    console.log("⚠ Error insertando imagen:", ev.archivoUrl, err.message);
+    doc.text("(Imagen no disponible)");
+    doc.moveDown(1);
+  }
+}
 
 
 
