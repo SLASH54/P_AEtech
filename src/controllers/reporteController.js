@@ -98,49 +98,119 @@ async function procesarImagen(url) {
 // ======================================================
 
 async function drawImages(doc, evidencias) {
+  const MAX_W = 360; // ancho máximo reducido
+  const MAX_H = 420; // alto máximo reducido
+
+  let firmaDibujada = false;
+  let materialesDibujados = false;
+
   for (const ev of evidencias) {
-    doc.fontSize(14).fillColor("#003366").text(`• ${ev.titulo}`);
-    doc.moveDown(0.5);
 
-    const imgBuffer = await procesarImagen(ev.archivoUrl);
-    if (!imgBuffer) {
-      doc.fillColor("red").text("No se pudo cargar la imagen");
+    // Título de la evidencia
+    doc.fontSize(13).fillColor("#003366").text(`• ${ev.titulo || "Evidencia"}`);
+    doc.moveDown(0.3);
+
+    try {
+      // Procesar imagen
+      const imgBuffer = await procesarImagen(ev.archivoUrl);
+      if (!imgBuffer) {
+        doc.fillColor("red").text("(Imagen no disponible)");
+        doc.moveDown(1);
+        continue;
+      }
+
+      // Abrir buffer
+      const img = doc.openImage(imgBuffer);
+
+      // Calcular tamaño manteniendo proporción
+      let w = img.width;
+      let h = img.height;
+      let scale = Math.min(MAX_W / w, MAX_H / h);
+
+      w *= scale;
+      h *= scale;
+
+      // Salto de página si no cabe
+      if (doc.y + h > doc.page.height - 80) {
+        doc.addPage();
+        drawWatermark(doc);
+        drawHeader(doc);
+      }
+
+      // Centrado
+      const x = (doc.page.width - w) / 2;
+
+      doc.image(imgBuffer, x, doc.y, { width: w });
       doc.moveDown(1);
-      continue;
+
+      // ======== Firma del cliente (solo una vez) ========
+      if (!firmaDibujada && ev.firmaClienteUrl) {
+        firmaDibujada = true;
+
+        doc.moveDown(1);
+        doc.fontSize(16).fillColor("#003366").text("✍️ Firma del Cliente", { align: "center" });
+        doc.moveDown(0.5);
+
+        const firmaBuffer = await procesarImagen(ev.firmaClienteUrl);
+        if (firmaBuffer) {
+          const firmaImg = doc.openImage(firmaBuffer);
+
+          let fw = firmaImg.width;
+          let fh = firmaImg.height;
+          let fscale = Math.min(280 / fw, 180 / fh);
+
+          fw *= fscale;
+          fh *= fscale;
+
+          const fx = (doc.page.width - fw) / 2;
+
+          doc.image(firmaBuffer, fx, doc.y, { width: fw });
+          doc.moveDown(2);
+        }
+      }
+
+      // ======== Tabla de materiales agrupada (solo una vez) ========
+      if (!materialesDibujados && ev.materiales?.length > 0) {
+        materialesDibujados = true;
+
+        doc.addPage();
+        drawWatermark(doc);
+        drawHeader(doc);
+
+        doc.moveDown(1);
+        doc.fontSize(16).fillColor("#003366").text("🧱 Material Ocupado", { underline: true });
+        doc.moveDown(1);
+
+        // Agrupar por categoría
+        const grupos = {};
+        ev.materiales.forEach(m => {
+          if (!grupos[m.categoria]) grupos[m.categoria] = [];
+          grupos[m.categoria].push(m);
+        });
+
+        for (const categoria of Object.keys(grupos).sort()) {
+          doc.fontSize(14).fillColor("#003366").text(`• ${categoria}`);
+          doc.moveDown(0.3);
+
+          grupos[categoria].forEach(mat => {
+            doc.fontSize(12).fillColor("black").text(
+              `${mat.insumo} — ${mat.cantidad} ${mat.unidad}`,
+              { indent: 20 }
+            );
+          });
+
+          doc.moveDown(0.8);
+        }
+      }
+
+    } catch (err) {
+      console.error("⚠ Error insertando imagen:", err.message);
+      doc.fillColor("red").text("(Error cargando imagen)");
     }
 
-    // Abrimos la imagen solo para conocer alto/ancho
-    const img = doc.openImage(imgBuffer);
-
-    const MAX_W = 460;
-    const MAX_H = 580;
-
-    // calculamos el tamaño final con proporción real
-    let finalW = img.width;
-    let finalH = img.height;
-
-    const ratio = Math.min(MAX_W / finalW, MAX_H / finalH);
-
-    finalW *= ratio;
-    finalH *= ratio;
-
-    // si no cabe en la página → saltar
-    if (doc.y + finalH > doc.page.height - 80) {
-      doc.addPage();
-      drawWatermark(doc);
-      drawHeader(doc);
-    }
-
-    // centrar
-    const x = (doc.page.width - finalW) / 2;
-
-    // dibujar con tamaño correcto
-    doc.image(imgBuffer, x, doc.y, { width: finalW });
-
-    // mover cursor correctamente
-    doc.y += finalH + 20; // espacio seguro
   }
 }
+
 
 
 
