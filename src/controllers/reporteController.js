@@ -14,7 +14,7 @@ const {
   ClienteNegocio,
   Usuario,
   Evidencia,
-} = require("../models");
+} = require("../models/relations");
 
 // ======================================================
 //   RUTA CORRECTA PARA RENDER — public está en root/
