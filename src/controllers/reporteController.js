@@ -1,113 +1,137 @@
-// ==============================
-//       REPORTE PDF AETECH
-// ==============================
+// ======================================
+//   REPORTE PDF AETECH - VERSION FINAL
+// ======================================
 
 const PDFDocument = require("pdfkit");
 const axios = require("axios");
 const sharp = require("sharp");
 const path = require("path");
 const fs = require("fs");
-const { Tarea, Actividad, Sucursal, ClienteNegocio, Usuario, Evidencia } = require("../models/relations");
+const {
+  Tarea,
+  Actividad,
+  Sucursal,
+  ClienteNegocio,
+  Usuario,
+  Evidencia,
+} = require("../models");
 
-// -------------------------------------------
-//   UTIL: Comprimir cualquier imagen grande
-// -------------------------------------------
+// ======================================================
+//   RUTA CORRECTA PARA RENDER — public está en root/
+// ======================================================
+const publicDir = path.join(process.cwd(), "public");
+const logoPath = path.join(publicDir, "logo.png");
+const watermarkPath = path.join(publicDir, "watermark.png");
 
+// ======================================================
+//   UTIL: Marca de agua centrada (funciona en todas)
+// ======================================================
+function drawWatermark(doc) {
+  if (!fs.existsSync(watermarkPath)) return;
+
+  try {
+    const wm = doc.openImage(watermarkPath);
+    const scale = 0.45; // tamaño perfecto
+    const w = wm.width * scale;
+    const h = wm.height * scale;
+
+    const x = (doc.page.width - w) / 2;
+    const y = (doc.page.height - h) / 2;
+
+    doc.save()
+      .opacity(0.12)
+      .image(wm, x, y, { width: w })
+      .opacity(1)
+      .restore();
+  } catch (err) {
+    console.log("⚠ Error dibujando watermark:", err.message);
+  }
+}
+
+// ======================================================
+//   UTIL: Encabezado con logo
+// ======================================================
+function drawHeader(doc) {
+  if (fs.existsSync(logoPath)) {
+    try {
+      doc.image(logoPath, 40, 25, { width: 80 });
+    } catch (err) {
+      console.log("⚠ Error dibujando logo:", err.message);
+    }
+  }
+
+  doc.fontSize(20).fillColor("#003366").text("AE TECH", 140, 30);
+  doc.fontSize(11).fillColor("#777").text("Reporte oficial de servicio", 140, 55);
+
+  doc.moveTo(40, 90)
+    .lineTo(550, 90)
+    .stroke("#003366");
+
+  doc.moveDown(2);
+}
+
+// ======================================================
+//   UTIL: Procesar y comprimir imágenes Cloudinary
+// ======================================================
 async function procesarImagen(url) {
   try {
     const res = await axios.get(url, { responseType: "arraybuffer" });
 
     return await sharp(res.data)
-      .rotate() // corrige orientación EXIF
+      .rotate()
       .resize({
-        width: 550,
-        height: 650,
+        width: 480,        // tamaño óptimo para carta
+        height: 580,
         fit: "inside",
         withoutEnlargement: true,
       })
-      .jpeg({ quality: 70 }) // compresión agresiva para evitar cuelgues
+      .jpeg({ quality: 70 })
       .toBuffer();
   } catch (err) {
-    console.error("⚠ Error procesando imagen:", url, err.message);
+    console.log("⚠ Error procesando imagen:", url, err.message);
     return null;
   }
 }
 
-// -------------------------------------------
-//   UTIL: Dibujar marca de agua centrada
-// -------------------------------------------
-
-function dibujarMarcaAgua(doc, watermarkPath) {
-  try {
-    if (!fs.existsSync(watermarkPath)) return;
-
-    const wm = doc.openImage(watermarkPath);
-    const scale = 0.55;
-
-    const wmWidth = wm.width * scale;
-    const wmHeight = wm.height * scale;
-
-    const x = (doc.page.width - wmWidth) / 2;
-    const y = (doc.page.height - wmHeight) / 2;
-
-    doc.save()
-      .opacity(0.15)
-      .image(wm, x, y, { width: wmWidth })
-      .opacity(1)
-      .restore();
-  } catch (err) {
-    console.error("⚠ Error dibujando marca de agua:", err.message);
-  }
-}
-
-// -------------------------------------------
-//   UTIL: Dibujar imágenes sin romper PDF
-// -------------------------------------------
-
-async function dibujarEvidencias(doc, evidencias) {
+// ======================================================
+//   UTIL: Dibujar evidencias SIN amontonarse
+// ======================================================
+async function drawImages(doc, evidencias) {
   for (const ev of evidencias) {
-
-    doc.fontSize(13).fillColor("#003366").text(`• ${ev.titulo || "Evidencia"}`);
+    doc.fontSize(14).fillColor("#003366").text(`• ${ev.titulo}`);
     doc.moveDown(0.5);
 
-    try {
-      const buffer = await procesarImagen(ev.archivoUrl);
+    const imgBuffer = await procesarImagen(ev.archivoUrl);
 
-      if (!buffer) {
-        doc.fillColor("red").text("(No se pudo cargar la imagen)");
-        continue;
-      }
-
-      const img = doc.openImage(buffer);
-
-      // Saltar de página si no cabe
-      if (doc.y + img.height > doc.page.height - 80) {
-        doc.addPage();
-        // agregar marca de agua también aquí
-        const watermarkPath = path.join(__dirname, "../public/watermark.png");
-        dibujarMarcaAgua(doc, watermarkPath);
-      }
-
-      const x = (doc.page.width - img.width) / 2;
-      doc.image(buffer, x, doc.y);
-
-      doc.moveDown(1.5);
-
-    } catch (err) {
-      console.error("⚠ Error insertando evidencia:", err.message);
-      doc.text("(Error al insertar imagen)");
+    if (!imgBuffer) {
+      doc.fillColor("red").text("No se pudo cargar la imagen.");
       doc.moveDown(1);
+      continue;
     }
+
+    const img = doc.openImage(imgBuffer);
+
+    // salto de página limpio si no cabe
+    if (doc.y + img.height > doc.page.height - 80) {
+      doc.addPage();
+      drawWatermark(doc);
+      drawHeader(doc);
+    }
+
+    // centrar imagen
+    const x = (doc.page.width - img.width) / 2;
+
+    doc.image(img, x, doc.y);
+    doc.moveDown(1.5);
   }
 }
 
-// -------------------------------------------
-//          CONTROLADOR GENERAR PDF
-// -------------------------------------------
-
+// ======================================================
+//   CONTROLADOR PRINCIPAL
+// ======================================================
 exports.generateReportePDF = async (req, res) => {
   try {
-    const tareaId = req.params.tareaId;
+    const { tareaId } = req.params;
 
     const tarea = await Tarea.findOne({
       where: { id: tareaId },
@@ -128,10 +152,9 @@ exports.generateReportePDF = async (req, res) => {
       return res.status(400).json({ error: "La tarea no tiene evidencias" });
     }
 
-    // ----------------------------------
-    //      CONFIGURAR PDF
-    // ----------------------------------
-
+    // =============================================
+    //    CONFIGURAR PDF
+    // =============================================
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
@@ -146,77 +169,49 @@ exports.generateReportePDF = async (req, res) => {
 
     doc.pipe(res);
 
-    const logoPath = path.join(__dirname, "../public/logo.png");
-    const watermarkPath = path.join(__dirname, "../public/watermark.png");
+    // aplicar en primera página
+    drawWatermark(doc);
+    drawHeader(doc);
 
-    // Marca de agua en primera página
-    dibujarMarcaAgua(doc, watermarkPath);
+    // repetir en nuevas páginas
+    doc.on("pageAdded", () => {
+      drawWatermark(doc);
+      drawHeader(doc);
+    });
 
-    // ----------------------------------
-    //           ENCABEZADO
-    // ----------------------------------
-
-    if (fs.existsSync(logoPath)) {
-      doc.image(logoPath, 40, 30, { width: 90 });
-    }
-
-    doc.fontSize(22).fillColor("#003366").text("AE TECH", 150, 35);
-    doc.fontSize(12).text("Reporte oficial de servicio", 150, 60);
-
-    doc.moveDown(2);
-    doc
-      .strokeColor("#003366")
-      .lineWidth(1)
-      .moveTo(30, doc.y)
-      .lineTo(580, doc.y)
-      .stroke();
-    doc.moveDown(1.5);
-
-    // ----------------------------------
-    //        DETALLES DE LA TAREA
-    // ----------------------------------
-
-    doc.fontSize(18).fillColor("#003366").text("Trabajo Realizado:");
-    doc.moveDown(0.3);
-    doc.fontSize(14).fillColor("black").text(tarea.nombre);
+    // =============================================
+    //      DETALLES DE LA TAREA
+    // =============================================
+    doc.fontSize(18).fillColor("#003366").text("Trabajo Realizado");
+    doc.moveDown(0.4);
+    doc.fontSize(13).fillColor("black").text(tarea.nombre);
     doc.moveDown(1);
 
     doc.fontSize(18).fillColor("#003366").text("Detalles del servicio");
-    doc.moveDown(0.8);
+    doc.moveDown(0.6);
 
     doc.fontSize(12).fillColor("black");
     doc.text(`Cliente: ${tarea.ClienteNegocio?.nombre}`);
-    doc.text(`Dirección: ${tarea.ClienteNegocio?.direccion}`);
+    doc.text(`Dirección Cliente: ${tarea.ClienteNegocio?.direccion}`);
     doc.text(`Sucursal: ${tarea.Sucursal?.nombre}`);
-    doc.text(`Dirección de la Sucursal: ${tarea.Sucursal?.direccion}`);
+    doc.text(`Dirección Sucursal: ${tarea.Sucursal?.direccion}`);
     doc.text(`Actividad: ${tarea.Actividad?.nombre}`);
-    doc.text(`Asignado a: ${tarea.AsignadoA?.nombre}`);
-    doc.text(`Fecha de finalización: ${tarea.fechaLimite}`);
+    doc.text(`Asignado a: ${tarea.AsignadoA?.nombre} (${tarea.AsignadoA?.rol})`);
+    doc.text(`Fecha finalización: ${tarea.fechaLimite}`);
 
     doc.moveDown(1.2);
 
-    doc
-      .strokeColor("#003366")
-      .lineWidth(1)
-      .moveTo(30, doc.y)
-      .lineTo(580, doc.y)
-      .stroke();
+    // =============================================
+    //      EVIDENCIAS
+    // =============================================
+    doc.fontSize(18).fillColor("#003366").text("Evidencias");
+    doc.moveDown(0.8);
 
-    doc.moveDown(1.5);
+    await drawImages(doc, tarea.Evidencia);
 
-    // ----------------------------------
-    //       EVIDENCIAS
-    // ----------------------------------
-
-    doc.fontSize(18).fillColor("#003366").text("Evidencias Recopiladas");
-    doc.moveDown(1);
-
-    await dibujarEvidencias(doc, tarea.Evidencia);
-
-    // ----------------------------------
-    //         FIN DEL PDF
-    // ----------------------------------
-
+    // =============================================
+    // FIN DEL REPORTE
+    // =============================================
     doc.end();
   } catch (error) {
     console.error("❌ Error generando PDF:", error);
