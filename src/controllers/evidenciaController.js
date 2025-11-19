@@ -8,7 +8,7 @@ const sharp = require("sharp");
 const path = require("path");
 const fs = require("fs");
 
-const { Tarea, ClienteNegocio, Actividad, Sucursal, Usuario, Evidencia } = require('../models/index.js');
+const { Tarea, ClienteNegocio, Actividad, Sucursal, Usuario, Evidencia } = require('../models/relations');
 
 
 // -------------------------------------------
