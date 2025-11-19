@@ -14,24 +14,27 @@ const {
   ClienteNegocio,
   Usuario,
   Evidencia,
-} = require("../models/relations");
+} = require("../models");
 
-// ======================================================
-//   RUTA CORRECTA PARA RENDER — public está en root/
-// ======================================================
+
+// ==============================
+//  Rutas correctas para Render
+// ==============================
 const publicDir = path.join(process.cwd(), "public");
 const logoPath = path.join(publicDir, "logo.png");
 const watermarkPath = path.join(publicDir, "watermark.png");
 
-// ======================================================
-//   UTIL: Marca de agua centrada (funciona en todas)
-// ======================================================
+
+// ==============================
+//   Marca de agua
+// ==============================
 function drawWatermark(doc) {
   if (!fs.existsSync(watermarkPath)) return;
 
   try {
     const wm = doc.openImage(watermarkPath);
-    const scale = 0.45;
+    const scale = 0.40;
+
     const w = wm.width * scale;
     const h = wm.height * scale;
 
@@ -39,29 +42,29 @@ function drawWatermark(doc) {
     const y = (doc.page.height - h) / 2;
 
     doc.save()
-      .opacity(0.12)
+      .opacity(0.15)
       .image(wm, x, y, { width: w })
       .opacity(1)
       .restore();
+
   } catch (err) {
-    console.log("⚠ Error dibujando watermark:", err.message);
+    console.log("⚠ Error en watermark:", err.message);
   }
 }
 
-// ======================================================
-//   UTIL: Encabezado con logo
-// ======================================================
+
+// ==============================
+//   Encabezado con logo
+// ==============================
 function drawHeader(doc) {
   if (fs.existsSync(logoPath)) {
     try {
       doc.image(logoPath, 40, 25, { width: 80 });
-    } catch (err) {
-      console.log("⚠ Error dibujando logo:", err.message);
-    }
+    } catch { }
   }
 
   doc.fontSize(20).fillColor("#003366").text("AE TECH", 140, 30);
-  doc.fontSize(11).fillColor("#777").text("Reporte oficial de servicio", 140, 55);
+  doc.fontSize(11).fillColor("#666").text("Reporte oficial de servicio", 140, 55);
 
   doc.moveTo(40, 90)
     .lineTo(550, 90)
@@ -70,9 +73,10 @@ function drawHeader(doc) {
   doc.moveDown(2);
 }
 
-// ======================================================
-//   UTIL: Procesar y comprimir imágenes Cloudinary
-// ======================================================
+
+// ==============================
+//   Procesar imágenes de Cloudinary
+// ==============================
 async function procesarImagen(url) {
   try {
     const res = await axios.get(url, { responseType: "arraybuffer" });
@@ -80,134 +84,24 @@ async function procesarImagen(url) {
     return await sharp(res.data)
       .rotate()
       .resize({
-        width: 480,
-        height: 580,
-        fit: "inside",
-        withoutEnlargement: true,
+        width: 400,   // más pequeño
+        height: 450,
+        fit: "inside"
       })
-      .jpeg({ quality: 70 })
+      .jpeg({ quality: 80 })
       .toBuffer();
+
   } catch (err) {
-    console.log("⚠ Error procesando imagen:", url, err.message);
+    console.log("⚠ Error procesando imagen:", err.message);
     return null;
   }
 }
 
-// ======================================================
-//   UTIL: Dibujar evidencias + firma + materiales
-// ======================================================
-async function drawImages(doc, evidencias) {
-  const MAX_W = 360;
-  const MAX_H = 420;
-
-  let firmaDibujada = false;
-  let materialesDibujados = false;
-
-  for (const ev of evidencias) {
-
-    // Título de la evidencia
-    doc.fontSize(13).fillColor("#003366").text(`• ${ev.titulo || "Evidencia"}`);
-    doc.moveDown(0.3);
-
-    const imgBuffer = await procesarImagen(ev.archivoUrl);
-
-    if (imgBuffer) {
-      const img = doc.openImage(imgBuffer);
-
-      // Calcular tamaño manteniendo proporción
-      let w = img.width;
-      let h = img.height;
-      let scale = Math.min(MAX_W / w, MAX_H / h);
-
-      w *= scale;
-      h *= scale;
-
-      // Salto de página si no cabe
-      if (doc.y + h > doc.page.height - 80) {
-        doc.addPage();
-        drawWatermark(doc);
-        drawHeader(doc);
-      }
-
-      // Centrado
-      const x = (doc.page.width - w) / 2;
-
-      doc.image(imgBuffer, x, doc.y, { width: w });
-      doc.moveDown(1);
-    } else {
-      doc.fillColor("red").text("(Imagen no disponible)");
-      doc.moveDown(1);
-    }
-
-    // =============== FIRMA DEL CLIENTE ===============
-    if (!firmaDibujada && ev.firmaClienteUrl) {
-      firmaDibujada = true;
-
-      doc.moveDown(1);
-      doc.fontSize(16).fillColor("#003366").text("✍️ Firma del Cliente", { align: "center" });
-      doc.moveDown(0.5);
-
-      const fbuf = await procesarImagen(ev.firmaClienteUrl);
-
-      if (fbuf) {
-        const fimg = doc.openImage(fbuf);
-
-        let fw = fimg.width;
-        let fh = fimg.height;
-        let fscale = Math.min(260 / fw, 180 / fh);
-
-        fw *= fscale;
-        fh *= fscale;
-
-        const fx = (doc.page.width - fw) / 2;
-
-        doc.image(fbuf, fx, doc.y, { width: fw });
-        doc.moveDown(2);
-      }
-    }
-
-    // =============== MATERIALES AL FINAL ===============
-    if (!materialesDibujados && ev.materiales?.length > 0) {
-      materialesDibujados = true;
-
-      doc.addPage();
-      drawWatermark(doc);
-      drawHeader(doc);
-
-      doc.fontSize(18).fillColor("#003366").text("🧱 Material Ocupado", { underline: true });
-      doc.moveDown(1);
-
-      const grupos = {};
-
-      ev.materiales.forEach(m => {
-        if (!grupos[m.categoria]) grupos[m.categoria] = [];
-        grupos[m.categoria].push(m);
-      });
-
-      for (const categoria of Object.keys(grupos).sort()) {
-        doc.fontSize(14).fillColor("#003366").text(`• ${categoria}`);
-        doc.moveDown(0.3);
-
-        grupos[categoria].forEach(mat => {
-          doc.fontSize(12).fillColor("black").text(
-            `${mat.insumo} — ${mat.cantidad} ${mat.unidad}`,
-            { indent: 20 }
-          );
-        });
-
-        doc.moveDown(0.8);
-      }
-    }
-  }
-}
 
 
-
-
-
-// ======================================================
+// =================================================
 //   CONTROLADOR PRINCIPAL
-// ======================================================
+// =================================================
 exports.generateReportePDF = async (req, res) => {
   try {
     const { tareaId } = req.params;
@@ -228,9 +122,10 @@ exports.generateReportePDF = async (req, res) => {
     if (!tarea.Evidencia?.length)
       return res.status(400).json({ error: "La tarea no tiene evidencias" });
 
-    // =============================================
-    //    CONFIGURAR PDF
-    // =============================================
+
+    // =========================
+    //   Configurar PDF
+    // =========================
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
@@ -245,46 +140,136 @@ exports.generateReportePDF = async (req, res) => {
 
     doc.pipe(res);
 
-    // aplicar en primera página
+
+    // Primera página
     drawWatermark(doc);
     drawHeader(doc);
 
-    // repetir en nuevas páginas
     doc.on("pageAdded", () => {
       drawWatermark(doc);
       drawHeader(doc);
     });
 
-    // ================= Detalles ===================
+
+    // =========================
+    //   Detalles de la tarea
+    // =========================
     doc.fontSize(18).fillColor("#003366").text("Trabajo Realizado");
-    doc.moveDown(0.4);
+    doc.moveDown(0.5);
     doc.fontSize(13).fillColor("black").text(tarea.nombre);
     doc.moveDown(1);
 
     doc.fontSize(18).fillColor("#003366").text("Detalles del servicio");
-    doc.moveDown(0.6);
+    doc.moveDown(0.7);
 
     doc.fontSize(12).fillColor("black");
     doc.text(`Cliente: ${tarea.ClienteNegocio.nombre}`);
-    doc.text(`Dirección Cliente: ${tarea.ClienteNegocio.direccion}`);
+    doc.text(`Dirección: ${tarea.ClienteNegocio.direccion}`);
     doc.text(`Sucursal: ${tarea.Sucursal.nombre}`);
     doc.text(`Dirección Sucursal: ${tarea.Sucursal.direccion}`);
     doc.text(`Actividad: ${tarea.Actividad.nombre}`);
     doc.text(`Asignado a: ${tarea.AsignadoA.nombre} (${tarea.AsignadoA.rol})`);
     doc.text(`Fecha finalización: ${tarea.fechaLimite}`);
 
-    doc.moveDown(1.2);
+    doc.moveDown(1.5);
 
-    // ================= Evidencias ===================
-    doc.fontSize(18).fillColor("#003366").text("Evidencias");
-    doc.moveDown(0.8);
 
-    await drawImages(doc, tarea.Evidencia);
 
-    // =============================================
-    // FIN DEL REPORTE
-    // =============================================
+    // =========================
+    //   SECCIÓN EVIDENCIAS
+    // =========================
+    doc.addPage();
+    doc.fontSize(20).fillColor("#003366").text("Evidencias", { underline: true });
+    doc.moveDown(1);
+
+    for (const ev of tarea.Evidencia) {
+
+      doc.fontSize(13).fillColor("black").text(`• ${ev.titulo}`);
+      doc.moveDown(0.4);
+
+      const buffer = await procesarImagen(ev.archivoUrl);
+
+      if (!buffer) {
+        doc.fillColor("red").text("(Imagen no disponible)");
+        doc.moveDown(1);
+        continue;
+      }
+
+      const img = doc.openImage(buffer);
+
+      if (doc.y + img.height > doc.page.height - 80) {
+        doc.addPage();
+      }
+
+      const x = (doc.page.width - img.width) / 2;
+
+      doc.image(buffer, x, doc.y, { width: img.width });
+      doc.moveDown(1.2);
+    }
+
+
+
+    // =========================
+    //   SECCIÓN FIRMA DEL CLIENTE
+    // =========================
+    const evidenciaConFirma = tarea.Evidencia.find(e => e.firmaClienteUrl);
+
+    if (evidenciaConFirma) {
+      doc.addPage();
+      doc.fontSize(20).fillColor("#003366").text("Firma del Cliente", { underline: true });
+      doc.moveDown(1);
+
+      const buffer = await procesarImagen(evidenciaConFirma.firmaClienteUrl);
+
+      if (buffer) {
+        const img = doc.openImage(buffer);
+        const x = (doc.page.width - img.width) / 2;
+
+        doc.image(buffer, x, doc.y, { width: img.width });
+      } else {
+        doc.fillColor("red").text("No se pudo cargar la firma.");
+      }
+    }
+
+
+
+    // =========================
+    //   SECCIÓN MATERIALES
+    // =========================
+    const materiales = tarea.Evidencia[0].materiales || [];
+
+    if (materiales.length > 0) {
+      doc.addPage();
+
+      doc.fontSize(20).fillColor("#003366").text("Material Ocupado", { underline: true });
+      doc.moveDown(1);
+
+      const grupos = {};
+
+      materiales.forEach(m => {
+        if (!grupos[m.categoria]) grupos[m.categoria] = [];
+        grupos[m.categoria].push(m);
+      });
+
+      for (const categoria of Object.keys(grupos).sort()) {
+        doc.fontSize(15).fillColor("#003366").text(`• ${categoria}`);
+        doc.moveDown(0.3);
+
+        grupos[categoria].forEach(mat => {
+          doc.fontSize(12).fillColor("black").text(
+            `${mat.insumo} — ${mat.cantidad} ${mat.unidad}`,
+            { indent: 20 }
+          );
+        });
+
+        doc.moveDown(0.8);
+      }
+    }
+
+
+    // Final
     doc.end();
+
   } catch (error) {
     console.error("❌ Error generando PDF:", error);
     res.status(500).json({ error: "No se pudo generar el PDF" });
