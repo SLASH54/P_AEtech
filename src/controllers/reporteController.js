@@ -96,35 +96,54 @@ async function procesarImagen(url) {
 // ======================================================
 //   UTIL: Dibujar evidencias SIN amontonarse
 // ======================================================
+
 async function drawImages(doc, evidencias) {
   for (const ev of evidencias) {
     doc.fontSize(14).fillColor("#003366").text(`• ${ev.titulo}`);
     doc.moveDown(0.5);
 
     const imgBuffer = await procesarImagen(ev.archivoUrl);
-
     if (!imgBuffer) {
-      doc.fillColor("red").text("No se pudo cargar la imagen.");
+      doc.fillColor("red").text("No se pudo cargar la imagen");
       doc.moveDown(1);
       continue;
     }
 
+    // Abrimos la imagen solo para conocer alto/ancho
     const img = doc.openImage(imgBuffer);
 
-    // salto de página limpio si no cabe
-    if (doc.y + img.height > doc.page.height - 80) {
+    const MAX_W = 460;
+    const MAX_H = 580;
+
+    // calculamos el tamaño final con proporción real
+    let finalW = img.width;
+    let finalH = img.height;
+
+    const ratio = Math.min(MAX_W / finalW, MAX_H / finalH);
+
+    finalW *= ratio;
+    finalH *= ratio;
+
+    // si no cabe en la página → saltar
+    if (doc.y + finalH > doc.page.height - 80) {
       doc.addPage();
       drawWatermark(doc);
       drawHeader(doc);
     }
 
-    // centrar imagen
-    const x = (doc.page.width - img.width) / 2;
+    // centrar
+    const x = (doc.page.width - finalW) / 2;
 
-    doc.image(img, x, doc.y);
-    doc.moveDown(1.5);
+    // dibujar con tamaño correcto
+    doc.image(imgBuffer, x, doc.y, { width: finalW });
+
+    // mover cursor correctamente
+    doc.y += finalH + 20; // espacio seguro
   }
 }
+
+
+
 
 // ======================================================
 //   CONTROLADOR PRINCIPAL
