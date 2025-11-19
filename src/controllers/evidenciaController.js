@@ -1,346 +1,287 @@
-// src/controllers/evidenciaController.js
-const { Evidencia, Tarea, Usuario, Notificacion } = require('../models/relations');
-const { sequelize } = require('../config/database');
-const { sendPushToUser } = require('../utils/push');
+// ==============================
+//       REPORTE PDF AETECH
+// ==============================
+
+const PDFDocument = require("pdfkit");
+const axios = require("axios");
+const sharp = require("sharp");
+const path = require("path");
+const fs = require("fs");
+
+const { Tarea, ClienteNegocio, Actividad, Sucursal, Usuario, Evidencia } = require('../models/index.js');
 
 
+// -------------------------------------------
+//   UTIL: Comprimir cualquier imagen grande
+// -------------------------------------------
 
-// src/controllers/evidenciaController.js
-// ✅ Nueva versión con Cloudinary
-const cloudinary = require('cloudinary').v2;
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
-});
-
-const subirMultiplesEvidencias = async (req, res) => {
+async function procesarImagen(url, maxW = 350, maxH = 400) {
   try {
-    const { id: tareaId } = req.params;
-    const usuarioId = req.user.id;
-
-    const files = req.files?.archivos || [];
-    const firma = req.files?.firmaCliente?.[0] || null;
-    const titulos = req.body.titulos ? req.body.titulos.split(',') : [];
-    
-// 🧱 Capturar materiales ocupados (enviados desde el frontend)
-const materiales = req.body.materiales ? JSON.parse(req.body.materiales) : [];
-
-
-
-    if (!tareaId) return res.status(400).json({ msg: 'Falta el ID de la tarea.' });
-    if (files.length === 0 && !firma)
-      return res.status(400).json({ msg: 'No se subieron archivos ni firma.' });
-
-    const evidencias = [];
-
-    // 📤 Subir imágenes a Cloudinary
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const titulo = titulos[i] || `Evidencia ${i + 1}`;
-
-      const result = await cloudinary.uploader.upload(file.path, {
-        folder: 'aetech_evidencias',
-        resource_type: 'auto'
-      });
-
-
-      let firmaUrl = null;
-
-// 📤 Subir la firma del cliente (solo si existe)
-if (firma) {
-  const firmaResult = await cloudinary.uploader.upload(firma.path, {
-    folder: 'aetech_firmas',
-    resource_type: 'auto'
-  });
-  firmaUrl = firmaResult.secure_url;
-}
-
-// 💾 Guardar evidencia con su firma correspondiente
-const evidencia = await Evidencia.create({
-  tareaId,
-  usuarioId,
-  titulo,
-  archivoUrl: result.secure_url,
-  firmaClienteUrl: firmaUrl,
-  materiales // 🧱 se guarda correctamente el array enviado
-});
-
-
-
-      //const evidencia = await Evidencia.create({
-      //  tareaId,
-      // usuarioId,
-      //  titulo,
-      //  archivoUrl: result.secure_url,
-      //  firmaClienteUrl: firma ? result.secure_url : null
-      //});
-
-      evidencias.push(evidencia);
-    }
-
-    // ✅ Actualizar estado de la tarea
-    await Tarea.update({ estado: 'Completada' }, { where: { id: tareaId } });
-
-    console.log(`✅ ${evidencias.length} evidencias subidas a Cloudinary`);
-
-    
-// ... después de marcar la tarea "Completada"
-const tarea = await Tarea.findByPk(tareaId);
-
-// Marcar como leídas/eliminar notificaciones previas de esa tarea
-await Notificacion.update(
-  { leida: true },
-  { where: { tareaId } }
-);
-
-// Enviar push al asignado (opcional también al admin)
-if (tarea?.usuarioAsignadoId) {
-  sendPushToUser(
-    tarea.usuarioAsignadoId,
-    'Tarea completada ✔',
-    `Se completó: ${tarea.nombre}`,
-    { tareaId: String(tarea.id) }
-  );
-}
-
-
-    res.status(201).json({
-      msg: 'Evidencias guardadas correctamente en Cloudinary',
-      evidencias
-    });
-
-    // 🧾 Generar PDF (ya con URLs de Cloudinary)
-    await generarReportePDFInterno(tareaId, usuarioId);
-  } catch (error) {
-    console.error('❌ Error al subir evidencias:', error);
-    res.status(500).json({ msg: 'Error interno al subir evidencias.' });
-  }
-
-  console.log("REQ.FILES =>", req.files);
-console.log("REQ.BODY =>", req.body);
-console.log("REQ.PARAMS =>", req.params);
-
-console.log("🟢 Campos recibidos:", Object.keys(req.body));
-console.log("🟣 Archivos recibidos:", req.files?.map(f => f.fieldname));
-};
-
-
-// Configuración de inclusión para GET (mostrar detalles de la Tarea relacionada)
-const includeConfig = [
-    { model: Tarea, include: [
-        { model: Usuario, as: 'AsignadoA', attributes: ['nombre', 'rol'] }
-    ]},
-    { model: Usuario, as: 'Autor', attributes: ['nombre', 'rol'] }
-];
-
-// 1. Registrar Evidencia (POST) - Solo Residente/Practicante
-exports.createEvidencia = async (req, res) => {
-    // El usuarioId se obtiene del token de autenticación (req.user.id)
-    const usuarioId = req.user.id;
-    const { tareaId, datos_recopilados, observaciones } = req.body;
-
-    // Usamos una transacción para asegurar la consistencia de los datos
-    const transaction = await sequelize.transaction();
-
-    try {
-        if (!tareaId || !datos_recopilados) {
-            return res.status(400).json({ message: 'Faltan el ID de la Tarea y los datos recopilados.' });
-        }
-
-        // 1. Verificar que la Tarea exista y esté pendiente
-        const tarea = await Tarea.findByPk(tareaId, { transaction });
-        if (!tarea) {
-            await transaction.rollback();
-            return res.status(404).json({ message: 'La Tarea especificada no existe.' });
-        }
-        if (tarea.estado !== 'Pendiente' && tarea.estado !== 'En Progreso') {
-            await transaction.rollback();
-            return res.status(400).json({ message: 'La Tarea ya está en estado: ${tarea.estado}.' });
-        }
-
-
-        
-        // 2. Crear la Evidencia
-        const evidencia = await Evidencia.create({
-  tareaId,
-  usuarioId,
-  titulo,
-  archivoUrl: result.secure_url,
-  firmaClienteUrl: firmaUrl,
-  materiales // ← 🧱 guarda el arreglo de materiales
-});
-
-
-
-
-
-        // 3. Actualizar la Tarea a 'Completada'
-        await Tarea.update(
-            { estado: 'Completada' },
-            { where: { id: tareaId }, transaction }
-        );
-
-        // 4. Confirmar la transacción
-        await transaction.commit();
-        
-        return res.status(201).json({ message: 'Evidencia registrada y Tarea completada con éxito.', evidencia });
-
-    } catch (error) {
-        // Si algo falla, revertir los cambios
-        await transaction.rollback();
-        console.error('Error al registrar evidencia:', error);
-        return res.status(500).json({ message: 'Error interno del servidor al crear la evidencia.' });
-    }
-};
-
-// 2. Obtener TODAS las Evidencias (GET) - Admin/Ingeniero (Roles de Monitoreo)
-exports.getAllEvidencias = async (req, res) => {
-    try {
-        const evidencias = await Evidencia.findAll({ 
-            include: includeConfig,
-            order: [['createdAt', 'DESC']]
-        });
-        return res.json(evidencias);
-    } catch (error) {
-        console.error('Error al obtener evidencias:', error);
-        return res.status(500).json({ message: 'Error interno del servidor al obtener las evidencias.' });
-    }
-};
-
-// 3. Obtener Evidencias por Tarea (GET por ID) - Todos los roles con permiso de lectura
-exports.getEvidenciaByTareaId = async (req, res) => {
-  try {
-    const { tareaId } = req.params;
-    const evidencias = await Evidencia.findAll({
-      where: { tareaId },
-      order: [['createdAt', 'ASC']]
-    });
-
-    if (!evidencias || evidencias.length === 0) {
-      return res.status(404).json({ message: 'No se encontraron evidencias para esta tarea.' });
-    }
-
-    return res.json(evidencias);
-  } catch (error) {
-    console.error('Error al obtener evidencias:', error);
-    return res.status(500).json({ message: 'Error interno del servidor al obtener las evidencias.' });
-  }
-};
-
-
-
-exports.getEvidenciasByTarea = async (req, res) => {
-try {
-const { tareaId } = req.params;
-const list = await Evidencia.findAll({ where: { tareaId }, order: [['createdAt','DESC']] });
-return res.json(list);
-} catch (err) {
-console.error(err);
-return res.status(500).json({ msg: 'Error al obtener evidencias' });
-}
-};
-
-
-// ... (todas tus funciones anteriores)
-
-// ✅ Exportación de todas las funciones
-module.exports = {
-  subirMultiplesEvidencias,
-  createEvidencia: exports.createEvidencia,
-  getAllEvidencias: exports.getAllEvidencias,
-  getEvidenciaByTareaId: exports.getEvidenciaByTareaId,
-  getEvidenciasByTarea: exports.getEvidenciasByTarea,
-};
-
-
-//pdf 
-
-const PDFDocument = require('pdfkit');
-const fs = require('fs');
-const path = require('path');
-
-async function generarReportePDFInterno(tareaId, usuarioId) {
-  try {
-    const tarea = await Tarea.findByPk(tareaId, {
-      include: [
-        { model: Actividad, attributes: ['nombre', 'descripcion'] },
-        { model: Sucursal, attributes: ['nombre', 'direccion'] },
-        { model: ClienteNegocio, attributes: ['nombre'] },
-        { model: Usuario, as: 'AsignadoA', attributes: ['nombre', 'rol'] },
-        { model: Evidencia, attributes: ['titulo', 'archivoUrl', 'createdAt', 'materiales'] }
-      ]
-    });
-
-    if (!tarea) return console.warn(`No se encontró tarea con ID ${tareaId}`);
-
-    // 📄 Crear directorio de reportes si no existe
-    const reportsDir = path.join(__dirname, '../../uploads/reportes');
-    if (!fs.existsSync(reportsDir)) fs.mkdirSync(reportsDir, { recursive: true });
-
-    // 🧾 Crear PDF
-    const pdfPath = path.join(reportsDir, `Reporte_Tarea_${tareaId}.pdf`);
-    const doc = new PDFDocument({ margin: 40 });
-    const stream = fs.createWriteStream(pdfPath);
-    doc.pipe(stream);
-
-    // Encabezado
-    doc.fontSize(20).text('Reporte de Evidencias', { align: 'center' });
-    doc.moveDown();
-    doc.fontSize(12).text(`Cliente: ${tarea.ClienteNegocio.nombre}`);
-    doc.text(`Sucursal: ${tarea.Sucursal.nombre}`);
-    doc.text(`Dirección: ${tarea.Sucursal.direccion}`);
-    doc.text(`Actividad: ${tarea.Actividad.nombre}`);
-    doc.text(`Asignado a: ${tarea.AsignadoA.nombre} (${tarea.AsignadoA.rol})`);
-    doc.moveDown();
-
-    // Evidencias
-    doc.fontSize(14).text('Evidencias Subidas:', { underline: true });
-    doc.moveDown(0.5);
-
-    for (const ev of tarea.Evidencia) {
-      doc.fontSize(12).text(`• ${ev.titulo}`);
-      if (ev.archivoUrl) {
-  try {
-    doc.image(ev.archivoUrl, { width: 200 });
-  } catch {
-    doc.text(`(No se pudo cargar la imagen: ${ev.archivoUrl})`);
-  }
-}
-      doc.moveDown();
-    }
-
-
-    // === 🧱 MATERIALES OCUPADOS ===
-const evidenciaConMateriales = tarea.Evidencia.find(ev => ev.materiales && ev.materiales.length > 0);
-if (evidenciaConMateriales) {
-  doc.addPage();
-  doc.fontSize(14).fillColor('#003366').text('🧱 Material Ocupado', { underline: true });
-  doc.moveDown(0.5);
-  doc.fillColor('black');
-
-  try {
-    const listaMateriales = Array.isArray(evidenciaConMateriales.materiales)
-      ? evidenciaConMateriales.materiales
-      : JSON.parse(evidenciaConMateriales.materiales || '[]');
-
-    listaMateriales.forEach(m => {
-      doc.fontSize(12).text(`• ${m}`);
-    });
+    const res = await axios.get(url, { responseType: "arraybuffer" });
+
+    return await sharp(res.data)
+      .rotate()
+      .resize({
+        width: maxW,
+        height: maxH,
+        fit: "inside",
+        withoutEnlargement: true,
+      })
+      .jpeg({ quality: 75 })
+      .toBuffer();
   } catch (err) {
-    doc.fontSize(12).fillColor('gray').text('(Error al mostrar materiales)');
+    console.error("⚠ Error procesando imagen:", url, err.message);
+    return null;
   }
-
-  doc.moveDown();
 }
 
+
+// -------------------------------------------
+//   MARCA DE AGUA EN TODAS LAS PÁGINAS
+// -------------------------------------------
+
+function marcaAgua(doc) {
+  try {
+    const wmPath = path.join(__dirname, "../public/watermark.png");
+    if (!fs.existsSync(wmPath)) return;
+
+    const wm = doc.openImage(wmPath);
+    const W = wm.width * 0.55;
+    const H = wm.height * 0.55;
+
+    const x = (doc.page.width - W) / 2;
+    const y = (doc.page.height - H) / 2;
+
+    doc.save()
+      .opacity(0.12)
+      .image(wmPath, x, y, { width: W })
+      .opacity(1)
+      .restore();
+  } catch (err) {
+    console.log("⚠ Marca de agua:", err.message);
+  }
+}
+
+
+// -------------------------------------------
+//   EVIDENCIAS → 2 POR PÁGINA, CENTRADAS
+// -------------------------------------------
+
+async function dibujarEvidencias(doc, evidencias) {
+  const maxW = 260;
+  const maxH = 260;
+
+  let col = 0; // 0 = izquierda, 1 = derecha
+  let startY = doc.y;
+
+  for (const ev of evidencias) {
+
+    if (col === 0) {
+      marcaAgua(doc);
+    }
+
+    const buffer = await procesarImagen(ev.archivoUrl, maxW, maxH);
+
+    if (!buffer) continue;
+    const img = doc.openImage(buffer);
+
+    // Si no cabe, nueva página
+    if (doc.y + img.height > doc.page.height - 100) {
+      doc.addPage();
+      marcaAgua(doc);
+      startY = 100;
+      col = 0;
+    }
+
+    // Coordenadas para 2 columnas
+    const posX = col === 0 ? 70 : doc.page.width / 2 + 10;
+
+    doc.image(buffer, posX, startY);
+
+    // Título debajo
+    doc.fontSize(11)
+      .fillColor("black")
+      .text(ev.titulo || "Evidencia", posX, startY + img.height + 5);
+
+    // Alternar columna
+    if (col === 0) {
+      col = 1;
+    } else {
+      col = 0;
+      startY += img.height + 60;
+    }
+  }
+
+  doc.moveDown(2);
+}
+
+
+
+// -------------------------------------------
+//            FIRMA → CENTRADA
+// -------------------------------------------
+
+async function dibujarFirma(doc, evidencias) {
+  const evFirma = evidencias.find(e => e.firmaClienteUrl);
+  if (!evFirma) return;
+
+  doc.addPage();
+  marcaAgua(doc);
+
+  doc.fontSize(18).fillColor("#003366").text("Firma del Cliente", { align: "center" });
+  doc.moveDown(1);
+
+  const buffer = await procesarImagen(evFirma.firmaClienteUrl, 350, 250);
+  if (!buffer) return;
+
+  const img = doc.openImage(buffer);
+  const x = (doc.page.width - img.width) / 2;
+
+  doc.image(buffer, x, doc.y);
+  doc.moveDown(2);
+}
+
+
+
+// -------------------------------------------
+//     MATERIALES → AGRUPADOS Y ORDENADOS
+// -------------------------------------------
+
+function dibujarMateriales(doc, evidencias) {
+  const materiales = evidencias[0]?.materiales || [];
+  if (!materiales.length) return;
+
+  doc.addPage();
+  marcaAgua(doc);
+
+  doc.fontSize(20)
+    .fillColor("#003366")
+    .text("Material Ocupado", { align: "left" });
+
+  doc.moveDown(1);
+
+  const grupos = {};
+
+  for (const m of materiales) {
+    if (!grupos[m.categoria]) grupos[m.categoria] = [];
+    grupos[m.categoria].push(m);
+  }
+
+  for (const cat of Object.keys(grupos)) {
+    doc.fontSize(15).fillColor("#003366").text(`• ${cat}`);
+    doc.moveDown(0.4);
+
+    for (const item of grupos[cat]) {
+      doc.fontSize(12)
+        .fillColor("black")
+        .text(`- ${item.insumo}: ${item.cantidad} ${item.unidad}`, { indent: 20 });
+    }
+
+    doc.moveDown(1);
+  }
+}
+
+
+// ===========================================
+//       CONTROLADOR GENERAR PDF FINAL
+// ===========================================
+
+exports.generateReportePDF = async (req, res) => {
+  try {
+    const tareaId = req.params.tareaId;
+
+    const tarea = await Tarea.findOne({
+      where: { id: tareaId },
+      include: [
+        { model: Actividad },
+        { model: Sucursal },
+        { model: ClienteNegocio },
+        { model: Usuario, as: "AsignadoA" },
+        { model: Evidencia },
+      ],
+    });
+
+    if (!tarea) return res.status(404).json({ error: "Tarea no encontrada" });
+    if (!tarea.Evidencia.length) return res.status(400).json({ error: "La tarea no tiene evidencias" });
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="Reporte_Tarea_${tareaId}.pdf"`);
+
+    const doc = new PDFDocument({
+      size: "LETTER",
+      margin: 40,
+      compress: true,
+    });
+
+    doc.pipe(res);
+
+    // -----------------------
+    // ENCABEZADO
+    // -----------------------
+
+    const logo = path.join(__dirname, "../public/logo.png");
+    marcaAgua(doc);
+
+    if (fs.existsSync(logo)) {
+      doc.image(logo, 40, 30, { width: 90 });
+    }
+
+    doc.fontSize(22).fillColor("#003366").text("AE TECH", 150, 35);
+    doc.fontSize(12).text("Reporte oficial de servicio", 150, 60);
+
+    doc.moveDown(2);
+    doc.moveTo(40, doc.y).lineTo(575, doc.y).stroke("#003366");
+    doc.moveDown(1.2);
+
+    // -----------------------
+    // DETALLES DEL SERVICIO
+    // -----------------------
+
+    doc.fontSize(18).fillColor("#003366").text("Trabajo Realizado:");
+    doc.fontSize(14).fillColor("black").text(tarea.nombre);
+    doc.moveDown(1);
+
+    doc.fontSize(18).fillColor("#003366").text("Detalles del servicio");
+    doc.moveDown(0.8);
+
+    doc.fontSize(12).fillColor("black");
+    doc.text(`Cliente: ${tarea.ClienteNegocio?.nombre}`);
+    doc.text(`Dirección del Cliente: ${tarea.ClienteNegocio?.direccion}`);
+    doc.text(`Sucursal: ${tarea.Sucursal?.nombre}`);
+    doc.text(`Dirección de la Sucursal: ${tarea.Sucursal?.direccion}`);
+    doc.text(`Actividad: ${tarea.Actividad?.nombre}`);
+    doc.text(`Asignado a: ${tarea.AsignadoA?.nombre}`);
+    doc.text(`Fecha de finalización: ${tarea.fechaLimite}`);
+    doc.moveDown(1);
+
+    doc.moveTo(40, doc.y).lineTo(575, doc.y).stroke("#003366");
+    doc.moveDown(1.5);
+
+    // -----------------------
+    // EVIDENCIAS ORDENADAS
+    // -----------------------
+
+    doc.fontSize(18).fillColor("#003366").text("Evidencias Recopiladas");
+    doc.moveDown(1);
+
+    await dibujarEvidencias(doc, tarea.Evidencia);
+
+    // -----------------------
+    // FIRMA
+    // -----------------------
+
+    await dibujarFirma(doc, tarea.Evidencia);
+
+    // -----------------------
+    // MATERIALES
+    // -----------------------
+
+    dibujarMateriales(doc, tarea.Evidencia);
 
     doc.end();
-    stream.on('finish', () => console.log(`✅ PDF generado: ${pdfPath}`));
+
   } catch (error) {
-    console.error('Error al generar reporte PDF:', error);
+    console.error("❌ Error generando PDF:", error);
+    res.status(500).json({ error: "No se pudo generar el PDF" });
   }
-}
-
-
-
+};
