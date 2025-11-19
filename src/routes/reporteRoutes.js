@@ -13,7 +13,4 @@ router.route('/pdf/:tareaId')
     // El método GET debe devolver el archivo PDF
     .get(protect, rol(rolesDescarga), reporteController.generateReportePDF);
 
-module.exports = router;
-
-
-
+module.exports = router;
