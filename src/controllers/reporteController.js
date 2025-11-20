@@ -63,7 +63,7 @@ function dibujarMarcaAgua(doc, wm) {
 
 
 // =============================================================
-//            GENERAR REPORTE PDF (PÁGINA 1 + EVIDENCIAS)
+//            GENERAR REPORTE PDF (PÁGINAS ORDENADAS)
 // =============================================================
 exports.generateReportePDF = async (req, res) => {
   const { tareaId } = req.params;
@@ -132,6 +132,7 @@ exports.generateReportePDF = async (req, res) => {
 
     doc.moveDown(2);
     doc.addPage();
+    dibujarMarcaAgua(doc, watermarkBuffer);
 
     // ---------------------------------------------
     //   EVIDENCIAS (2 POR PÁGINA)
@@ -150,6 +151,7 @@ exports.generateReportePDF = async (req, res) => {
 
       const x = col === 0 ? 80 : doc.page.width / 2 + 10;
 
+      // Salto de página si no cabe
       if (y + img.height > doc.page.height - 80) {
         doc.addPage();
         dibujarMarcaAgua(doc, watermarkBuffer);
@@ -167,7 +169,7 @@ exports.generateReportePDF = async (req, res) => {
       }
     }
 
-        // ----------------------------------------------------
+    // ----------------------------------------------------
     //  FIRMA DEL CLIENTE
     // ----------------------------------------------------
     const evidenciaConFirma = evidencias.find(e => e.firmaClienteUrl);
