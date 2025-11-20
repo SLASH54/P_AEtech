@@ -184,30 +184,52 @@ exports.generateReportePDF = async (req, res) => {
     }
 
     // ======================================================
-    //   PÁGINA – FIRMA DEL CLIENTE
-    // ======================================================
-    const evFirma = evidencias.find((e) => e.firmaClienteUrl);
+//   PÁGINA – FIRMA DEL CLIENTE (SIN TOCAR EVIDENCIAS)
+// ======================================================
 
-    if (evFirma) {
-      doc.addPage();
-      aplicarMarcaAgua(doc, watermarkPath);
+const evidenciaFirma = evidencias.find(ev => ev.firmaClienteUrl);
 
-      doc.fontSize(20).fillColor("#004b85").text("Firma del Cliente", {
-        underline: true
-      });
-      doc.moveDown(1);
+if (evidenciaFirma && evidenciaFirma.firmaClienteUrl) {
+  doc.addPage();
+  aplicarMarcaAgua(doc, watermarkPath);
 
-      const firmaBuf = await procesarImagen(evFirma.firmaClienteUrl, 380, 200);
+  doc
+    .fontSize(20)
+    .fillColor("#004b85")
+    .text("Firma del Cliente", { underline: true, align: "center" });
 
-      if (firmaBuf) {
-        const imgFirma = doc.openImage(firmaBuf);
-        const x = (doc.page.width - imgFirma.width) / 2;
+  doc.moveDown(1.5);
 
-        doc.image(firmaBuf, x, doc.y);
-      } else {
-        doc.fillColor("red").text("⚠ No se pudo cargar la firma.");
-      }
-    }
+  try {
+    // Descargar la firma desde Cloudinary
+    const firmaRes = await axios.get(evidenciaFirma.firmaClienteUrl, {
+      responseType: "arraybuffer"
+    });
+
+    // Procesar la firma (sin perder calidad)
+    const firmaBuf = await sharp(firmaRes.data)
+      .rotate()
+      .resize({
+        width: 350,
+        height: 200,
+        fit: "inside"
+      })
+      .jpeg({ quality: 92 })
+      .toBuffer();
+
+    const imgFirma = doc.openImage(firmaBuf);
+    const x = (doc.page.width - imgFirma.width) / 2;
+
+    // Mostrar la firma centrada
+    doc.image(firmaBuf, x, doc.y);
+    doc.moveDown(2);
+
+  } catch (err) {
+    console.log("⚠ Error cargando firma:", err.message);
+    doc.fillColor("red").text("No se pudo cargar la firma del cliente.");
+  }
+}
+
 
     // ======================================================
     //   PÁGINA – MATERIALES
