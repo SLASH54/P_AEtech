@@ -77,7 +77,7 @@ exports.generateReportePDF = async (req, res) => {
   const { tareaId } = req.params;
 
   try {
-
+    const { id: tareaId } = req.params; // CORREGIDO: no duplicar tareaId
 
     const tarea = await Tarea.findOne({
       where: { id: tareaId },
@@ -184,52 +184,30 @@ exports.generateReportePDF = async (req, res) => {
     }
 
     // ======================================================
-//   PÁGINA – FIRMA DEL CLIENTE (SIN TOCAR EVIDENCIAS)
-// ======================================================
+    //   PÁGINA – FIRMA DEL CLIENTE
+    // ======================================================
+    const evFirma = evidencias.find((e) => e.firmaClienteUrl);
 
-const evidenciaFirma = evidencias.find(ev => ev.firmaClienteUrl);
+    if (evFirma) {
+      doc.addPage();
+      aplicarMarcaAgua(doc, watermarkPath);
 
-if (evidenciaFirma && evidenciaFirma.firmaClienteUrl) {
-  doc.addPage();
-  aplicarMarcaAgua(doc, watermarkPath);
+      doc.fontSize(20).fillColor("#004b85").text("Firma del Cliente", {
+        underline: true
+      });
+      doc.moveDown(1);
 
-  doc
-    .fontSize(20)
-    .fillColor("#004b85")
-    .text("Firma del Cliente", { underline: true, align: "center" });
+      const firmaBuf = await procesarImagen(evFirma.firmaClienteUrl, 380, 200);
 
-  doc.moveDown(1.5);
+      if (firmaBuf) {
+        const imgFirma = doc.openImage(firmaBuf);
+        const x = (doc.page.width - imgFirma.width) / 2;
 
-  try {
-    // Descargar la firma desde Cloudinary
-    const firmaRes = await axios.get(evidenciaFirma.firmaClienteUrl, {
-      responseType: "arraybuffer"
-    });
-
-    // Procesar la firma (sin perder calidad)
-    const firmaBuf = await sharp(firmaRes.data)
-      .rotate()
-      .resize({
-        width: 350,
-        height: 200,
-        fit: "inside"
-      })
-      .jpeg({ quality: 92 })
-      .toBuffer();
-
-    const imgFirma = doc.openImage(firmaBuf);
-    const x = (doc.page.width - imgFirma.width) / 2;
-
-    // Mostrar la firma centrada
-    doc.image(firmaBuf, x, doc.y);
-    doc.moveDown(2);
-
-  } catch (err) {
-    console.log("⚠ Error cargando firma:", err.message);
-    doc.fillColor("red").text("No se pudo cargar la firma del cliente.");
-  }
-}
-
+        doc.image(firmaBuf, x, doc.y);
+      } else {
+        doc.fillColor("red").text("⚠ No se pudo cargar la firma.");
+      }
+    }
 
     // ======================================================
     //   PÁGINA – MATERIALES
@@ -278,12 +256,4 @@ if (evidenciaFirma && evidenciaFirma.firmaClienteUrl) {
     return res.status(500).json({ error: "No se pudo generar el PDF" });
   }
 };
-
-const evFirma = evidencias.find(e => e.firmaClienteUrl);
-
-if (evFirma?.firmaClienteUrl) {
-  const firmaBuf = await procesarImagen(evFirma.firmaClienteUrl, 380, 200);
-  // ...
-}
-
 
