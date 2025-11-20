@@ -45,33 +45,32 @@ async function procesarImagen(url, maxW, maxH) {
 // -----------------------------------------------------------
 // UTIL: Marca de agua
 // -----------------------------------------------------------
-function cargarMarcaAgua() {
-  const p = path.join(__dirname, "../public/watermark.png");
-  if (!fs.existsSync(p)) return null;
-  return p;
-}
-
-function aplicarMarcaAgua(doc, wmPath) {
-  if (!wmPath) return;
+function aplicarMarcaAgua(doc, watermarkPath) {
+  if (!fs.existsSync(watermarkPath)) return;
 
   try {
-    const scaleW = 420;
-    const x = (doc.page.width - scaleW) / 2;
-    const y = 180;
+    const img = doc.openImage(watermarkPath);
 
     doc.save();
-    doc.opacity(0.10);
-    doc.image(wmPath, x, y, { width: scaleW });
+    doc.opacity(0.12);        // ✔ NO la pongas muy baja (antes daba problemas)
+    doc.image(watermarkPath, 80, 180, { width: 350 });
     doc.opacity(1);
     doc.restore();
+
   } catch (err) {
-    console.log("⚠ No se pudo aplicar la marca de agua:", err.message);
+    console.log("Error watermark:", err.message);
   }
 }
+
 
 // -----------------------------------------------------------
 // ENCABEZADO PROFESIONAL AE TECH
 // -----------------------------------------------------------
+
+if (fs.existsSync(logoPath)) {
+  doc.image(logoPath, 40, 20, { width: 110 });
+}
+ 
 function headerAETech(doc) {
   const logoPath = path.join(__dirname, "../public/logo.png");
 
@@ -179,37 +178,40 @@ exports.generateReportePDF = async (req, res) => {
       else { col = 0; y += img.height + GAP; }
     }
 
-    // ======================================================
-    //  FIRMA DEL CLIENTE (PNG real sin pixelar)
-    // ======================================================
-    const evFirma = evidencias.find(e => e.firmaClienteUrl);
+  // ======================================================
+//   PÁGINA – FIRMA DEL CLIENTE  (PNG sin procesar)
+// ======================================================
+const evFirma = evidencias.find(e => e.firmaClienteUrl);
 
-    if (evFirma) {
-      doc.addPage();
-      aplicarMarcaAgua(doc, watermark);
+if (evFirma) {
+  doc.addPage();
+  aplicarMarcaAgua(doc, watermarkPath);
 
-      doc.fontSize(20).fillColor("#004b85").text("Firma del Cliente", {
-        underline: true
+  doc.fontSize(20)
+     .fillColor("#004b85")
+     .text("Firma del Cliente", { underline: true });
+
+  doc.moveDown(1);
+
+  try {
+      const firmaRes = await axios.get(evFirma.firmaClienteUrl, { responseType: "arraybuffer" });
+
+      // ❗NO usar sharp — PDFKit soporta PNG con transparencia directamente
+      const firmaPNG = firmaRes.data;
+      const imgFirma = doc.openImage(firmaPNG);
+
+      const x = (doc.page.width - imgFirma.width) / 2;
+      doc.image(imgFirma, x, doc.y, {
+        fit: [380, 240],
+        align: "center"
       });
-      doc.moveDown(1);
 
-      try {
-        const resp = await axios.get(evFirma.firmaClienteUrl, { responseType: "arraybuffer" });
-        const firmaProcesada = await sharp(resp.data)
-          .rotate()
-          .resize({ width: 400, height: 220, fit: "inside" })
-          .png()    // ← Mantener formato PNG
-          .toBuffer();
+  } catch (err) {
+      console.log("Error cargando firma:", err.message);
+      doc.fillColor("red").text("⚠ No se pudo cargar la firma.");
+  }
+}
 
-        const imgFirma = doc.openImage(firmaProcesada);
-        const x = (doc.page.width - imgFirma.width) / 2;
-
-        doc.image(firmaProcesada, x, doc.y);
-
-      } catch (err) {
-        doc.fillColor("red").text("⚠ No se pudo cargar la firma del cliente.");
-      }
-    }
 
     // ======================================================
     //  MATERIALES
