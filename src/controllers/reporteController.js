@@ -5,61 +5,65 @@
 const PDFDocument = require("pdfkit");
 const axios = require("axios");
 const sharp = require("sharp");
-const path = require("path");
 const fs = require("fs");
-const { Tarea, Actividad, Sucursal, ClienteNegocio, Usuario, Evidencia } = require("../models/relations");
+const path = require("path");
 
-// -------------------------------------------
-//   UTIL: Comprimir imagen sin romper PDF
-// -------------------------------------------
-async function procesarImagen(url, maxW, maxH, quality = 80) {
+const { 
+  Tarea, Actividad, Sucursal, ClienteNegocio, Usuario, Evidencia 
+} = require("../models/relations");
+
+// -----------------------------------------------------------
+// UTIL: Procesar imagen (rotar + comprimir + redimensionar)
+// -----------------------------------------------------------
+async function procesarImagen(url, maxW, maxH) {
   try {
     const res = await axios.get(url, { responseType: "arraybuffer" });
 
     return await sharp(res.data)
       .rotate()
-      .resize({
-        width: maxW,
-        height: maxH,
-        fit: "inside",
-        withoutEnlargement: true,
-      })
-      .jpeg({ quality })
+      .resize({ width: maxW, height: maxH, fit: "inside", withoutEnlargement: true })
+      .jpeg({ quality: 80 })
       .toBuffer();
   } catch (err) {
-    console.error("⚠ Error procesando imagen:", url, err.message);
+    console.log("Error procesando imagen:", url, err.message);
     return null;
   }
 }
 
-// -------------------------------------------
-//   UTIL: Dibujar marca de agua centrada
-// -------------------------------------------
+// -----------------------------------------------------------
+// UTIL: Dibujar marca de agua AETECH
+// -----------------------------------------------------------
+async function cargarMarcaAgua() {
+  const watermarkPath = path.join(__dirname, "../public/watermark.png");
+
+  if (!fs.existsSync(watermarkPath)) return null;
+
+  return fs.readFileSync(watermarkPath);
+}
+
 function dibujarMarcaAgua(doc, wm) {
   if (!wm) return;
 
   doc.save();
   doc.opacity(0.08);
 
-  const scale = 0.55;
-  const w = wm.width * scale;
-  const h = wm.height * scale;
-
+  const w = 350;
   const x = (doc.page.width - w) / 2;
-  const y = (doc.page.height - h) / 2;
+  const y = 180;
 
   doc.image(wm, x, y, { width: w });
+
   doc.restore();
 }
 
-// -------------------------------------------
-//           GENERAR PDF COMPLETO
-// -------------------------------------------
+// -----------------------------------------------------------
+//                GENERAR REPORTE PDF
+// -----------------------------------------------------------
 exports.generateReportePDF = async (req, res) => {
   const { tareaId } = req.params;
 
   try {
-    const tareaId = req.params.id;
+    const { tareaId } = req.params;
 
     const tarea = await Tarea.findOne({
       where: { id: tareaId },
@@ -78,118 +82,106 @@ exports.generateReportePDF = async (req, res) => {
 
     const evidencias = tarea.Evidencia || [];
 
-    // ============================================
-    // CONFIGURACIÓN PDF
-    // ============================================
-    const doc = new PDFDocument({
-      layout: "portrait",
-      size: "LETTER",
-      margin: 40
-    });
+    // PDF config
+    const doc = new PDFDocument({ size: "LETTER", margin: 40 });
 
     // STREAM PDF
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename="Reporte_Tarea_${tareaId}.pdf"`);
-
+    res.setHeader("Content-Disposition", `attachment; filename=Reporte_Tarea_${tareaId}.pdf`);
     doc.pipe(res);
 
-    // ============================================
+    // Cargar marca de agua
+    const watermark = await cargarMarcaAgua();
+
+    // ========================================================
     // ENCABEZADO
-    // ============================================
-    doc.fontSize(18).fillColor("#004b85").text("AE TECH");
+    // ========================================================
+    dibujarMarcaAgua(doc, watermark);
+
+    doc.fontSize(22).fillColor("#004b85").text("AE TECH");
     doc.fontSize(12).fillColor("black").text("Reporte oficial de servicio");
     doc.moveDown(1);
 
-    // ============================================
-    // DATOS DE LA TAREA
-    // ============================================
+    // DATOS
     doc.fontSize(18).fillColor("#004b85").text("Detalles del servicio", { underline: true });
     doc.moveDown(0.5);
 
-    doc.fontSize(12).fillColor("black").text(`Cliente: ${tarea.ClienteNegocio.nombre}`);
-    doc.text(`Dirección del Cliente: ${tarea.ClienteNegocio.direccion}`);
-    doc.text(`Sucursal: ${tarea.Sucursal.nombre}`);
-    doc.text(`Dirección de la Sucursal: ${tarea.Sucursal.direccion}`);
-    doc.text(`Actividad: ${tarea.Actividad.nombre}`);
-    doc.text(`Asignado a: ${tarea.AsignadoA.nombre} (${tarea.AsignadoA.rol})`);
-    doc.text(`Fecha de finalización: ${tarea.fechaLimite}`);
-    doc.text(`Trabajo Realizado: ${tarea.nombre}`);
+    doc.fontSize(12).fillColor("black")
+      .text(`Trabajo realizado: ${tarea.nombre}`)
+      .text(`Cliente: ${tarea.ClienteNegocio.nombre}`)
+      .text(`Dirección del Cliente: ${tarea.ClienteNegocio.direccion}`)
+      .text(`Sucursal: ${tarea.Sucursal.nombre}`)
+      .text(`Dirección de la Sucursal: ${tarea.Sucursal.direccion}`)
+      .text(`Actividad: ${tarea.Actividad.nombre}`)
+      .text(`Asignado a: ${tarea.AsignadoA.nombre}`)
+      .text(`Fecha finalización: ${tarea.fechaLimite}`);
+
     doc.moveDown(1);
 
-    // ============================================
-    // EVIDENCIAS
-    // ============================================
-    doc.addPage();
-    doc.fontSize(18).fillColor("#004b85").text("Evidencias", { underline: true });
-    doc.moveDown(1);
+    // ========================================================
+    // EVIDENCIAS (2 por página)
+    // ========================================================
+    if (evidencias.length > 0) {
+      doc.addPage();
+      dibujarMarcaAgua(doc, watermark);
 
-    const MAX_W = 450;
-    const MAX_H = 550;
+      doc.fontSize(18).fillColor("#004b85").text("Evidencias", { underline: true });
+      doc.moveDown(1);
 
-    for (const ev of evidencias) {
-      doc.fontSize(14).fillColor("black").text(`• ${ev.titulo || "Evidencia"}`);
-      doc.moveDown(0.3);
+      const MAX_W = 260;
+      const MAX_H = 260;
 
-      try {
-        const imgRes = await axios.get(ev.archivoUrl, { responseType: "arraybuffer" });
-        const jpegBuffer = await sharp(imgRes.data)
-          .rotate()
-          .resize({ width: MAX_W, height: MAX_H, fit: "inside" })
-          .jpeg({ quality: 80 })
-          .toBuffer();
+      let counter = 0;
 
-        const img = doc.openImage(jpegBuffer);
-        const x = (doc.page.width - img.width) / 2;
-
-        if (doc.y + img.height > doc.page.height - 60) {
+      for (const ev of evidencias) {
+        if (counter === 2) {
           doc.addPage();
+          dibujarMarcaAgua(doc, watermark);
+          counter = 0;
         }
 
-        doc.image(jpegBuffer, x, doc.y);
-        doc.moveDown(1);
+        const img = await procesarImagen(ev.archivoUrl, MAX_W, MAX_H);
 
-      } catch (err) {
-        doc.fillColor("red").text("⚠ Error cargando imagen");
-        doc.moveDown(1);
+        if (img) {
+          const x = (doc.page.width - MAX_W) / 2;
+          doc.fontSize(12).fillColor("black").text(ev.titulo || "Evidencia");
+          doc.image(img, x, doc.y, { width: MAX_W });
+          doc.moveDown(1);
+        }
+
+        counter++;
       }
     }
 
-    // ============================================
+    // ========================================================
     // FIRMA DEL CLIENTE
-    // ============================================
-    const evidenciaConFirma = evidencias.find(e => e.firmaClienteUrl);
+    // ========================================================
+    const evFirma = evidencias.find(e => e.firmaClienteUrl);
 
-    if (evidenciaConFirma) {
+    if (evFirma) {
       doc.addPage();
+      dibujarMarcaAgua(doc, watermark);
+
       doc.fontSize(18).fillColor("#004b85").text("Firma del Cliente", { underline: true });
       doc.moveDown(1);
 
-      try {
-        const firmaRes = await axios.get(evidenciaConFirma.firmaClienteUrl, { responseType: "arraybuffer" });
+      const firma = await procesarImagen(evFirma.firmaClienteUrl, 320, 180);
 
-        const firmaBuf = await sharp(firmaRes.data)
-          .rotate()
-          .resize({ width: 350, height: 250, fit: "inside" })
-          .jpeg({ quality: 90 })
-          .toBuffer();
-
-        const img = doc.openImage(firmaBuf);
-        const x = (doc.page.width - img.width) / 2;
-
-        doc.image(firmaBuf, x, doc.y);
-
-      } catch (err) {
-        doc.fillColor("red").text("⚠ Error cargando firma");
+      if (firma) {
+        const x = (doc.page.width - 320) / 2;
+        doc.image(firma, x, doc.y);
       }
     }
 
-    // ============================================
+    // ========================================================
     // MATERIALES
-    // ============================================
+    // ========================================================
     const materiales = evidencias[0]?.materiales || [];
 
     if (materiales.length > 0) {
       doc.addPage();
+      dibujarMarcaAgua(doc, watermark);
+
       doc.fontSize(18).fillColor("#004b85").text("Material Ocupado", { underline: true });
       doc.moveDown(1);
 
@@ -200,14 +192,12 @@ exports.generateReportePDF = async (req, res) => {
         grupos[m.categoria].push(m);
       });
 
-      for (const categoria of Object.keys(grupos)) {
-        doc.fontSize(16).fillColor("#004b85").text(`• ${categoria}`);
-        doc.moveDown(0.4);
-
-        grupos[categoria].forEach(m => {
+      for (const c of Object.keys(grupos)) {
+        doc.fontSize(14).fillColor("#004b85").text(`• ${c}`);
+        grupos[c].forEach(m => {
           doc.fontSize(12).fillColor("black").text(
-            `${m.insumo} — ${m.cantidad} ${m.unidad}`,
-            { indent: 20 }
+            `${m.insumo}: ${m.cantidad} ${m.unidad}`,
+            { indent: 25 }
           );
         });
 
@@ -220,8 +210,8 @@ exports.generateReportePDF = async (req, res) => {
     // ============================================
     doc.end();
 
-  } catch (error) {
-    console.error("Error generando PDF:", error);
-    res.status(500).json({ error: "Error al generar PDF", detalle: error.message });
+  } catch (err) {
+    console.error("ERROR REPORTE PDF:", err);
+    res.status(500).json({ error: "Error al generar PDF" });
   }
 };
