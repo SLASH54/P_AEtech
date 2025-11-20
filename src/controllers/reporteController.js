@@ -182,55 +182,32 @@ exports.generateReportePDF = async (req, res) => {
         y += img.height + GAP;
       }
     }
-// ======================================================
-//   PÁGINA – FIRMA DEL CLIENTE (SIN NEGRO, SIN FALLAS)
-// ======================================================
-const evFirma = evidencias.find(e => e.firmaClienteUrl);
 
-if (evFirma && evFirma.firmaClienteUrl) {
+    // ======================================================
+    //   PÁGINA – FIRMA DEL CLIENTE
+    // ======================================================
+    const evFirma = evidencias.find((e) => e.firmaClienteUrl);
 
-  // Nueva página para la firma
-  doc.addPage();
-  
-  // Dibujar marca de agua ANTES
-  aplicarMarcaAgua(doc, watermarkPath);
+    if (evFirma) {
+      doc.addPage();
+      aplicarMarcaAgua(doc, watermarkPath);
 
-  // Título
-  doc.fontSize(20).fillColor("#004b85").text("Firma del Cliente", {
-    underline: true
-  });
-  doc.moveDown(1);
+      doc.fontSize(20).fillColor("#004b85").text("Firma del Cliente", {
+        underline: true
+      });
+      doc.moveDown(1);
 
-  try {
+      const firmaBuf = await procesarImagen(evFirma.firmaClienteUrl, 380, 200);
 
-    // DESCARGA REAL DE LA FIRMA
-    const fRes = await axios.get(evFirma.firmaClienteUrl, {
-      responseType: "arraybuffer"
-    });
+      if (firmaBuf) {
+        const imgFirma = doc.openImage(firmaBuf);
+        const x = (doc.page.width - imgFirma.width) / 2;
 
-    // PROCESAR FIRMA → convertirla a JPEG REAL
-    const firmaBuf = await sharp(fRes.data)
-      .flatten({ background: { r: 255, g: 255, b: 255 } })   // 👈 QUITA TRANSPARENCIA (soluciona cuadro negro)
-      .resize({ width: 380, height: 200, fit: "inside" })
-      .jpeg({ quality: 95 })                                  // 👈 JPEG puro, NO PNG
-      .toBuffer();
-
-    // RESETEAR ESTADO GRAFICO (soluciona opacidad heredada del watermark)
-    doc.save();
-    doc.opacity(1);     // 👈 aseguramos 100% opacidad
-    
-    const img = doc.openImage(firmaBuf);
-    const x = (doc.page.width - img.width) / 2;
-
-    doc.image(img, x, doc.y, { width: img.width });
-
-    doc.restore();
-
-  } catch (err) {
-    console.log("⚠ Error cargando firma:", err.message);
-    doc.fillColor("red").text("⚠ No se pudo cargar la firma del cliente.");
-  }
-}
+        doc.image(firmaBuf, x, doc.y);
+      } else {
+        doc.fillColor("red").text("⚠ No se pudo cargar la firma.");
+      }
+    }
 
     // ======================================================
     //   PÁGINA – MATERIALES
