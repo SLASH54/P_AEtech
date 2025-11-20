@@ -77,7 +77,7 @@ exports.generateReportePDF = async (req, res) => {
   const { tareaId } = req.params;
 
   try {
-    const { id: tareaId } = req.params; // CORREGIDO: no duplicar tareaId
+   
 
     const tarea = await Tarea.findOne({
       where: { id: tareaId },

@@ -44,46 +44,17 @@ const materiales = req.body.materiales ? JSON.parse(req.body.materiales) : [];
         resource_type: 'auto'
       });
 
-// ===============
-// SUBIR FIRMA UNA SOLA VEZ
-// ===============
-let firmaUrl = null;
 
+     let firmaUrl = null;
+
+// 📤 Subir la firma del cliente (solo si existe)
 if (firma) {
   const firmaResult = await cloudinary.uploader.upload(firma.path, {
     folder: 'aetech_firmas',
     resource_type: 'auto'
   });
-  firmaUrl = firmaResult.secure_url; // 👌 ya disponible
-}
-
-
-// ===============
-// SUBIR FOTOS (FOR)
-// ===============
-for (let i = 0; i < files.length; i++) {
-
-  const file = files[i];
-  const titulo = titulos[i] || `Evidencia ${i + 1}`;
-
-  const result = await cloudinary.uploader.upload(file.path, {
-    folder: 'aetech_evidencias',
-    resource_type: 'auto'
-  });
-
-  // 👇 AQUÍ ya existe firmaUrl
-  const evidencia = await Evidencia.create({
-    tareaId,
-    usuarioId,
-    titulo,
-    archivoUrl: result.secure_url,
-    firmaClienteUrl: firmaUrl,   // 👈 AHORA SÍ SE GUARDA
-    materiales
-  });
-
-  evidencias.push(evidencia);
-}
-
+  firmaUrl = firmaResult.secure_url;
+} 
 
 // 💾 Guardar evidencia con su firma correspondiente
 const evidencia = await Evidencia.create({
