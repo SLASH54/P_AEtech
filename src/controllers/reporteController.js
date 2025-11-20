@@ -70,6 +70,36 @@ function aplicarMarcaAgua(doc, wmPath) {
   }
 }
 
+
+
+
+// ======================================================
+//   ENCABEZADO CORPORATIVO - AE TECH
+// ======================================================
+function headerAETech(doc, logoPath) {
+  try {
+    // Logo
+    if (fs.existsSync(logoPath)) {
+      doc.image(logoPath, 40, 20, { width: 80 });
+    }
+
+    // Título empresa
+    doc.fontSize(22).fillColor("#004b85").text("AE TECH", 140, 28);
+
+    // Subtítulo
+    doc.fontSize(11).fillColor("#666").text("Soluciones tecnológicas profesionales", 140, 55);
+
+    // Línea decorativa
+    doc.moveTo(40, 85).lineTo(doc.page.width - 40, 85).strokeColor("#004b85").lineWidth(1).stroke();
+
+    doc.moveDown(2);
+
+  } catch (err) {
+    console.log("⚠ Error en encabezado:", err.message);
+  }
+}
+
+
 // -----------------------------------------------------------
 //   GENERAR REPORTE PDF (TU ESTILO, ARREGLADO)
 // -----------------------------------------------------------
@@ -103,6 +133,9 @@ exports.generateReportePDF = async (req, res) => {
     doc.pipe(res);
 
     const watermarkPath = cargarMarcaAgua();
+    headerAETech(doc, logoPath);
+ aplicarMarcaAgua(doc, watermarkPath);
+
 
     // ======================================================
     //  PÁGINA 1 – ENCABEZADO + INFORMACIÓN
@@ -267,6 +300,9 @@ if (evFirma) {
         doc.moveDown(1);
       }
     }
+
+
+    footerAETech(doc);
 
     // FIN DEL PDF
     doc.end();
