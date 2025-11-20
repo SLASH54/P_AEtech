@@ -279,3 +279,11 @@ if (evidenciaFirma && evidenciaFirma.firmaClienteUrl) {
   }
 };
 
+const evFirma = evidencias.find(e => e.firmaClienteUrl);
+
+if (evFirma?.firmaClienteUrl) {
+  const firmaBuf = await procesarImagen(evFirma.firmaClienteUrl, 380, 200);
+  // ...
+}
+
+
