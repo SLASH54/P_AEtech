@@ -9,6 +9,52 @@ const path = require("path");
 const fs = require("fs");
 const { Tarea, Actividad, Sucursal, ClienteNegocio, Usuario, Evidencia } = require("../models/relations");
 
+// -------------------------------------------
+//   UTIL: Comprimir imagen sin romper PDF
+// -------------------------------------------
+async function procesarImagen(url, maxW, maxH, quality = 80) {
+  try {
+    const res = await axios.get(url, { responseType: "arraybuffer" });
+
+    return await sharp(res.data)
+      .rotate()
+      .resize({
+        width: maxW,
+        height: maxH,
+        fit: "inside",
+        withoutEnlargement: true,
+      })
+      .jpeg({ quality })
+      .toBuffer();
+  } catch (err) {
+    console.error("⚠ Error procesando imagen:", url, err.message);
+    return null;
+  }
+}
+
+// -------------------------------------------
+//   UTIL: Dibujar marca de agua centrada
+// -------------------------------------------
+function dibujarMarcaAgua(doc, wm) {
+  if (!wm) return;
+
+  doc.save();
+  doc.opacity(0.08);
+
+  const scale = 0.55;
+  const w = wm.width * scale;
+  const h = wm.height * scale;
+
+  const x = (doc.page.width - w) / 2;
+  const y = (doc.page.height - h) / 2;
+
+  doc.image(wm, x, y, { width: w });
+  doc.restore();
+}
+
+// -------------------------------------------
+//           GENERAR PDF COMPLETO
+// -------------------------------------------
 exports.generateReportePDF = async (req, res) => {
   const { tareaId } = req.params;
 
