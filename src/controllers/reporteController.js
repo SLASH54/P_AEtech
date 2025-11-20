@@ -133,9 +133,7 @@ exports.generateReportePDF = async (req, res) => {
     doc.pipe(res);
 
     const watermarkPath = cargarMarcaAgua();
-    headerAETech(doc, logoPath);
- aplicarMarcaAgua(doc, watermarkPath);
-
+    
 
     // ======================================================
     //  PÁGINA 1 – ENCABEZADO + INFORMACIÓN
@@ -300,9 +298,6 @@ if (evFirma) {
         doc.moveDown(1);
       }
     }
-
-
-    footerAETech(doc);
 
     // FIN DEL PDF
     doc.end();
