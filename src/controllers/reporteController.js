@@ -184,30 +184,50 @@ exports.generateReportePDF = async (req, res) => {
     }
 
     // ======================================================
-    //   PÁGINA – FIRMA DEL CLIENTE
-    // ======================================================
-    const evFirma = evidencias.find((e) => e.firmaClienteUrl);
+//   FIRMA DEL CLIENTE (PNG sin convertir)
+// ======================================================
+const evFirma = evidencias.find(e => e.firmaClienteUrl);
 
-    if (evFirma) {
-      doc.addPage();
-      aplicarMarcaAgua(doc, watermarkPath);
+if (evFirma) {
+  doc.addPage();
+  aplicarMarcaAgua(doc, watermarkPath);
 
-      doc.fontSize(20).fillColor("#004b85").text("Firma del Cliente", {
-        underline: true
-      });
-      doc.moveDown(1);
+  doc.fontSize(20).fillColor("#004b85").text("Firma del Cliente", {
+    underline: true
+  });
+  doc.moveDown(1);
 
-      const firmaBuf = await procesarImagen(evFirma.firmaClienteUrl, 380, 200);
+  try {
+    // 🔥 Descargar firma SIN convertirla
+    const resp = await axios.get(evFirma.firmaClienteUrl, {
+      responseType: "arraybuffer"
+    });
 
-      if (firmaBuf) {
-        const imgFirma = doc.openImage(firmaBuf);
-        const x = (doc.page.width - imgFirma.width) / 2;
+    const firmaOriginal = resp.data;
 
-        doc.image(firmaBuf, x, doc.y);
-      } else {
-        doc.fillColor("red").text("⚠ No se pudo cargar la firma.");
-      }
-    }
+    // 🔥 Redimensionar pero manteniendo PNG + transparencia
+    const firmaProcesada = await sharp(firmaOriginal)
+      .rotate()
+      .resize({
+        width: 400,
+        height: 220,
+        fit: "inside",
+        withoutEnlargement: true
+      })
+      .png()        // <<< IMPORTANTE: mantener PNG
+      .toBuffer();
+
+    const imgFirma = doc.openImage(firmaProcesada);
+
+    const x = (doc.page.width - imgFirma.width) / 2;
+    doc.image(firmaProcesada, x, doc.y);
+
+  } catch (err) {
+    console.log("Error mostrando firma:", err);
+    doc.fillColor("red").text("⚠ No se pudo cargar la firma del cliente.");
+  }
+}
+
 
     // ======================================================
     //   PÁGINA – MATERIALES
