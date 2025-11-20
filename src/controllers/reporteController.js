@@ -45,32 +45,33 @@ async function procesarImagen(url, maxW, maxH) {
 // -----------------------------------------------------------
 // UTIL: Marca de agua
 // -----------------------------------------------------------
-function aplicarMarcaAgua(doc, watermarkPath) {
-  if (!fs.existsSync(watermarkPath)) return;
-
-  try {
-    const img = doc.openImage(watermarkPath);
-
-    doc.save();
-    doc.opacity(0.12);        // ✔ NO la pongas muy baja (antes daba problemas)
-    doc.image(watermarkPath, 80, 180, { width: 350 });
-    doc.opacity(1);
-    doc.restore();
-
-  } catch (err) {
-    console.log("Error watermark:", err.message);
-  }
+function cargarMarcaAgua() {
+  const p = path.join(__dirname, "../public/watermark.png");
+  if (!fs.existsSync(p)) return null;
+  return p;
 }
 
+function aplicarMarcaAgua(doc, wmPath) {
+  if (!wmPath) return;
+
+  try {
+    const scaleW = 420;
+    const x = (doc.page.width - scaleW) / 2;
+    const y = 180;
+
+    doc.save();
+    doc.opacity(0.10);
+    doc.image(wmPath, x, y, { width: scaleW });
+    doc.opacity(1);
+    doc.restore();
+  } catch (err) {
+    console.log("⚠ No se pudo aplicar la marca de agua:", err.message);
+  }
+}
 
 // -----------------------------------------------------------
 // ENCABEZADO PROFESIONAL AE TECH
 // -----------------------------------------------------------
-
-if (fs.existsSync(logoPath)) {
-  doc.image(logoPath, 40, 20, { width: 110 });
-}
- 
 function headerAETech(doc) {
   const logoPath = path.join(__dirname, "../public/logo.png");
 
