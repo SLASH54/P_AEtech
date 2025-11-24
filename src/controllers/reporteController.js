@@ -1,15 +1,12 @@
-// ==============================
-//  REPORTE PDF AETECH (VERSIÓN FINAL COMPLETA)
-//  Logo OK, Marca de agua OK, Evidencias OK,
-//  Firma del cliente OK, Materiales OK
-// ==============================
+// ===============================================================
+//   REPORTE PDF AETECH – VERSIÓN FINAL ESTABLE
+// ===============================================================
 
 const PDFDocument = require("pdfkit");
 const axios = require("axios");
 const sharp = require("sharp");
 const fs = require("fs");
 const path = require("path");
-
 const {
   Tarea,
   Actividad,
@@ -19,44 +16,40 @@ const {
   Evidencia
 } = require("../models/relations");
 
-// ===========================================================
-//    Cargar imagen desde URL pública o desde ruta local
-// ===========================================================
-async function cargarImagen(urlOrPath) {
+// =========================================================
+//   PROCESAR IMAGEN (Sharp) – evita fondo negro en firmas
+// =========================================================
+async function procesarImagen(url, maxW, maxH, isSignature = false) {
   try {
-    if (urlOrPath.startsWith("http")) {
-      const res = await axios.get(urlOrPath, { responseType: "arraybuffer" });
-      return res.data;
-    } else {
-      return fs.readFileSync(urlOrPath);
-    }
-  } catch (err) {
-    console.log("⚠ Error cargando imagen:", urlOrPath, err.message);
-    return null;
-  }
-}
+    const res = await axios.get(url, { responseType: "arraybuffer" });
 
-// ===========================================================
-//  Redimensionar imagen sin perder calidad
-// ===========================================================
-async function procesarImagen(buffer, maxW, maxH) {
-  try {
-    return await sharp(buffer)
-      .rotate()
+    let pipeline = sharp(res.data).rotate();
+
+    // Firma → NO convertir a JPEG (produce fondo negro)
+    if (isSignature) {
+      pipeline = pipeline.png();
+    } else {
+      pipeline = pipeline.jpeg({ quality: 90 });
+    }
+
+    return await pipeline
       .resize({
         width: maxW,
         height: maxH,
         fit: "inside",
         withoutEnlargement: true
       })
-      .jpeg({ quality: 95 })
       .toBuffer();
+
   } catch (err) {
-    console.log("⚠ Error procesando imagen:", err.message);
+    console.log("⚠ Error procesando imagen:", url, err.message);
     return null;
   }
 }
 
+// =========================================================
+//   MARCA DE AGUA
+// =========================================================
 // ===========================================================
 //  Aplicar marca de agua en cada página
 // ===========================================================
@@ -80,16 +73,14 @@ function aplicarMarcaAgua(doc, watermarkBuf) {
   }
 }
 
-// ===========================================================
-//   GENERAR REPORTE PDF (FINAL Y LIMPIO)
-// ===========================================================
+
+// =========================================================
+//   GENERAR REPORTE PDF – FINAL
+// =========================================================
 exports.generateReportePDF = async (req, res) => {
   const { tareaId } = req.params;
 
   try {
-    // =======================
-    //  CARGAR DATOS DE TAREA
-    // =======================
     const tarea = await Tarea.findOne({
       where: { id: tareaId },
       include: [
@@ -101,7 +92,8 @@ exports.generateReportePDF = async (req, res) => {
       ]
     });
 
-    if (!tarea) return res.status(404).json({ error: "Tarea no encontrada" });
+    if (!tarea)
+      return res.status(404).json({ error: "Tarea no encontrada" });
 
     const evidencias = tarea.Evidencia || [];
 
@@ -114,51 +106,54 @@ exports.generateReportePDF = async (req, res) => {
     const logoBuf = await cargarImagen(logoURL);
     const watermarkBuf = await cargarImagen(watermarkURL);
 
-    // =====================
-    //   CREAR PDF
-    // =====================
+    // ========================================
+    // Inicializa PDF
+    // ========================================
     const doc = new PDFDocument({ margin: 40 });
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename=Reporte_Tarea_${tareaId}.pdf`);
+    res.setHeader("Content-Disposition",
+      `attachment; filename=Reporte_Tarea_${tareaId}.pdf`);
     doc.pipe(res);
 
-    // ======================================================
-    //   PÁGINA 1 — ENCABEZADO + INFO
-    // ======================================================
+    // ========================================
+    // LOGO
+    // ========================================
     aplicarMarcaAgua(doc, watermarkBuf);
 
     if (logoBuf) {
       const logo = doc.openImage(logoBuf);
       doc.image(logo, 40, 20, { width: 110 });
     }
-
-    doc.fontSize(26).fillColor("#004b85").text("AE TECH", 170, 30);
-    doc.fontSize(12).fillColor("#666").text("Reporte oficial de servicio", 170, 60);
+    
+    doc.fontSize(28).fillColor("#004b85").text("AE TECH", 170, 30);
+    doc.fontSize(12).fillColor("#444").text("Reporte oficial de servicio", 170, 63);
 
     doc.moveDown(2);
 
-    doc.fontSize(20).fillColor("#004b85").text("Información del servicio", {
-      underline: true
-    });
+    // ========================================
+    // INFORMACIÓN GENERAL
+    // ========================================
+    doc.fontSize(20).fillColor("#004b85")
+      .text("Información del servicio", { underline: true });
 
     doc.moveDown(1);
 
-    doc.fontSize(12).fillColor("#000");
+    doc.fontSize(13).fillColor("#000");
     doc.text(`Cliente: ${tarea.ClienteNegocio.nombre}`);
     doc.text(`Dirección del Cliente: ${tarea.ClienteNegocio.direccion}`);
     doc.text(`Sucursal: ${tarea.Sucursal.nombre}`);
-    doc.text(`Dirección de la Sucursal: ${tarea.Sucursal.direccion}`);
+    doc.text(`Dirección de Sucursal: ${tarea.Sucursal.direccion}`);
     doc.text(`Actividad: ${tarea.Actividad.nombre}`);
-    doc.text(`Asignado a: ${tarea.AsignadoA.nombre} (${tarea.AsignadoA.rol})`);
-    doc.text(`Fecha de finalización: ${tarea.fechaLimite}`);
+    doc.text(`Asignado a: ${tarea.AsignadoA.nombre}`);
+    doc.text(`Fecha límite: ${tarea.fechaLimite}`);
 
-    // ======================================================
-    //  PÁGINA 2 — EVIDENCIAS (2 por página)
-    // ======================================================
+    // ========================================
+    //    PÁGINA DE EVIDENCIAS
+    // ========================================
     doc.addPage();
     aplicarMarcaAgua(doc, watermarkBuf);
-
     doc.fontSize(20).fillColor("#004b85").text("Evidencias", { underline: true });
+
     doc.moveDown(1);
 
     const MAX_W = 260;
@@ -169,14 +164,12 @@ exports.generateReportePDF = async (req, res) => {
     let y = doc.y;
 
     for (const ev of evidencias) {
-      const raw = await cargarImagen(ev.archivoUrl);
-      if (!raw) continue;
+      const imgBuffer = await procesarImagen(ev.archivoUrl, MAX_W, MAX_H);
 
-      const imgBuf = await procesarImagen(raw, MAX_W, MAX_H);
-      if (!imgBuf) continue;
+      if (!imgBuffer) continue;
 
-      const img = doc.openImage(imgBuf);
-      const x = col === 0 ? 80 : doc.page.width / 2 + 10;
+      const img = doc.openImage(imgBuffer);
+      const x = col === 0 ? 60 : doc.page.width / 2 + 10;
 
       if (y + img.height > doc.page.height - 80) {
         doc.addPage();
@@ -184,11 +177,9 @@ exports.generateReportePDF = async (req, res) => {
         y = 80;
       }
 
-      doc.image(img, x, y);
+      doc.image(imgBuffer, x, y, { width: img.width });
 
-      doc.fontSize(12)
-        .fillColor("#000")
-        .text(ev.titulo || "Evidencia", x, y + img.height + 5);
+      doc.fontSize(12).text(ev.titulo || "Evidencia", x, y + img.height + 5);
 
       if (col === 0) {
         col = 1;
@@ -235,7 +226,7 @@ exports.generateReportePDF = async (req, res) => {
 
     if (materiales.length > 0) {
       doc.addPage();
-      aplicarMarcaAgua(doc);
+      aplicarMarcaAgua(doc, watermarkBuf);
 
       doc.fontSize(20).fillColor("#004b85")
         .text("Material Ocupado", { underline: true });
@@ -262,9 +253,12 @@ exports.generateReportePDF = async (req, res) => {
       }
     }
 
+    // FINALIZA PDF
     doc.end();
+
   } catch (error) {
     console.error("❌ Error generando PDF:", error);
     return res.status(500).json({ error: "No se pudo generar el PDF" });
   }
 };
+
