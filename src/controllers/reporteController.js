@@ -75,7 +75,7 @@ function aplicarMarcaAgua(doc, watermarkBuf) {
     const wm = doc.openImage(watermarkBuf);
 
     doc.save();
-    doc.opacity(0.15);
+    doc.opacity(0.50);
 
     const w = 420;
     const x = (doc.page.width - w) / 2;
