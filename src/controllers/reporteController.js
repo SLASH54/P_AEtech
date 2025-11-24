@@ -204,39 +204,37 @@ exports.generateReportePDF = async (req, res) => {
       }
     }
 
-   // =============================================================
-//  MATERIALES
 // =============================================================
-const materiales = evidencias[0]?.materiales || [];
+    //  MATERIALES
+    // =============================================================
+    const materiales = evidencias[0]?.materiales || [];
 
-if (materiales.length > 0) {
-  doc.addPage();
+    if (materiales.length > 0) {
+      doc.addPage();
 
-  doc.fontSize(20).fillColor("#004b85").text("Material Ocupado");
-  doc.moveDown(1);
+      doc.fontSize(20).fillColor("#004b85").text("Material Ocupado");
+      doc.moveDown(1);
 
-  const grupos = {};
-  materiales.forEach(m => {
-    if (!grupos[m.categoria]) grupos[m.categoria] = [];
-    grupos[m.categoria].push(m);
-  });
+      const grupos = {};
+      materiales.forEach(m => {
+        if (!grupos[m.categoria]) grupos[m.categoria] = [];
+        grupos[m.categoria].push(m);
+      });
 
-  for (const cat of Object.keys(grupos)) {
-    // Nombre de la categoría
-    doc.fontSize(16).fillColor("#004b85").text(`• ${cat}`);
-    doc.moveDown(0.5);
+      for (const cat of Object.keys(grupos)) {
+        doc.fontSize(16).fillColor("#004b85").text(`• ${cat}`);
+        doc.moveDown(0.5);
 
-    // Materiales dentro de la categoría
-    grupos[cat].forEach(m => {
-      doc.fontSize(12).fillColor("#000").text(
-        `${m.insumo} — ${m.cantidad} ${m.unidad}`,
-        { indent: 20 }
-      );
-    });
+        grupos[cat].forEach(m => {
+          doc.fontSize(12).fillColor("#000").text(
+            `${m.insumo} — ${m.cantidad} ${m.unidad}`,
+            { indent: 20 }
+          );
+        });
 
-    doc.moveDown(1);
-  }
-}
+        doc.moveDown(1);
+      }
+    }
 
     // =============================================================
     //  CIERRE DEL DOCUMENTO
@@ -248,3 +246,4 @@ if (materiales.length > 0) {
     return res.status(500).json({ error: "No se pudo generar el PDF" });
   }
 };
+
