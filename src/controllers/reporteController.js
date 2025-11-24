@@ -1,5 +1,5 @@
 // ===============================================================
-//   REPORTE PDF AETECH – VERSIÓN MEJORADA (FOOTER EN CADA PÁGINA)
+//   REPORTE PDF AETECH – VERSIÓN MEJORADA (SIN PÁGINAS VACÍAS)
 // ===============================================================
 
 const PDFDocument = require("pdfkit");
@@ -73,18 +73,18 @@ function aplicarMarcaAgua(doc, watermarkBuf) {
 }
 
 // =========================================================
-//   Footer (por página) – PIE DE PÁGINA REAL
+//   Footer (por página)
 // =========================================================
 function footer(doc) {
   doc.fontSize(10).fillColor("#555");
   doc.text(
     `AE TECH · Reporte oficial · Página ${doc.page.number}`,
     40,
-    doc.page.height - 30, // pie de página
+    doc.page.height - 30, // 🔥 Más abajo aún
     { width: doc.page.width - 80, align: "center" }
   );
 }
-
+ 
 // =========================================================
 //   Encabezado cada página
 // =========================================================
@@ -104,13 +104,11 @@ function encabezado(doc, logoBuf, watermarkBuf) {
 }
 
 // =========================================================
-//   Nueva página: cierra la actual con footer y abre otra
+//   Nueva página sin páginas vacías
 // =========================================================
 function nuevaPagina(doc, logoBuf, watermarkBuf) {
-  // Footer en la página actual ANTES de cambiar
-  footer(doc);
-
-  // Nueva página con encabezado
+  // ❌ Quitamos footer aquí porque provocaba páginas en blanco
+  // footer(doc);
   doc.addPage();
   encabezado(doc, logoBuf, watermarkBuf);
 }
@@ -124,13 +122,7 @@ exports.generateReportePDF = async (req, res) => {
   try {
     const tarea = await Tarea.findOne({
       where: { id: tareaId },
-      include: [
-        Actividad,
-        Sucursal,
-        ClienteNegocio,
-        { model: Usuario, as: "AsignadoA" },
-        Evidencia
-      ]
+      include: [ Actividad, Sucursal, ClienteNegocio, { model: Usuario, as: "AsignadoA" }, Evidencia ]
     });
 
     if (!tarea) return res.status(404).json({ error: "Tarea no encontrada" });
@@ -143,18 +135,11 @@ exports.generateReportePDF = async (req, res) => {
     const logoBuf = await cargarImagen(logoURL);
     const watermarkBuf = await cargarImagen(watermarkURL);
 
-    // 🔥 IMPORTANTE: sin bufferPages para evitar páginas raras
-    const doc = new PDFDocument({ margin: 40 });
+    const doc = new PDFDocument({ margin: 40, bufferPages: true });
 
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename=Reporte_Tarea_${tareaId}.pdf`
-    );
+doc.pipe(res);
 
-    doc.pipe(res);
-
-    // =================== PRIMERA PÁGINA ===================
+    // Primera página
     encabezado(doc, logoBuf, watermarkBuf);
 
     doc.fontSize(20).fillColor("#004b85").text("Información del servicio");
@@ -169,19 +154,13 @@ exports.generateReportePDF = async (req, res) => {
     doc.text(`Asignado a: ${tarea.AsignadoA.nombre}`);
     doc.text(`Fecha límite: ${tarea.fechaLimite}`);
 
-    // Aquí NO cambiamos de página todavía. El footer se pintará
-    // cuando llamemos a nuevaPagina() más adelante.
-
-    // =================== EVIDENCIAS ===================
-    nuevaPagina(doc, logoBuf, watermarkBuf); // footer en página 1 + nueva pag
+    // Evidencias
+    nuevaPagina(doc, logoBuf, watermarkBuf);
 
     doc.fontSize(20).fillColor("#004b85").text("Evidencias");
     doc.moveDown(1);
 
-    const MAX_W = 260;
-    const MAX_H = 260;
-    const GAP = 40;
-
+    const MAX_W = 260, MAX_H = 260, GAP = 40;
     let col = 0;
     let y = doc.y;
 
@@ -192,24 +171,19 @@ exports.generateReportePDF = async (req, res) => {
       const img = doc.openImage(imgBuffer);
       const x = col === 0 ? 60 : doc.page.width / 2 + 10;
 
-      // Si ya no cabe la imagen, cerramos página y abrimos otra
-      if (y + img.height > doc.page.height - 80) {
+      if (y + img.height > doc.page.height - 120) {
         nuevaPagina(doc, logoBuf, watermarkBuf);
-        y = 120;
+        y = 130;
       }
 
       doc.image(imgBuffer, x, y, { width: img.width });
       doc.fontSize(12).text(ev.titulo || "Evidencia", x, y + img.height + 5);
 
-      if (col === 0) {
-        col = 1;
-      } else {
-        col = 0;
-        y += img.height + GAP;
-      }
+      if (col === 0) col = 1;
+      else { col = 0; y += img.height + GAP; }
     }
 
-    // =================== FIRMA DEL CLIENTE ===================
+    // Firma
     const evFirma = evidencias.find(e => e.firmaClienteUrl);
 
     if (evFirma) {
@@ -218,12 +192,7 @@ exports.generateReportePDF = async (req, res) => {
       doc.fontSize(20).fillColor("#004b85").text("Firma del Cliente");
       doc.moveDown(1);
 
-      const firmaBuf = await procesarImagen(
-        evFirma.firmaClienteUrl,
-        380,
-        220,
-        true // firma = PNG
-      );
+      const firmaBuf = await procesarImagen(evFirma.firmaClienteUrl, 380, 220, true);
 
       if (firmaBuf) {
         const img = doc.openImage(firmaBuf);
@@ -234,7 +203,7 @@ exports.generateReportePDF = async (req, res) => {
       }
     }
 
-    // =================== MATERIALES ===================
+    // Materiales
     const materiales = evidencias[0]?.materiales || [];
 
     if (materiales.length > 0) {
@@ -264,11 +233,14 @@ exports.generateReportePDF = async (req, res) => {
       }
     }
 
-    // ============== FOOTER FINAL DE LA ÚLTIMA PÁGINA ==============
-    footer(doc);
+    // ================= FOOTER EN TODAS LAS PÁGINAS =================
+const pages = doc.bufferedPageRange();
+for (let i = 0; i < pages.count; i++) {
+  doc.switchToPage(i);
+  footer(doc);
+}
 
-    // Cerrar PDF
-    doc.end();
+doc.end();
 
   } catch (error) {
     console.error("❌ Error generando PDF:", error);
