@@ -40,6 +40,23 @@ async function procesarImagen(url, maxW, maxH) {
   }
 }
 
+async function cargarImagenLocalORemota(src) {
+  try {
+    if (src.startsWith("http")) {
+      // Descarga desde internet
+      const res = await axios.get(src, { responseType: "arraybuffer" });
+      return Buffer.from(res.data);
+    } else {
+      // Cargar archivo local
+      return fs.readFileSync(src);
+    }
+  } catch (err) {
+    console.log("⚠ Error cargando imagen:", src, err.message);
+    return null;
+  }
+}
+
+
 // -----------------------------------------------------------
 // UTIL: Marca de agua (PNG sin procesar)
 // -----------------------------------------------------------
@@ -100,11 +117,18 @@ exports.generateReportePDF = async (req, res) => {
     aplicarMarcaAgua(doc, watermarkPath);
 
     // LOGO
-    if (fs.existsSync(logoPath)) {
-      doc.image(logoPath, 40, 20, { width: 110 });
+    // LOGO (local o URL)
+    const logoSrc = path.join(__dirname, "../public/logo.png");
+    // O SI QUIERES FORZAR URL:
+    // const logoSrc = "https://p-aetech.onrender.com/public/logo.png";
+
+    const logoBuf = await cargarImagenLocalORemota(logoSrc);
+    if (logoBuf) {
+      const img = doc.openImage(logoBuf);
+      doc.image(img, 40, 20, { width: 110 });
     }
 
-    doc.image("https://p-aetech.onrender.com/public/logo.png", 40, 20, { width: 110 });
+    //doc.image("https://p-aetech.onrender.com/public/logo.png", 40, 20, { width: 110 });
     doc.fontSize(26).fillColor("#004b85").text("AE TECH", 170, 30);
     doc.fontSize(12).fillColor("#666").text("Reporte oficial de servicio", 170, 60);
 
