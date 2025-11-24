@@ -104,6 +104,7 @@ exports.generateReportePDF = async (req, res) => {
       doc.image(logoPath, 40, 20, { width: 110 });
     }
 
+    doc.image(logoPath, 40, 20, { width: 110 });
     doc.fontSize(26).fillColor("#004b85").text("AE TECH", 170, 30);
     doc.fontSize(12).fillColor("#666").text("Reporte oficial de servicio", 170, 60);
 
