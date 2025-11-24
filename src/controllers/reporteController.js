@@ -85,6 +85,7 @@ function footer(doc) {
   );
 }
 
+
 // =========================================================
 //   Encabezado cada página
 // =========================================================
@@ -135,11 +136,9 @@ exports.generateReportePDF = async (req, res) => {
     const logoBuf = await cargarImagen(logoURL);
     const watermarkBuf = await cargarImagen(watermarkURL);
 
-    const doc = new PDFDocument({ margin: 40 });
+    const doc = new PDFDocument({ margin: 40, bufferPages: true });
 
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename=Reporte_Tarea_${tareaId}.pdf`);
-    doc.pipe(res);
+doc.pipe(res);
 
     // Primera página
     encabezado(doc, logoBuf, watermarkBuf);
@@ -235,9 +234,14 @@ exports.generateReportePDF = async (req, res) => {
       }
     }
 
-    // Footer final
-    footer(doc);
-    doc.end();
+    // ================= FOOTER EN TODAS LAS PÁGINAS =================
+const pages = doc.bufferedPageRange();
+for (let i = 0; i < pages.count; i++) {
+  doc.switchToPage(i);
+  footer(doc);
+}
+
+doc.end();
 
   } catch (error) {
     console.error("❌ Error generando PDF:", error);
