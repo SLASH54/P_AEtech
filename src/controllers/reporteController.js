@@ -16,6 +16,23 @@ const {
   Evidencia
 } = require("../models/relations");
 
+
+// ===========================================================
+//    Cargar imagen desde URL pública o desde ruta local
+// ===========================================================
+async function cargarImagen(urlOrPath) {
+  try {
+    if (urlOrPath.startsWith("http")) {
+      const res = await axios.get(urlOrPath, { responseType: "arraybuffer" });
+      return res.data;
+    } else {
+      return fs.readFileSync(urlOrPath);
+    }
+  } catch (err) {
+    console.log("⚠ Error cargando imagen:", urlOrPath, err.message);
+    return null;
+  }
+}
 // =========================================================
 //   PROCESAR IMAGEN (Sharp) – evita fondo negro en firmas
 // =========================================================
