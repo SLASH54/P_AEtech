@@ -1,5 +1,7 @@
 // ==============================
-//   REPORTE PDF AETECH (FINAL)
+//  REPORTE PDF AETECH (VERSIÓN FINAL COMPLETA)
+//  Logo OK, Marca de agua OK, Evidencias OK,
+//  Firma del cliente OK, Materiales OK
 // ==============================
 
 const PDFDocument = require("pdfkit");
@@ -7,6 +9,7 @@ const axios = require("axios");
 const sharp = require("sharp");
 const fs = require("fs");
 const path = require("path");
+
 const {
   Tarea,
   Actividad,
@@ -16,14 +19,29 @@ const {
   Evidencia
 } = require("../models/relations");
 
-// -----------------------------------------------------------
-// UTIL: Procesar imagen (fotos de evidencia)
-// -----------------------------------------------------------
-async function procesarImagen(url, maxW, maxH) {
+// ===========================================================
+//    Cargar imagen desde URL pública o desde ruta local
+// ===========================================================
+async function cargarImagen(urlOrPath) {
   try {
-    const res = await axios.get(url, { responseType: "arraybuffer" });
+    if (urlOrPath.startsWith("http")) {
+      const res = await axios.get(urlOrPath, { responseType: "arraybuffer" });
+      return res.data;
+    } else {
+      return fs.readFileSync(urlOrPath);
+    }
+  } catch (err) {
+    console.log("⚠ Error cargando imagen:", urlOrPath, err.message);
+    return null;
+  }
+}
 
-    return await sharp(res.data)
+// ===========================================================
+//  Redimensionar imagen sin perder calidad
+// ===========================================================
+async function procesarImagen(buffer, maxW, maxH) {
+  try {
+    return await sharp(buffer)
       .rotate()
       .resize({
         width: maxW,
@@ -31,56 +49,47 @@ async function procesarImagen(url, maxW, maxH) {
         fit: "inside",
         withoutEnlargement: true
       })
-      .jpeg({ quality: 92 })
+      .jpeg({ quality: 95 })
       .toBuffer();
-
   } catch (err) {
-    console.log("⚠ Error procesando imagen:", url, err.message);
+    console.log("⚠ Error procesando imagen:", err.message);
     return null;
   }
 }
 
-async function cargarImagenLocalORemota(src) {
+// ===========================================================
+//  Aplicar marca de agua en cada página
+// ===========================================================
+function aplicarMarcaAgua(doc, watermarkBuf) {
   try {
-    if (src.startsWith("http")) {
-      // Descarga desde internet
-      const res = await axios.get(src, { responseType: "arraybuffer" });
-      return Buffer.from(res.data);
-    } else {
-      // Cargar archivo local
-      return fs.readFileSync(src);
-    }
-  } catch (err) {
-    console.log("⚠ Error cargando imagen:", src, err.message);
-    return null;
-  }
-}
+    const wm = doc.openImage(watermarkBuf);
 
-
-// -----------------------------------------------------------
-// UTIL: Marca de agua (PNG sin procesar)
-// -----------------------------------------------------------
-function aplicarMarcaAgua(doc, imgBuf) {
-  try {
-    const wm = doc.openImage(imgBuf);
     doc.save();
-    doc.opacity(0.10);
-    doc.image(wm, 90, 180, { width: 380 });
+    doc.opacity(0.08);
+
+    const w = 420;
+    const x = (doc.page.width - w) / 2;
+    const y = 180;
+
+    doc.image(wm, x, y, { width: w });
+
     doc.opacity(1);
     doc.restore();
   } catch (err) {
-    console.log("⚠ Error watermark:", err.message);
+    console.log("⚠ Error pintando marca de agua:", err.message);
   }
 }
 
-// -----------------------------------------------------------
-//   GENERAR REPORTE PDF (FINAL)
-// -----------------------------------------------------------
+// ===========================================================
+//   GENERAR REPORTE PDF (FINAL Y LIMPIO)
+// ===========================================================
 exports.generateReportePDF = async (req, res) => {
   const { tareaId } = req.params;
 
   try {
-
+    // =======================
+    //  CARGAR DATOS DE TAREA
+    // =======================
     const tarea = await Tarea.findOne({
       where: { id: tareaId },
       include: [
@@ -96,39 +105,33 @@ exports.generateReportePDF = async (req, res) => {
 
     const evidencias = tarea.Evidencia || [];
 
-    // ---------------------------------------------
-    //   CREACIÓN DEL PDF
-    // ---------------------------------------------
+    // =====================================
+    //   ARCHIVOS ESTÁTICOS (LOGO Y WATERMARK)
+    // =====================================
+    const logoURL = "https://p-aetech.onrender.com/public/logo.png";
+    const watermarkURL = "https://p-aetech.onrender.com/public/watermark.png";
+
+    const logoBuf = await cargarImagen(logoURL);
+    const watermarkBuf = await cargarImagen(watermarkURL);
+
+    // =====================
+    //   CREAR PDF
+    // =====================
     const doc = new PDFDocument({ margin: 40 });
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename=Reporte_Tarea_${tareaId}.pdf`);
     doc.pipe(res);
 
-    const logoPath = path.join(__dirname, "../public/logo.png");
-    const watermarkSrc = "https://p-aetech.onrender.com/public/watermark.png";
-    const watermarkBuf = await cargarImagenLocalORemota(watermarkSrc);
-
-
-
     // ======================================================
-    //  PÁGINA 1 – ENCABEZADO + INFORMACIÓN
+    //   PÁGINA 1 — ENCABEZADO + INFO
     // ======================================================
-    aplicarMarcaAgua(doc, watermarkPath);
+    aplicarMarcaAgua(doc, watermarkBuf);
 
-    // LOGO
-    // LOGO (local o URL)
-    //const logoSrc = path.join(__dirname, "../public/logo.png");
-    // O SI QUIERES FORZAR URL:
-    const logoSrc = "https://p-aetech.onrender.com/public/logo.png";
-
-    const logoBuf = await cargarImagenLocalORemota(logoSrc);
     if (logoBuf) {
-      const img = doc.openImage(logoBuf);
-      doc.image(img, 40, 20, { width: 110 });
+      const logo = doc.openImage(logoBuf);
+      doc.image(logo, 40, 20, { width: 110 });
     }
-    
 
-    //doc.image("https://p-aetech.onrender.com/public/logo.png", 40, 20, { width: 110 });
     doc.fontSize(26).fillColor("#004b85").text("AE TECH", 170, 30);
     doc.fontSize(12).fillColor("#666").text("Reporte oficial de servicio", 170, 60);
 
@@ -150,37 +153,38 @@ exports.generateReportePDF = async (req, res) => {
     doc.text(`Fecha de finalización: ${tarea.fechaLimite}`);
 
     // ======================================================
-    //  PÁGINA 2 → EVIDENCIAS (2 por página, centradas)
+    //  PÁGINA 2 — EVIDENCIAS (2 por página)
     // ======================================================
     doc.addPage();
-    aplicarMarcaAgua(doc, watermarkPath);
+    aplicarMarcaAgua(doc, watermarkBuf);
 
     doc.fontSize(20).fillColor("#004b85").text("Evidencias", { underline: true });
     doc.moveDown(1);
 
     const MAX_W = 260;
     const MAX_H = 260;
-    const GAP = 45;
+    const GAP = 40;
 
     let col = 0;
     let y = doc.y;
 
     for (const ev of evidencias) {
-      const imgBuffer = await procesarImagen(ev.archivoUrl, MAX_W, MAX_H);
+      const raw = await cargarImagen(ev.archivoUrl);
+      if (!raw) continue;
 
-      if (!imgBuffer) continue;
+      const imgBuf = await procesarImagen(raw, MAX_W, MAX_H);
+      if (!imgBuf) continue;
 
-      const img = doc.openImage(imgBuffer);
-      const x = col === 0 ? 70 : doc.page.width / 2 + 10;
+      const img = doc.openImage(imgBuf);
+      const x = col === 0 ? 80 : doc.page.width / 2 + 10;
 
-      // Salto de página
       if (y + img.height > doc.page.height - 80) {
         doc.addPage();
-        aplicarMarcaAgua(doc, watermarkPath);
+        aplicarMarcaAgua(doc, watermarkBuf);
         y = 80;
       }
 
-      doc.image(imgBuffer, x, y);
+      doc.image(img, x, y);
 
       doc.fontSize(12)
         .fillColor("#000")
@@ -195,49 +199,40 @@ exports.generateReportePDF = async (req, res) => {
     }
 
     // ======================================================
-    //   PÁGINA – FIRMA DEL CLIENTE (PNG ORIGINAL)
+    //   PÁGINA — FIRMA
     // ======================================================
-    const evFirma = evidencias.find((e) => e.firmaClienteUrl);
+    const evFirma = evidencias.find(e => e.firmaClienteUrl);
 
     if (evFirma) {
       doc.addPage();
-      aplicarMarcaAgua(doc, watermarkPath);
+      aplicarMarcaAgua(doc, watermarkBuf);
 
-      doc.fontSize(20)
-        .fillColor("#004b85")
-        .text("Firma del Cliente", { underline: true });
-
+      doc.fontSize(20).fillColor("#004b85").text("Firma del Cliente", {
+        underline: true
+      });
       doc.moveDown(1);
 
-      try {
-        const resFirma = await axios.get(evFirma.firmaClienteUrl, {
-          responseType: "arraybuffer"
-        });
+      const rawFirma = await cargarImagen(evFirma.firmaClienteUrl);
 
-        const firmaPNG = resFirma.data; // SIN procesar
-        const imgFirma = doc.openImage(firmaPNG);
+      if (rawFirma) {
+        const firmaBuf = await procesarImagen(rawFirma, 400, 250);
+        const imgF = doc.openImage(firmaBuf);
 
-        const x = (doc.page.width - imgFirma.width) / 2;
-
-        doc.image(firmaPNG, x, doc.y, {
-          fit: [400, 200],
-          align: "center"
-        });
-
-      } catch (err) {
-        console.log("⚠ Error cargando firma:", err.message);
+        const x = (doc.page.width - imgF.width) / 2;
+        doc.image(imgF, x, doc.y);
+      } else {
         doc.fillColor("red").text("⚠ No se pudo cargar la firma.");
       }
     }
 
     // ======================================================
-    //   PÁGINA – MATERIALES
+    //   PÁGINA — MATERIALES
     // ======================================================
     const materiales = evidencias[0]?.materiales || [];
 
     if (materiales.length > 0) {
       doc.addPage();
-      aplicarMarcaAgua(doc, watermarkPath);
+      aplicarMarcaAgua(doc, watermarkBuf);
 
       doc
         .fontSize(20)
@@ -246,20 +241,19 @@ exports.generateReportePDF = async (req, res) => {
 
       doc.moveDown(1);
 
-      const grupos = {};
+      const groups = {};
 
-      materiales.forEach((m) => {
-        if (!grupos[m.categoria]) grupos[m.categoria] = [];
-        grupos[m.categoria].push(m);
+      materiales.forEach(m => {
+        if (!groups[m.categoria]) groups[m.categoria] = [];
+        groups[m.categoria].push(m);
       });
 
-      for (const cat of Object.keys(grupos)) {
+      for (const cat of Object.keys(groups)) {
         doc.fontSize(16).fillColor("#004b85").text(`• ${cat}`);
         doc.moveDown(0.3);
 
-        grupos[cat].forEach((m) => {
-          doc
-            .fontSize(12)
+        groups[cat].forEach(m => {
+          doc.fontSize(12)
             .fillColor("#000")
             .text(`${m.insumo} — ${m.cantidad} ${m.unidad}`, { indent: 20 });
         });
@@ -268,9 +262,7 @@ exports.generateReportePDF = async (req, res) => {
       }
     }
 
-    // FINALIZAR PDF
     doc.end();
-
   } catch (error) {
     console.error("❌ Error generando PDF:", error);
     return res.status(500).json({ error: "No se pudo generar el PDF" });
