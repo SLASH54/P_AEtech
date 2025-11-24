@@ -111,6 +111,7 @@ function nuevaPagina(doc, logoBuf, watermarkBuf) {
   // footer(doc);
   doc.addPage();
   encabezado(doc, logoBuf, watermarkBuf);
+   footer(doc);
 }
 
 // =========================================================
@@ -234,11 +235,6 @@ doc.pipe(res);
     }
 
     // ================= FOOTER EN TODAS LAS PÁGINAS =================
-const pages = doc.bufferedPageRange();
-for (let i = 0; i < pages.count; i++) {
-  doc.switchToPage(i);
-  footer(doc);
-}
 
 doc.end();
 
