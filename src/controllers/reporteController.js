@@ -80,10 +80,11 @@ function footer(doc) {
   doc.text(
     `AE TECH · Reporte oficial · Página ${doc.page.number}`,
     40,
-    doc.page.height - 50,
+    doc.page.height - 30, // 🔥 Más abajo aún
     { width: doc.page.width - 80, align: "center" }
   );
 }
+
 
 // =========================================================
 //   Encabezado cada página
