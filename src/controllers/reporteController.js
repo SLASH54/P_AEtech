@@ -1,12 +1,12 @@
 // ===============================================================
-//   REPORTE PDF AETECH – VERSIÓN PREMIUM FINAL
+//   REPORTE PDF AETECH – VERSIÓN FINAL ESTABLE
 // ===============================================================
 
 const PDFDocument = require("pdfkit");
 const axios = require("axios");
 const sharp = require("sharp");
-
-// MODELOS
+const fs = require("fs");
+const path = require("path");
 const {
   Tarea,
   Actividad,
@@ -16,95 +16,84 @@ const {
   Evidencia
 } = require("../models/relations");
 
+
 // ===========================================================
-//  Cargar imagen desde URL (logo, marca de agua, evidencias, firmas)
+//    Cargar imagen desde URL pública o desde ruta local
 // ===========================================================
-async function cargarBufferDesdeURL(url) {
+async function cargarImagen(urlOrPath) {
   try {
-    const res = await axios.get(url, { responseType: "arraybuffer" });
-    return res.data;
+    if (urlOrPath.startsWith("http")) {
+      const res = await axios.get(urlOrPath, { responseType: "arraybuffer" });
+      return res.data;
+    } else {
+      return fs.readFileSync(urlOrPath);
+    }
   } catch (err) {
-    console.log("⚠ Error cargando imagen:", url, err.message);
+    console.log("⚠ Error cargando imagen:", urlOrPath, err.message);
     return null;
   }
 }
-
-// ===========================================================
-//  Procesar imagen con sharp (firma sin fondo negro)
-// ===========================================================
+// =========================================================
+//   PROCESAR IMAGEN (Sharp) – evita fondo negro en firmas
+// =========================================================
 async function procesarImagen(url, maxW, maxH, isSignature = false) {
   try {
     const res = await axios.get(url, { responseType: "arraybuffer" });
 
-    let pipe = sharp(res.data).rotate();
+    let pipeline = sharp(res.data).rotate();
 
-    if (isSignature) pipe = pipe.png();
-    else pipe = pipe.jpeg({ quality: 90 });
+    // Firma → NO convertir a JPEG (produce fondo negro)
+    if (isSignature) {
+      pipeline = pipeline.png();
+    } else {
+      pipeline = pipeline.jpeg({ quality: 90 });
+    }
 
-    return await pipe
-      .resize({ width: maxW, height: maxH, fit: "inside", withoutEnlargement: true })
+    return await pipeline
+      .resize({
+        width: maxW,
+        height: maxH,
+        fit: "inside",
+        withoutEnlargement: true
+      })
       .toBuffer();
 
-  } catch (e) {
-    console.log("⚠ Error procesando imagen:", url, e.message);
+  } catch (err) {
+    console.log("⚠ Error procesando imagen:", url, err.message);
     return null;
   }
 }
 
+// =========================================================
+//   MARCA DE AGUA
+// =========================================================
 // ===========================================================
-//  MARCA DE AGUA
+//  Aplicar marca de agua en cada página
 // ===========================================================
-function aplicarMarcaAgua(doc, wmBuf) {
-  if (!wmBuf) return;
+function aplicarMarcaAgua(doc, watermarkBuf) {
   try {
-    const wm = doc.openImage(wmBuf);
+    const wm = doc.openImage(watermarkBuf);
 
     doc.save();
-    doc.opacity(0.25);
+    doc.opacity(0.35);
 
-    const width = 420;
-    const x = (doc.page.width - width) / 2;
-    const y = 160;
+    const w = 620;
+    const x = (doc.page.width - w) / 2;
+    const y = 380;
 
-    doc.image(wm, x, y, { width });
+    doc.image(wm, x, y, { width: w });
+
     doc.opacity(1);
     doc.restore();
-  } catch (e) {
-    console.log("⚠ Error al pintar marca de agua:", e.message);
+  } catch (err) {
+    console.log("⚠ Error pintando marca de agua:", err.message);
   }
 }
 
-// ===========================================================
-//  FOOTER Premium en cada página
-// ===========================================================
-function agregarFooter(doc, pageNumber, totalPages) {
-  doc.save();
 
-  // Línea superior
-  doc.moveTo(40, doc.page.height - 60)
-     .lineTo(doc.page.width - 40, doc.page.height - 60)
-     .strokeColor("#004b85")
-     .lineWidth(1)
-     .stroke();
-
-  doc.fontSize(9).fillColor("#555");
-
-  // Texto izquierda
-  doc.text("AETECH ® 2025 | Reporte de Servicio", 40, doc.page.height - 50, {
-    align: "left"
-  });
-
-  // Número de página
-  doc.text(`Página ${pageNumber} de ${totalPages}`, -40, doc.page.height - 50, {
-    align: "right"
-  });
-
-  doc.restore();
-}
-
-// ===========================================================
-//       GENERAR REPORTE PREMIUM
-// ===========================================================
+// =========================================================
+//   GENERAR REPORTE PDF – FINAL
+// =========================================================
 exports.generateReportePDF = async (req, res) => {
   const { tareaId } = req.params;
 
@@ -120,73 +109,55 @@ exports.generateReportePDF = async (req, res) => {
       ]
     });
 
-    if (!tarea) return res.status(404).json({ error: "Tarea no encontrada" });
+    if (!tarea)
+      return res.status(404).json({ error: "Tarea no encontrada" });
 
     const evidencias = tarea.Evidencia || [];
 
-    // ==========================================
-    //  Logos externos (funcionan en Render)
-    // ==========================================
+    // =====================================
+    //   ARCHIVOS ESTÁTICOS (LOGO Y WATERMARK)
+    // =====================================
     const logoURL = "https://p-aetech.onrender.com/public/logo.png";
-    const wmURL   = "https://p-aetech.onrender.com/public/watermark.png";
+    const watermarkURL = "https://p-aetech.onrender.com/public/watermark.png";
 
-    const logoBuf = await cargarBufferDesdeURL(logoURL);
-    const wmBuf   = await cargarBufferDesdeURL(wmURL);
+    const logoBuf = await cargarImagen(logoURL);
+    const watermarkBuf = await cargarImagen(watermarkURL);
 
-    // ==========================================
-    //  Crear PDF
-    // ==========================================
+    // ========================================
+    // Inicializa PDF
+    // ========================================
     const doc = new PDFDocument({ margin: 40 });
-    const stream = res;
-
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition",
       `attachment; filename=Reporte_Tarea_${tareaId}.pdf`);
+    doc.pipe(res);
 
-    doc.pipe(stream);
-
-    // Usaremos un contador de páginas para el footer
-    let pageIndex = 1;
-    const paginasRequeridas = 1 + 1 + 1 + 1; // portada + evidencias + firma + materiales
-    // luego ajustamos dinámico
-
-    // ========================================================
-    //   PORTADA PREMIUM
-    // ========================================================
-    aplicarMarcaAgua(doc, wmBuf);
-
+    // ========================================
     // LOGO
+    // ========================================
+    aplicarMarcaAgua(doc, watermarkBuf);
+
     if (logoBuf) {
       const logo = doc.openImage(logoBuf);
-      doc.image(logo, (doc.page.width - 140) / 2, 60, { width: 140 });
+      doc.image(logo, 40, 20, { width: 110 });
     }
+    
+    doc.fontSize(28).fillColor("#004b85").text("AE TECH", 170, 30);
+    doc.fontSize(12).fillColor("#444").text("Reporte oficial de servicio", 170, 63);
 
-    doc.fontSize(28).fillColor("#004b85")
-       .text("AETECH – Reporte Oficial", { align: "center" });
+    doc.moveTo(40, doc.page.height - 60)
+     .lineTo(doc.page.width - 40, doc.page.height - 60)
+     .strokeColor("#004b85")
+     .lineWidth(1)
+     .stroke();
 
-    doc.moveDown(1);
+    doc.moveDown(2);
 
-    doc.fontSize(18).fillColor("#666")
-       .text(`Tarea: ${tarea.nombre}`, { align: "center" });
-
-    doc.moveDown(8);
-
-    doc.fontSize(14).fillColor("#444")
-       .text("Generado automáticamente por el sistema AETECH", {
-         align: "center"
-       });
-
-    agregarFooter(doc, pageIndex, paginasRequeridas);
-    pageIndex++;
-
-    // ========================================================
-    //   INFORMACIÓN DEL SERVICIO
-    // ========================================================
-    doc.addPage();
-    aplicarMarcaAgua(doc, wmBuf);
-
-    doc.fontSize(22).fillColor("#004b85")
-       .text("Información del servicio", { underline: true });
+    // ========================================
+    // INFORMACIÓN GENERAL
+    // ========================================
+    doc.fontSize(20).fillColor("#004b85")
+      .text("Información del servicio", { underline: true });
 
     doc.moveDown(1);
 
@@ -199,64 +170,65 @@ exports.generateReportePDF = async (req, res) => {
     doc.text(`Asignado a: ${tarea.AsignadoA.nombre}`);
     doc.text(`Fecha límite: ${tarea.fechaLimite}`);
 
-    agregarFooter(doc, pageIndex, paginasRequeridas);
-    pageIndex++;
+    doc.moveTo(40, doc.page.height - 60)
+     .lineTo(doc.page.width - 40, doc.page.height - 60)
+     .strokeColor("#004b85")
+     .lineWidth(1)
+     .stroke();
 
-    // ========================================================
-    //   EVIDENCIAS (2 POR PÁGINA)
-    // ========================================================
+    // ========================================
+    //    PÁGINA DE EVIDENCIAS
+    // ========================================
     doc.addPage();
-    aplicarMarcaAgua(doc, wmBuf);
-
-    doc.fontSize(22).fillColor("#004b85")
-       .text("Evidencias", { underline: true });
+    aplicarMarcaAgua(doc, watermarkBuf);
+    doc.fontSize(20).fillColor("#004b85").text("Evidencias", { underline: true });
 
     doc.moveDown(1);
 
     const MAX_W = 260;
     const MAX_H = 260;
+    const GAP = 40;
 
     let col = 0;
-    let y = 130;
+    let y = doc.y;
 
     for (const ev of evidencias) {
-      const imgBuf = await procesarImagen(ev.archivoUrl, MAX_W, MAX_H);
+      const imgBuffer = await procesarImagen(ev.archivoUrl, MAX_W, MAX_H);
 
-      if (!imgBuf) continue;
+      if (!imgBuffer) continue;
 
-      const img = doc.openImage(imgBuf);
+      const img = doc.openImage(imgBuffer);
       const x = col === 0 ? 60 : doc.page.width / 2 + 10;
 
-      if (y + img.height > doc.page.height - 100) {
-        agregarFooter(doc, pageIndex, paginasRequeridas);
-        pageIndex++;
-
+      if (y + img.height > doc.page.height - 80) {
         doc.addPage();
-        aplicarMarcaAgua(doc, wmBuf);
-        y = 100;
+        aplicarMarcaAgua(doc, watermarkBuf);
+        y = 80;
       }
 
-      doc.image(imgBuf, x, y, { width: img.width });
-      doc.fontSize(12).fillColor("#000").text(ev.titulo || "Evidencia", x, y + img.height + 5);
+      doc.image(imgBuffer, x, y, { width: img.width });
 
-      if (col === 0) col = 1;
-      else { col = 0; y += img.height + 60; }
+      doc.fontSize(12).text(ev.titulo || "Evidencia", x, y + img.height + 5);
+
+      if (col === 0) {
+        col = 1;
+      } else {
+        col = 0;
+        y += img.height + GAP;
+      }
     }
 
-    agregarFooter(doc, pageIndex, paginasRequeridas);
-    pageIndex++;
-
-    // ========================================================
-    //   FIRMA DEL CLIENTE
-    // ========================================================
+    // ========================================
+    //    FIRMA DEL CLIENTE
+    // ========================================
     const evFirma = evidencias.find(e => e.firmaClienteUrl);
 
     if (evFirma) {
       doc.addPage();
-      aplicarMarcaAgua(doc, wmBuf);
+      aplicarMarcaAgua(doc, watermarkBuf);
 
-      doc.fontSize(22).fillColor("#004b85")
-         .text("Firma del Cliente", { underline: true });
+      doc.fontSize(20).fillColor("#004b85")
+        .text("Firma del Cliente", { underline: true });
 
       doc.moveDown(1);
 
@@ -264,32 +236,29 @@ exports.generateReportePDF = async (req, res) => {
         evFirma.firmaClienteUrl,
         380,
         220,
-        true  // PNG → evita fondo negro
+        true // 🔥 firma = PNG → evita fondo negro
       );
 
       if (firmaBuf) {
         const img = doc.openImage(firmaBuf);
         const x = (doc.page.width - img.width) / 2;
-        doc.image(img, x, doc.y + 30);
+        doc.image(firmaBuf, x, doc.y);
       } else {
         doc.fillColor("red").text("⚠ No se pudo cargar la firma.");
       }
-
-      agregarFooter(doc, pageIndex, paginasRequeridas);
-      pageIndex++;
     }
 
-    // ========================================================
-    //   MATERIALES
-    // ========================================================
+    // ========================================
+    //   TABLA DE MATERIALES
+    // ========================================
     const materiales = evidencias[0]?.materiales || [];
 
     if (materiales.length > 0) {
       doc.addPage();
-      aplicarMarcaAgua(doc, wmBuf);
+      aplicarMarcaAgua(doc, watermarkBuf);
 
-      doc.fontSize(22).fillColor("#004b85")
-         .text("Material Ocupado", { underline: true });
+      doc.fontSize(20).fillColor("#004b85")
+        .text("Material Ocupado", { underline: true });
 
       doc.moveDown(1);
 
@@ -311,15 +280,14 @@ exports.generateReportePDF = async (req, res) => {
 
         doc.moveDown(1);
       }
-
-      agregarFooter(doc, pageIndex, paginasRequeridas);
-      pageIndex++;
     }
 
+    // FINALIZA PDF
     doc.end();
 
-  } catch (e) {
-    console.log("❌ Error generando PDF:", e);
-    res.status(500).json({ error: "No se pudo generar el PDF" });
+  } catch (error) {
+    console.error("❌ Error generando PDF:", error);
+    return res.status(500).json({ error: "No se pudo generar el PDF" });
   }
 };
+
