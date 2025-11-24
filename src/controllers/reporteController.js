@@ -60,18 +60,14 @@ async function cargarImagenLocalORemota(src) {
 // -----------------------------------------------------------
 // UTIL: Marca de agua (PNG sin procesar)
 // -----------------------------------------------------------
-function aplicarMarcaAgua(doc, watermarkPath) {
-  if (!fs.existsSync(watermarkPath)) return;
-
+function aplicarMarcaAgua(doc, imgBuf) {
   try {
-    const img = doc.openImage(watermarkPath);
-
+    const wm = doc.openImage(imgBuf);
     doc.save();
     doc.opacity(0.10);
-    doc.image(watermarkPath, 90, 180, { width: 380 });
+    doc.image(wm, 90, 180, { width: 380 });
     doc.opacity(1);
     doc.restore();
-
   } catch (err) {
     console.log("⚠ Error watermark:", err.message);
   }
@@ -109,7 +105,10 @@ exports.generateReportePDF = async (req, res) => {
     doc.pipe(res);
 
     const logoPath = path.join(__dirname, "../public/logo.png");
-    const watermarkPath = path.join(__dirname, "../public/watermark.png");
+    const watermarkSrc = "https://p-aetech.onrender.com/public/watermark.png";
+    const watermarkBuf = await cargarImagenLocalORemota(watermarkSrc);
+
+
 
     // ======================================================
     //  PÁGINA 1 – ENCABEZADO + INFORMACIÓN
@@ -127,6 +126,7 @@ exports.generateReportePDF = async (req, res) => {
       const img = doc.openImage(logoBuf);
       doc.image(img, 40, 20, { width: 110 });
     }
+    
 
     //doc.image("https://p-aetech.onrender.com/public/logo.png", 40, 20, { width: 110 });
     doc.fontSize(26).fillColor("#004b85").text("AE TECH", 170, 30);
