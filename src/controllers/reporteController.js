@@ -198,7 +198,7 @@ exports.generateReportePDF = async (req, res) => {
       }
     }
 
- // ======================================================
+    // ======================================================
     //   PÁGINA – FIRMA DEL CLIENTE (PNG ORIGINAL)
     // ======================================================
     const evFirma = evidencias.find((e) => e.firmaClienteUrl);
