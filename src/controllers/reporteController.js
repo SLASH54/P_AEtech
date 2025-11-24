@@ -118,9 +118,9 @@ exports.generateReportePDF = async (req, res) => {
 
     // LOGO
     // LOGO (local o URL)
-    const logoSrc = path.join(__dirname, "../public/logo.png");
+    //const logoSrc = path.join(__dirname, "../public/logo.png");
     // O SI QUIERES FORZAR URL:
-    // const logoSrc = "https://p-aetech.onrender.com/public/logo.png";
+    const logoSrc = "https://p-aetech.onrender.com/public/logo.png";
 
     const logoBuf = await cargarImagenLocalORemota(logoSrc);
     if (logoBuf) {
