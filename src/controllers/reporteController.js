@@ -198,29 +198,38 @@ exports.generateReportePDF = async (req, res) => {
       }
     }
 
+ // ======================================================
+    //   PÁGINA – FIRMA DEL CLIENTE (PNG ORIGINAL)
     // ======================================================
-    //   PÁGINA — FIRMA
-    // ======================================================
-    const evFirma = evidencias.find(e => e.firmaClienteUrl);
+    const evFirma = evidencias.find((e) => e.firmaClienteUrl);
 
     if (evFirma) {
       doc.addPage();
-      aplicarMarcaAgua(doc, watermarkBuf);
+      aplicarMarcaAgua(doc, watermarkPath);
 
-      doc.fontSize(20).fillColor("#004b85").text("Firma del Cliente", {
-        underline: true
-      });
+      doc.fontSize(20)
+        .fillColor("#004b85")
+        .text("Firma del Cliente", { underline: true });
+
       doc.moveDown(1);
 
-      const rawFirma = await cargarImagen(evFirma.firmaClienteUrl);
+      try {
+        const resFirma = await axios.get(evFirma.firmaClienteUrl, {
+          responseType: "arraybuffer"
+        });
 
-      if (rawFirma) {
-        const firmaBuf = await procesarImagen(rawFirma, 400, 250);
-        const imgF = doc.openImage(firmaBuf);
+        const firmaPNG = resFirma.data; // SIN procesar
+        const imgFirma = doc.openImage(firmaPNG);
 
-        const x = (doc.page.width - imgF.width) / 2;
-        doc.image(imgF, x, doc.y);
-      } else {
+        const x = (doc.page.width - imgFirma.width) / 2;
+
+        doc.image(firmaPNG, x, doc.y, {
+          fit: [400, 200],
+          align: "center"
+        });
+
+      } catch (err) {
+        console.log("⚠ Error cargando firma:", err.message);
         doc.fillColor("red").text("⚠ No se pudo cargar la firma.");
       }
     }
