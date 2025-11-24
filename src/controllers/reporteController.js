@@ -85,7 +85,6 @@ function footer(doc) {
   );
 }
 
-
 // =========================================================
 //   Encabezado cada página
 // =========================================================
@@ -108,7 +107,8 @@ function encabezado(doc, logoBuf, watermarkBuf) {
 //   Nueva página sin páginas vacías
 // =========================================================
 function nuevaPagina(doc, logoBuf, watermarkBuf) {
-  footer(doc);
+  // ❌ Quitamos footer aquí porque provocaba páginas en blanco
+  // footer(doc);
   doc.addPage();
   encabezado(doc, logoBuf, watermarkBuf);
 }
