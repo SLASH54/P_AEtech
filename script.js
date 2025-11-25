@@ -1076,6 +1076,7 @@ async function initTareas() {
   loadUsersForTareaSelect();
   loadClientesForTareaSelect();
   loadActividadesForTareaSelect();
+  llenarSelectUsuarios(tareas);
 }
 
 
@@ -1494,8 +1495,34 @@ async function deleteData(endpoint) {
     }
 }
 
+function llenarSelectUsuarios(tareas) {
+    const selectUsuarios = document.getElementById('filterUsuario');
+    const usuarios = [...new Set(tareas.map(t => t.usuarioAsignado))];
+
+    usuarios.forEach(usuario => {
+        const opt = document.createElement('option');
+        opt.value = usuario;
+        opt.textContent = usuario;
+        selectUsuarios.appendChild(opt);
+    });
+}
 
 
+document.getElementById('filterEstado').addEventListener('change', filtrarTareas);
+document.getElementById('filterUsuario').addEventListener('change', filtrarTareas);
+
+function filtrarTareas() {
+    const estado = document.getElementById('filterEstado').value;
+    const usuario = document.getElementById('filterUsuario').value;
+
+    const tareasFiltradas = window.tareasList.filter(t => {
+        const condEstado = estado === "" || t.estado === estado;
+        const condUsuario = usuario === "" || t.usuarioAsignado === usuario;
+        return condEstado && condUsuario;
+    });
+
+    renderTareasTable(tareasFiltradas);
+}
 
 
 

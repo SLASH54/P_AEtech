@@ -203,6 +203,22 @@
 
     </div>
 
+    <div style="display:flex; gap:20px; align-items:center; margin-bottom:20px;">
+    <select id="filterEstado" class="form-control" style="width:200px;">
+        <option value="">Todos los estados</option>
+        <option value="Pendiente">Pendiente</option>
+        <option value="En Progreso">En Progreso</option>
+        <option value="Completada">Completada</option>
+        <option value="Cancelada">Cancelada</option>
+        <option value="Bloqueada">Bloqueada</option>
+    </select>
+
+    <select id="filterUsuario" class="form-control" style="width:200px;">
+        <option value="">Todos los usuarios</option>
+    </select>
+</div>
+
+
     <!-- Contenedor de la tabla (MOVIDO AQUÍ) -->
     <div class="bg-white shadow-xl rounded-xl overflow-hidden">
         <table class="min-w-full divide-y divide-gray-200" id="tareasTable">
