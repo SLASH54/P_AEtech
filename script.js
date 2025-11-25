@@ -1502,18 +1502,7 @@ function llenarSelectUsuarios(tareas) {
     const usuarios = new Set();
 
     tareas.forEach(t => {
-        // Detecta automáticamente el campo correcto
-        const posiblesCampos = [
-            t.usuarioAsignado,
-            t.asignadoA,
-            t.asignado,
-            t.usuario,
-            t.personal,
-            t.usuarioNombre,
-        ];
-
-        const usuario = posiblesCampos.find(v => v && v.trim() !== "");
-
+        const usuario = t.AsignadoA?.nombre;
         if (usuario) usuarios.add(usuario);
     });
 
@@ -1524,6 +1513,7 @@ function llenarSelectUsuarios(tareas) {
         selectUsuarios.appendChild(opt);
     });
 }
+
 
 
 
