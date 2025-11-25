@@ -3059,3 +3059,67 @@ form input:focus {
   color: #333;
   border-bottom: 1px solid #eee;
 }
+/* ============================
+   FILTROS DE TAREAS - AEtech
+===============================*/
+
+#filtrosTareas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 18px;
+    padding: 10px 12px;
+    background: #f8f9fc;
+    border: 1px solid #e1e1e1;
+    border-radius: 10px;
+}
+
+/* Estilo de los selects */
+#filtrosTareas select {
+    flex: 1;
+    min-width: 180px;
+    height: 36px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #cdd2d8;
+    background: #ffffff;
+    font-size: 14px;
+    outline: none;
+    transition: 0.2s;
+}
+
+#filtrosTareas select:focus {
+    border-color: #4a6cf7;
+    box-shadow: 0 0 4px rgba(74, 108, 247, 0.4);
+}
+
+/* Botón de limpiar */
+#btnLimpiarFiltros {
+    height: 36px;
+    padding: 6px 16px;
+    border-radius: 6px;
+    background: #e4e7eb;
+    border: 1px solid #c1c5ca;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+#btnLimpiarFiltros:hover {
+    background: #d3d6da;
+    border-color: #b1b5ba;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    #filtrosTareas {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    #btnLimpiarFiltros {
+        width: 100%;
+        text-align: center;
+    }
+}
