@@ -1532,9 +1532,9 @@ function filtrarTareas() {
     });
 
     renderTareasTable(tareasFiltradas);
+}
 
-
-    document.getElementById('btnLimpiarFiltros').addEventListener('click', () => {
+document.getElementById('btnLimpiarFiltros').addEventListener('click', () => {
     // Reset selects
     document.getElementById('filterEstado').value = "";
     document.getElementById('filterUsuario').value = "";
@@ -1542,9 +1542,6 @@ function filtrarTareas() {
     // Renderizar TODAS las tareas nuevamente
     renderTareasTable(window.tareasOriginales);
 });
-
-}
-
 
 
 
