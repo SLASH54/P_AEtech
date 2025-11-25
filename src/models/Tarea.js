@@ -13,6 +13,13 @@ const Tarea = sequelize.define('Tarea', {
         allowNull: false,
         comment: 'Nombre de la tarea asignada (ej: Instalación GPS Suc. Centro)',
     },
+    
+    descripcion: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    comment: 'Descripción detallada de la tarea'
+},
+
     // Claves Foráneas (FKs)
     usuarioAsignadoId: {
         type: DataTypes.INTEGER,

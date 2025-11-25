@@ -17,13 +17,14 @@ const includeConfig = [
 
 // ===============================
 // 1. CREAR TAREA (POST)
-// ===============================
+// ===============================s
 exports.createTarea = async (req, res) => {
     try {
-        const { 
-            nombre, usuarioAsignadoId, actividadId, 
-            sucursalId, clienteNegocioId, fechaLimite, prioridad 
-        } = req.body;
+       const { 
+    nombre, descripcion, usuarioAsignadoId, actividadId, 
+    sucursalId, clienteNegocioId, fechaLimite, prioridad 
+} = req.body;
+
         
         // Validación de campos obligatorios
         if (!nombre || !usuarioAsignadoId || !actividadId || !sucursalId || !clienteNegocioId) {
@@ -33,10 +34,16 @@ exports.createTarea = async (req, res) => {
         }
 
         // Crear la tarea
-        const tarea = await Tarea.create({
-            nombre, usuarioAsignadoId, actividadId, 
-            sucursalId, clienteNegocioId, fechaLimite, prioridad 
-        });
+       const tarea = await Tarea.create({
+    nombre,
+    descripcion,        // 👈 AGREGADO
+    usuarioAsignadoId,
+    actividadId,
+    sucursalId,
+    clienteNegocioId,
+    fechaLimite,
+    prioridad
+});
 
         // Obtener detalles de la tarea creada
         const tareaCreada = await Tarea.findByPk(tarea.id, { include: includeConfig });
