@@ -3111,15 +3111,3 @@ form input:focus {
     border-color: #b1b5ba;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    #filtrosTareas {
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    #btnLimpiarFiltros {
-        width: 100%;
-        text-align: center;
-    }
-}
