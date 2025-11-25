@@ -1064,6 +1064,7 @@ async function initTareas() {
   const tareas = await fetchData(endpoint);
 
   if (tareas && tareas.length > 0) {
+    window.tareasOriginales = tareas;   // guardar la lista completa
     renderTareasTable(tareas);
   } else {
     tareasBody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">No hay tareas asignadas.</td></tr>';
@@ -1524,7 +1525,7 @@ function filtrarTareas() {
     const estado = document.getElementById('filterEstado').value;
     const usuario = document.getElementById('filterUsuario').value;
 
-    const tareasFiltradas = window.tareasList.filter(t => {
+    const tareasFiltradas = window.tareasOriginales.filter(t => {
         const condEstado = estado === "" || t.estado === estado;
         const condUsuario = usuario === "" || t.AsignadoA?.nombre === usuario;
         return condEstado && condUsuario;
@@ -1532,6 +1533,7 @@ function filtrarTareas() {
 
     renderTareasTable(tareasFiltradas);
 }
+
 
 
 
