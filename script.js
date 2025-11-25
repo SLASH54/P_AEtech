@@ -1497,15 +1497,34 @@ async function deleteData(endpoint) {
 
 function llenarSelectUsuarios(tareas) {
     const selectUsuarios = document.getElementById('filterUsuario');
-    const usuarios = [...new Set(tareas.map(t => t.usuarioAsignado))];
+    selectUsuarios.innerHTML = '<option value="">Todos los usuarios</option>';
 
-    usuarios.forEach(usuario => {
+    const usuarios = new Set();
+
+    tareas.forEach(t => {
+        // Detecta automáticamente el campo correcto
+        const posiblesCampos = [
+            t.usuarioAsignado,
+            t.asignadoA,
+            t.asignado,
+            t.usuario,
+            t.personal,
+            t.usuarioNombre,
+        ];
+
+        const usuario = posiblesCampos.find(v => v && v.trim() !== "");
+
+        if (usuario) usuarios.add(usuario);
+    });
+
+    [...usuarios].forEach(usuario => {
         const opt = document.createElement('option');
         opt.value = usuario;
         opt.textContent = usuario;
         selectUsuarios.appendChild(opt);
     });
 }
+
 
 
 document.getElementById('filterEstado').addEventListener('change', filtrarTareas);

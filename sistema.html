@@ -203,8 +203,11 @@
 
     </div>
 
-    <div style="display:flex; gap:20px; align-items:center; margin-bottom:20px;">
-    <select id="filterEstado" class="form-control" style="width:200px;">
+    <div id="filtrosTareas" 
+     style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px;">
+    
+    <select id="filterEstado" class="form-control" 
+            style="min-width:160px; flex:1;">
         <option value="">Todos los estados</option>
         <option value="Pendiente">Pendiente</option>
         <option value="En Progreso">En Progreso</option>
@@ -213,10 +216,12 @@
         <option value="Bloqueada">Bloqueada</option>
     </select>
 
-    <select id="filterUsuario" class="form-control" style="width:200px;">
+    <select id="filterUsuario" class="form-control" 
+            style="min-width:160px; flex:1;">
         <option value="">Todos los usuarios</option>
     </select>
 </div>
+
 
 
     <!-- Contenedor de la tabla (MOVIDO AQUÍ) -->
