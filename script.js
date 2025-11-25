@@ -1526,12 +1526,13 @@ function filtrarTareas() {
 
     const tareasFiltradas = window.tareasList.filter(t => {
         const condEstado = estado === "" || t.estado === estado;
-        const condUsuario = usuario === "" || t.usuarioAsignado === usuario;
+        const condUsuario = usuario === "" || t.AsignadoA?.nombre === usuario;
         return condEstado && condUsuario;
     });
 
     renderTareasTable(tareasFiltradas);
 }
+
 
 
 
