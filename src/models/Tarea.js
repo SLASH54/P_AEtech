@@ -42,7 +42,7 @@ const Tarea = sequelize.define('Tarea', {
         comment: 'Fecha máxima para completar la tarea.',
     },
     estado: {
-        type: DataTypes.ENUM('Pendiente', 'En Progreso', 'Completada', 'Bloqueada'),
+        type: DataTypes.ENUM('Pendiente', 'En Progreso', 'Completada', 'Cancelada', 'Bloqueada'),
         defaultValue: 'Pendiente',
         allowNull: false,
         comment: 'Estado actual de la tarea.',
