@@ -1225,8 +1225,21 @@ function renderTareasTable(tareas) {
         // Fila de la tabla
         row.innerHTML = `
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                ${tarea.nombre}
-            </td>
+              <div>${tarea.nombre}</div>
+
+              <!-- BOTÓN PARA VER DESCRIPCIÓN -->
+              <button onclick="toggleDescripcion(${tarea.id})"
+                  class="text-blue-600 hover:text-blue-800 text-xs mt-1 underline">
+                  Ver descripción
+              </button>
+
+              <!-- CONTENEDOR OCULTO -->
+              <div id="desc-${tarea.id}" 
+                  style="display:none; margin-top:6px; font-size:12px; color:#555;">
+                  ${tarea.descripcion || "Sin descripción"}
+              </div>
+          </td>
+
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 ${asignadoNombre}
             </td>
@@ -2954,6 +2967,20 @@ const clientData = {
 };
 
 
+
+// ver desripcion xd 
+
+function toggleDescripcion(id) {
+    const contenedor = document.getElementById(`desc-${id}`);
+
+    if (!contenedor) return;
+
+    if (contenedor.style.display === "none") {
+        contenedor.style.display = "block";
+    } else {
+        contenedor.style.display = "none";
+    }
+}
 
 
 
