@@ -3098,7 +3098,7 @@ form input:focus {
     height: 36px;
     padding: 6px 16px;
     border-radius: 6px;
-    background: #e4e7eb;
+    background: #9f1212;
     border: 1px solid #c1c5ca;
     cursor: pointer;
     font-size: 14px;
@@ -3107,7 +3107,7 @@ form input:focus {
 }
 
 #btnLimpiarFiltros:hover {
-    background: #d3d6da;
+    background: #ff1717;
     border-color: #b1b5ba;
 }
 
