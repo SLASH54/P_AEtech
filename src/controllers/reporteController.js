@@ -234,11 +234,11 @@ doc.pipe(res);
     }
 
     // ================= FOOTER EN TODAS LAS PÁGINAS =================
-const pages = doc.bufferedPageRange();
-for (let i = 0; i < pages.count; i++) {
-  doc.switchToPage(i);
-  footer(doc);
-}
+//const pages = doc.bufferedPageRange();
+//for (let i = 0; i < pages.count; i++) {
+//  doc.switchToPage(i);
+//  footer(doc);
+//}
 
 doc.end();
 
