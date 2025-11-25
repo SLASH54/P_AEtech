@@ -3111,3 +3111,21 @@ form input:focus {
     border-color: #b1b5ba;
 }
 
+/* ============================
+   Ajuste móvil para evitar overflow
+===============================*/
+
+@media (max-width: 768px) {
+    #filtrosTareas {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 10px;
+    }
+
+    #filtrosTareas select,
+    #btnLimpiarFiltros {
+        width: 100% !important;
+        min-width: unset !important;
+        margin: 0;
+    }
+}
