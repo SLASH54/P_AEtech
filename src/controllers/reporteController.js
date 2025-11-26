@@ -198,6 +198,7 @@ const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
 // =============================================================
 const MAX_W = 160, MAX_H = 160;
 const GAP = 30;
+doc.moveDown(1);
 
 doc.fontSize(22)
     .fillColor("#00938f")
