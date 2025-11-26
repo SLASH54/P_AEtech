@@ -175,6 +175,8 @@ const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
     // Primera página con plantilla
     fondoPlantilla(doc, plantillaBuf);
 
+    doc.moveDown(4);
+
     doc.fontSize(22)
       .fillColor("#004b85")
       .text("Información del servicio", MARGIN_LEFT, doc.y);
@@ -193,6 +195,7 @@ const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
 
     // Evidencias
     nuevaPagina(doc, plantillaBuf);
+    doc.moveDown(4);
 
     doc.fontSize(22)
       .fillColor("#004b85")
@@ -230,6 +233,7 @@ const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
 
     if (evFirma) {
       nuevaPagina(doc, plantillaBuf);
+      doc.moveDown(4);
 
       doc.fontSize(22)
         .fillColor("#004b85")
@@ -253,6 +257,7 @@ const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
 
     if (materiales.length > 0) {
       nuevaPagina(doc, plantillaBuf);
+      doc.moveDown(4);
 
       doc.fontSize(22)
         .fillColor("#004b85")
