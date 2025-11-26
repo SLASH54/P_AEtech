@@ -178,8 +178,9 @@ const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
     doc.moveDown(7);
 
     doc.fontSize(22)
+      .font('fonts/Roboto-Bold.ttf')
       .fillColor("#00938f")
-      .text("Información del servicio", MARGIN_LEFT, doc.y);
+      .text("INFORMACION DEL SERVICIO", MARGIN_LEFT, doc.y);
 
     doc.moveDown(1);
 
@@ -199,7 +200,7 @@ const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
 
     doc.fontSize(22)
       .fillColor("#00938f")
-      .text("Evidencias", MARGIN_LEFT);
+      .text("EVIDENCIAS", MARGIN_LEFT);
 
     doc.moveDown(1);
 
@@ -237,7 +238,7 @@ const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
 
       doc.fontSize(22)
         .fillColor("#00938f")
-        .text("Firma del Cliente", MARGIN_LEFT);
+        .text("FIRMA DEL CLIENTE", MARGIN_LEFT);
 
       doc.moveDown(2);
 
@@ -261,7 +262,7 @@ const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
 
       doc.fontSize(22)
         .fillColor("#00938f")
-        .text("Material Ocupado", MARGIN_LEFT);
+        .text("MATERIAL OCUPADO", MARGIN_LEFT);
 
       doc.moveDown(1);
 
