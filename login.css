@@ -783,7 +783,7 @@ main {
 }
 
 #Tablero .mexico {
- color: #ffd501de;
+ color: #0d9c00de;
 }
 
 #Tablero .decorative-elements {
@@ -3129,3 +3129,28 @@ form input:focus {
         margin: 0;
     }
 }
+
+
+
+/* levantamientos  */
+.necesidad-item {
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 10px;
+  background: #fff;
+  margin-bottom: 10px;
+}
+
+.necesidad-item textarea {
+  width: 100%;
+}
+
+.thumb {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-right: 8px;
+  margin-top: 5px;
+}
+

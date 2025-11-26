@@ -2983,7 +2983,65 @@ function toggleDescripcion(id) {
 }
 
 
+// Cargar clientes
+async function cargarClientes() {
+    const res = await fetch('/api/clientes');
+    const clientes = await res.json();
 
+    const select = document.getElementById('clienteSelect');
+    select.innerHTML = '<option value="">Seleccionar…</option>';
+
+    clientes.forEach(c => {
+        select.innerHTML += `<option value="${c.id}">${c.nombre}</option>`;
+    });
+}
+cargarClientes();
+
+document.getElementById('agregarNecesidadBtn').onclick = () => {
+    const id = Date.now();
+
+    const div = document.createElement('div');
+    div.className = "necesidad-item";
+    div.dataset.id = id;
+
+    div.innerHTML = `
+        <textarea placeholder="Descripción..." class="desc"></textarea>
+        <br>
+        <div id="preview-${id}"></div>
+        <input type="file" multiple accept="image/*" class="foto" data-id="${id}">
+        <button class="eliminar" onclick="this.parentElement.remove()">Eliminar</button>
+    `;
+
+    document.getElementById('necesidadesContainer').appendChild(div);
+};
+
+document.addEventListener('change', e => {
+    if (!e.target.classList.contains('foto')) return;
+
+    const id = e.target.dataset.id;
+    const preview = document.getElementById(`preview-${id}`);
+    preview.innerHTML = '';
+
+    [...e.target.files].forEach(file => {
+        const url = URL.createObjectURL(file);
+        preview.innerHTML += `<img src="${url}" class="thumb">`;
+    });
+});
+
+document.getElementById('agregarMaterialBtn').onclick = () => {
+    const txt = document.getElementById('materialInput').value.trim();
+    if (!txt) return;
+
+    const li = document.createElement('li');
+    li.textContent = txt;
+    document.getElementById('materialesLista').appendChild(li);
+
+    document.getElementById('materialInput').value = '';
+};
+
+document.getElementById('guardarLevantamientoBtn').onclick = async () => {
+    alert("Aquí faltaría conectar al backend, pero el frontend ya quedó.");
+};
 
 
 
