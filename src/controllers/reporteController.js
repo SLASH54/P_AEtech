@@ -113,6 +113,7 @@ function fondoPlantilla(doc, plantillaBuf) {
       width: doc.page.width,
       height: doc.page.height
     });
+    doc.y = MARGIN_TOP; // 👈 AQUI COLOCAMOS EL CURSOR EN LA ZONA BLANCA
   } catch (err) {
     console.log("⚠ Error aplicando plantilla:", err.message);
   }
@@ -124,7 +125,7 @@ function fondoPlantilla(doc, plantillaBuf) {
 // =========================================================
 function nuevaPagina(doc, plantillaBuf) {
   doc.addPage();
-  fondoPlantilla(doc, plantillaBuf);
+  fondoPlantilla(doc, plantillaBuf); // plantilla + posicionamiento correcto
 }
 
 
@@ -132,6 +133,15 @@ function nuevaPagina(doc, plantillaBuf) {
 //   GENERAR REPORTE PDF
 // =========================================================
 exports.generateReportePDF = async (req, res) => {
+  // Margenes reales según la plantilla PDF
+const MARGIN_TOP = 180;
+const MARGIN_LEFT = 50;
+const MARGIN_RIGHT = 50;
+const MARGIN_BOTTOM = 120;
+
+// Área útil
+const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
+
   const { tareaId } = req.params;
 
   try {
@@ -162,27 +172,36 @@ doc.pipe(res);
     // Primera página con plantilla
     fondoPlantilla(doc, plantillaBuf);
 
-    doc.fontSize(20).fillColor("#004b85").text("Información del servicio");
+    doc.fontSize(22)
+      .fillColor("#004b85")
+      .text("Información del servicio", MARGIN_LEFT, doc.y);
+
     doc.moveDown(1);
 
-    doc.fontSize(13).fillColor("#000");
-    doc.text(`Cliente: ${tarea.ClienteNegocio.nombre}`);
-    doc.text(`Dirección del Cliente: ${tarea.ClienteNegocio.direccion}`);
-    doc.text(`Sucursal: ${tarea.Sucursal.nombre}`);
-    doc.text(`Dirección de Sucursal: ${tarea.Sucursal.direccion}`);
-    doc.text(`Actividad: ${tarea.Actividad.nombre}`);
-    doc.text(`Asignado a: ${tarea.AsignadoA.nombre}`);
-    doc.text(`Fecha límite: ${tarea.fechaLimite}`);
+    doc.fontSize(12).fillColor("#000");
+
+    doc.text(`Cliente: ${tarea.ClienteNegocio.nombre}`, MARGIN_LEFT);
+    doc.text(`Dirección del Cliente: ${tarea.ClienteNegocio.direccion}`, MARGIN_LEFT, doc.y);
+    doc.text(`Sucursal: ${tarea.Sucursal.nombre}`, MARGIN_LEFT);
+    doc.text(`Dirección de Sucursal: ${tarea.Sucursal.direccion}`, MARGIN_LEFT);
+    doc.text(`Actividad: ${tarea.Actividad.nombre}`, MARGIN_LEFT);
+    doc.text(`Asignado a: ${tarea.AsignadoA.nombre}`, MARGIN_LEFT);
+    doc.text(`Fecha límite: ${tarea.fechaLimite}`, MARGIN_LEFT);
 
     // Evidencias
     nuevaPagina(doc, plantillaBuf);
 
-    doc.fontSize(20).fillColor("#004b85").text("Evidencias");
+    doc.fontSize(22)
+      .fillColor("#004b85")
+      .text("Evidencias", MARGIN_LEFT);
+
     doc.moveDown(1);
 
     const MAX_W = 260, MAX_H = 260, GAP = 40;
     let col = 0;
-    let y = doc.y;
+    //let y = doc.y;
+    let y = doc.y + 10;  // 👈 mover evidencias más abajo
+
 
     for (const ev of evidencias) {
       const imgBuffer = await procesarImagen(ev.archivoUrl, MAX_W, MAX_H);
@@ -209,8 +228,11 @@ doc.pipe(res);
     if (evFirma) {
       nuevaPagina(doc, plantillaBuf);
 
-      doc.fontSize(20).fillColor("#004b85").text("Firma del Cliente");
-      doc.moveDown(1);
+      doc.fontSize(22)
+        .fillColor("#004b85")
+        .text("Firma del Cliente", MARGIN_LEFT);
+
+      doc.moveDown(2);
 
       const firmaBuf = await procesarImagen(evFirma.firmaClienteUrl, 380, 220, true);
 
@@ -229,7 +251,10 @@ doc.pipe(res);
     if (materiales.length > 0) {
       nuevaPagina(doc, plantillaBuf);
 
-      doc.fontSize(20).fillColor("#004b85").text("Material Ocupado");
+      doc.fontSize(22)
+        .fillColor("#004b85")
+        .text("Material Ocupado", MARGIN_LEFT);
+
       doc.moveDown(1);
 
       const grupos = {};
