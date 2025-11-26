@@ -2982,7 +2982,6 @@ function toggleDescripcion(id) {
     }
 }
 
-
 // ================= LEVANTAMIENTOS =================
 
 async function cargarClientesLevantamientos() {
@@ -2990,21 +2989,23 @@ async function cargarClientesLevantamientos() {
     if (!select) return;
 
     try {
-        // 👇 CAMBIA ESTA RUTA si en tu script ya usas otra para traer clientes
-        // por ejemplo: "/clientes", "/api/clients", etc.
-        const res = await fetch("/api/clientes");
-        if (!res.ok) throw new Error("Error al cargar clientes");
-        const clientes = await res.json();
+        // Usa la misma lógica que el resto de tu sistema (JWT + API_BASE_URL)
+        const clientes = await fetchData('/clientes'); // GET https://p-aetech.onrender.com/api/clientes
+
+        if (!clientes || !Array.isArray(clientes)) {
+            select.innerHTML = '<option value="">No se pudieron cargar los clientes</option>';
+            return;
+        }
 
         select.innerHTML = '<option value="">Selecciona un cliente...</option>';
         clientes.forEach(c => {
+            // En tu backend los clientes usan id / nombre
             select.innerHTML += `<option value="${c.id}">${c.nombre}</option>`;
         });
 
     } catch (err) {
         console.error("Error cargando clientes de levantamientos:", err);
-        // Opcional: mostrar mensaje en el select
-        select.innerHTML = '<option value="">No se pudieron cargar los clientes</option>';
+        select.innerHTML = '<option value="">Error al cargar clientes</option>';
     }
 }
 
@@ -3037,10 +3038,9 @@ function agregarNecesidadUI() {
 
 function initLevantamientos() {
     const clienteSelect = document.getElementById("clienteSelect");
-    // Si no existe, significa que no estamos en esa vista todavía
-    if (!clienteSelect) return;
+    if (!clienteSelect) return; // por si no estamos en esa página
 
-    // 1) Cargar clientes desde la BD
+    // 1) Cargar clientes desde la BD (con token)
     cargarClientesLevantamientos();
 
     // 2) Botón "Agregar necesidad"
@@ -3049,7 +3049,7 @@ function initLevantamientos() {
         btnNecesidad.addEventListener("click", agregarNecesidadUI);
     }
 
-    // 3) Preview de fotos + eliminar necesidad (delegado)
+    // 3) Preview de fotos
     document.addEventListener("change", function (e) {
         if (!e.target.classList.contains("foto")) return;
 
@@ -3067,13 +3067,14 @@ function initLevantamientos() {
         });
     });
 
+    // 4) Eliminar necesidad
     document.addEventListener("click", function (e) {
         if (e.target.classList.contains("eliminar-necesidad")) {
             e.target.closest(".necesidad-item")?.remove();
         }
     });
 
-    // 4) Materiales: agregar a la lista
+    // 5) Materiales: agregar a la lista
     const btnMaterial = document.getElementById("agregarMaterialBtn");
     const inputMaterial = document.getElementById("materialInput");
     const listaMateriales = document.getElementById("materialesLista");
@@ -3089,12 +3090,17 @@ function initLevantamientos() {
         });
     }
 
-    // 5) Guardar levantamiento (envía TODO al backend)
+    // 6) Guardar levantamiento en tu API con token
     const btnGuardar = document.getElementById("guardarLevantamientoBtn");
     if (btnGuardar) {
         btnGuardar.addEventListener("click", async function () {
             const clienteId = clienteSelect.value;
             const fechaHora = document.getElementById("fechaHora").value;
+
+            if (!clienteId || !fechaHora) {
+                alert("Selecciona un cliente y una fecha/hora.");
+                return;
+            }
 
             const materiales = [...document.querySelectorAll("#materialesLista li")]
                 .map(li => li.textContent);
@@ -3127,8 +3133,12 @@ function initLevantamientos() {
             fd.append("necesidades", JSON.stringify(necesidades));
 
             try {
-                const res = await fetch("/api/levantamientos", {
+                const token = localStorage.getItem('userToken');
+                const res = await fetch(`${API_BASE_URL}/levantamientos`, {
                     method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    },
                     body: fd
                 });
                 if (!res.ok) throw new Error("Error al guardar levantamiento");
