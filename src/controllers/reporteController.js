@@ -206,7 +206,7 @@ doc.fontSize(22)
   doc.moveDown(1);
 
 // Punto EXACTO donde empieza el hueco blanco:
-let yPrimera = MARGIN_TOP + 60; 
+let yPrimera = MARGIN_TOP + 150;  
 let xLeft = MARGIN_LEFT;
 let xRight = doc.page.width / 2 - 20;
 
@@ -243,7 +243,7 @@ if (resto.length > 0) {
   nuevaPagina(doc, plantillaBuf);
 
   let col = 0;
-  let y = MARGIN_TOP + 40;
+  let y = MARGIN_TOP + 20;
 
   for (const ev of resto) {
     const imgBuffer = await procesarImagen(ev.archivoUrl, MAX_W, MAX_H);
