@@ -195,7 +195,7 @@ const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
 
     // Evidencias
     nuevaPagina(doc, plantillaBuf);
-    doc.moveDown(6);
+    doc.moveDown(5);
 
     doc.fontSize(22)
       .fillColor("#00938f")
@@ -203,10 +203,10 @@ const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
 
     doc.moveDown(1);
 
-    const MAX_W = 260, MAX_H = 260, GAP = 40;
+    const MAX_W = 180, MAX_H = 180, GAP = 30;
     let col = 0;
-    //let y = doc.y;
-    let y = doc.y + 10;  // 👈 mover evidencias más abajo
+    let y = doc.y - 5;   // 15px más arriba
+    // 👈 mover evidencias más abajo
 
 
     for (const ev of evidencias) {
@@ -214,12 +214,16 @@ const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
       if (!imgBuffer) continue;
 
       const img = doc.openImage(imgBuffer);
-      const x = col === 0 ? 60 : doc.page.width / 2 + 10;
+      const x = col === 0
+      ? MARGIN_LEFT       // primera columna alineada a la izquierda
+      : doc.page.width / 2 - 20;  // segunda columna a la derecha
 
-      if (y + img.height > doc.page.height - 120) {
+
+      if (y + img.height > doc.page.height - 150) {
         nuevaPagina(doc, plantillaBuf);
-        y = 130;
+        y = MARGIN_TOP + 10;
       }
+
 
       doc.image(imgBuffer, x, y, { width: img.width });
       doc.fontSize(12).text(ev.titulo || "Evidencia", x, y + img.height + 5);
