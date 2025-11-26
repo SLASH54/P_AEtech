@@ -194,52 +194,44 @@ const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
     doc.text(`Fecha límite: ${tarea.fechaLimite}`, MARGIN_LEFT);
 
     // Evidencias
-nuevaPagina(doc, plantillaBuf);
-
-// Título
-doc.fontSize(22)
-  .fillColor("#00938f")
-  .text("EVIDENCIAS", MARGIN_LEFT);
-
-doc.moveDown(2);
-
-// Ajustes perfectos
-const MAX_W = 180, MAX_H = 180, GAP = 30;
-let col = 0;
-
-// Punto ideal para primeras imágenes dentro de plantilla
-let y = MARGIN_TOP + 60;
-
-for (const ev of evidencias) {
-  const imgBuffer = await procesarImagen(ev.archivoUrl, MAX_W, MAX_H);
-  if (!imgBuffer) continue;
-
-  const img = doc.openImage(imgBuffer);
-
-  // coordenadas X corregidas
-  const x = col === 0
-    ? MARGIN_LEFT
-    : doc.page.width / 2 + 10;
-
-  // Salto de página si se acerca al footer de plantilla
-  if (y + img.height > doc.page.height - 150) {
     nuevaPagina(doc, plantillaBuf);
-    y = MARGIN_TOP + 60;
-  }
+    doc.moveDown(2);  // espacio pequeño bajo el título
 
-  doc.image(imgBuffer, x, y, { width: img.width, height: img.height });
+    doc.fontSize(22)
+      .fillColor("#00938f")
+      .text("EVIDENCIAS", MARGIN_LEFT);
 
-  doc.fontSize(12)
-    .fillColor("#000")
-    .text(ev.titulo || "Evidencia", x, y + img.height + 5);
+    doc.moveDown(1);
 
-  if (col === 0) col = 1;
-  else {
-    col = 0;
-    y += img.height + GAP;
-  }
-}
+    const MAX_W = 180, MAX_H = 180, GAP = 30;
+    let col = 0;
+    let y = MARGIN_TOP + 60;
+   // 15px más arriba
+    // 👈 mover evidencias más abajo
 
+
+    for (const ev of evidencias) {
+      const imgBuffer = await procesarImagen(ev.archivoUrl, MAX_W, MAX_H);
+      if (!imgBuffer) continue;
+
+      const img = doc.openImage(imgBuffer);
+      const x = col === 0
+      ? MARGIN_LEFT       // primera columna alineada a la izquierda
+      : doc.page.width / 2 - 20;  // segunda columna a la derecha
+
+
+      if (y + img.height > doc.page.height - 150) {
+        nuevaPagina(doc, plantillaBuf);
+        y = MARGIN_TOP + 10;
+      }
+
+
+      doc.image(imgBuffer, x, y, { width: img.width });
+      doc.fontSize(12).text(ev.titulo || "Evidencia", x, y + img.height + 5);
+
+      if (col === 0) col = 1;
+      else { col = 0; y += img.height + GAP; }
+    }
 
     // Firma
     const evFirma = evidencias.find(e => e.firmaClienteUrl);
