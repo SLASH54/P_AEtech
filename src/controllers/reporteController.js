@@ -139,8 +139,6 @@ const MARGIN_LEFT = 50;
 const MARGIN_RIGHT = 50;
 const MARGIN_BOTTOM = 120;
 
-// Área útil
-const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
 
   const { tareaId } = req.params;
 
@@ -167,6 +165,10 @@ const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
     const doc = new PDFDocument({ margin: 40, bufferPages: true });
 
 doc.pipe(res);
+
+// Área útil
+const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
+
 
     // Primera página
     // Primera página con plantilla
