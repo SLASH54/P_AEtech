@@ -235,10 +235,11 @@ const resto = evidencias.slice(2);
 
 if (resto.length > 0) {
   nuevaPagina(doc, plantillaBuf);
+  doc.moveDown(5);
 
   doc.fontSize(22)
     .fillColor("#00938f")
-    .text("EVIDENCIAS (CONTINUACIÓN)", MARGIN_LEFT);
+    .text("EVIDENCIAS", MARGIN_LEFT);
 
   doc.moveDown(1);
 
