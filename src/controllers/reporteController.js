@@ -193,44 +193,87 @@ const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
     doc.text(`Asignado a: ${tarea.AsignadoA.nombre}`, MARGIN_LEFT);
     doc.text(`Fecha límite: ${tarea.fechaLimite}`, MARGIN_LEFT);
 
-    // Evidencias
-    doc.moveDown(7);  // espacio pequeño bajo el título
+    // =============================================================
+// EVIDENCIAS EN LA PRIMERA PÁGINA (SOLO 2 PRIMERAS)
+// =============================================================
+const MAX_W = 160, MAX_H = 160;
+const GAP = 30;
 
-    doc.fontSize(22)
-      .fillColor("#00938f")
-      .text("EVIDENCIAS", MARGIN_LEFT);
+// Punto EXACTO donde empieza el hueco blanco:
+let yPrimera = MARGIN_TOP + 250;  
+let xLeft = MARGIN_LEFT;
+let xRight = doc.page.width / 2 - 20;
 
-    doc.moveDown(1);
+// Tomar SOLO las primeras dos
+const primerasDos = evidencias.slice(0, 2);
 
-    const MAX_W = 180, MAX_H = 180, GAP = 30;
-    let col = 0;
-    let y = MARGIN_TOP + 60;
-   // 15px más arriba
-    // 👈 mover evidencias más abajo
+for (let i = 0; i < primerasDos.length; i++) {
+  const ev = primerasDos[i];
+  const imgBuffer = await procesarImagen(ev.archivoUrl, MAX_W, MAX_H);
+  if (!imgBuffer) continue;
+
+  const img = doc.openImage(imgBuffer);
+
+  // Izquierda o derecha
+  const x = i === 0 ? xLeft : xRight;
+
+  doc.image(imgBuffer, x, yPrimera, {
+    width: img.width,
+    height: img.height,
+  });
+
+  doc.fontSize(12)
+     .fillColor("#000")
+     .text(ev.titulo || "Evidencia", x, yPrimera + img.height + 5);
+}
 
 
-    for (const ev of evidencias) {
-      const imgBuffer = await procesarImagen(ev.archivoUrl, MAX_W, MAX_H);
-      if (!imgBuffer) continue;
+    // =============================================================
+// RESTO DE EVIDENCIAS (A PARTIR DE PÁGINA 2)
+// =============================================================
+const resto = evidencias.slice(2);
 
-      const img = doc.openImage(imgBuffer);
-      const x = col === 0
-      ? MARGIN_LEFT       // primera columna alineada a la izquierda
-      : doc.page.width / 2 - 20;  // segunda columna a la derecha
+if (resto.length > 0) {
+  nuevaPagina(doc, plantillaBuf);
 
+  doc.fontSize(22)
+    .fillColor("#00938f")
+    .text("EVIDENCIAS (CONTINUACIÓN)", MARGIN_LEFT);
 
-      if (y + img.height > doc.page.height - 150) {
-        nuevaPagina(doc, plantillaBuf);
-        y = MARGIN_TOP + 10;
-      }
+  doc.moveDown(1);
 
+  let col = 0;
+  let y = MARGIN_TOP + 60;
 
-      doc.image(imgBuffer, x, y, { width: img.width });
-      doc.fontSize(12).text(ev.titulo || "Evidencia", x, y + img.height + 5);
+  for (const ev of resto) {
+    const imgBuffer = await procesarImagen(ev.archivoUrl, MAX_W, MAX_H);
+    if (!imgBuffer) continue;
 
-      if (col === 0) col = 1;
-      else { col = 0; y += img.height + GAP; }
+    const img = doc.openImage(imgBuffer);
+
+    const x = col === 0
+      ? MARGIN_LEFT
+      : doc.page.width / 2 - 20;
+
+    // Salto de página si se acerca al footer
+    if (y + img.height > doc.page.height - 180) {
+      nuevaPagina(doc, plantillaBuf);
+      y = MARGIN_TOP + 60;
     }
+
+    doc.image(imgBuffer, x, y, { width: img.width });
+
+    doc.fontSize(12)
+      .fillColor("#000")
+      .text(ev.titulo || "Evidencia", x, y + img.height + 5);
+
+    if (col === 0) col = 1;
+    else {
+      col = 0;
+      y += img.height + GAP;
+    }
+  }
+}
 
     // Firma
     const evFirma = evidencias.find(e => e.firmaClienteUrl);
