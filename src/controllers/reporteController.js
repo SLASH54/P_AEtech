@@ -116,7 +116,7 @@ function fondoPlantilla(doc, plantillaBuf) {
     });
     doc.y = MARGIN_TOP; // 👈 AQUI COLOCAMOS EL CURSOR EN LA ZONA BLANCA
   } catch (err) {
-    console.log("⚠ Error aplicando plantilla:", err.message);
+    //console.log("⚠ Error aplicando plantilla:", err.message);
   }
 }
 
@@ -178,12 +178,12 @@ const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
     doc.moveDown(7);
 
     doc.fontSize(22)
-      .fillColor("#004b85")
+      .fillColor("#00938f")
       .text("Información del servicio", MARGIN_LEFT, doc.y);
 
     doc.moveDown(1);
 
-    doc.fontSize(12).fillColor("#000");
+    doc.fontSize(16).fillColor("#000");
 
     doc.text(`Cliente: ${tarea.ClienteNegocio.nombre}`, MARGIN_LEFT);
     doc.text(`Dirección del Cliente: ${tarea.ClienteNegocio.direccion}`, MARGIN_LEFT, doc.y);
@@ -198,7 +198,7 @@ const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
     doc.moveDown(7);
 
     doc.fontSize(22)
-      .fillColor("#004b85")
+      .fillColor("#00938f")
       .text("Evidencias", MARGIN_LEFT);
 
     doc.moveDown(1);
@@ -236,7 +236,7 @@ const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
       doc.moveDown(7);
 
       doc.fontSize(22)
-        .fillColor("#004b85")
+        .fillColor("#00938f")
         .text("Firma del Cliente", MARGIN_LEFT);
 
       doc.moveDown(2);
@@ -260,7 +260,7 @@ const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
       doc.moveDown(5);
 
       doc.fontSize(22)
-        .fillColor("#004b85")
+        .fillColor("#00938f")
         .text("Material Ocupado", MARGIN_LEFT);
 
       doc.moveDown(1);
