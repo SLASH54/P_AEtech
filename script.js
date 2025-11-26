@@ -2982,30 +2982,31 @@ function toggleDescripcion(id) {
     }
 }
 
+
+
+
+
 // ================= LEVANTAMIENTOS =================
 
-async function cargarClientesLevantamientos() {
-    const select = document.getElementById("clienteSelect");
-    if (!select) return;
+async function loadClientesForLevantamientos() {
+    const clienteSelect = document.getElementById('clienteSelect');
+    if (!clienteSelect) return;
 
-    try {
-        // Usa la misma lógica que el resto de tu sistema (JWT + API_BASE_URL)
-        const clientes = await fetchData('/clientes'); // GET https://p-aetech.onrender.com/api/clientes
+    clienteSelect.innerHTML = '<option value="" disabled selected>-- Cargando Clientes... --</option>';
 
-        if (!clientes || !Array.isArray(clientes)) {
-            select.innerHTML = '<option value="">No se pudieron cargar los clientes</option>';
-            return;
-        }
+    const clientes = await fetchData('/clientes');
 
-        select.innerHTML = '<option value="">Selecciona un cliente...</option>';
-        clientes.forEach(c => {
-            // En tu backend los clientes usan id / nombre
-            select.innerHTML += `<option value="${c.id}">${c.nombre}</option>`;
+    clienteSelect.innerHTML = '<option value="" disabled selected>-- Selecciona Cliente --</option>';
+
+    if (clientes && Array.isArray(clientes) && clientes.length > 0) {
+        clientes.forEach(cliente => {
+            const option = document.createElement('option');
+            option.value = cliente.id || cliente._id;
+            option.textContent = cliente.nombre;
+            clienteSelect.appendChild(option);
         });
-
-    } catch (err) {
-        console.error("Error cargando clientes de levantamientos:", err);
-        select.innerHTML = '<option value="">Error al cargar clientes</option>';
+    } else {
+        clienteSelect.innerHTML = `<option value="" disabled selected>No hay clientes</option>`;
     }
 }
 
@@ -3026,7 +3027,7 @@ function agregarNecesidadUI() {
         <input type="file" accept="image/*" capture="camera"
                class="foto" data-id="${id}" multiple>
 
-        <div id="preview-${id}"></div>
+        <div id="preview-${id}" class="preview"></div>
 
         <button type="button" class="lev-btn-sec eliminar-necesidad">
             Eliminar necesidad
@@ -3036,120 +3037,101 @@ function agregarNecesidadUI() {
     cont.appendChild(div);
 }
 
+async function guardarLevantamiento() {
+    const clienteId = document.getElementById("clienteSelect").value;
+    const fechaHora = document.getElementById("fechaHora").value;
+
+    if (!clienteId || !fechaHora) {
+        alert("Selecciona un cliente y una fecha/hora.");
+        return;
+    }
+
+    const materiales = [...document.querySelectorAll("#materialesLista li")]
+        .map(li => li.textContent);
+
+    const necesidades = [];
+    const fd = new FormData();
+    fd.append("clienteId", clienteId);
+    fd.append("fechaHora", fechaHora);
+    fd.append("materiales", JSON.stringify(materiales));
+
+    let index = 0;
+    document.querySelectorAll(".necesidad-item").forEach(div => {
+        const desc = div.querySelector(".desc").value;
+        const inputFotos = div.querySelector(".foto");
+        const files = inputFotos?.files || [];
+
+        necesidades.push({
+            descripcion: desc,
+            fotosQty: files.length,
+            idx: index
+        });
+
+        for (let i = 0; i < files.length; i++) {
+            fd.append(`foto_${index}_${i}`, files[i]);
+        }
+
+        index++;
+    });
+
+    fd.append("necesidades", JSON.stringify(necesidades));
+
+    try {
+        const token = localStorage.getItem('userToken');
+        const res = await fetch(`${API_BASE_URL}/levantamientos`, {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+            body: fd
+        });
+
+        if (!res.ok) throw new Error("Error al guardar levantamiento");
+
+        alert("Levantamiento guardado correctamente");
+    } catch (err) {
+        console.error(err);
+        alert("Ocurrió un error al guardar el levantamiento");
+    }
+}
+
 function initLevantamientos() {
     const clienteSelect = document.getElementById("clienteSelect");
-    if (!clienteSelect) return; // por si no estamos en esa página
+    if (!clienteSelect) return;
 
-    // 1) Cargar clientes desde la BD (con token)
-    cargarClientesLevantamientos();
+    loadClientesForLevantamientos();
 
-    // 2) Botón "Agregar necesidad"
     const btnNecesidad = document.getElementById("agregarNecesidadBtn");
     if (btnNecesidad) {
         btnNecesidad.addEventListener("click", agregarNecesidadUI);
     }
 
-    // 3) Preview de fotos
     document.addEventListener("change", function (e) {
         if (!e.target.classList.contains("foto")) return;
-
         const id = e.target.dataset.id;
         const preview = document.getElementById(`preview-${id}`);
-        if (!preview) return;
-
         preview.innerHTML = "";
         [...e.target.files].forEach(file => {
-            const url = URL.createObjectURL(file);
-            const img = document.createElement("img");
-            img.src = url;
-            img.className = "thumb";
-            preview.appendChild(img);
+            preview.innerHTML += `<img src="${URL.createObjectURL(file)}" class="thumb">`;
         });
     });
 
-    // 4) Eliminar necesidad
-    document.addEventListener("click", function (e) {
-        if (e.target.classList.contains("eliminar-necesidad")) {
-            e.target.closest(".necesidad-item")?.remove();
-        }
-    });
-
-    // 5) Materiales: agregar a la lista
     const btnMaterial = document.getElementById("agregarMaterialBtn");
     const inputMaterial = document.getElementById("materialInput");
     const listaMateriales = document.getElementById("materialesLista");
 
-    if (btnMaterial && inputMaterial && listaMateriales) {
-        btnMaterial.addEventListener("click", function () {
-            const texto = inputMaterial.value.trim();
-            if (!texto) return;
+    if (btnMaterial) {
+        btnMaterial.addEventListener("click", () => {
+            if (!inputMaterial.value.trim()) return;
             const li = document.createElement("li");
-            li.textContent = texto;
+            li.textContent = inputMaterial.value.trim();
             listaMateriales.appendChild(li);
             inputMaterial.value = "";
         });
     }
 
-    // 6) Guardar levantamiento en tu API con token
     const btnGuardar = document.getElementById("guardarLevantamientoBtn");
     if (btnGuardar) {
-        btnGuardar.addEventListener("click", async function () {
-            const clienteId = clienteSelect.value;
-            const fechaHora = document.getElementById("fechaHora").value;
-
-            if (!clienteId || !fechaHora) {
-                alert("Selecciona un cliente y una fecha/hora.");
-                return;
-            }
-
-            const materiales = [...document.querySelectorAll("#materialesLista li")]
-                .map(li => li.textContent);
-
-            const necesidades = [];
-            const fd = new FormData();
-            fd.append("clienteId", clienteId);
-            fd.append("fechaHora", fechaHora);
-            fd.append("materiales", JSON.stringify(materiales));
-
-            let index = 0;
-            document.querySelectorAll(".necesidad-item").forEach(div => {
-                const desc = div.querySelector(".desc").value;
-                const inputFotos = div.querySelector(".foto");
-                const files = inputFotos?.files || [];
-
-                necesidades.push({
-                    descripcion: desc,
-                    fotosQty: files.length,
-                    idx: index
-                });
-
-                for (let i = 0; i < files.length; i++) {
-                    fd.append(`foto_${index}_${i}`, files[i]);
-                }
-
-                index++;
-            });
-
-            fd.append("necesidades", JSON.stringify(necesidades));
-
-            try {
-                const token = localStorage.getItem('userToken');
-                const res = await fetch(`${API_BASE_URL}/levantamientos`, {
-                    method: "POST",
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    },
-                    body: fd
-                });
-                if (!res.ok) throw new Error("Error al guardar levantamiento");
-                alert("Levantamiento guardado correctamente");
-            } catch (err) {
-                console.error(err);
-                alert("Ocurrió un error al guardar el levantamiento");
-            }
-        });
+        btnGuardar.addEventListener("click", guardarLevantamiento);
     }
 }
 
-// Se inicializa cuando el DOM está listo
 window.addEventListener("DOMContentLoaded", initLevantamientos);
