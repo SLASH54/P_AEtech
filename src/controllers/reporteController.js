@@ -104,14 +104,29 @@ function encabezado(doc, logoBuf, watermarkBuf) {
 }
 
 // =========================================================
+//   Plantilla de fondo PDF (por página)
+// =========================================================
+function fondoPlantilla(doc, plantillaBuf) {
+  try {
+    const bg = doc.openImage(plantillaBuf);
+    doc.image(bg, 0, 0, {
+      width: doc.page.width,
+      height: doc.page.height
+    });
+  } catch (err) {
+    console.log("⚠ Error aplicando plantilla:", err.message);
+  }
+}
+
+
+// =========================================================
 //   Nueva página sin páginas vacías
 // =========================================================
-function nuevaPagina(doc, logoBuf, watermarkBuf) {
-  // ❌ Quitamos footer aquí porque provocaba páginas en blanco
-  // footer(doc);
+function nuevaPagina(doc, plantillaBuf) {
   doc.addPage();
-  encabezado(doc, logoBuf, watermarkBuf);
+  fondoPlantilla(doc, plantillaBuf);
 }
+
 
 // =========================================================
 //   GENERAR REPORTE PDF
@@ -131,16 +146,21 @@ exports.generateReportePDF = async (req, res) => {
 
     const logoURL = "https://p-aetech.onrender.com/public/logo.png";
     const watermarkURL = "https://p-aetech.onrender.com/public/watermark.png";
+    const plantillaURL = "https://p-aetech.onrender.com/public/plantillas/plantilla_reporte.jpg";
+
 
     const logoBuf = await cargarImagen(logoURL);
     const watermarkBuf = await cargarImagen(watermarkURL);
+    const plantillaBuf = await cargarImagen(plantillaURL);
+
 
     const doc = new PDFDocument({ margin: 40, bufferPages: true });
 
 doc.pipe(res);
 
     // Primera página
-    encabezado(doc, logoBuf, watermarkBuf);
+    // Primera página con plantilla
+    fondoPlantilla(doc, plantillaBuf);
 
     doc.fontSize(20).fillColor("#004b85").text("Información del servicio");
     doc.moveDown(1);
@@ -155,7 +175,7 @@ doc.pipe(res);
     doc.text(`Fecha límite: ${tarea.fechaLimite}`);
 
     // Evidencias
-    nuevaPagina(doc, logoBuf, watermarkBuf);
+    nuevaPagina(doc, plantillaBuf);
 
     doc.fontSize(20).fillColor("#004b85").text("Evidencias");
     doc.moveDown(1);
@@ -172,7 +192,7 @@ doc.pipe(res);
       const x = col === 0 ? 60 : doc.page.width / 2 + 10;
 
       if (y + img.height > doc.page.height - 120) {
-        nuevaPagina(doc, logoBuf, watermarkBuf);
+        nuevaPagina(doc, plantillaBuf);
         y = 130;
       }
 
@@ -187,7 +207,7 @@ doc.pipe(res);
     const evFirma = evidencias.find(e => e.firmaClienteUrl);
 
     if (evFirma) {
-      nuevaPagina(doc, logoBuf, watermarkBuf);
+      nuevaPagina(doc, plantillaBuf);
 
       doc.fontSize(20).fillColor("#004b85").text("Firma del Cliente");
       doc.moveDown(1);
@@ -207,7 +227,7 @@ doc.pipe(res);
     const materiales = evidencias[0]?.materiales || [];
 
     if (materiales.length > 0) {
-      nuevaPagina(doc, logoBuf, watermarkBuf);
+      nuevaPagina(doc, plantillaBuf);
 
       doc.fontSize(20).fillColor("#004b85").text("Material Ocupado");
       doc.moveDown(1);
