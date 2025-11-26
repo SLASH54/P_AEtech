@@ -199,6 +199,12 @@ const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
 const MAX_W = 160, MAX_H = 160;
 const GAP = 30;
 
+doc.fontSize(22)
+    .fillColor("#00938f")
+    .text("EVIDENCIAS", MARGIN_LEFT);
+
+  doc.moveDown(1);
+
 // Punto EXACTO donde empieza el hueco blanco:
 let yPrimera = MARGIN_TOP + 250;  
 let xLeft = MARGIN_LEFT;
@@ -235,13 +241,6 @@ const resto = evidencias.slice(2);
 
 if (resto.length > 0) {
   nuevaPagina(doc, plantillaBuf);
-  doc.moveDown(5);
-
-  doc.fontSize(22)
-    .fillColor("#00938f")
-    .text("EVIDENCIAS", MARGIN_LEFT);
-
-  doc.moveDown(1);
 
   let col = 0;
   let y = MARGIN_TOP + 60;
