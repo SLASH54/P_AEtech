@@ -2984,73 +2984,131 @@ function toggleDescripcion(id) {
 
 
 // Cargar clientes
-async function cargarClientes() {
-    const res = await fetch('/api/clientes');
-    const clientes = await res.json();
+async function cargarClientesLevantamientos() {
+    try {
+        const res = await fetch("/api/clientes");
+        const clientes = await res.json();
 
-    const select = document.getElementById('clienteSelect');
-    select.innerHTML = '<option value="">Seleccionar…</option>';
+        const select = document.getElementById("clienteSelect");
+        if (!select) return;
 
-    clientes.forEach(c => {
-        select.innerHTML += `<option value="${c.id}">${c.nombre}</option>`;
-    });
+        select.innerHTML = '<option value="">Seleccionar cliente...</option>';
+
+        clientes.forEach(c => {
+            select.innerHTML += `<option value="${c.id}">${c.nombre}</option>`;
+        });
+
+    } catch (err) {
+        console.error("Error cargando clientes:", err);
+    }
 }
-cargarClientes();
 
-document.getElementById('agregarNecesidadBtn').onclick = () => {
-    const id = Date.now();
+// fotoslevantamientos 
+document.addEventListener("DOMContentLoaded", () => {
 
-    const div = document.createElement('div');
-    div.className = "necesidad-item";
-    div.dataset.id = id;
+    const cont = document.getElementById("necesidadesContainer");
+    const btn = document.getElementById("agregarNecesidadBtn");
 
-    div.innerHTML = `
-        <textarea placeholder="Descripción..." class="desc"></textarea>
-        <br>
-        <div id="preview-${id}"></div>
-        <input type="file" multiple accept="image/*" class="foto" data-id="${id}">
-        <button class="eliminar" onclick="this.parentElement.remove()">Eliminar</button>
-    `;
+    if (btn) {
+        btn.onclick = () => {
+            const id = Date.now();
 
-    document.getElementById('necesidadesContainer').appendChild(div);
-};
+            const div = document.createElement("div");
+            div.className = "necesidad-item";
+            div.dataset.id = id;
 
-document.addEventListener('change', e => {
-    if (!e.target.classList.contains('foto')) return;
+            div.innerHTML = `
+                <label>Descripción:</label>
+                <textarea class="desc lev-input"></textarea>
+
+                <label>Fotos:</label>
+                <input type="file" accept="image/*" capture="camera" class="foto" data-id="${id}" multiple>
+
+                <div id="preview-${id}"></div>
+
+                <button class="lev-btn-sec" onclick="this.parentElement.remove()">Eliminar</button>
+            `;
+
+            cont.appendChild(div);
+        };
+    }
+});
+
+// mostrar miniaturas
+document.addEventListener("change", e => {
+    if (!e.target.classList.contains("foto")) return;
 
     const id = e.target.dataset.id;
     const preview = document.getElementById(`preview-${id}`);
-    preview.innerHTML = '';
 
+    preview.innerHTML = "";
     [...e.target.files].forEach(file => {
         const url = URL.createObjectURL(file);
-        preview.innerHTML += `<img src="${url}" class="thumb">`;
+        preview.innerHTML += `<img class="thumb" src="${url}">`;
     });
 });
 
-document.getElementById('agregarMaterialBtn').onclick = () => {
-    const txt = document.getElementById('materialInput').value.trim();
+
+// agregar materiales 
+document.getElementById("agregarMaterialBtn")?.addEventListener("click", () => {
+    const txt = document.getElementById("materialInput").value.trim();
     if (!txt) return;
 
-    const li = document.createElement('li');
+    const li = document.createElement("li");
     li.textContent = txt;
-    document.getElementById('materialesLista').appendChild(li);
 
-    document.getElementById('materialInput').value = '';
-};
-
-document.getElementById('guardarLevantamientoBtn').onclick = async () => {
-    alert("Aquí faltaría conectar al backend, pero el frontend ya quedó.");
-};
+    document.getElementById("materialesLista").appendChild(li);
+    document.getElementById("materialInput").value = "";
+});
 
 
+// guardar levantamientos 
+document.getElementById("guardarLevantamientoBtn")?.addEventListener("click", async () => {
 
+    const clienteId = document.getElementById("clienteSelect").value;
+    const fechaHora = document.getElementById("fechaHora").value;
 
+    const materiales = [...document.querySelectorAll("#materialesLista li")]
+        .map(li => li.textContent);
 
+    const necesidades = [];
+    const necesidadDivs = document.querySelectorAll(".necesidad-item");
 
+    const fd = new FormData();
+    fd.append("clienteId", clienteId);
+    fd.append("fechaHora", fechaHora);
+    fd.append("materiales", JSON.stringify(materiales));
 
+    let index = 0;
 
+    necesidadDivs.forEach(div => {
+        const descripcion = div.querySelector(".desc").value;
+        const fotos = div.querySelector(".foto").files;
 
+        necesidades.push({
+            descripcion,
+            fotosQty: fotos.length,
+            idx: index
+        });
 
+        // añadir fotos reales al FormData
+        for (let i = 0; i < fotos.length; i++) {
+            fd.append(`foto_${index}_${i}`, fotos[i]);
+        }
 
+        index++;
+    });
 
+    fd.append("necesidades", JSON.stringify(necesidades));
+
+    const res = await fetch("/api/levantamientos", {
+        method: "POST",
+        body: fd
+    });
+
+    if (res.ok) {
+        alert("Levantamiento guardado correctamente.");
+    } else {
+        alert("Error guardando levantamiento.");
+    }
+});

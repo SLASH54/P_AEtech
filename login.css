@@ -3133,24 +3133,56 @@ form input:focus {
 
 
 /* levantamientos  */
-.necesidad-item {
-  border: 1px solid #ccc;
-  padding: 10px;
-  border-radius: 10px;
+.lev-container {
   background: #fff;
-  margin-bottom: 10px;
+  padding: 20px;
+  border-radius: 12px;
+  max-width: 800px;
+  margin: auto;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 
-.necesidad-item textarea {
+.lev-bloque { margin-bottom: 20px; }
+
+.lev-label { font-weight: bold; display:block; margin-bottom:5px; }
+
+.lev-input {
   width: 100%;
+  padding: 7px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.lev-btn, .lev-btn-sec, .lev-btn-guardar {
+  padding: 10px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.lev-btn { background: #008c3a; color: white; }
+.lev-btn-sec { background: #0066ff; color: white; }
+.lev-btn-guardar { background: #6a0dad; color:white; width:100%; font-size:18px; }
+
+.necesidad-item {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background: #fafafa;
+  margin-bottom: 12px;
 }
 
 .thumb {
-  width: 80px;
-  height: 80px;
+  width: 80px; height: 80px;
   object-fit: cover;
-  border-radius: 6px;
-  margin-right: 8px;
-  margin-top: 5px;
+  border-radius: 8px;
+  margin-right: 5px; margin-top: 5px;
 }
 
+.flex-row { display:flex; gap:10px; }
+.lev-lista li {
+  background:#eee;
+  padding:6px 10px;
+  border-radius:6px;
+  margin-top:4px;
+}

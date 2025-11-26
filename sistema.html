@@ -980,47 +980,58 @@
 
 <section id="Levantamientos" class="main-content">
 
-    <h2 class="text-3xl font-bold mb-6 text-gray-800 border-b pb-2">📋 Levantamientos</h2>
+   <div class="lev-container">
 
-    <!-- Selección de Cliente -->
-    <label>Cliente</label>
-    <select id="clienteSelect" class="form-control"></select>
-    <button id="nuevoClienteBtn" onclick="mostrarContenido('Clientes')" class="bg-blue-600 text-white px-3 py-1 rounded">
-        Registrar Cliente
-    </button>
+    <h2 class="titulo-lev">📋 Levantamientos</h2>
 
-    <br><br>
+    <!-- CLIENTE -->
+    <div class="lev-bloque">
+        <label class="lev-label">Cliente</label>
+        <select id="clienteSelect" class="lev-input"></select>
 
-    <!-- Fecha y hora -->
-    <label>Fecha y Hora</label>
-    <input type="datetime-local" id="fechaHora" class="form-control">
+        <button class="lev-btn-sec" onclick="mostrarContenido('Clientes')">
+            + Registrar Cliente
+        </button>
+    </div>
 
-    <br><br>
+    <!-- FECHA -->
+    <div class="lev-bloque">
+        <label class="lev-label">Fecha y hora</label>
+        <input type="datetime-local" id="fechaHora" class="lev-input">
+    </div>
 
-    <!-- Necesidades -->
-    <h3 class="text-xl font-bold">Necesidades</h3>
-    <div id="necesidadesContainer"></div>
+    <!-- NECESIDADES -->
+    <div class="lev-bloque">
+        <h3 class="subtitulo-lev">📌 Necesidades</h3>
 
-    <button id="agregarNecesidadBtn" class="bg-green-600 text-white px-3 py-1 rounded mt-2">
-        + Agregar necesidad
-    </button>
+        <div id="necesidadesContainer"></div>
 
-    <br><br>
+        <button id="agregarNecesidadBtn" class="lev-btn">
+            + Agregar necesidad
+        </button>
+    </div>
 
-    <!-- Materiales -->
-    <h3 class="text-xl font-bold">Materiales a ocupar</h3>
-    <input id="materialInput" placeholder="Ej. Tubo PVC 3/4" class="form-control" style="width:300px;">
-    <button id="agregarMaterialBtn" class="bg-yellow-600 text-white px-3 py-1 rounded">
-        Agregar
-    </button>
+    <!-- MATERIALES -->
+    <div class="lev-bloque">
+        <h3 class="subtitulo-lev">🧱 Materiales</h3>
 
-    <ul id="materialesLista" class="mt-3"></ul>
+        <div class="flex-row">
+            <input id="materialInput" class="lev-input" placeholder="Ej. Cable 2x12">
+            <button id="agregarMaterialBtn" class="lev-btn-sec">Agregar</button>
+        </div>
 
-    <br><br>
+        <ul id="materialesLista" class="lev-lista"></ul>
+    </div>
 
-    <button id="guardarLevantamientoBtn" class="bg-indigo-700 text-white px-4 py-2 rounded">
-        Guardar Levantamiento
-    </button>
+    <!-- GUARDAR -->
+    <div class="lev-bloque" style="text-align:center;">
+        <button id="guardarLevantamientoBtn" class="lev-btn-guardar">
+            Guardar levantamiento
+        </button>
+    </div>
+
+</div>
+
 
 </section>
 
