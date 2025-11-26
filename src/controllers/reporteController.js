@@ -194,7 +194,6 @@ const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
     doc.text(`Fecha límite: ${tarea.fechaLimite}`, MARGIN_LEFT);
 
     // Evidencias
-    nuevaPagina(doc, plantillaBuf);
     doc.moveDown(2);  // espacio pequeño bajo el título
 
     doc.fontSize(22)
