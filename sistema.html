@@ -980,7 +980,7 @@
 
 <section id="Levantamientos" class="main-content">
 
-   <div class="lev-container">
+  <div class="lev-container">
 
     <h2 class="titulo-lev">📋 Levantamientos</h2>
 
@@ -989,7 +989,7 @@
         <label class="lev-label">Cliente</label>
         <select id="clienteSelect" class="lev-input"></select>
 
-        <button class="lev-btn-sec" onclick="mostrarContenido('Clientes')">
+        <button id="registrarClienteBtn" class="lev-btn-sec" onclick="mostrarContenido('Clientes')">
             + Registrar Cliente
         </button>
     </div>
@@ -1016,7 +1016,7 @@
         <h3 class="subtitulo-lev">🧱 Materiales</h3>
 
         <div class="flex-row">
-            <input id="materialInput" class="lev-input" placeholder="Ej. Cable 2x12">
+            <input id="materialInput" class="lev-input">
             <button id="agregarMaterialBtn" class="lev-btn-sec">Agregar</button>
         </div>
 
@@ -1031,6 +1031,7 @@
     </div>
 
 </div>
+
 
 
 </section>
