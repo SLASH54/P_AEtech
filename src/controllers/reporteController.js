@@ -178,7 +178,6 @@ const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
     doc.moveDown(7);
 
     doc.fontSize(22)
-      .font('fonts/Roboto-Bold.ttf')
       .fillColor("#00938f")
       .text("INFORMACION DEL SERVICIO", MARGIN_LEFT, doc.y);
 
@@ -196,7 +195,7 @@ const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
 
     // Evidencias
     nuevaPagina(doc, plantillaBuf);
-    doc.moveDown(7);
+    doc.moveDown(6);
 
     doc.fontSize(22)
       .fillColor("#00938f")
