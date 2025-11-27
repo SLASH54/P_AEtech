@@ -588,12 +588,24 @@ function mostrarContenido(seccionId) {
         initTareas();
     }
 
+
+
+    // 🔑 Cargar levantamientos solo cuando se abre esa sección
+    if (seccionId === 'Levantamientos') {
+    initLevantamientos();
+    }
+
+
      // Ocultar el menú después de la selección en móvil
      const menu = document.getElementById('main-menu');
      if (menu.classList.contains('open') && window.innerWidth <= 910) {
          menu.classList.remove('open');
      }
 }
+
+
+
+
 
 
 
@@ -2955,4 +2967,4 @@ function initLevantamientos() {
     }
 }
 
-window.addEventListener("DOMContentLoaded", initLevantamientos);
+
