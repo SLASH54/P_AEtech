@@ -3257,13 +3257,14 @@ h3 {
     gap: 10px;
 }
 
-#listaMaterialesLev {
+
+.lista-materiales-lev {
     list-style: none;
     padding: 0;
     margin-top: 15px;
 }
 
-#listaMaterialesLev li {
+.lista-materiales-lev li {
     background: #f3f3f3;
     padding: 10px;
     margin-bottom: 8px;
@@ -3271,20 +3272,13 @@ h3 {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-left: 5px solid #6a0dad;
 }
 
-#listaMaterialesLev li strong {
-    color: #003366;
-}
-
-.btnEliminarMaterialLev {
-    margin-left: 10px;
+.lista-materiales-lev button {
     background: #d9534f;
     color: white;
     border: none;
     padding: 4px 8px;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 14px;
 }
