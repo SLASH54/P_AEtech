@@ -588,12 +588,24 @@ function mostrarContenido(seccionId) {
         initTareas();
     }
 
+
+
+    // 🔑 Cargar levantamientos solo cuando se abre esa sección
+    if (seccionId === 'Levantamientos') {
+    initLevantamientos();
+    }
+
+
      // Ocultar el menú después de la selección en móvil
      const menu = document.getElementById('main-menu');
      if (menu.classList.contains('open') && window.innerWidth <= 910) {
          menu.classList.remove('open');
      }
 }
+
+
+
+
 
 
 
@@ -1976,9 +1988,9 @@ function renderMateriales() {
 
   // Ordenar categorías alfabéticamente
   const categoriasOrdenadas = Object.keys(grupos).sort();
+adas.forEach(cat => {
 
-  categoriasOrdenadas.forEach(cat => {
-
+  categoriasOrden
     // 🔵 Encabezado de categoría
     const header = document.createElement("li");
     header.innerHTML = `<strong>${cat}</strong>`;
@@ -2796,6 +2808,7 @@ function toggleDescripcion(id) {
 
 
 
+
 // Cargar clientes para la sección de Levantamientos
 async function loadClientesForLevantamientos() {
     const clienteSelect = document.getElementById('clienteSelect');
@@ -2838,7 +2851,8 @@ function agregarNecesidadUI() {
     div.className = "necesidad-item";
     div.dataset.id = id;
 
-    div.innerHTML = `
+    div.innerHTML =
+     `
         <label>Descripción</label>
         <textarea class="desc lev-input" placeholder="Describe la necesidad..."></textarea>
 
@@ -2953,4 +2967,6 @@ function initLevantamientos() {
     }
 }
 
-window.addEventListener("DOMContentLoaded", initLevantamientos);
+
+
+
