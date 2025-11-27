@@ -3241,3 +3241,50 @@ h3 {
     border-radius: 5px;
     cursor: pointer;
 }
+
+
+.material-lev-card {
+    background: #ffffff;
+    padding: 15px 20px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.10);
+    margin-top: 10px;
+}
+
+.material-lev-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#listaMaterialesLev {
+    list-style: none;
+    padding: 0;
+    margin-top: 15px;
+}
+
+#listaMaterialesLev li {
+    background: #f3f3f3;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-left: 5px solid #6a0dad;
+}
+
+#listaMaterialesLev li strong {
+    color: #003366;
+}
+
+.btnEliminarMaterialLev {
+    margin-left: 10px;
+    background: #d9534f;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}

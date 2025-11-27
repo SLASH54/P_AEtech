@@ -1011,14 +1011,14 @@
         </button>
     </div>
 
-   <!-- MATERIALES (VERSIÓN PREMIUM COMO MATERIAL OCUPADO) -->
+<!-- MATERIALES -->
 <div class="lev-bloque">
     <h3 class="subtitulo-lev">🧱 Materiales</h3>
 
-    <div class="material-container">
+    <div class="material-lev-card">
 
-        <div class="inputs">
-            <select id="insumoLev" onchange="mostrarCampoExtraLev()">
+        <div class="material-lev-inputs">
+            <select id="insumoLev" onchange="mostrarCampoExtraLev()" class="lev-input">
                 <option value="" disabled selected>Seleccione un material</option>
 
                 <optgroup label="Cable">
@@ -1056,22 +1056,24 @@
                 </optgroup>
             </select>
 
-            <input type="text" id="insumoExtraLev" placeholder="Especificar..." style="display:none; margin-top:10px;">
+            <input type="text" id="insumoExtraLev" class="lev-input" placeholder="Especificar..." style="display:none;">
+            <input type="number" id="cantidadLev" class="lev-input" placeholder="Cantidad" min="1">
 
-            <input type="number" id="cantidadLev" placeholder="Cantidad" min="1">
-
-            <select id="unidadOtroLev" style="display:none;">
+            <select id="unidadOtroLev" class="lev-input" style="display:none;">
                 <option value="Metros">Metros</option>
                 <option value="Unidades">Unidades</option>
             </select>
 
-            <button id="btnAgregarMaterialLev">➕ Agregar</button>
+            <button id="btnAgregarMaterialLev" class="lev-btn">
+                ➕ Agregar
+            </button>
         </div>
 
         <ul id="listaMaterialesLev"></ul>
 
     </div>
 </div>
+
 
     <!-- GUARDAR -->
     <div class="lev-bloque" style="text-align:center;">
