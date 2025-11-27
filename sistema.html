@@ -1011,57 +1011,17 @@
         </button>
     </div>
 
-<!-- MATERIALES -->
-<div class="lev-bloque">
-    <h3 class="subtitulo-lev">🧱 Materiales</h3>
+    <!-- MATERIALES -->
+    <div class="lev-bloque">
+        <h3 class="subtitulo-lev">🧱 Materiales</h3>
 
-<div class="material-lev-card">
-    <div class="material-lev-inputs">
+        <div class="flex-row">
+            <input id="materialInput" class="lev-input">
+            <button id="agregarMaterialBtn" class="lev-btn-sec">Agregar</button>
+        </div>
 
-        <select id="insumoLev" class="lev-input">
-            <option value="" disabled selected>Seleccione un material</option>
-
-            <optgroup label="Cable">
-                <option value="Cable">Cable</option>
-            </optgroup>
-
-            <optgroup label="Conectores">
-                <option value="Conector de corriente">Conector de corriente</option>
-            </optgroup>
-
-            <optgroup label="Cajas">
-                <option value="Caja estanca">Caja estanca</option>
-                <option value="Caja plástica 180x125x57">Caja plástica 180x125x57</option>
-                <option value="Caja plástica 190x290x140">Caja plástica 190x290x140</option>
-            </optgroup>
-
-            <optgroup label="Fuentes">
-                <option value="12vdc 1A">12vdc 1A</option>
-                <option value="12vdc 1.5A">12vdc 1.5A</option>
-                <option value="12vdc 2A">12vdc 2A</option>
-                <option value="12vdc 4.1A">12vdc 4.1A</option>
-                <option value="12vdc 5A">12vdc 5A</option>
-            </optgroup>
-
-            <optgroup label="Otro">
-                <option value="Otro">Otro</option>
-            </optgroup>
-
-        </select>
-
-        <input type="text" id="insumoExtraLev" class="lev-input" placeholder="Especificar..." style="display:none;">
-        <input type="number" id="cantidadLev" class="lev-input" placeholder="Cantidad" min="1">
-
-        <button id="btnAgregarMaterialLev" class="lev-btn">➕ Agregar</button>
-
+        <ul id="materialesLista" class="lev-lista"></ul>
     </div>
-
-    <!-- LISTA DE MATERIALES -->
-    <ul id="listaMaterialesLev" class="lista-materiales-lev"></ul>
-</div>
-
-</div>
-
 
     <!-- GUARDAR -->
     <div class="lev-bloque" style="text-align:center;">
