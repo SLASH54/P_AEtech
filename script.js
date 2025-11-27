@@ -2805,28 +2805,43 @@ function toggleDescripcion(id) {
 
 
 // ================= LEVANTAMIENTOS =================
-// Cargar clientes para levantamientos
-async function cargarClientesLevantamientos() {
-    const select = document.getElementById("clienteSelect");
-    if (!select) return;
 
-    try {
-        const res = await fetch("/api/clientes");
-        if (!res.ok) throw new Error("Error al cargar clientes");
-        const clientes = await res.json();
 
-        select.innerHTML = '<option value="">Selecciona un cliente...</option>';
-        clientes.forEach(c => {
-            select.innerHTML += `<option value="${c.id}">${c.nombre}</option>`;
+
+
+// Cargar clientes para la sección de Levantamientos
+async function loadClientesForLevantamientos() {
+    const clienteSelect = document.getElementById('clienteSelect');
+    if (!clienteSelect) return;
+
+    // mensaje temporal mientras carga
+    clienteSelect.innerHTML = '<option value="" disabled selected>-- Cargando Clientes... --</option>';
+
+    // 👇 MUY IMPORTANTE: usar fetchData, igual que en tareas
+    const clientes = await fetchData('/clientes'); 
+
+    clienteSelect.innerHTML = '<option value="" disabled selected>-- Selecciona Cliente --</option>';
+
+    if (clientes && Array.isArray(clientes) && clientes.length > 0) {
+        clientes.forEach(cliente => {
+            const option = document.createElement('option');
+            option.value = cliente._id || cliente.id;   // igualito que en tareas
+            option.textContent = cliente.nombre;        // nombre del cliente
+            clienteSelect.appendChild(option);
         });
-
-    } catch (err) {
-        console.error("Error cargando clientes de levantamientos:", err);
-        select.innerHTML = '<option value="">No se pudieron cargar los clientes</option>';
+    } else {
+        const errorMessage = (clientes === null)
+            ? 'No tienes permisos para ver clientes.'
+            : 'No se encontraron clientes.';
+        
+        clienteSelect.innerHTML = `<option value="" disabled selected>${errorMessage}</option>`;
     }
 }
 
-// Agregar tarjeta de necesidad (desc + fotos)
+
+
+
+
 function agregarNecesidadUI() {
     const cont = document.getElementById("necesidadesContainer");
     if (!cont) return;
@@ -2836,7 +2851,8 @@ function agregarNecesidadUI() {
     div.className = "necesidad-item";
     div.dataset.id = id;
 
-    div.innerHTML = `
+    div.innerHTML =
+     `
         <label>Descripción</label>
         <textarea class="desc lev-input" placeholder="Describe la necesidad..."></textarea>
 
@@ -2844,7 +2860,7 @@ function agregarNecesidadUI() {
         <input type="file" accept="image/*" capture="camera"
                class="foto" data-id="${id}" multiple>
 
-        <div id="preview-${id}"></div>
+        <div id="preview-${id}" class="preview"></div>
 
         <button type="button" class="lev-btn-sec eliminar-necesidad">
             Eliminar necesidad
@@ -2854,20 +2870,111 @@ function agregarNecesidadUI() {
     cont.appendChild(div);
 }
 
-// Mostrar/ocultar campo extra y unidad en materiales lev.
-function mostrarCampoExtraLev() {
-    const insumo = document.getElementById("insumoLev").value;
-    const extra = document.getElementById("insumoExtraLev");
-    const unidadOtro = document.getElementById("unidadOtroLev");
+async function guardarLevantamiento() {
+    const clienteId = document.getElementById("clienteSelect").value;
+    const fechaHora = document.getElementById("fechaHora").value;
 
-    extra.style.display = (insumo === "Otro" || insumo === "Fuente de poder centralizada") ? "block" : "none";
-    if (insumo !== "Otro") extra.value = "";
+    if (!clienteId || !fechaHora) {
+        alert("Selecciona un cliente y una fecha/hora.");
+        return;
+    }
 
-    unidadOtro.style.display = (insumo === "Otro") ? "block" : "none";
-    if (insumo !== "Otro") unidadOtro.value = "";
+    const materiales = [...document.querySelectorAll("#materialesLista li")]
+        .map(li => li.textContent);
+
+    const necesidades = [];
+    const fd = new FormData();
+    fd.append("clienteId", clienteId);
+    fd.append("fechaHora", fechaHora);
+    fd.append("materiales", JSON.stringify(materiales));
+
+    let index = 0;
+    document.querySelectorAll(".necesidad-item").forEach(div => {
+        const desc = div.querySelector(".desc").value;
+        const inputFotos = div.querySelector(".foto");
+        const files = inputFotos?.files || [];
+
+        necesidades.push({
+            descripcion: desc,
+            fotosQty: files.length,
+            idx: index
+        });
+
+        for (let i = 0; i < files.length; i++) {
+            fd.append(`foto_${index}_${i}`, files[i]);
+        }
+
+        index++;
+    });
+
+    fd.append("necesidades", JSON.stringify(necesidades));
+
+    try {
+        const token = localStorage.getItem('userToken');
+        const res = await fetch(`${API_BASE_URL}/levantamientos`, {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+            body: fd
+        });
+
+        if (!res.ok) throw new Error("Error al guardar levantamiento");
+
+        alert("Levantamiento guardado correctamente");
+    } catch (err) {
+        console.error(err);
+        alert("Ocurrió un error al guardar el levantamiento");
+    }
 }
 
-// Mapas de categoría y unidades (igual que material ocupado)
+function initLevantamientos() {
+    const clienteSelect = document.getElementById("clienteSelect");
+    if (!clienteSelect) return;
+
+    loadClientesForLevantamientos();
+
+    const btnNecesidad = document.getElementById("agregarNecesidadBtn");
+    if (btnNecesidad) {
+        btnNecesidad.addEventListener("click", agregarNecesidadUI);
+    }
+
+    document.addEventListener("change", function (e) {
+        if (!e.target.classList.contains("foto")) return;
+        const id = e.target.dataset.id;
+        const preview = document.getElementById(`preview-${id}`);
+        preview.innerHTML = "";
+        [...e.target.files].forEach(file => {
+            preview.innerHTML += `<img src="${URL.createObjectURL(file)}" class="thumb">`;
+        });
+    });
+
+    const btnMaterial = document.getElementById("agregarMaterialBtn");
+    const inputMaterial = document.getElementById("materialInput");
+    const listaMateriales = document.getElementById("materialesLista");
+
+    if (btnMaterial) {
+        btnMaterial.addEventListener("click", () => {
+            if (!inputMaterial.value.trim()) return;
+            const li = document.createElement("li");
+            li.textContent = inputMaterial.value.trim();
+            listaMateriales.appendChild(li);
+            inputMaterial.value = "";
+        });
+    }
+
+    const btnGuardar = document.getElementById("guardarLevantamientoBtn");
+    if (btnGuardar) {
+        btnGuardar.addEventListener("click", guardarLevantamiento);
+    }
+}
+
+
+
+// -----------------------
+// MATERIALES LEVANTAMIENTOS
+// -----------------------
+
+let materialesLevList = [];
+
 const categoriaPorInsumoLev = {
     "Transceptor": "Transceptor",
     "Conector de corriente": "Conectores",
@@ -2877,6 +2984,7 @@ const categoriaPorInsumoLev = {
     "12vdc 2A": "Fuentes de poder",
     "12vdc 4.1A": "Fuentes de poder",
     "12vdc 5A": "Fuentes de poder",
+
     "Fuente de poder centralizada": "Fuentes de poder",
 
     "Caja estanca": "Cajas",
@@ -2907,181 +3015,97 @@ const unidadesPorInsumoLev = {
     "Otro": "Unidades"
 };
 
-
-//---------------------------------------------
-//   MATERIALES LEVANTAMIENTOS - OPCIÓN A
-//---------------------------------------------
-let materialesLevList = [];
-
-// Mostrar campo extra si es "Otro"
+// mostrar campo extra
 function mostrarCampoExtraLev() {
     const insumo = document.getElementById("insumoLev").value;
     const extra = document.getElementById("insumoExtraLev");
-    extra.style.display = (insumo === "Otro") ? "block" : "none";
+    const unidadOtro = document.getElementById("unidadOtroLev");
+
+    extra.style.display = (insumo === "Otro" || insumo === "Fuente de poder centralizada") ? "block" : "none";
+    unidadOtro.style.display = (insumo === "Otro") ? "block" : "none";
 }
 
-// Agregar material a la lista
-function agregarMaterialLev() {
-    const insumoOriginal = document.getElementById("insumoLev").value;
+// agregar material
+document.getElementById("btnAgregarMaterialLev").addEventListener("click", () => {
+
+    let insumoOriginal = document.getElementById("insumoLev").value;
     const extra = document.getElementById("insumoExtraLev").value.trim();
-    const cantidadStr = document.getElementById("cantidadLev").value.trim();
+    const cantidad = document.getElementById("cantidadLev").value.trim();
 
-    if (!insumoOriginal) {
-        alert("Seleccione un material");
-        return;
-    }
-    if (!cantidadStr || parseFloat(cantidadStr) <= 0) {
-        alert("Ingrese una cantidad válida");
-        return;
-    }
-    if (insumoOriginal === "Otro" && !extra) {
-        alert("Especifique el material");
+    if (!insumoOriginal || !cantidad) {
+        alert("Por favor completa todos los campos.");
         return;
     }
 
-    const cantidad = parseFloat(cantidadStr);
-    const insumo = extra ? `${insumoOriginal} (${extra})` : insumoOriginal;
+    if (insumoOriginal === "Otro" && extra === "") {
+        alert("Especifica el insumo para 'Otro'.");
+        return;
+    }
 
-    materialesLevList.push({ insumo, cantidad });
+    let unidad = (insumoOriginal === "Otro")
+        ? document.getElementById("unidadOtroLev").value
+        : unidadesPorInsumoLev[insumoOriginal];
+
+    let insumo = extra ? `${insumoOriginal} (${extra})` : insumoOriginal;
+    const categoria = categoriaPorInsumoLev[insumoOriginal] || "Otros";
+
+    // detectar duplicado
+    const existente = materialesLevList.find(
+        m => m.insumo === insumo && m.unidad === unidad
+    );
+
+    if (existente) {
+        existente.cantidad += parseFloat(cantidad);
+        renderMaterialesLev();
+        return;
+    }
+
+    materialesLevList.push({
+        insumo,
+        categoria,
+        cantidad: parseFloat(cantidad),
+        unidad
+    });
 
     renderMaterialesLev();
+});
 
-    // Limpiar inputs
-    document.getElementById("insumoLev").value = "";
-    document.getElementById("cantidadLev").value = "";
-    document.getElementById("insumoExtraLev").style.display = "none";
-}
-
-// Renderizar lista
+// dibujar lista
 function renderMaterialesLev() {
     const lista = document.getElementById("listaMaterialesLev");
     lista.innerHTML = "";
 
-    materialesLevList.forEach((mat, i) => {
-        const li = document.createElement("li");
-        li.innerHTML = `
-            ${mat.insumo} — ${mat.cantidad}
-            <button onclick="eliminarMaterialLev(${i})">❌</button>
-        `;
-        lista.appendChild(li);
+    // agrupar por categoría
+    const grupos = {};
+    materialesLevList.forEach(mat => {
+        if (!grupos[mat.categoria]) grupos[mat.categoria] = [];
+        grupos[mat.categoria].push(mat);
     });
-}
 
-// Eliminar material
-function eliminarMaterialLev(index) {
-    materialesLevList.splice(index, 1);
-    renderMaterialesLev();
-}
+    // categorías ordenadas
+    Object.keys(grupos).sort().forEach(cat => {
+        const header = document.createElement("li");
+        header.innerHTML = `<strong>${cat}</strong>`;
+        lista.appendChild(header);
 
+        grupos[cat].sort((a, b) => a.insumo.localeCompare(b.insumo))
+            .forEach(mat => {
 
+            const li = document.createElement("li");
+            li.innerHTML = `
+                ${mat.insumo} - ${mat.cantidad} ${mat.unidad}
+                <button class="btnEliminarMaterialLev">❌</button>
+            `;
 
+            li.querySelector(".btnEliminarMaterialLev").onclick = () => {
+                materialesLevList = materialesLevList.filter(
+                    m => !(m.insumo === mat.insumo && m.unidad === mat.unidad)
+                );
+                renderMaterialesLev();
+            };
 
-// Inicialización de la sección Levantamientos
-function initLevantamientos() {
-    const clienteSelect = document.getElementById("clienteSelect");
-    if (!clienteSelect) return; // por si aún no existe la sección
-
-    // 1) Clientes
-    cargarClientesLevantamientos();
-
-    // 2) Botón "Agregar necesidad"
-    const btnNecesidad = document.getElementById("agregarNecesidadBtn");
-    if (btnNecesidad) {
-        btnNecesidad.addEventListener("click", agregarNecesidadUI);
-    }
-
-    // 3) Preview de fotos de necesidades
-    document.addEventListener("change", function (e) {
-        if (!e.target.classList.contains("foto")) return;
-
-        const id = e.target.dataset.id;
-        const preview = document.getElementById(`preview-${id}`);
-        if (!preview) return;
-
-        preview.innerHTML = "";
-        [...e.target.files].forEach(file => {
-            const url = URL.createObjectURL(file);
-            const img = document.createElement("img");
-            img.src = url;
-            img.className = "thumb";
-            preview.appendChild(img);
+            lista.appendChild(li);
         });
     });
-
-
-
-    
-
-    // 4) Eliminar necesidad
-    document.addEventListener("click", function (e) {
-        if (e.target.classList.contains("eliminar-necesidad")) {
-            e.target.closest(".necesidad-item")?.remove();
-        }
-    });
-
-    // 5) MATERIALES LEVANTAMIENTOS
-    const btnAgregarMat = document.getElementById("btnAgregarMaterialLev");
-    if (btnAgregarMat) {
-        btnAgregarMat.addEventListener("click", agregarMaterialLev);
-    }
-
-    const selectInsumo = document.getElementById("insumoLev");
-    if (selectInsumo) {
-        selectInsumo.addEventListener("change", mostrarCampoExtraLev);
-    }
-
-
-    // 6) Guardar levantamiento (envía TODO al backend)
-    const btnGuardar = document.getElementById("guardarLevantamientoBtn");
-    if (btnGuardar) {
-        btnGuardar.addEventListener("click", async function () {
-            const fechaHora = document.getElementById("fechaHora").value;
-
-            if (!clienteSelect.value || !fechaHora) {
-                alert("Selecciona un cliente y una fecha/hora.");
-                return;
-            }
-
-            const necesidades = [];
-            const fd = new FormData();
-            fd.append("clienteId", clienteSelect.value);
-            fd.append("fechaHora", fechaHora);
-            fd.append("materiales", JSON.stringify(materialesLevList)); // 👈 ahora manda la lista nueva
-
-            let index = 0;
-            document.querySelectorAll(".necesidad-item").forEach(div => {
-                const desc = div.querySelector(".desc").value;
-                const inputFotos = div.querySelector(".foto");
-                const files = inputFotos?.files || [];
-
-                necesidades.push({
-                    descripcion: desc,
-                    fotosQty: files.length,
-                    idx: index
-                });
-
-                for (let i = 0; i < files.length; i++) {
-                    fd.append(`foto_${index}_${i}`, files[i]);
-                }
-
-                index++;
-            });
-
-            fd.append("necesidades", JSON.stringify(necesidades));
-
-            try {
-                const res = await fetch("/api/levantamientos", {
-                    method: "POST",
-                    body: fd
-                });
-                if (!res.ok) throw new Error("Error al guardar levantamiento");
-                alert("Levantamiento guardado correctamente");
-            } catch (err) {
-                console.error(err);
-                alert("Ocurrió un error al guardar el levantamiento");
-            }
-        });
-    }
 }
-
 
