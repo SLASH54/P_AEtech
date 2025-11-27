@@ -2953,4 +2953,4 @@ function initLevantamientos() {
     }
 }
 
-
+window.addEventListener("DOMContentLoaded", initLevantamientos);
