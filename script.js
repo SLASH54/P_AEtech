@@ -588,24 +588,12 @@ function mostrarContenido(seccionId) {
         initTareas();
     }
 
-
-
-    // 🔑 Cargar levantamientos solo cuando se abre esa sección
-   if (seccionId === "Levantamientos") {
-    initLevantamientos();
-}
-
-
      // Ocultar el menú después de la selección en móvil
      const menu = document.getElementById('main-menu');
      if (menu.classList.contains('open') && window.innerWidth <= 910) {
          menu.classList.remove('open');
      }
 }
-
-
-
-
 
 
 
@@ -1988,9 +1976,9 @@ function renderMateriales() {
 
   // Ordenar categorías alfabéticamente
   const categoriasOrdenadas = Object.keys(grupos).sort();
-adas.forEach(cat => {
 
-  categoriasOrden
+  categoriasOrdenadas.forEach(cat => {
+
     // 🔵 Encabezado de categoría
     const header = document.createElement("li");
     header.innerHTML = `<strong>${cat}</strong>`;
@@ -2808,7 +2796,6 @@ function toggleDescripcion(id) {
 
 
 
-
 // Cargar clientes para la sección de Levantamientos
 async function loadClientesForLevantamientos() {
     const clienteSelect = document.getElementById('clienteSelect');
@@ -2851,8 +2838,7 @@ function agregarNecesidadUI() {
     div.className = "necesidad-item";
     div.dataset.id = id;
 
-    div.innerHTML =
-     `
+    div.innerHTML = `
         <label>Descripción</label>
         <textarea class="desc lev-input" placeholder="Describe la necesidad..."></textarea>
 
@@ -2965,182 +2951,6 @@ function initLevantamientos() {
     if (btnGuardar) {
         btnGuardar.addEventListener("click", guardarLevantamiento);
     }
-
-    document.getElementById("btnAgregarMaterialLev").onclick = agregarMaterialLev;
-    document.getElementById("insumoLev").onchange = mostrarCampoExtraLev;
-
 }
 
 
-
-// ========== MATERIAL PARA LEVANTAMIENTOS ==========
-let materialesLev = [];
-
-const categoriasLev = {
-  "Cable": "Cableado",
-  "Transceptor": "Transceptor",
-  "Conector de corriente": "Conectores",
-  "12vdc 1A": "Fuentes",
-  "12vdc 1.5A": "Fuentes",
-  "12vdc 2A": "Fuentes",
-  "12vdc 4.1A": "Fuentes",
-  "12vdc 5A": "Fuentes",
-  "Fuente de poder centralizada": "Fuentes",
-  "Caja estanca": "Cajas",
-  "Caja plástica 180x125x57": "Cajas",
-  "Caja plástica 190x290x140": "Cajas",
-  "Otro": "Otros"
-};
-
-const unidadesLev = {
-  "Cable": "Metros",
-  "Transceptor": "Unidades",
-  "Conector de corriente": "Unidades",
-  "Otro": "Unidades"
-};
-
-function mostrarCampoExtraLev() {
-    const ins = document.getElementById("insumoLev").value;
-    document.getElementById("insumoExtraLev").style.display =
-        (ins === "Otro" || ins === "Fuente de poder centralizada") ? "block" : "none";
-
-    document.getElementById("unidadOtroLev").style.display =
-        (ins === "Otro") ? "block" : "none";
-}
-
-function agregarMaterialLev() {
-    const insumo = document.getElementById("insumoLev").value;
-    const extra = document.getElementById("insumoExtraLev").value.trim();
-    const cantidad = document.getElementById("cantidadLev").value;
-
-    if (!insumo || !cantidad) {
-        alert("Completa el material y la cantidad.");
-        return;
-    }
-
-    let unidad = unidadesLev[insumo] || "Unidades";
-    if (insumo === "Otro" && document.getElementById("unidadOtroLev").value)
-        unidad = document.getElementById("unidadOtroLev").value;
-
-    const insumoFinal = extra ? `${insumo} (${extra})` : insumo;
-    const categoria = categoriasLev[insumo] || "Otros";
-
-    materialesLev.push({ insumo: insumoFinal, cantidad, unidad, categoria });
-
-    renderMaterialesLev();
-}
-
-function renderMaterialesLev() {
-    const ul = document.getElementById("listaMaterialesLev");
-    ul.innerHTML = "";
-
-    const grupos = {};
-
-    materialesLev.forEach(m => {
-        if (!grupos[m.categoria]) grupos[m.categoria] = [];
-        grupos[m.categoria].push(m);
-    });
-
-    Object.keys(grupos).sort().forEach(cat => {
-        const header = document.createElement("li");
-        header.innerHTML = `<strong>${cat}</strong>`;
-        header.style.marginTop = "10px";
-        ul.appendChild(header);
-
-        grupos[cat].forEach(m => {
-            const li = document.createElement("li");
-            li.innerHTML = `
-                ${m.insumo} — ${m.cantidad} ${m.unidad}
-                <button class="btnEliminarMaterial" style="
-                    margin-left:10px; background:#c00; color:white; border:none;
-                    padding:2px 6px; border-radius:4px; cursor:pointer;">
-                    ❌
-                </button>
-            `;
-            li.querySelector(".btnEliminarMaterial").onclick = () => {
-                materialesLev = materialesLev.filter(x => x !== m);
-                renderMaterialesLev();
-            };
-            ul.appendChild(li);
-        });
-    });
-}
-
-
-// =====================================================
-//   MATERIALES LEVANTAMIENTOS (VERSIÓN SIMPLE)
-// =====================================================
-
-let materialesLevList = [];
-
-// Mostrar input extra solo cuando sea "Otro"
-function mostrarCampoExtraLev() {
-    const insumo = document.getElementById("insumoLev").value;
-    const extra = document.getElementById("insumoExtraLev");
-
-    extra.style.display = (insumo === "Otro") ? "block" : "none";
-}
-
-// Agregar material a lista simple
-function agregarMaterialLev() {
-    const insumo = document.getElementById("insumoLev").value;
-    const extra = document.getElementById("insumoExtraLev").value.trim();
-    const cantidad = document.getElementById("cantidadLev").value.trim();
-
-    if (!insumo) {
-        alert("Selecciona un material.");
-        return;
-    }
-
-    if (!cantidad || cantidad <= 0) {
-        alert("Ingresa una cantidad válida.");
-        return;
-    }
-
-    const nombreFinal = (insumo === "Otro" && extra)
-        ? `${insumo} (${extra})`
-        : insumo;
-
-    // Agregar a la lista en memoria
-    materialesLevList.push({
-        insumo: nombreFinal,
-        cantidad
-    });
-
-    renderMaterialesLev();
-
-    // Limpiar campos
-    document.getElementById("cantidadLev").value = "";
-    document.getElementById("insumoExtraLev").value = "";
-    document.getElementById("insumoExtraLev").style.display = "none";
-}
-
-// Pintar lista en UL
-function renderMaterialesLev() {
-    const ul = document.getElementById("listaMaterialesLev");
-    ul.innerHTML = "";
-
-    materialesLevList.forEach((m, index) => {
-        const li = document.createElement("li");
-        li.textContent = `${m.insumo} — ${m.cantidad}`;
-
-        // Botón eliminar
-        const btn = document.createElement("button");
-        btn.textContent = "❌";
-        btn.style.marginLeft = "10px";
-        btn.style.background = "#d9534f";
-        btn.style.color = "white";
-        btn.style.border = "none";
-        btn.style.padding = "3px 7px";
-        btn.style.borderRadius = "4px";
-        btn.style.cursor = "pointer";
-
-        btn.onclick = () => {
-            materialesLevList.splice(index, 1);
-            renderMaterialesLev();
-        };
-
-        li.appendChild(btn);
-        ul.appendChild(li);
-    });
-}
