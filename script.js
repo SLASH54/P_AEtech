@@ -2794,27 +2794,41 @@ function toggleDescripcion(id) {
 
 // ================= LEVANTAMIENTOS =================
 
+
+
+
+// Cargar clientes para la sección de Levantamientos
 async function loadClientesForLevantamientos() {
     const clienteSelect = document.getElementById('clienteSelect');
     if (!clienteSelect) return;
 
+    // mensaje temporal mientras carga
     clienteSelect.innerHTML = '<option value="" disabled selected>-- Cargando Clientes... --</option>';
 
-    const clientes = await fetchData('/clientes');
+    // 👇 MUY IMPORTANTE: usar fetchData, igual que en tareas
+    const clientes = await fetchData('/clientes'); 
 
     clienteSelect.innerHTML = '<option value="" disabled selected>-- Selecciona Cliente --</option>';
 
     if (clientes && Array.isArray(clientes) && clientes.length > 0) {
         clientes.forEach(cliente => {
             const option = document.createElement('option');
-            option.value = cliente.id || cliente._id;
-            option.textContent = cliente.nombre;
+            option.value = cliente._id || cliente.id;   // igualito que en tareas
+            option.textContent = cliente.nombre;        // nombre del cliente
             clienteSelect.appendChild(option);
         });
     } else {
-        clienteSelect.innerHTML = `<option value="" disabled selected>No hay clientes</option>`;
+        const errorMessage = (clientes === null)
+            ? 'No tienes permisos para ver clientes.'
+            : 'No se encontraron clientes.';
+        
+        clienteSelect.innerHTML = `<option value="" disabled selected>${errorMessage}</option>`;
     }
 }
+
+
+
+
 
 function agregarNecesidadUI() {
     const cont = document.getElementById("necesidadesContainer");
@@ -2825,7 +2839,8 @@ function agregarNecesidadUI() {
     div.className = "necesidad-item";
     div.dataset.id = id;
 
-    div.innerHTML = `
+    div.innerHTML =
+     `
         <label>Descripción</label>
         <textarea class="desc lev-input" placeholder="Describe la necesidad..."></textarea>
 
