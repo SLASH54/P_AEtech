@@ -1011,17 +1011,67 @@
         </button>
     </div>
 
-    <!-- MATERIALES -->
-    <div class="lev-bloque">
-        <h3 class="subtitulo-lev">🧱 Materiales</h3>
+   <!-- MATERIALES (VERSIÓN PREMIUM COMO MATERIAL OCUPADO) -->
+<div class="lev-bloque">
+    <h3 class="subtitulo-lev">🧱 Materiales</h3>
 
-        <div class="flex-row">
-            <input id="materialInput" class="lev-input">
-            <button id="agregarMaterialBtn" class="lev-btn-sec">Agregar</button>
+    <div class="material-container">
+
+        <div class="inputs">
+            <select id="insumoLev" onchange="mostrarCampoExtraLev()">
+                <option value="" disabled selected>Seleccione un material</option>
+
+                <optgroup label="Cable">
+                    <option value="Cable">Cable</option>
+                </optgroup>
+
+                <optgroup label="Transceptor">
+                    <option value="Transceptor">Transceptor</option>
+                </optgroup>
+
+                <optgroup label="Conectores">
+                    <option value="Conector de corriente">Conector de corriente</option>
+                </optgroup>
+
+                <optgroup label="Fuente de poder 12V">
+                    <option value="12vdc 1A">12vdc 1A</option>
+                    <option value="12vdc 1.5A">12vdc 1.5A</option>
+                    <option value="12vdc 2A">12vdc 2A</option>
+                    <option value="12vdc 4.1A">12vdc 4.1A</option>
+                    <option value="12vdc 5A">12vdc 5A</option>
+                </optgroup>
+
+                <optgroup label="Fuente centralizada">
+                    <option value="Fuente de poder centralizada">Fuente de poder centralizada</option>
+                </optgroup>
+
+                <optgroup label="Cajas">
+                    <option value="Caja estanca">Caja estanca</option>
+                    <option value="Caja plástica 180x125x57">Caja plástica 180x125x57</option>
+                    <option value="Caja plástica 190x290x140">Caja plástica 190x290x140</option>
+                </optgroup>
+
+                <optgroup label="Otro">
+                    <option value="Otro">Otro (especificar)</option>
+                </optgroup>
+            </select>
+
+            <input type="text" id="insumoExtraLev" placeholder="Especificar..." style="display:none; margin-top:10px;">
+
+            <input type="number" id="cantidadLev" placeholder="Cantidad" min="1">
+
+            <select id="unidadOtroLev" style="display:none;">
+                <option value="Metros">Metros</option>
+                <option value="Unidades">Unidades</option>
+            </select>
+
+            <button id="btnAgregarMaterialLev">➕ Agregar</button>
         </div>
 
-        <ul id="materialesLista" class="lev-lista"></ul>
+        <ul id="listaMaterialesLev"></ul>
+
     </div>
+</div>
 
     <!-- GUARDAR -->
     <div class="lev-bloque" style="text-align:center;">
