@@ -3186,3 +3186,15 @@ form input:focus {
   border-radius:6px;
   margin-top:4px;
 }
+
+
+h2 {
+    color: #000;
+}
+
+
+h3 {
+    margin-bottom: 15px;
+    color: #000;
+    font-size: 1.4rem;
+}
