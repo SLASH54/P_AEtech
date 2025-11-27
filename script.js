@@ -2965,8 +2965,104 @@ function initLevantamientos() {
     if (btnGuardar) {
         btnGuardar.addEventListener("click", guardarLevantamiento);
     }
+
+    document.getElementById("btnAgregarMaterialLev").onclick = agregarMaterialLev;
+    document.getElementById("insumoLev").onchange = mostrarCampoExtraLev;
+
 }
 
 
 
+// ========== MATERIAL PARA LEVANTAMIENTOS ==========
+let materialesLev = [];
+
+const categoriasLev = {
+  "Cable": "Cableado",
+  "Transceptor": "Transceptor",
+  "Conector de corriente": "Conectores",
+  "12vdc 1A": "Fuentes",
+  "12vdc 1.5A": "Fuentes",
+  "12vdc 2A": "Fuentes",
+  "12vdc 4.1A": "Fuentes",
+  "12vdc 5A": "Fuentes",
+  "Fuente de poder centralizada": "Fuentes",
+  "Caja estanca": "Cajas",
+  "Caja plástica 180x125x57": "Cajas",
+  "Caja plástica 190x290x140": "Cajas",
+  "Otro": "Otros"
+};
+
+const unidadesLev = {
+  "Cable": "Metros",
+  "Transceptor": "Unidades",
+  "Conector de corriente": "Unidades",
+  "Otro": "Unidades"
+};
+
+function mostrarCampoExtraLev() {
+    const ins = document.getElementById("insumoLev").value;
+    document.getElementById("insumoExtraLev").style.display =
+        (ins === "Otro" || ins === "Fuente de poder centralizada") ? "block" : "none";
+
+    document.getElementById("unidadOtroLev").style.display =
+        (ins === "Otro") ? "block" : "none";
+}
+
+function agregarMaterialLev() {
+    const insumo = document.getElementById("insumoLev").value;
+    const extra = document.getElementById("insumoExtraLev").value.trim();
+    const cantidad = document.getElementById("cantidadLev").value;
+
+    if (!insumo || !cantidad) {
+        alert("Completa el material y la cantidad.");
+        return;
+    }
+
+    let unidad = unidadesLev[insumo] || "Unidades";
+    if (insumo === "Otro" && document.getElementById("unidadOtroLev").value)
+        unidad = document.getElementById("unidadOtroLev").value;
+
+    const insumoFinal = extra ? `${insumo} (${extra})` : insumo;
+    const categoria = categoriasLev[insumo] || "Otros";
+
+    materialesLev.push({ insumo: insumoFinal, cantidad, unidad, categoria });
+
+    renderMaterialesLev();
+}
+
+function renderMaterialesLev() {
+    const ul = document.getElementById("listaMaterialesLev");
+    ul.innerHTML = "";
+
+    const grupos = {};
+
+    materialesLev.forEach(m => {
+        if (!grupos[m.categoria]) grupos[m.categoria] = [];
+        grupos[m.categoria].push(m);
+    });
+
+    Object.keys(grupos).sort().forEach(cat => {
+        const header = document.createElement("li");
+        header.innerHTML = `<strong>${cat}</strong>`;
+        header.style.marginTop = "10px";
+        ul.appendChild(header);
+
+        grupos[cat].forEach(m => {
+            const li = document.createElement("li");
+            li.innerHTML = `
+                ${m.insumo} — ${m.cantidad} ${m.unidad}
+                <button class="btnEliminarMaterial" style="
+                    margin-left:10px; background:#c00; color:white; border:none;
+                    padding:2px 6px; border-radius:4px; cursor:pointer;">
+                    ❌
+                </button>
+            `;
+            li.querySelector(".btnEliminarMaterial").onclick = () => {
+                materialesLev = materialesLev.filter(x => x !== m);
+                renderMaterialesLev();
+            };
+            ul.appendChild(li);
+        });
+    });
+}
 
