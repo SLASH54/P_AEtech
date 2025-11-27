@@ -2792,7 +2792,9 @@ function toggleDescripcion(id) {
 
 
 
+
 // ================= LEVANTAMIENTOS =================
+
 
 
 
@@ -2838,7 +2840,8 @@ function agregarNecesidadUI() {
     div.className = "necesidad-item";
     div.dataset.id = id;
 
-    div.innerHTML = `
+    div.innerHTML =
+     `
         <label>Descripción</label>
         <textarea class="desc lev-input" placeholder="Describe la necesidad..."></textarea>
 
@@ -2952,5 +2955,10 @@ function initLevantamientos() {
         btnGuardar.addEventListener("click", guardarLevantamiento);
     }
 }
+
+
+
+
+
 
 window.addEventListener("DOMContentLoaded", initLevantamientos);
