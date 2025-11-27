@@ -591,9 +591,9 @@ function mostrarContenido(seccionId) {
 
 
     // 🔑 Cargar levantamientos solo cuando se abre esa sección
-    if (seccionId === 'Levantamientos') {
+   if (seccionId === "Levantamientos") {
     initLevantamientos();
-    }
+}
 
 
      // Ocultar el menú después de la selección en móvil
@@ -3066,3 +3066,81 @@ function renderMaterialesLev() {
     });
 }
 
+
+// =====================================================
+//   MATERIALES LEVANTAMIENTOS (VERSIÓN SIMPLE)
+// =====================================================
+
+let materialesLevList = [];
+
+// Mostrar input extra solo cuando sea "Otro"
+function mostrarCampoExtraLev() {
+    const insumo = document.getElementById("insumoLev").value;
+    const extra = document.getElementById("insumoExtraLev");
+
+    extra.style.display = (insumo === "Otro") ? "block" : "none";
+}
+
+// Agregar material a lista simple
+function agregarMaterialLev() {
+    const insumo = document.getElementById("insumoLev").value;
+    const extra = document.getElementById("insumoExtraLev").value.trim();
+    const cantidad = document.getElementById("cantidadLev").value.trim();
+
+    if (!insumo) {
+        alert("Selecciona un material.");
+        return;
+    }
+
+    if (!cantidad || cantidad <= 0) {
+        alert("Ingresa una cantidad válida.");
+        return;
+    }
+
+    const nombreFinal = (insumo === "Otro" && extra)
+        ? `${insumo} (${extra})`
+        : insumo;
+
+    // Agregar a la lista en memoria
+    materialesLevList.push({
+        insumo: nombreFinal,
+        cantidad
+    });
+
+    renderMaterialesLev();
+
+    // Limpiar campos
+    document.getElementById("cantidadLev").value = "";
+    document.getElementById("insumoExtraLev").value = "";
+    document.getElementById("insumoExtraLev").style.display = "none";
+}
+
+// Pintar lista en UL
+function renderMaterialesLev() {
+    const ul = document.getElementById("listaMaterialesLev");
+    ul.innerHTML = "";
+
+    materialesLevList.forEach((m, index) => {
+        const li = document.createElement("li");
+        li.textContent = `${m.insumo} — ${m.cantidad}`;
+
+        // Botón eliminar
+        const btn = document.createElement("button");
+        btn.textContent = "❌";
+        btn.style.marginLeft = "10px";
+        btn.style.background = "#d9534f";
+        btn.style.color = "white";
+        btn.style.border = "none";
+        btn.style.padding = "3px 7px";
+        btn.style.borderRadius = "4px";
+        btn.style.cursor = "pointer";
+
+        btn.onclick = () => {
+            materialesLevList.splice(index, 1);
+            renderMaterialesLev();
+        };
+
+        li.appendChild(btn);
+        ul.appendChild(li);
+    });
+}
