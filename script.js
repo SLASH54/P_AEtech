@@ -3022,67 +3022,14 @@ function initLevantamientos() {
     // 5) MATERIALES LEVANTAMIENTOS
     const btnAgregarMat = document.getElementById("btnAgregarMaterialLev");
     if (btnAgregarMat) {
-        btnAgregarMat.addEventListener("click", () => {
-            const insumoOriginal = document.getElementById("insumoLev").value;
-            const extra = document.getElementById("insumoExtraLev").value.trim();
-            const cantidadStr = document.getElementById("cantidadLev").value.trim();
-            const unidadOtroSel = document.getElementById("unidadOtroLev").value;
-
-            if (!insumoOriginal || !cantidadStr) {
-                alert("Por favor completa todos los campos de material.");
-                return;
-            }
-
-            if (insumoOriginal === "Otro" && extra === "") {
-                alert("Especifica el material para 'Otro'.");
-                return;
-            }
-
-            if (insumoOriginal === "Otro" && !unidadOtroSel) {
-                alert("Selecciona la unidad para 'Otro'.");
-                return;
-            }
-
-            const cantidad = parseFloat(cantidadStr);
-            if (isNaN(cantidad) || cantidad <= 0) {
-                alert("Cantidad inválida.");
-                return;
-            }
-
-            let unidad = (insumoOriginal === "Otro")
-                ? unidadOtroSel
-                : (unidadesPorInsumoLev[insumoOriginal] || "Unidades");
-
-            let insumo = extra ? `${insumoOriginal} (${extra})` : insumoOriginal;
-            const categoria = categoriaPorInsumoLev[insumoOriginal] || "Otros";
-
-            // Revisión de duplicado
-            const existente = materialesLevList.find(
-                m => m.insumo === insumo && m.unidad === unidad
-            );
-
-            if (existente) {
-                existente.cantidad += cantidad;
-            } else {
-                materialesLevList.push({
-                    insumo,
-                    categoria,
-                    cantidad,
-                    unidad
-                });
-            }
-
-            // Limpiar campos
-            document.getElementById("insumoLev").selectedIndex = 0;
-            document.getElementById("insumoExtraLev").value = "";
-            document.getElementById("insumoExtraLev").style.display = "none";
-            document.getElementById("cantidadLev").value = "";
-            document.getElementById("unidadOtroLev").value = "";
-            document.getElementById("unidadOtroLev").style.display = "none";
-
-            renderMaterialesLev();
-        });
+        btnAgregarMat.addEventListener("click", agregarMaterialLev);
     }
+
+    const selectInsumo = document.getElementById("insumoLev");
+    if (selectInsumo) {
+        selectInsumo.addEventListener("change", mostrarCampoExtraLev);
+    }
+
 
     // 6) Guardar levantamiento (envía TODO al backend)
     const btnGuardar = document.getElementById("guardarLevantamientoBtn");
