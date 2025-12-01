@@ -3143,28 +3143,26 @@ window.addEventListener("DOMContentLoaded", initLevantamientos);
 
     // multiples direcciones 
 document.getElementById("tareaClienteId").addEventListener("change", async function () {
+
     const clienteId = this.value;
     const selectDireccion = document.getElementById("tareaDireccionCliente");
+    const token = localStorage.getItem("userToken");
 
-    console.log("Cliente seleccionado:", clienteId);
-
-    // Mensaje temporal
-    selectDireccion.innerHTML = `<option value="">Cargando direcciones...</option>`;
+    selectDireccion.innerHTML = `<option>Cargando...</option>`;
 
     try {
-        const response = await fetch(`/clientes-negocio/${clienteId}`);
-        const data = await response.json();
+        const response = await fetch(`${API_BASE_URL}/clientes-negocio/${clienteId}/direcciones`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
 
-        console.log("DATA DEL CLIENTE:", data);
+        const direcciones = await response.json();
+        console.log("DIRECCIONES RECIBIDAS:", direcciones);
 
         selectDireccion.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
 
-        // Validar que existan direcciones
-        if (Array.isArray(data.direcciones) && data.direcciones.length > 0) {
+        if (Array.isArray(direcciones) && direcciones.length > 0) {
 
-            data.direcciones.forEach((dir) => {
-                console.log("Agregando dirección:", dir.direccion);
-
+            direcciones.forEach(dir => {
                 selectDireccion.innerHTML += `
                     <option value="${dir.direccion}">
                         ${dir.direccion}
@@ -3173,12 +3171,12 @@ document.getElementById("tareaClienteId").addEventListener("change", async funct
             });
 
         } else {
-            console.warn("Cliente sin direcciones registradas");
-            selectDireccion.innerHTML = `<option value="">Sin direcciones registradas</option>`;
+            selectDireccion.innerHTML = `<option>Sin direcciones registradas</option>`;
         }
 
-    } catch (error) {
-        console.error("ERROR AL CARGAR DIRECCIONES:", error);
-        selectDireccion.innerHTML = `<option value="">Error cargando direcciones</option>`;
+    } catch (e) {
+        console.error(e);
+        selectDireccion.innerHTML = `<option>Error cargando direcciones</option>`;
     }
+
 });
