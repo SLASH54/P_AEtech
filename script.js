@@ -713,13 +713,28 @@ function openEditModal(data, type) {
              // El valor del select debe ser igual al rol que viene de la base de datos (data.rol)
              rolSelect.value = data.rol || '';
         }
-    } else { // cliente
-        userFields.style.display = 'none';
-        clientFields.style.display = 'block';
-        // 🔑 NOTA CRÍTICA: Asegúrate de que tu backend use 'direccion' y 'telefono'
-        document.getElementById('edit-direccion').value = data.direccion || '';
-        document.getElementById('edit-telefono').value = data.telefono || '';
+      }  else { // cliente
+    userFields.style.display = 'none';
+    clientFields.style.display = 'block';
+
+    // Teléfono (único campo simple que permanece igual)
+    document.getElementById('edit-telefono').value = data.telefono || '';
+
+    // 1️⃣ limpiar direcciones anteriores
+    const cont = document.getElementById("direccionesContainer");
+    cont.innerHTML = "";
+
+    // 2️⃣ si tiene direcciones, agregarlas dinámicamente
+    if (data.direcciones && data.direcciones.length > 0) {
+        data.direcciones.forEach(dir => {
+            agregarDireccionEdit(dir);
+        });
+    } else {
+        // 3️⃣ si no tiene, agregar una vacía
+        agregarDireccionEdit({ direccion: "", maps: "" });
     }
+}
+
     
     modal.style.display = 'block';
 }
