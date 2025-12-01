@@ -3138,10 +3138,36 @@ function initLevantamientos() {
         btnGuardar.addEventListener("click", guardarLevantamiento);
     }
 }
-
-
-
-
-
-
 window.addEventListener("DOMContentLoaded", initLevantamientos);
+
+
+    // multiples direcciones 
+document.getElementById("tareaClienteId").addEventListener("change", async function () {
+    const clienteId = this.value;
+    const direccionSelect = document.getElementById("tareaDireccionCliente");
+
+    // Limpiar select
+    direccionSelect.innerHTML = `<option value="">Cargando...</option>`;
+
+    try {
+        const resp = await fetch(`/clientes/${clienteId}/direcciones`);
+        const data = await resp.json();
+
+        direccionSelect.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
+
+        if (data.direcciones && data.direcciones.length > 0) {
+            data.direcciones.forEach(dir => {
+                direccionSelect.innerHTML += `
+                    <option value="${dir}">${dir}</option>
+                `;
+            });
+        } else {
+            direccionSelect.innerHTML = `<option value="">No hay direcciones registradas</option>`;
+        }
+
+    } catch (err) {
+        console.error("Error cargando direcciones:", err);
+        direccionSelect.innerHTML = `<option value="">Error cargando direcciones</option>`;
+    }
+});
+

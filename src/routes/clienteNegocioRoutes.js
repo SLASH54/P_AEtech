@@ -13,3 +13,24 @@ router.put('/:id', protect, admin, clienteController.updateClienteNegocio);
 router.delete('/:id', protect, admin, clienteController.deleteClienteNegocio);
 
 module.exports = router;
+
+// Obtener direcciones del cliente seleccionado
+router.get('/:id/direcciones', protect, admin, async (req, res) => {
+    try {
+        const clienteId = req.params.id;
+
+        // --- IMPORTANTE ---
+        // Asegúrate de importar el modelo ClienteNegocio arriba:
+        // const ClienteNegocio = require('../models/ClienteNegocio');
+
+        const cliente = await ClienteNegocio.findByPk(clienteId);
+
+        if (!cliente) return res.json({ direcciones: [] });
+
+        res.json({ direcciones: cliente.direcciones || [] });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Error obteniendo direcciones de cliente" });
+    }
+});
