@@ -34,3 +34,6 @@ router.get('/:id/direcciones', protect, admin, async (req, res) => {
         res.status(500).json({ error: "Error obteniendo direcciones de cliente" });
     }
 });
+
+
+
