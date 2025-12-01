@@ -239,63 +239,100 @@ const registerUser = async (e) => {
  * Función para manejar el registro de nuevos clientes.
  */
 const registerClient = async (e) => {
-    e.preventDefault(); 
-    
-    // 1. Obtener el Token JWT del usuario logeado
+    e.preventDefault();
+
     const token = localStorage.getItem('userToken');
-    
-    // 🛑 SEGURIDAD: Si no hay token, no podemos registrar un cliente
     if (!token) {
-        alert("⚠️ Necesitas iniciar sesión para registrar clientes.");
-        // Redirigir al login si es necesario
-        window.location.href = '/index.html'; 
+        alert("Necesitas iniciar sesión para registrar clientes.");
+        window.location.href = '/index.html';
         return;
     }
 
-    // 2. Obtener los datos del formulario
+    // Datos generales
     const nombre = document.getElementById('client-nombre').value;
-    const email = document.getElementById('client-email').value;
-    const direccion = document.getElementById('client-direccion').value;
-    const telefono = document.getElementById('client-telefono').value; // ¡Usaremos 'client-telefono' para evitar conflictos!
+    const email = document.getElementById('client-email').value || null;
+    const telefono = document.getElementById('client-telefono').value;
+
+    // Los formularios de registro usan 1 estado y 1 municipio para todas las direcciones
+    const estado = document.getElementById('client-estado').value;
+    const municipio = document.getElementById('client-municipio').value;
+
+    // Múltiples direcciones dinámicas
+    const direcciones = [...document.querySelectorAll('input[name="direccion[]"]')].map(i => i.value);
+    const maps = [...document.querySelectorAll('input[name="maps[]"]')].map(i => i.value || null);
+
+    // Generamos arrays para el backend
+    const estados = direcciones.map(() => estado);
+    const municipios = direcciones.map(() => municipio);
+
+    const payload = {
+        nombre,
+        email,
+        telefono,
+        estado: estados,
+        municipio: municipios,
+        direccion: direcciones,
+        maps
+    };
 
     try {
-        // 3. Petición al Backend con el Token
-        const response = await fetch(`${API_BASE_URL}/clientes`, { // ⬅️ Cambia '/clientes' por tu ruta real
+        const response = await fetch(`${API_BASE_URL}/clientes`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                // 🔑 INCLUYE EL TOKEN JWT PARA AUTENTICAR LA PETICIÓN 🔑
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({ nombre, email, direccion, telefono }),
+            body: JSON.stringify(payload)
         });
 
-        if (response.status === 401 || response.status === 403) {
-             throw new Error("No tienes permisos o la sesión ha expirado.");
-        }
-        
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Fallo el registro del cliente.');
+            const data = await response.json();
+            throw new Error(data.message || "Error al registrar cliente");
         }
 
-        const data = await response.json(); 
-        
-        alert(`🎉 Cliente ${nombre || email} registrado con éxito!`);
-        
-        // Limpiar el formulario después del éxito
+        alert(`Cliente ${nombre} registrado con éxito`);
         e.target.reset();
-        
-    } catch (error) {
-        console.error("Error al registrar cliente:", error.message);
-        alert('⚠️ Error en el registro del cliente: ' + error.message);
+
+        // limpiar direcciones dinámicas excepto la primera
+        document.getElementById("direccionesContainer").innerHTML = `
+            <div class="direccion-item">
+                <input type="text" name="direccion[]" placeholder="Ej. Calle 10 Sur #123 o link Google Maps" required>
+                <input type="url" name="maps[]" placeholder="Link de Google Maps (opcional)">
+                <button type="button" class="btn-remove-dir" onclick="this.parentElement.remove()">Eliminar</button>
+            </div>
+        `;
+
+    } catch (err) {
+        console.error(err);
+        alert("Error al registrar cliente: " + err.message);
     }
 };
+
 
 const registroClienteForm = document.getElementById('registroClienteFrom');
     if(registroClienteForm) {
         registroClienteForm.addEventListener('submit', registerClient);
     }
+
+
+document.getElementById("btnAgregarDireccion").addEventListener("click", () => {
+    const cont = document.getElementById("direccionesContainer");
+
+    const div = document.createElement("div");
+    div.classList.add("direccion-item");
+
+    div.innerHTML = `
+        <input type="text" name="direccion[]" placeholder="Ej. Calle, número o link Maps" required>
+
+        <input type="url" name="maps[]" placeholder="Link Google Maps (opcional)">
+
+        <button type="button" class="btn-remove-dir" onclick="this.parentElement.remove()">
+            Eliminar
+        </button>
+    `;
+
+    cont.appendChild(div);
+});
 
 
 /**

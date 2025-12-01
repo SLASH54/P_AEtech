@@ -821,10 +821,28 @@
         <input type="text" id="client-municipio" name="municipio" placeholder="Ej. Atlixco" required>
       </div>
 
-      <div class="form-group">
-        <label for="client-direccion">Dirección:</label>
-        <input type="text" id="client-direccion" name="direccion" placeholder="Calle, número, colonia..." required>
-      </div>
+      <!-- CONTENEDOR PRINCIPAL DE DIRECCIONES -->
+    <div class="form-group">
+        <label>Direcciones del Cliente:</label>
+
+        <div id="direccionesContainer">
+            <!-- Dirección inicial -->
+            <div class="direccion-item">
+                <input type="text" name="direccion[]" placeholder="Ej. Calle 10 Sur #123 o link Google Maps" required>
+
+                <input type="url" name="maps[]" placeholder="Link de Google Maps (opcional)">
+
+                <button type="button" class="btn-remove-dir" onclick="this.parentElement.remove()">
+                    Eliminar
+                </button>
+            </div>
+        </div>
+
+        <button type="button" id="btnAgregarDireccion" class="btn-add-dir">
+            + Agregar otra dirección
+        </button>
+    </div>
+
 
       <button type="submit">Registrar Cliente</button>
     </form>
