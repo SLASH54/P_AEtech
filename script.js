@@ -265,6 +265,14 @@ const registerClient = async (e) => {
     const estados = direcciones.map(() => estado);
     const municipios = direcciones.map(() => municipio);
 
+    for (let i = 0; i < direcciones.length; i++) {
+    if (!direcciones[i] && !maps[i]) {
+        alert("Cada dirección debe tener texto o un link de Google Maps.");
+        return;
+    }
+}
+
+
     const payload = {
         nombre,
         email,
@@ -557,10 +565,8 @@ function generarFilasUsuariosRoles(usuarios, tbodyElement) {
 
 // Función generarFilasClientes - (DEBE SER GLOBAL)
 function generarFilasClientes(clientes, tbodyElement) {
-     // 🛑 AGREGAR ESTA LÍNEA DE LIMPIEZA 🛑
-     tbodyElement.innerHTML = ''; 
+    tbodyElement.innerHTML = ''; 
     
-    // Si no hay clientes o el array está vacío, muestra el mensaje
     if (!clientes || clientes.length === 0) {
         tbodyElement.innerHTML = '<tr><td colspan="5">No se encontraron clientes.</td></tr>';
         return;
@@ -568,13 +574,23 @@ function generarFilasClientes(clientes, tbodyElement) {
     
     let filas = '';
     clientes.forEach(cliente => {
-        // 🔑 VERIFICA ESTOS NOMBRES: id, nombre, email, direccion, telefono
+
+        // Construir direcciones desde ClienteDireccion
+        const direccionesHTML = cliente.direcciones && cliente.direcciones.length > 0
+            ? cliente.direcciones
+                .map(d => `
+                    ${d.direccion}
+                    ${d.maps ? `<br><a href="${d.maps}" target="_blank">Ver mapa</a>` : ''}
+                `)
+                .join("<hr>")
+            : "Sin direcciones";
+
         filas += `
             <tr data-id="${cliente.id}">
                 <td>${cliente.nombre}</td>
-                <td>${cliente.email}</td>
-                <td>${cliente.direccion}</td> 
-                <td>${cliente.telefono}</td>
+                <td>${cliente.email || "Sin email"}</td>
+                <td>${direccionesHTML}</td> 
+                <td>${cliente.telefono || "N/A"}</td>
                 <td>
                     <button class="edit-btn" data-type="cliente" data-id="${cliente.id}">Editar</button>
                     <button class="delete-btn" data-type="cliente" data-id="${cliente.id}">Eliminar</button>
@@ -582,9 +598,11 @@ function generarFilasClientes(clientes, tbodyElement) {
             </tr>
         `;
     });
+
     tbodyElement.innerHTML = filas;
     attachCrudListeners();
-} 
+}
+
 
 // Función mostrarContenido (Asumiendo que la tienes)
 function mostrarContenido(seccionId) {
@@ -779,6 +797,10 @@ async function deleteRecord(type, id) {
 let indexDir = 0;
 
 function agregarDireccion() {
+  cliente.direcciones.forEach(dir => {
+    agregarDireccionEdit(dir); // función especial para editar
+});
+
     const cont = document.getElementById("direccionesContainer");
 
     const html = `
@@ -815,6 +837,22 @@ function agregarDireccion() {
 function eliminarDireccion(btn) {
     btn.parentElement.remove();
 }
+
+function agregarDireccionEdit(dir) {
+    const cont = document.getElementById("direccionesContainer");
+
+    const div = document.createElement("div");
+    div.classList.add("direccion-item");
+
+    div.innerHTML = `
+        <input type="text" name="direccion[]" value="${dir.direccion || ''}" placeholder="Dirección o link Maps">
+        <input type="url" name="maps[]" value="${dir.maps || ''}" placeholder="Link Google Maps (opcional)">
+        <button type="button" onclick="this.parentElement.remove()">Eliminar</button>
+    `;
+
+    cont.appendChild(div);
+}
+
 
 
 // ===================================================
