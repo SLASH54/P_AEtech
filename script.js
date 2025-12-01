@@ -258,16 +258,27 @@ const registerClient = async (e) => {
     const municipio = document.getElementById('client-municipio').value;
 
     // Múltiples direcciones dinámicas
-    const inputs = [...document.querySelectorAll('input[name="direccion[]"]')];
+    // Filtrar inputs vacíos reales (que no contienen texto ni link)
+const inputs = [...document.querySelectorAll('input[name="direccion[]"]')];
 
-    const direcciones = [];
-    const maps = [];
+const direccionesValidas = inputs.filter(input => input.value.trim() !== "");
 
-    for (let input of inputs) {
-        const procesada = await procesarDireccion(input.value);
-        direcciones.push(procesada.direccion);
-        maps.push(procesada.maps);
-    }
+// Si después de filtrar no queda ninguna → error
+if (direccionesValidas.length === 0) {
+    alert("Debes ingresar al menos una dirección o un link de Google Maps.");
+    return;
+}
+
+
+  const direcciones = [];
+const maps = [];
+
+for (let input of direccionesValidas) {
+    const procesada = await procesarDireccion(input.value);
+    direcciones.push(procesada.direccion);
+    maps.push(procesada.maps);
+}
+
 
 //    const maps = [...document.querySelectorAll('input[name="maps[]"]')].map(i => i.value || null);
 
