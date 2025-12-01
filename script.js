@@ -738,6 +738,48 @@ async function deleteRecord(type, id) {
         alert('Hubo un error de conexión con el servidor al intentar eliminar el registro.');
     }
 }
+
+let indexDir = 0;
+
+function agregarDireccion() {
+    const cont = document.getElementById("direccionesContainer");
+
+    const html = `
+        <div class="dir-block" data-index="${indexDir}">
+            <h4>Dirección ${indexDir + 1}</h4>
+
+            <label>Estado:</label>
+            <select name="estado[]" required>
+                <option value="">Selecciona un estado</option>
+                <!-- Aquí van tus estados -->
+            </select>
+
+            <label>Municipio:</label>
+            <input type="text" name="municipio[]" placeholder="Ej. Atlixco" required>
+
+            <label>Dirección:</label>
+            <input type="text" name="direccion[]" placeholder="Calle, número, colonia..." required>
+
+            <label>Link de Google Maps:</label>
+            <input type="url" name="maps[]" placeholder="https://maps.app.goo.gl/xxxx">
+
+            <button type="button" onclick="eliminarDireccion(this)">
+                Eliminar
+            </button>
+
+            <hr>
+        </div>
+    `;
+
+    cont.insertAdjacentHTML("beforeend", html);
+    indexDir++;
+}
+
+function eliminarDireccion(btn) {
+    btn.parentElement.remove();
+}
+
+
 // ===================================================
 // CONEXIÓN PRINCIPAL (DOMContentLoaded)
 // ===================================================
