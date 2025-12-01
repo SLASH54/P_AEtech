@@ -258,8 +258,18 @@ const registerClient = async (e) => {
     const municipio = document.getElementById('client-municipio').value;
 
     // Múltiples direcciones dinámicas
-    const direcciones = [...document.querySelectorAll('input[name="direccion[]"]')].map(i => i.value);
-    const maps = [...document.querySelectorAll('input[name="maps[]"]')].map(i => i.value || null);
+    const inputs = [...document.querySelectorAll('input[name="direccion[]"]')];
+
+    const direcciones = [];
+    const maps = [];
+
+    for (let input of inputs) {
+        const procesada = await procesarDireccion(input.value);
+        direcciones.push(procesada.direccion);
+        maps.push(procesada.maps);
+    }
+
+//    const maps = [...document.querySelectorAll('input[name="maps[]"]')].map(i => i.value || null);
 
     // Generamos arrays para el backend
     const estados = direcciones.map(() => estado);
@@ -727,11 +737,11 @@ function openEditModal(data, type) {
     // 2️⃣ si tiene direcciones, agregarlas dinámicamente
     if (data.direcciones && data.direcciones.length > 0) {
         data.direcciones.forEach(dir => {
-            agregarDireccionEdit(dir);
+            agregarDireccion(dir);
         });
     } else {
         // 3️⃣ si no tiene, agregar una vacía
-        agregarDireccionEdit({ direccion: "", maps: "" });
+        agregarDireccion({ direccion: "", maps: "" });
     }
 }
 
@@ -811,63 +821,65 @@ async function deleteRecord(type, id) {
 
 let indexDir = 0;
 
-function agregarDireccion() {
-  cliente.direcciones.forEach(dir => {
-    agregarDireccionEdit(dir); // función especial para editar
-});
-
-    const cont = document.getElementById("direccionesContainer");
-
-    const html = `
-        <div class="dir-block" data-index="${indexDir}">
-            <h4>Dirección ${indexDir + 1}</h4>
-
-            <label>Estado:</label>
-            <select name="estado[]" required>
-                <option value="">Selecciona un estado</option>
-                <!-- Aquí van tus estados -->
-            </select>
-
-            <label>Municipio:</label>
-            <input type="text" name="municipio[]" placeholder="Ej. Atlixco" required>
-
-            <label>Dirección:</label>
-            <input type="text" name="direccion[]" placeholder="Calle, número, colonia..." required>
-
-            <label>Link de Google Maps:</label>
-            <input type="url" name="maps[]" placeholder="https://maps.app.goo.gl/xxxx">
-
-            <button type="button" onclick="eliminarDireccion(this)">
-                Eliminar
-            </button>
-
-            <hr>
-        </div>
-    `;
-
-    cont.insertAdjacentHTML("beforeend", html);
-    indexDir++;
-}
-
-function eliminarDireccion(btn) {
-    btn.parentElement.remove();
-}
-
-function agregarDireccionEdit(dir) {
+function agregarDireccion(valor = "") {
     const cont = document.getElementById("direccionesContainer");
 
     const div = document.createElement("div");
     div.classList.add("direccion-item");
 
     div.innerHTML = `
-        <input type="text" name="direccion[]" value="${dir.direccion || ''}" placeholder="Dirección o link Maps">
-        <input type="url" name="maps[]" value="${dir.maps || ''}" placeholder="Link Google Maps (opcional)">
-        <button type="button" onclick="this.parentElement.remove()">Eliminar</button>
+        <input type="text" name="direccion[]" 
+            placeholder="Dirección o link Google Maps" 
+            value="${valor}">
+        
+        <button type="button" class="btn-remove-dir" onclick="this.parentElement.remove()">
+            Eliminar
+        </button>
     `;
 
     cont.appendChild(div);
 }
 
+
+function eliminarDireccion(btn) {
+    btn.parentElement.remove();
+}
+
+
+async function procesarDireccion(valor) {
+    // Si está vacío, no haces nada
+    if (!valor || valor.trim() === "") {
+        return { direccion: "", maps: null };
+    }
+
+    // Detectar si es link de Google Maps
+    const esMaps = valor.includes("maps.app") || valor.includes("google.com/maps");
+
+    if (!esMaps) {
+        // No es link → usar como texto normal
+        return { direccion: valor.trim(), maps: null };
+    }
+
+    // SI ES LINK → intentar obtener la dirección DESDE EL LINK
+    try {
+        const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(valor)}`);
+        const data = await response.json();
+        const html = data.contents;
+
+        // extraemos título del mapa (normalmente la dirección)
+        const match = html.match(/"title":"([^"]+)"/);
+        const direccion = match ? match[1] : valor;
+
+        return {
+            direccion,
+            maps: valor
+        };
+
+    } catch (err) {
+        console.warn("No se pudo obtener la dirección desde el link:", err);
+        return { direccion: valor, maps: valor };
+    }
+}
 
 
 // ===================================================
@@ -899,12 +911,40 @@ document.addEventListener('DOMContentLoaded', function () {
             const data = Object.fromEntries(formData.entries());
             
             // Limpiar datos específicos que no aplican
-            if (type === 'usuario') {
-                delete data.direccion;
-                delete data.telefono;
-            } else { // cliente
-                delete data.rol;
-            }
+            if (type === 'cliente') {
+
+    const nombre = document.getElementById('edit-nombre').value;
+    const email = document.getElementById('edit-email').value || null;
+    const telefono = document.getElementById('edit-telefono').value;
+
+    // Obtener las direcciones dinámicas
+    const inputs = [...document.querySelectorAll('input[name="direccion[]"]')];
+
+    const direcciones = [];
+    const maps = [];
+
+    // Procesar cada dirección con tu función inteligente
+    for (let input of inputs) {
+        const procesada = await procesarDireccion(input.value);
+        direcciones.push(procesada.direccion);
+        maps.push(procesada.maps);
+    }
+
+    // No usamos estados/municipios individuales en edición → usamos vacíos o los valores previos
+    const estados = direcciones.map(() => "");
+    const municipios = direcciones.map(() => "");
+
+    data = {
+        nombre,
+        email,
+        telefono,
+        direccion: direcciones,
+        maps,
+        estado: estados,
+        municipio: municipios
+    };
+}
+
             
             const token = localStorage.getItem('userToken');
             const endpoint = (type === 'usuario') ? `/users/${id}` : `/clientes/${id}`;
