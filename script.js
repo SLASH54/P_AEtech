@@ -3146,30 +3146,39 @@ document.getElementById("tareaClienteId").addEventListener("change", async funct
     const clienteId = this.value;
     const selectDireccion = document.getElementById("tareaDireccionCliente");
 
-    // Limpiar el select
+    console.log("Cliente seleccionado:", clienteId);
+
+    // Mensaje temporal
     selectDireccion.innerHTML = `<option value="">Cargando direcciones...</option>`;
 
     try {
-        const resp = await fetch(`/clientes-negocio/${clienteId}`);
-        const cliente = await resp.json();
+        const response = await fetch(`/clientes-negocio/${clienteId}`);
+        const data = await response.json();
 
-        // Vaciar select
+        console.log("DATA DEL CLIENTE:", data);
+
         selectDireccion.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
 
-        if (cliente.direcciones && cliente.direcciones.length > 0) {
-            cliente.direcciones.forEach(dir => {
+        // Validar que existan direcciones
+        if (Array.isArray(data.direcciones) && data.direcciones.length > 0) {
+
+            data.direcciones.forEach((dir) => {
+                console.log("Agregando dirección:", dir.direccion);
+
                 selectDireccion.innerHTML += `
                     <option value="${dir.direccion}">
                         ${dir.direccion}
                     </option>
                 `;
             });
+
         } else {
+            console.warn("Cliente sin direcciones registradas");
             selectDireccion.innerHTML = `<option value="">Sin direcciones registradas</option>`;
         }
 
     } catch (error) {
-        console.error("Error al cargar direcciones:", error);
+        console.error("ERROR AL CARGAR DIRECCIONES:", error);
         selectDireccion.innerHTML = `<option value="">Error cargando direcciones</option>`;
     }
 });

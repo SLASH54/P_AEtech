@@ -12,6 +12,25 @@ router.get('/:id', protect, admin, clienteController.getClienteNegocioById);
 router.put('/:id', protect, admin, clienteController.updateClienteNegocio);
 router.delete('/:id', protect, admin, clienteController.deleteClienteNegocio);
 
+router.get('/:id/direcciones', protect, admin, async (req, res) => {
+    try {
+        const clienteId = req.params.id;
+        const cliente = await ClienteNegocio.findOne({
+            where: { id: clienteId },
+            include: [{ model: ClienteDireccion, as: "direcciones" }]
+        });
+
+        if (!cliente) return res.json({ direcciones: [] });
+
+        res.json(cliente.direcciones);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Error obteniendo direcciones del cliente" });
+    }
+});
+
+
+
 module.exports = router;
 
 // Obtener direcciones del cliente seleccionado
