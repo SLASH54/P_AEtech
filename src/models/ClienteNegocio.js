@@ -15,7 +15,7 @@ const ClienteNegocio = sequelize.define('ClienteNegocio', {
     },
     direccion: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,   // antes estaba "false"
     },
     email: {
         type: DataTypes.STRING,

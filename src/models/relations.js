@@ -6,6 +6,19 @@ const Sucursal = require('./Sucursal');
 const ClienteNegocio = require('./ClienteNegocio');
 const Tarea = require('./Tarea');
 const Evidencia = require('./Evidencia');
+const ClienteDireccion = require('./ClienteDireccion');
+
+// Un cliente tiene muchas direcciones
+ClienteNegocio.hasMany(ClienteDireccion, {
+  foreignKey: "clienteId",
+  as: "direcciones",
+  onDelete: "CASCADE"
+});
+
+ClienteDireccion.belongsTo(ClienteNegocio, {
+  foreignKey: "clienteId"
+});
+
 
 
 

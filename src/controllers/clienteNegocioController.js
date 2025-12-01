@@ -1,60 +1,110 @@
 // src/controllers/clienteNegocioController.js
 const ClienteNegocio = require('../models/ClienteNegocio');
+const ClienteDireccion = require('../models/ClienteDireccion');
 
-// 1. CREAR Cliente de Negocio (Solo Admin)
 exports.createClienteNegocio = async (req, res) => {
     try {
-        const body = req.body;
+        const { nombre, email, telefono, estado = [], municipio = [], direccion = [], maps = [] } = req.body;
 
-        // 🧱 Limpia emails vacíos para evitar errores por duplicados
-        if (body.email !== undefined && body.email.trim() === '') {
-            body.email = null;
+        // limpiar email vacío
+        const emailFinal = email?.trim() === "" ? null : email;
+
+        // ➤ Crear cliente
+        const cliente = await ClienteNegocio.create({
+            nombre,
+            email: emailFinal,
+            telefono
+        });
+
+        // ➤ Guardar múltiples direcciones
+        for (let i = 0; i < direccion.length; i++) {
+            await ClienteDireccion.create({
+                clienteId: cliente.id,
+                estado: estado[i],
+                municipio: municipio[i],
+                direccion: direccion[i],
+                maps: maps[i] || null
+            });
         }
 
-        const cliente = await ClienteNegocio.create(body);
-        return res.status(201).json({ message: 'Cliente registrado con éxito', cliente });
+        res.status(201).json({ message: "Cliente registrado con éxito", cliente });
     } catch (error) {
         console.error("Error al registrar cliente:", error);
-        return res.status(500).json({ message: 'Error interno del servidor al crear cliente.' });
+        res.status(500).json({ message: "Error interno al crear cliente." });
     }
 };
+
+
+// 1. CREAR Cliente de Negocio (Solo Admin)
+//exports.createClienteNegocio = async (req, res) => {
+//    try {
+//        const body = req.body;
+
+        // 🧱 Limpia emails vacíos para evitar errores por duplicados
+//        if (body.email !== undefined && body.email.trim() === '') {
+//            body.email = null;
+//        }
+
+//        const cliente = await ClienteNegocio.create(body);
+//        return res.status(201).json({ message: 'Cliente registrado con éxito', cliente });
+//    } catch (error) {
+//        console.error("Error al registrar cliente:", error);
+//        return res.status(500).json({ message: 'Error interno del servidor al crear cliente.' });
+//    }
+//};
 
 
 // 2. OBTENER TODOS los Clientes (Solo Admin)
 exports.getAllClientesNegocio = async (req, res) => {
     try {
-        const clientes = await ClienteNegocio.findAll();
-        return res.json(clientes);
+        const clientes = await ClienteNegocio.findAll({
+            include: [{ model: ClienteDireccion, as: "direcciones" }]
+        });
+
+        res.json(clientes);
     } catch (error) {
         console.error("Error al obtener clientes:", error);
-        return res.status(500).json({ message: 'Error interno del servidor al obtener clientes.' });
+        res.status(500).json({ message: "Error interno al obtener clientes." });
     }
 };
+
+
 
 // 3. ACTUALIZAR Cliente (Solo Admin)
 exports.updateClienteNegocio = async (req, res) => {
     try {
-        const body = req.body;
+        const clienteId = req.params.id;
+        const { nombre, email, telefono, estado = [], municipio = [], direccion = [], maps = [] } = req.body;
 
-        // 🧱 Limpia emails vacíos
-        if (body.email !== undefined && body.email.trim() === '') {
-            body.email = null;
+        const emailFinal = email?.trim() === "" ? null : email;
+
+        const cliente = await ClienteNegocio.findByPk(clienteId);
+        if (!cliente) return res.status(404).json({ message: "Cliente no encontrado." });
+
+        await cliente.update({ nombre, email: emailFinal, telefono });
+
+        // borrar direcciones existentes
+        await ClienteDireccion.destroy({ where: { clienteId } });
+
+        // volver a crear las nuevas
+        for (let i = 0; i < direccion.length; i++) {
+            await ClienteDireccion.create({
+                clienteId,
+                estado: estado[i],
+                municipio: municipio[i],
+                direccion: direccion[i],
+                maps: maps[i] || null
+            });
         }
 
-        const [updated] = await ClienteNegocio.update(body, {
-            where: { id: req.params.id }
-        });
+        res.json({ message: "Cliente actualizado", cliente });
 
-        if (updated) {
-            const cliente = await ClienteNegocio.findOne({ where: { id: req.params.id } });
-            return res.json({ message: 'Cliente actualizado con éxito', cliente });
-        }
-        return res.status(404).json({ message: 'Cliente no encontrado.' });
     } catch (error) {
-        console.error("Error al actualizar cliente:", error);
-        return res.status(500).json({ message: 'Error interno del servidor al actualizar cliente.' });
+        console.error("Error actualizando cliente:", error);
+        res.status(500).json({ message: "Error interno." });
     }
 };
+
 
 
 // 4. ELIMINAR Cliente (Solo Admin)
@@ -75,28 +125,23 @@ exports.deleteClienteNegocio = async (req, res) => {
 };
 
 exports.getClienteNegocioById = async (req, res) => {
-    // El ID se extrae de los parámetros de la URL
-    const clienteId = req.params.id; 
+    const clienteId = req.params.id;
 
     try {
-        // Lógica de Sequelize: Buscar el cliente por ID
         const cliente = await ClienteNegocio.findOne({
-            where: { id: clienteId }
-            // Nota: Aquí no excluimos la contraseña ya que los clientes no la tienen
+            where: { id: clienteId },
+            include: [{ model: ClienteDireccion, as: "direcciones" }]
         });
 
         if (!cliente) {
-            // Si el cliente no existe, devuelve 404
-            return res.status(404).json({ message: 'Cliente no encontrado.' });
+            return res.status(404).json({ message: "Cliente no encontrado." });
         }
 
-        // Si se encuentra, devuelve los datos del cliente (status 200 OK)
         res.json(cliente);
-
     } catch (error) {
         console.error(`Error al obtener cliente ID ${clienteId}:`, error);
-        // Devuelve un error 500 para fallos del servidor
-        res.status(500).json({ message: 'Error en el servidor al buscar el cliente.' });
+        res.status(500).json({ message: "Error interno." });
     }
 };
+
 
