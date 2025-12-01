@@ -3143,40 +3143,36 @@ window.addEventListener("DOMContentLoaded", initLevantamientos);
 
     // multiples direcciones 
 document.getElementById("tareaClienteId").addEventListener("change", async function () {
-
     const clienteId = this.value;
-    const selectDireccion = document.getElementById("tareaDireccionCliente");
     const token = localStorage.getItem("userToken");
+    const selectDireccion = document.getElementById("tareaDireccionCliente");
 
-    selectDireccion.innerHTML = `<option>Cargando...</option>`;
+    selectDireccion.innerHTML = `<option>Cargando direcciones...</option>`;
 
     try {
-        const response = await fetch(`${API_BASE_URL}/clientes-negocio/${clienteId}/direcciones`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
+       const token = localStorage.getItem("userToken");
 
+      const response = await fetch(`${API_BASE_URL}/clientes-negocio/${clienteId}/direcciones`, {
+       headers: { Authorization: `Bearer ${token}` }
+       });
         const direcciones = await response.json();
-        console.log("DIRECCIONES RECIBIDAS:", direcciones);
 
         selectDireccion.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
 
         if (Array.isArray(direcciones) && direcciones.length > 0) {
-
-            direcciones.forEach(dir => {
+            direcciones.forEach((dir) => {
                 selectDireccion.innerHTML += `
                     <option value="${dir.direccion}">
                         ${dir.direccion}
                     </option>
                 `;
             });
-
         } else {
-            selectDireccion.innerHTML = `<option>Sin direcciones registradas</option>`;
+            selectDireccion.innerHTML = `<option value="">Sin direcciones registradas</option>`;
         }
 
-    } catch (e) {
-        console.error(e);
-        selectDireccion.innerHTML = `<option>Error cargando direcciones</option>`;
+    } catch (error) {
+        console.error("ERROR al cargar direcciones:", error);
+        selectDireccion.innerHTML = `<option value="">Error cargando direcciones</option>`;
     }
-
 });
