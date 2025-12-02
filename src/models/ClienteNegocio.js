@@ -13,10 +13,7 @@ const ClienteNegocio = sequelize.define('ClienteNegocio', {
         type: DataTypes.STRING,
         allowNull: false,
     },
-    direccion: {
-        type: DataTypes.STRING,
-        allowNull: true,   // antes estaba "false"
-    },
+   
     email: {
         type: DataTypes.STRING,
         allowNull: true, // Puede que no todos tengan correo
