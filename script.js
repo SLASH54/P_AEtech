@@ -3194,10 +3194,11 @@ if (clienteSelectTarea) {
     });
 }
 
+async function cargarDireccionesCliente(clienteId) {
+    console.log("➡ Ejecutando cargarDireccionesCliente para cliente:", clienteId);
 
-   async function cargarDireccionesCliente(clienteId) {
-    console.log("Cargando direcciones para cliente:", clienteId);
     const selectDireccion = document.getElementById("tareaDireccionCliente");
+    const token = localStorage.getItem("userToken");
 
 
     // limpiar lista
