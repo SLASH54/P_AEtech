@@ -12,8 +12,19 @@ const includeConfig = [
     { model: Usuario, as: 'AsignadoA', attributes: ['id', 'nombre', 'rol'] },
     { model: Actividad, attributes: ['id', 'nombre', 'campos_evidencia'] },
     { model: Sucursal, attributes: ['id', 'nombre', 'direccion'] },
-    { model: ClienteNegocio, attributes: ['id', 'nombre', 'direccion'] }
+    {
+        model: ClienteNegocio,
+        attributes: ['id', 'nombre', 'email', 'telefono'],
+        include: [
+            {
+                model: ClienteDireccion,
+                as: "direcciones",
+                attributes: ["id", "direccion", "maps", "estado", "municipio"]
+            }
+        ]
+    }
 ];
+
 
 // ===============================
 // 1. CREAR TAREA (POST)
