@@ -268,8 +268,6 @@ if (direccionesValidas.length === 0) {
     alert("Debes ingresar al menos una dirección o un link de Google Maps.");
     return;
 }
-
-
   const direcciones = [];
 const maps = [];
 
@@ -278,6 +276,28 @@ for (let input of direccionesValidas) {
     direcciones.push(procesada.direccion);
     maps.push(procesada.maps);
 }
+
+
+
+
+
+function agregarDireccion(valor = "") {
+    const cont = document.getElementById("direccionesContainer");
+
+    const div = document.createElement("div");
+    div.classList.add("direccion-item");
+
+    div.innerHTML = `
+        <input type="text" name="direccion[]" value="${valor}" placeholder="Dirección o link Maps">
+        <button type="button" onclick="this.parentElement.remove()">Eliminar</button>
+    `;
+
+    cont.appendChild(div);
+}
+
+
+
+
 
 
 //    const maps = [...document.querySelectorAll('input[name="maps[]"]')].map(i => i.value || null);
@@ -734,31 +754,37 @@ function openEditModal(data, type) {
              // El valor del select debe ser igual al rol que viene de la base de datos (data.rol)
              rolSelect.value = data.rol || '';
         }
-      }  else { // cliente
+
+
+
+
+      } else { // cliente
     userFields.style.display = 'none';
     clientFields.style.display = 'block';
 
-    // Teléfono (único campo simple que permanece igual)
     document.getElementById('edit-telefono').value = data.telefono || '';
+    document.getElementById('edit-email').value = data.email || '';
+    document.getElementById('edit-nombre').value = data.nombre || '';
 
-    // 1️⃣ limpiar direcciones anteriores
     const cont = document.getElementById("direccionesContainer");
     cont.innerHTML = "";
 
-    // 2️⃣ si tiene direcciones, agregarlas dinámicamente
     if (data.direcciones && data.direcciones.length > 0) {
         data.direcciones.forEach(dir => {
-            agregarDireccion(dir);
+            agregarDireccion(dir.direccion);
         });
     } else {
-        // 3️⃣ si no tiene, agregar una vacía
-        agregarDireccion({ direccion: "", maps: "" });
+        agregarDireccion("");
     }
 }
+
+
 
     
     modal.style.display = 'block';
 }
+
+
 
 function closeModal(modalId) {
     document.getElementById(modalId).style.display = 'none';
@@ -917,9 +943,14 @@ document.addEventListener('DOMContentLoaded', function () {
             const id = document.getElementById('edit-id').value;
             const type = document.getElementById('edit-type').value;
             
+
+
             // Recolectar datos del formulario
             const formData = new FormData(this);
             const data = Object.fromEntries(formData.entries());
+
+
+            
             
             // Limpiar datos específicos que no aplican
             if (type === 'cliente') {
@@ -3157,41 +3188,7 @@ window.addEventListener("DOMContentLoaded", initLevantamientos);
 
 
     // multiples direcciones 
-    document.getElementById("tareaClienteId").addEventListener("change", async function () {
-    const clienteId = this.value;
-    const token = localStorage.getItem("userToken");
-    const selectDireccion = document.getElementById("tareaDireccionCliente");
-
-    selectDireccion.innerHTML = `<option>Cargando direcciones...</option>`;
-
-    try {
-        const response = await fetch(`${API_BASE_URL}/clientes/${clienteId}`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-
-        const cliente = await response.json();
-        const direcciones = cliente.direcciones || [];
-
-        selectDireccion.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
-
-        if (direcciones.length > 0) {
-            direcciones.forEach(dir => {
-                selectDireccion.innerHTML += `
-                    <option value="${dir.direccion}">
-                        ${dir.direccion}
-                    </option>
-                `;
-            });
-        } else {
-            selectDireccion.innerHTML = `<option value="">Sin direcciones registradas</option>`;
-        }
-
-    } catch (error) {
-        console.error("ERROR al cargar direcciones:", error);
-        selectDireccion.innerHTML = `<option value="">Error cargando direcciones</option>`;
-    }
-});
-
+ 
 
    // cargar direcciones
 
@@ -3207,7 +3204,7 @@ if (clienteSelectTarea) {
 
 
 
-   // cargar direcciones compemento 
+   // cargar direcciones complemento 
 async function cargarDireccionesCliente(clienteId) {
     const selectDireccion = document.getElementById("tareaDireccionCliente");
 
@@ -3243,3 +3240,43 @@ async function cargarDireccionesCliente(clienteId) {
         selectDireccion.innerHTML = `<option value="">Error cargando</option>`;
     }
 }
+
+// Listener REAL para cargar direcciones cuando cambie el cliente
+document.getElementById("tareaClienteId").addEventListener("change", async function () {
+    const clienteId = this.value;
+    const token = localStorage.getItem("userToken");
+    const selectDireccion = document.getElementById("tareaDireccionCliente");
+
+    selectDireccion.innerHTML = `<option>Cargando direcciones...</option>`;
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/clientes/${clienteId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const cliente = await response.json();
+        const direcciones = cliente.direcciones || [];
+
+        selectDireccion.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
+
+        if (direcciones.length > 0) {
+            direcciones.forEach(dir => {
+                const option = document.createElement("option");
+                option.value = dir.direccion; // o dir.id
+                option.textContent = dir.direccion;
+                option.dataset.maps = dir.maps || "";
+                selectDireccion.appendChild(option);
+            });
+        } else {
+            selectDireccion.innerHTML = `<option value="">Sin direcciones registradas</option>`;
+        }
+
+    } catch (error) {
+        console.error("ERROR al cargar direcciones:", error);
+        selectDireccion.innerHTML = `<option value="">Error cargando direcciones</option>`;
+    }
+});
+
+
+
+
