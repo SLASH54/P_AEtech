@@ -278,28 +278,6 @@ for (let input of direccionesValidas) {
 }
 
 
-
-
-
-function agregarDireccion(valor = "") {
-    const cont = document.getElementById("direccionesContainer");
-
-    const div = document.createElement("div");
-    div.classList.add("direccion-item");
-
-    div.innerHTML = `
-        <input type="text" name="direccion[]" value="${valor}" placeholder="Dirección o link Maps">
-        <button type="button" onclick="this.parentElement.remove()">Eliminar</button>
-    `;
-
-    cont.appendChild(div);
-}
-
-
-
-
-
-
 //    const maps = [...document.querySelectorAll('input[name="maps[]"]')].map(i => i.value || null);
 
     // Generamos arrays para el backend
@@ -727,62 +705,58 @@ function handleEditClick(event) {
     });
 }
 
+
+
+
+
 function openEditModal(data, type) {
     const modal = document.getElementById('editModal');
-    const form = document.getElementById('editForm');
-    
-    // 1. Llenar campos ocultos
+
     document.getElementById('edit-id').value = data.id;
     document.getElementById('edit-type').value = type;
-    document.getElementById('recordType').textContent = type.charAt(0).toUpperCase() + type.slice(1);
-    
-    // 2. Llenar campos comunes
-    document.getElementById('edit-nombre').value = data.nombre || '';
-    document.getElementById('edit-email').value = data.email || '';
-    
-    // 3. Mostrar/Ocultar campos específicos
+    document.getElementById('recordType').textContent =
+        type.charAt(0).toUpperCase() + type.slice(1);
+
     const userFields = document.getElementById('userFields');
     const clientFields = document.getElementById('clientFields');
-    
-   if (type === 'usuario') {
+    const rolSelect = document.getElementById('edit-rol');
+
+    // Campos comunes
+    document.getElementById('edit-nombre').value = data.nombre || '';
+    document.getElementById('edit-email').value = data.email || '';
+
+    if (type === 'usuario') {
         userFields.style.display = 'block';
         clientFields.style.display = 'none';
-        
-        // 🔑 CAMBIO CRÍTICO: Asignar el valor del rol al SELECT
-        const rolSelect = document.getElementById('edit-rol');
-        if (rolSelect) {
-             // El valor del select debe ser igual al rol que viene de la base de datos (data.rol)
-             rolSelect.value = data.rol || '';
+
+        rolSelect.required = true;
+        rolSelect.value = data.rol || '';
+
+    } else { // CLIENTE
+        userFields.style.display = 'none';
+        clientFields.style.display = 'block';
+
+        rolSelect.required = false;
+        rolSelect.value = "";
+
+        document.getElementById('edit-telefono').value = data.telefono || '';
+
+        const cont = document.getElementById("direccionesContainer");
+        cont.innerHTML = "";
+
+        if (data.direcciones && data.direcciones.length > 0) {
+            data.direcciones.forEach(dir => {
+                agregarDireccion(dir.direccion || "");
+            });
+        } else {
+            agregarDireccion("");
         }
-
-
-
-
-      } else { // cliente
-    userFields.style.display = 'none';
-    clientFields.style.display = 'block';
-
-    document.getElementById('edit-telefono').value = data.telefono || '';
-    document.getElementById('edit-email').value = data.email || '';
-    document.getElementById('edit-nombre').value = data.nombre || '';
-
-    const cont = document.getElementById("direccionesContainer");
-    cont.innerHTML = "";
-
-    if (data.direcciones && data.direcciones.length > 0) {
-        data.direcciones.forEach(dir => {
-            agregarDireccion(dir.direccion);
-        });
-    } else {
-        agregarDireccion("");
     }
-}
 
-
-
-    
     modal.style.display = 'block';
 }
+
+
 
 
 
@@ -856,6 +830,7 @@ async function deleteRecord(type, id) {
     }
 }
 
+
 let indexDir = 0;
 
 function agregarDireccion(valor = "") {
@@ -878,42 +853,33 @@ function agregarDireccion(valor = "") {
 }
 
 
+
 function eliminarDireccion(btn) {
     btn.parentElement.remove();
 }
 
 
 async function procesarDireccion(valor) {
-    // Si está vacío, no haces nada
     if (!valor || valor.trim() === "") {
         return { direccion: "", maps: null };
     }
 
-    // Detectar si es link de Google Maps
-    const esMaps = valor.includes("maps.app") || valor.includes("google.com/maps");
+    const esLink = valor.includes("maps.app") || valor.includes("google.com/maps");
 
-    if (!esMaps) {
-        // No es link → usar como texto normal
+    if (!esLink) {
         return { direccion: valor.trim(), maps: null };
     }
 
-    // SI ES LINK → intentar obtener la dirección DESDE EL LINK
     try {
-        const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(valor)}`);
-        const data = await response.json();
+        const resp = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(valor)}`);
+        const data = await resp.json();
         const html = data.contents;
-
-        // extraemos título del mapa (normalmente la dirección)
         const match = html.match(/"title":"([^"]+)"/);
         const direccion = match ? match[1] : valor;
 
-        return {
-            direccion,
-            maps: valor
-        };
+        return { direccion, maps: valor };
 
-    } catch (err) {
-        console.warn("No se pudo obtener la dirección desde el link:", err);
+    } catch (e) {
         return { direccion: valor, maps: valor };
     }
 }
@@ -935,86 +901,94 @@ document.addEventListener('DOMContentLoaded', function () {
     //
     //
      // 🔑 Conectar el formulario de edición
-    const editForm = document.getElementById('editForm');
-    if (editForm) {
-        editForm.addEventListener('submit', async function(event) {
-            event.preventDefault();
+   editForm.addEventListener('submit', async function(event) {
+    event.preventDefault();
 
-            const id = document.getElementById('edit-id').value;
-            const type = document.getElementById('edit-type').value;
-            
+    const id = document.getElementById('edit-id').value;
+    const type = document.getElementById('edit-type').value;
+    const token = localStorage.getItem('userToken');
 
+    let data;
 
-            // Recolectar datos del formulario
-            const formData = new FormData(this);
-            const data = Object.fromEntries(formData.entries());
+    if (type === 'usuario') {
+        const nombre = document.getElementById('edit-nombre').value;
+        const email = document.getElementById('edit-email').value;
+        const rol = document.getElementById('edit-rol').value;
 
+        if (!rol) {
+            alert("Selecciona un rol.");
+            return;
+        }
 
-            
-            
-            // Limpiar datos específicos que no aplican
-            if (type === 'cliente') {
+        data = { nombre, email, rol };
 
-    const nombre = document.getElementById('edit-nombre').value;
-    const email = document.getElementById('edit-email').value || null;
-    const telefono = document.getElementById('edit-telefono').value;
+    } else { // CLIENTE
+        const nombre = document.getElementById('edit-nombre').value;
+        const email = document.getElementById('edit-email').value || null;
+        const telefono = document.getElementById('edit-telefono').value;
 
-    // Obtener las direcciones dinámicas
-    const inputs = [...document.querySelectorAll('input[name="direccion[]"]')];
+        const inputs = [...document.querySelectorAll('#direccionesContainer input[name="direccion[]"]')];
 
-    const direcciones = [];
-    const maps = [];
+        const direcciones = [];
+        const maps = [];
 
-    // Procesar cada dirección con tu función inteligente
-    for (let input of inputs) {
-        const procesada = await procesarDireccion(input.value);
-        direcciones.push(procesada.direccion);
-        maps.push(procesada.maps);
+        for (const input of inputs) {
+            const valor = input.value.trim();
+            if (!valor) continue;
+
+            const p = await procesarDireccion(valor);
+            direcciones.push(p.direccion);
+            maps.push(p.maps);
+        }
+
+        if (direcciones.length === 0) {
+            alert("Ingresa al menos una dirección o un link de Google Maps.");
+            return;
+        }
+
+        const estados = direcciones.map(() => "");
+        const municipios = direcciones.map(() => "");
+
+        data = {
+            nombre,
+            email,
+            telefono,
+            direccion: direcciones,
+            maps,
+            estado: estados,
+            municipio: municipios
+        };
     }
 
-    // No usamos estados/municipios individuales en edición → usamos vacíos o los valores previos
-    const estados = direcciones.map(() => "");
-    const municipios = direcciones.map(() => "");
+    const endpoint = (type === 'usuario') ? `/users/${id}` : `/clientes/${id}`;
 
-    data = {
-        nombre,
-        email,
-        telefono,
-        direccion: direcciones,
-        maps,
-        estado: estados,
-        municipio: municipios
-    };
-}
-
-            
-            const token = localStorage.getItem('userToken');
-            const endpoint = (type === 'usuario') ? `/users/${id}` : `/clientes/${id}`;
-            
-            try {
-                const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-                    method: 'PUT', // o 'PATCH', dependiendo de tu backend
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-
-                if (response.ok) {
-                    alert(`${type.charAt(0).toUpperCase() + type.slice(1)} actualizado con éxito.`);
-                    closeModal('editModal');
-                    initAdminPanel(); // Recargar las tablas
-                } else {
-                    const errorData = await response.json().catch(() => ({ message: response.statusText }));
-                    alert(`Error al actualizar: ${errorData.message || response.statusText}`);
-                }
-            } catch (error) {
-                console.error('Error al enviar el formulario de edición:', error);
-                alert('Hubo un error de conexión al guardar los cambios.');
-            }
+    try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
         });
+
+        if (!response.ok) {
+            const errData = await response.json().catch(() => null);
+            throw new Error(errData?.message || `Error HTTP ${response.status}`);
+        }
+
+        alert(`${type === 'usuario' ? 'Usuario' : 'Cliente'} actualizado con éxito.`);
+        closeModal('editModal');
+        initAdminPanel();
+
+    } catch (error) {
+        console.error('Error al enviar el formulario de edición:', error);
+        alert('Hubo un error al guardar los cambios: ' + error.message);
     }
+});
+
+
+
     document.querySelectorAll('nav li button').forEach(button => {
         button.addEventListener('click', function() {
             // Ahora obtiene el ID del atributo data-target
@@ -1174,6 +1148,8 @@ async function loadClientesForTareaSelect() {
         clienteSelect.innerHTML = `<option value="" disabled selected>${errorMessage}</option>`;
     }
 }
+
+
 
 
 
@@ -3187,62 +3163,11 @@ function initLevantamientos() {
 window.addEventListener("DOMContentLoaded", initLevantamientos);
 
 
-    // multiples direcciones 
- 
-
-   // cargar direcciones
-
-const clienteSelectTarea = document.getElementById("tareaClienteId");
-
-if (clienteSelectTarea) {
-    clienteSelectTarea.addEventListener("change", function () {
-        const clienteId = this.value;
-        cargarDireccionesCliente(clienteId);
-    });
-}
 
 
+// direcciones muchas xd 
 
-
-   // cargar direcciones complemento 
-async function cargarDireccionesCliente(clienteId) {
-    const selectDireccion = document.getElementById("tareaDireccionCliente");
-
-    selectDireccion.innerHTML = `<option value="">Cargando...</option>`;
-
-    if (!clienteId) return;
-
-    try {
-        const token = localStorage.getItem("userToken");
-
-        const res = await fetch(`${API_BASE_URL}/clientes/${clienteId}`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-
-        const cliente = await res.json();
-
-        selectDireccion.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
-
-        if (cliente.direcciones && cliente.direcciones.length > 0) {
-            cliente.direcciones.forEach(dir => {
-                const option = document.createElement("option");
-                option.value = dir.direccion;
-                option.textContent = dir.direccion;
-                option.dataset.maps = dir.maps || "";
-                selectDireccion.appendChild(option);
-            });
-        } else {
-            selectDireccion.innerHTML = `<option value="">Sin direcciones registradas</option>`;
-        }
-
-    } catch (err) {
-        console.error("Error cargando direcciones:", err);
-        selectDireccion.innerHTML = `<option value="">Error cargando</option>`;
-    }
-}
-
-// Listener REAL para cargar direcciones cuando cambie el cliente
-document.getElementById("tareaClienteId").addEventListener("change", async function () {
+  document.getElementById("tareaClienteId").addEventListener("change", async function () {
     const clienteId = this.value;
     const token = localStorage.getItem("userToken");
     const selectDireccion = document.getElementById("tareaDireccionCliente");
@@ -3261,11 +3186,11 @@ document.getElementById("tareaClienteId").addEventListener("change", async funct
 
         if (direcciones.length > 0) {
             direcciones.forEach(dir => {
-                const option = document.createElement("option");
-                option.value = dir.direccion; // o dir.id
-                option.textContent = dir.direccion;
-                option.dataset.maps = dir.maps || "";
-                selectDireccion.appendChild(option);
+                selectDireccion.innerHTML += `
+                    <option value="${dir.direccion}">
+                        ${dir.direccion}
+                    </option>
+                `;
             });
         } else {
             selectDireccion.innerHTML = `<option value="">Sin direcciones registradas</option>`;
@@ -3276,7 +3201,3 @@ document.getElementById("tareaClienteId").addEventListener("change", async funct
         selectDireccion.innerHTML = `<option value="">Error cargando direcciones</option>`;
     }
 });
-
-
-
-
