@@ -3,6 +3,7 @@ const { Tarea, Usuario, Actividad, Sucursal, ClienteNegocio, Notificacion } = re
 const { sequelize } = require('../config/database');
 const { sendPushToUser } = require('../utils/push');
 const admin = require("../config/firebaseadmin");
+const { ClienteDireccion } = require('../models/relations');
 
 
 // ===============================
