@@ -3205,6 +3205,9 @@ if (clienteSelectTarea) {
 }
 
 
+
+
+   // cargar direcciones compemento 
 async function cargarDireccionesCliente(clienteId) {
     const selectDireccion = document.getElementById("tareaDireccionCliente");
 
