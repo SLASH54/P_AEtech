@@ -1136,8 +1136,7 @@ async function loadClientesForTareaSelect() {
             window.clientesData[option.value] = cliente; 
         });
 
-        // Listener para actualizar la dirección
-      //  clienteSelect.addEventListener('change', updateClientAddress);
+       
       }
     
     else {
@@ -1183,19 +1182,7 @@ async function loadActividadesForTareaSelect() {
 
 
 
-/**
- * Actualiza el campo de dirección basado en el cliente seleccionado.
- */
-//function updateClientAddress() {
-  //  const clienteId = document.getElementById('tareaClienteId').value;
-    //const direccionInput = document.getElementById('tareaDireccionCliente');
-    //
-    //if (window.clientesData && window.clientesData[clienteId]) {
-      //  direccionInput.value = window.clientesData[clienteId].direccion || 'Dirección no disponible';
-    //} else {
-      //  direccionInput.value = '';
-    //}
-//}
+
 
 
 
@@ -1426,8 +1413,16 @@ function openTareaModal(tareaIdOrObject, mode) {
         document.getElementById('tareaActividadId').value = tarea.actividadId || '';
         document.getElementById('tareaClienteId').value = tarea.clienteNegocioId || '';
         
-        // Disparar la función de dirección
-        setTimeout(updateClientAddress, 10);
+      // Si está editando una tarea, cargamos sus direcciones
+if (tarea.clienteNegocioId) {
+    cargarDireccionesCliente(tarea.clienteNegocioId);
+
+    setTimeout(() => {
+        document.getElementById('tareaDireccionCliente').value =
+            tarea.direccionCliente || "";
+    }, 300);
+}
+
     }
 
     // 🛑 CORREGIDO: Usar 'flex' para mostrar el modal
@@ -3167,37 +3162,56 @@ window.addEventListener("DOMContentLoaded", initLevantamientos);
 
 // direcciones muchas xd 
 
-  document.getElementById("tareaClienteId").addEventListener("change", async function () {
-    const clienteId = this.value;
-    const token = localStorage.getItem("userToken");
-    const selectDireccion = document.getElementById("tareaDireccionCliente");
+const clienteSelectTarea = document.getElementById("tareaClienteId");
 
-    selectDireccion.innerHTML = `<option>Cargando direcciones...</option>`;
+if (clienteSelectTarea) {
+    clienteSelectTarea.addEventListener("change", function () {
+        const clienteId = this.value;
+        cargarDireccionesCliente(clienteId);
+    });
+}
+
+
+  async function cargarDireccionesCliente(clienteId) {
+    const selectDireccion = document.getElementById("tareaDireccionCliente");
+    const token = localStorage.getItem("userToken");
+
+    // limpiar lista
+    selectDireccion.innerHTML = `<option value="">Cargando direcciones...</option>`;
+
+    if (!clienteId) return;
 
     try {
         const response = await fetch(`${API_BASE_URL}/clientes/${clienteId}`, {
             headers: { Authorization: `Bearer ${token}` }
         });
 
+        if (!response.ok) {
+            selectDireccion.innerHTML = `<option value="">Error al cargar direcciones</option>`;
+            return;
+        }
+
         const cliente = await response.json();
         const direcciones = cliente.direcciones || [];
 
         selectDireccion.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
 
-        if (direcciones.length > 0) {
-            direcciones.forEach(dir => {
-                selectDireccion.innerHTML += `
-                    <option value="${dir.direccion}">
-                        ${dir.direccion}
-                    </option>
-                `;
-            });
-        } else {
+        if (direcciones.length === 0) {
             selectDireccion.innerHTML = `<option value="">Sin direcciones registradas</option>`;
+            return;
         }
+
+        direcciones.forEach(dir => {
+            const option = document.createElement("option");
+            option.value = dir.direccion; // puedes poner dir.id si luego la tarea necesita ID
+            option.textContent = dir.direccion;
+            option.dataset.maps = dir.maps || null; // por si quieres abrir mapa después
+            selectDireccion.appendChild(option);
+        });
 
     } catch (error) {
         console.error("ERROR al cargar direcciones:", error);
         selectDireccion.innerHTML = `<option value="">Error cargando direcciones</option>`;
     }
-});
+}
+
