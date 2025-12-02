@@ -3142,34 +3142,31 @@ window.addEventListener("DOMContentLoaded", initLevantamientos);
 
 
     // multiples direcciones 
-document.getElementById("tareaClienteId").addEventListener("change", async function () {
-    const clienteId = this.value;  
+    document.getElementById("tareaClienteId").addEventListener("change", async function () {
+    const clienteId = this.value;
     const token = localStorage.getItem("userToken");
     const selectDireccion = document.getElementById("tareaDireccionCliente");
 
     selectDireccion.innerHTML = `<option>Cargando direcciones...</option>`;
 
     try {
-        // 👉 AQUÍ ESTÁ EL CÓDIGO QUE ME PREGUNTASTE
-        const response = await fetch(`${API_BASE_URL}/clientes-negocio/${clienteId}/direcciones`, {
+        const response = await fetch(`${API_BASE_URL}/clientes/${clienteId}`, {
             headers: { Authorization: `Bearer ${token}` }
         });
 
-        const direcciones = await response.json();
-        console.log("DIRECCIONES RECIBIDAS:", direcciones);
+        const cliente = await response.json();
+        const direcciones = cliente.direcciones || [];
 
         selectDireccion.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
 
-        if (Array.isArray(direcciones) && direcciones.length > 0) {
-
-            direcciones.forEach((dir) => {
+        if (direcciones.length > 0) {
+            direcciones.forEach(dir => {
                 selectDireccion.innerHTML += `
                     <option value="${dir.direccion}">
                         ${dir.direccion}
                     </option>
                 `;
             });
-
         } else {
             selectDireccion.innerHTML = `<option value="">Sin direcciones registradas</option>`;
         }
