@@ -1110,11 +1110,16 @@ async function loadClientesForTareaSelect() {
     clienteSelect.innerHTML = '<option value="" disabled selected>-- Cargando Clientes... --</option>';
 
     const clientes = await fetchData('/clientes'); 
+
+
     
     // Almacenamos los clientes globalmente para fácil acceso a la dirección
     window.clientesData = {};
 
     clienteSelect.innerHTML = '<option value="" disabled selected>-- Seleccione Cliente --</option>';
+
+
+
 
     if (clientes && Array.isArray(clientes) && clientes.length > 0) {
         clientes.forEach(cliente => {
@@ -1125,11 +1130,12 @@ async function loadClientesForTareaSelect() {
             
             window.clientesData[option.value] = cliente; 
         });
-        
+
         // Listener para actualizar la dirección
-        clienteSelect.addEventListener('change', updateClientAddress);
-        
-    } else {
+      //  clienteSelect.addEventListener('change', updateClientAddress);
+      }
+    
+    else {
         const errorMessage = (clientes === null) 
             ? 'No tienes permisos para ver clientes.' 
             : 'No se encontraron clientes.';
@@ -1137,6 +1143,9 @@ async function loadClientesForTareaSelect() {
         clienteSelect.innerHTML = `<option value="" disabled selected>${errorMessage}</option>`;
     }
 }
+
+
+
 
 async function loadActividadesForTareaSelect() {
     const actividadSelect = document.getElementById('tareaActividadId');
@@ -1164,19 +1173,25 @@ async function loadActividadesForTareaSelect() {
     }
 }
 
+
+
+
 /**
  * Actualiza el campo de dirección basado en el cliente seleccionado.
  */
-function updateClientAddress() {
-    const clienteId = document.getElementById('tareaClienteId').value;
-    const direccionInput = document.getElementById('tareaDireccionCliente');
-    
-    if (window.clientesData && window.clientesData[clienteId]) {
-        direccionInput.value = window.clientesData[clienteId].direccion || 'Dirección no disponible';
-    } else {
-        direccionInput.value = '';
-    }
-}
+//function updateClientAddress() {
+  //  const clienteId = document.getElementById('tareaClienteId').value;
+    //const direccionInput = document.getElementById('tareaDireccionCliente');
+    //
+    //if (window.clientesData && window.clientesData[clienteId]) {
+      //  direccionInput.value = window.clientesData[clienteId].direccion || 'Dirección no disponible';
+    //} else {
+      //  direccionInput.value = '';
+    //}
+//}
+
+
+
 
 /**
  * Renderiza la lista de tareas en la tabla.
@@ -3176,3 +3191,52 @@ window.addEventListener("DOMContentLoaded", initLevantamientos);
         selectDireccion.innerHTML = `<option value="">Error cargando direcciones</option>`;
     }
 });
+
+
+   // cargar direcciones
+
+const clienteSelectTarea = document.getElementById("tareaClienteId");
+
+if (clienteSelectTarea) {
+    clienteSelectTarea.addEventListener("change", function () {
+        const clienteId = this.value;
+        cargarDireccionesCliente(clienteId);
+    });
+}
+
+
+async function cargarDireccionesCliente(clienteId) {
+    const selectDireccion = document.getElementById("tareaDireccionCliente");
+
+    selectDireccion.innerHTML = `<option value="">Cargando...</option>`;
+
+    if (!clienteId) return;
+
+    try {
+        const token = localStorage.getItem("userToken");
+
+        const res = await fetch(`${API_BASE_URL}/clientes/${clienteId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const cliente = await res.json();
+
+        selectDireccion.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
+
+        if (cliente.direcciones && cliente.direcciones.length > 0) {
+            cliente.direcciones.forEach(dir => {
+                const option = document.createElement("option");
+                option.value = dir.direccion;
+                option.textContent = dir.direccion;
+                option.dataset.maps = dir.maps || "";
+                selectDireccion.appendChild(option);
+            });
+        } else {
+            selectDireccion.innerHTML = `<option value="">Sin direcciones registradas</option>`;
+        }
+
+    } catch (err) {
+        console.error("Error cargando direcciones:", err);
+        selectDireccion.innerHTML = `<option value="">Error cargando</option>`;
+    }
+}
