@@ -1217,8 +1217,20 @@ function renderTareasTable(tareas) {
 
         // Datos relacionados
         const asignadoNombre = tarea.AsignadoA?.nombre || 'N/A';
-        const clienteNombre = tarea.ClienteNegocio?.nombre || 'Sin cliente';
-        const clienteDireccion = tarea.ClienteNegocio?.direccion || 'Sin dirección registrada';
+      const clienteNombre = tarea.ClienteNegocio?.nombre || 'Sin cliente';
+
+let clienteDireccion = 'Sin dirección registrada';
+let clienteMaps = null;
+
+if (tarea.ClienteNegocio?.direcciones?.length) {
+    const dir = tarea.ClienteNegocio.direcciones[0]; // primera dirección
+    clienteDireccion = dir.direccion || 'Sin dirección registrada';
+    clienteMaps = dir.maps || null;
+}
+
+const clienteMapsLink = clienteMaps
+    ? clienteMaps
+    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(clienteDireccion)}`;
 
         // Fila de la tabla
         row.innerHTML = `
@@ -1242,11 +1254,10 @@ function renderTareasTable(tareas) {
                 ${asignadoNombre}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(clienteDireccion)}"
-                    target="_blank"
-                    class="text-blue-600 hover:underline">
-                    ${clienteDireccion}📍
-                </a>
+               <a href="${clienteMapsLink}" target="_blank" class="text-blue-600 hover:underline">
+                  ${clienteDireccion} 📍
+               </a>
+
             </td>
 
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -1410,9 +1421,21 @@ function openTareaModal(tareaIdOrObject, mode) {
         
         // 🔑 Rellenar SELECTS con los IDs
         document.getElementById('tareaAsignadoA').value = tarea.usuarioAsignadoId || '';
-        document.getElementById('tareaActividadId').value = tarea.actividadId || '';
-        document.getElementById('tareaClienteId').value = tarea.clienteNegocioId || '';
+
+
         
+        // lo dio el amigo segun para seguir con el codigo a funcionar para las direcciones
+      document.getElementById('tareaClienteId').value = tarea.clienteNegocioId || '';
+
+// Cargar direcciones del cliente al editar
+if (tarea.clienteNegocioId) {
+    cargarDireccionesCliente(tarea.clienteNegocioId);
+}
+
+
+
+
+
       // Si está editando una tarea, cargamos sus direcciones
 if (tarea.clienteNegocioId) {
     cargarDireccionesCliente(tarea.clienteNegocioId);
@@ -3172,9 +3195,10 @@ if (clienteSelectTarea) {
 }
 
 
-  async function cargarDireccionesCliente(clienteId) {
+   async function cargarDireccionesCliente(clienteId) {
+    console.log("Cargando direcciones para cliente:", clienteId);
     const selectDireccion = document.getElementById("tareaDireccionCliente");
-    const token = localStorage.getItem("userToken");
+
 
     // limpiar lista
     selectDireccion.innerHTML = `<option value="">Cargando direcciones...</option>`;
