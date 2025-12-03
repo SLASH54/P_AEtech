@@ -1380,80 +1380,65 @@ function openTareaModal(tareaIdOrObject, mode) {
     const title = document.getElementById('tareaModalTitle');
     const form = document.getElementById('tareaForm');
 
-    // 🔹 Selects del modal
     const clienteSelect = document.getElementById('tareaClienteId');
     const direccionSelect = document.getElementById('tareaDireccionCliente');
 
-    // 🔥 Siempre (re)registramos el cambio de cliente
-    if (clienteSelect) {
-        clienteSelect.onchange = () => {
-            const clienteId = clienteSelect.value;
-            console.log("Cliente seleccionado en modal:", clienteId);
-            cargarDireccionesCliente(clienteId);
-        };
-    }
+    // Asignar evento cada vez que se abre el modal
+    clienteSelect.onchange = () => {
+        cargarDireccionesCliente(clienteSelect.value);
+    };
 
     let tarea = {};
+
     if (mode === 'edit') {
-        // Buscar la tarea completa si solo se pasó el ID
-        if (typeof tareaIdOrObject === 'string') {
-             tarea = window.tareasList?.find(t => t.id == tareaIdOrObject);
+
+        if (typeof tareaIdOrObject === "string") {
+            tarea = window.tareasList.find(t => t.id == tareaIdOrObject);
         } else {
-             tarea = tareaIdOrObject;
+            tarea = tareaIdOrObject;
         }
 
-        if (!tarea || !tarea.id) {
-            console.error('Error: Tarea no encontrada para edición o datos incompletos.');
-            return; 
-        }
-    }
-
-    if (mode === 'create') {
-        title.textContent = 'Crear Nueva Tarea';
-        form.reset();
-        document.getElementById('tareaId').value = '';
-
-        // 🔄 Limpiar siempre el select de direcciones al crear
-        if (direccionSelect) {
-            direccionSelect.innerHTML = '<option value="">-- Seleccione Dirección --</option>';
+        if (!tarea) {
+            console.error("Tarea no encontrada");
+            return;
         }
 
-    } else { // mode === 'edit'
-        title.textContent = 'Editar Tarea';
+        title.textContent = "Editar Tarea";
         document.getElementById('tareaId').value = tarea.id;
 
-        // Campos de texto
-        document.getElementById('tareaTitulo').value = tarea.nombre || '';
-        document.getElementById('tareaDescripcion').value = tarea.descripcion || '';
-        
+        // Campos simples
+        document.getElementById('tareaTitulo').value = tarea.nombre || "";
+        document.getElementById('tareaDescripcion').value = tarea.descripcion || "";
+        document.getElementById('tareaEstado').value = tarea.estado || "";
+
         if (tarea.fechaLimite) {
-            document.getElementById('tareaFechaLimite').value = tarea.fechaLimite.split('T')[0];
-        } else {
-             document.getElementById('tareaFechaLimite').value = '';
+            document.getElementById('tareaFechaLimite').value = tarea.fechaLimite.split("T")[0];
         }
-        
-        document.getElementById('tareaEstado').value = tarea.estado || '';
 
-        // SELECTS con IDs
-        document.getElementById('tareaAsignadoA').value = tarea.usuarioAsignadoId || '';
-        document.getElementById('tareaClienteId').value = tarea.clienteNegocioId || '';
+        // SELECTS IMPORTANTES 🔥🔥🔥
+        document.getElementById('tareaAsignadoA').value = tarea.usuarioAsignadoId || "";
+        document.getElementById('tareaActividadId').value = tarea.actividadId || "";
+        document.getElementById('tareaClienteId').value = tarea.clienteNegocioId || "";
 
-        // 🔥 Cargar direcciones del cliente al editar
-        if (tarea.clienteNegocioId) {
-            cargarDireccionesCliente(tarea.clienteNegocioId);
+        // Cargar direcciones
+        cargarDireccionesCliente(tarea.clienteNegocioId);
 
-            // Después de cargarlas, seleccionar la que tenía guardada
-            setTimeout(() => {
-                if (direccionSelect) {
-                    direccionSelect.value = tarea.direccionCliente || "";
-                }
-            }, 300);
-        }
+        setTimeout(() => {
+            direccionSelect.value = tarea.direccionCliente || "";
+        }, 250);
+
+    } else {
+        // CREAR TAREA
+        title.textContent = "Crear Nueva Tarea";
+        form.reset();
+        document.getElementById("tareaId").value = "";
+
+        direccionSelect.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
     }
 
-    // Mostrar modal
-    modal.style.display = 'flex';
+    modal.style.display = "flex";
 }
+
 
 /**
  * Envía una petición para eliminar una tarea.
