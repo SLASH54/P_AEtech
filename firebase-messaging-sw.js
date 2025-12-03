@@ -13,22 +13,33 @@ firebase.initializeApp({
   measurementId: "G-ZLZ2LWQ1XE"
 });
 
-const messaging = firebase.messaging();
+//const messaging = firebase.messaging();
 
 // 📩 Recibir notificaciones en segundo plano
-messaging.onBackgroundMessage(function (payload) {
-  console.log('🔔 [Service Worker] Notificación recibida:', payload);
+//messaging.onBackgroundMessage(function (payload) {
+  //console.log('🔔 [Service Worker] Notificación recibida:', payload);
 
-  const notificationTitle = payload.notification.title;
-  const notificationOptions = {
+  //const notificationTitle = payload.notification.title;
+  //const notificationOptions = {
+    //body: payload.notification.body,
+   // icon: '/img/logoAEtech.png'
+ // };
+
+ // return self.registration.showNotification(notificationTitle, notificationOptions);
+
+// });
+
+
+
+
+const messaging = firebase.messaging();
+
+messaging.onBackgroundMessage((payload) => {
+  self.registration.showNotification(payload.notification.title, {
     body: payload.notification.body,
-    icon: '/img/logoAEtech.png'
-  };
-
-  return self.registration.showNotification(notificationTitle, notificationOptions);
+    icon: "/img/default-user.png"
+  });
 });
-
-
 
 
 
