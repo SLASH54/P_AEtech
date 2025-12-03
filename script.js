@@ -3189,44 +3189,29 @@ if (clienteSelectTarea) {
         cargarDireccionesCliente(clienteId);
     });
 }
-
-async function cargarDireccionesCliente(clienteId) {
+function cargarDireccionesCliente(clienteId) {
     console.log("Ejecutando cargarDireccionesCliente para cliente:", clienteId);
 
     const selectDireccion = document.getElementById("tareaDireccionCliente");
-    if (!selectDireccion) return;
-
-    // Mensaje mientras decide qué cargar
-    selectDireccion.innerHTML = `<option value="">Cargando direcciones...</option>`;
-
-    if (!clienteId) {
-        selectDireccion.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
+    if (!selectDireccion) {
+        console.error("❌ No se encontró el select tareaDireccionCliente");
         return;
     }
 
-    // 1) Intentar usar los datos que ya tenemos en memoria
-    const cliente = window.clientesData ? window.clientesData[clienteId] : null;
-    let direcciones = cliente?.direcciones || [];
+    // Siempre empezamos limpiando el select
+    selectDireccion.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
 
-    // 2) Si por algún motivo no vienen las direcciones, intentamos un fetch de respaldo
-    if (!direcciones.length) {
-        try {
-            const token = localStorage.getItem("userToken");
-            const resp = await fetch(`${API_BASE_URL}/clientes/${clienteId}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-
-            if (resp.ok) {
-                const cli = await resp.json();
-                direcciones = cli.direcciones || [];
-            }
-        } catch (err) {
-            console.error("Error extra al cargar direcciones:", err);
-        }
+    if (!clienteId) {
+        return;
     }
 
-    // 3) Pintar el <select>
-    selectDireccion.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
+    // Usamos los datos que ya cargaste en loadClientesForTareaSelect
+    const cliente = window.clientesData ? window.clientesData[clienteId] : null;
+    console.log("Cliente encontrado en window.clientesData:", cliente);
+
+    const direcciones = (cliente && Array.isArray(cliente.direcciones))
+        ? cliente.direcciones
+        : [];
 
     if (!direcciones.length) {
         selectDireccion.innerHTML = `<option value="">Sin direcciones registradas</option>`;
@@ -3235,10 +3220,10 @@ async function cargarDireccionesCliente(clienteId) {
 
     direcciones.forEach(dir => {
         const option = document.createElement("option");
-        option.value = dir.direccion;            // lo que guardas en la tarea
-        option.textContent = dir.direccion;      // lo que se muestra
-        option.dataset.maps = dir.maps || "";    // por si luego quieres usar el link
+        option.value = dir.direccion;        // valor que se guarda en la tarea
+        option.textContent = dir.direccion;  // texto visible
+        option.dataset.maps = dir.maps || ""; // por si luego quieres usar el link
         selectDireccion.appendChild(option);
     });
 }
-
+  
