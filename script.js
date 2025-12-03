@@ -1370,6 +1370,7 @@ function setupTareaModal() {
 }
 
 /**
+/**
  * Abre y llena el modal para crear o editar una tarea.
  * @param {string|Object} tareaIdOrObject - ID de la tarea si es edición, o un objeto vacío ({}) si es creación.
  * @param {string} mode - 'create' o 'edit'.
@@ -1379,10 +1380,22 @@ function openTareaModal(tareaIdOrObject, mode) {
     const title = document.getElementById('tareaModalTitle');
     const form = document.getElementById('tareaForm');
 
+    // 🔹 Selects del modal
+    const clienteSelect = document.getElementById('tareaClienteId');
+    const direccionSelect = document.getElementById('tareaDireccionCliente');
+
+    // 🔥 Siempre (re)registramos el cambio de cliente
+    if (clienteSelect) {
+        clienteSelect.onchange = () => {
+            const clienteId = clienteSelect.value;
+            console.log("Cliente seleccionado en modal:", clienteId);
+            cargarDireccionesCliente(clienteId);
+        };
+    }
+
     let tarea = {};
     if (mode === 'edit') {
-        // 🛑 CORRECCIÓN CLAVE 4: Buscar la tarea completa si solo se pasó el ID
-        // Esto depende de que window.tareasList se haya poblado en renderTareasTable
+        // Buscar la tarea completa si solo se pasó el ID
         if (typeof tareaIdOrObject === 'string') {
              tarea = window.tareasList?.find(t => t.id == tareaIdOrObject);
         } else {
@@ -1399,11 +1412,17 @@ function openTareaModal(tareaIdOrObject, mode) {
         title.textContent = 'Crear Nueva Tarea';
         form.reset();
         document.getElementById('tareaId').value = '';
-        document.getElementById('tareaDireccionCliente').value = '';
+
+        // 🔄 Limpiar siempre el select de direcciones al crear
+        if (direccionSelect) {
+            direccionSelect.innerHTML = '<option value="">-- Seleccione Dirección --</option>';
+        }
+
     } else { // mode === 'edit'
         title.textContent = 'Editar Tarea';
         document.getElementById('tareaId').value = tarea.id;
-        // 🔑 Rellenar campos con los nombres correctos
+
+        // Campos de texto
         document.getElementById('tareaTitulo').value = tarea.nombre || '';
         document.getElementById('tareaDescripcion').value = tarea.descripcion || '';
         
@@ -1414,37 +1433,25 @@ function openTareaModal(tareaIdOrObject, mode) {
         }
         
         document.getElementById('tareaEstado').value = tarea.estado || '';
-        
-        // 🔑 Rellenar SELECTS con los IDs
+
+        // SELECTS con IDs
         document.getElementById('tareaAsignadoA').value = tarea.usuarioAsignadoId || '';
+        document.getElementById('tareaClienteId').value = tarea.clienteNegocioId || '';
 
+        // 🔥 Cargar direcciones del cliente al editar
+        if (tarea.clienteNegocioId) {
+            cargarDireccionesCliente(tarea.clienteNegocioId);
 
-        
-        // lo dio el amigo segun para seguir con el codigo a funcionar para las direcciones
-      document.getElementById('tareaClienteId').value = tarea.clienteNegocioId || '';
-
-// Cargar direcciones del cliente al editar
-if (tarea.clienteNegocioId) {
-    cargarDireccionesCliente(tarea.clienteNegocioId);
-}
-
-
-
-
-
-      // Si está editando una tarea, cargamos sus direcciones
-if (tarea.clienteNegocioId) {
-    cargarDireccionesCliente(tarea.clienteNegocioId);
-
-    setTimeout(() => {
-        document.getElementById('tareaDireccionCliente').value =
-            tarea.direccionCliente || "";
-    }, 300);
-}
-
+            // Después de cargarlas, seleccionar la que tenía guardada
+            setTimeout(() => {
+                if (direccionSelect) {
+                    direccionSelect.value = tarea.direccionCliente || "";
+                }
+            }, 300);
+        }
     }
 
-    // 🛑 CORREGIDO: Usar 'flex' para mostrar el modal
+    // Mostrar modal
     modal.style.display = 'flex';
 }
 
@@ -3181,14 +3188,7 @@ window.addEventListener("DOMContentLoaded", initLevantamientos);
 
 // direcciones muchas xd 
 
-const clienteSelectTarea = document.getElementById("tareaClienteId");
 
-if (clienteSelectTarea) {
-    clienteSelectTarea.addEventListener("change", function () {
-        const clienteId = this.value;
-        cargarDireccionesCliente(clienteId);
-    });
-}
 function cargarDireccionesCliente(clienteId) {
     console.log("Ejecutando cargarDireccionesCliente para cliente:", clienteId);
 
@@ -3198,14 +3198,12 @@ function cargarDireccionesCliente(clienteId) {
         return;
     }
 
-    // Siempre empezamos limpiando el select
     selectDireccion.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
 
     if (!clienteId) {
         return;
     }
 
-    // Usamos los datos que ya cargaste en loadClientesForTareaSelect
     const cliente = window.clientesData ? window.clientesData[clienteId] : null;
     console.log("Cliente encontrado en window.clientesData:", cliente);
 
@@ -3220,10 +3218,9 @@ function cargarDireccionesCliente(clienteId) {
 
     direcciones.forEach(dir => {
         const option = document.createElement("option");
-        option.value = dir.direccion;        // valor que se guarda en la tarea
-        option.textContent = dir.direccion;  // texto visible
-        option.dataset.maps = dir.maps || ""; // por si luego quieres usar el link
+        option.value = dir.direccion;
+        option.textContent = dir.direccion;
+        option.dataset.maps = dir.maps || "";
         selectDireccion.appendChild(option);
     });
 }
-  
