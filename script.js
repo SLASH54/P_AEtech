@@ -1116,30 +1116,21 @@ async function loadClientesForTareaSelect() {
 
     const clientes = await fetchData('/clientes'); 
 
-
-    
     // Almacenamos los clientes globalmente para fácil acceso a la dirección
     window.clientesData = {};
 
     clienteSelect.innerHTML = '<option value="" disabled selected>-- Seleccione Cliente --</option>';
 
-
-
-
     if (clientes && Array.isArray(clientes) && clientes.length > 0) {
         clientes.forEach(cliente => {
             const option = document.createElement('option');
-            option.value = cliente._id || cliente.id; // Usar el ID del cliente
+            option.value = cliente._id || cliente.id; 
             option.textContent = cliente.nombre; 
             clienteSelect.appendChild(option);
             
             window.clientesData[option.value] = cliente; 
         });
-
-       
-      }
-    
-    else {
+    } else {
         const errorMessage = (clientes === null) 
             ? 'No tienes permisos para ver clientes.' 
             : 'No se encontraron clientes.';
@@ -1147,6 +1138,7 @@ async function loadClientesForTareaSelect() {
         clienteSelect.innerHTML = `<option value="" disabled selected>${errorMessage}</option>`;
     }
 }
+
 
 
 
@@ -1323,6 +1315,8 @@ function setupTareaModal() {
     const closeBtn = document.getElementById('closeTareaModal');
     const form = document.getElementById('tareaForm');
 
+
+    
     // Abrir Modal
     // 🔑 CLAVE: La función openTareaModal se llama con un objeto vacío y modo 'create'.
     openBtn.onclick = () => openTareaModal({}, 'create');
@@ -1343,16 +1337,18 @@ function setupTareaModal() {
         
         // Recolección de Datos del Formulario con NOMBRES DE BACKEND
         const data = {
-            nombre: document.getElementById('tareaTitulo').value, 
-            usuarioAsignadoId: document.getElementById('tareaAsignadoA').value, 
-            actividadId: document.getElementById('tareaActividadId').value, 
-            clienteNegocioId: document.getElementById('tareaClienteId').value, 
-            sucursalId: document.getElementById('tareaSucursalId')?.value || '1', 
-            descripcion: document.getElementById('tareaDescripcion').value,
-            fechaLimite: document.getElementById('tareaFechaLimite').value,
-            estado: document.getElementById('tareaEstado').value,
-            prioridad : 'Normal'
-        };
+    nombre: document.getElementById('tareaTitulo').value, 
+    usuarioAsignadoId: document.getElementById('tareaAsignadoA').value, 
+    actividadId: document.getElementById('tareaActividadId').value, 
+    clienteNegocioId: document.getElementById('tareaClienteId').value, 
+    sucursalId: document.getElementById('tareaSucursalId')?.value || '1', 
+    descripcion: document.getElementById('tareaDescripcion').value,
+    fechaLimite: document.getElementById('tareaFechaLimite').value,
+    estado: document.getElementById('tareaEstado').value,
+    prioridad : 'Normal',
+    direccionCliente: document.getElementById('tareaDireccionCliente').value
+};
+
 
         const result = await saveOrUpdateData(endpoint, method, data);
         if (result) {
@@ -3198,44 +3194,51 @@ async function cargarDireccionesCliente(clienteId) {
     console.log("Ejecutando cargarDireccionesCliente para cliente:", clienteId);
 
     const selectDireccion = document.getElementById("tareaDireccionCliente");
-    const token = localStorage.getItem("userToken");
+    if (!selectDireccion) return;
 
+    // Mensaje mientras decide qué cargar
     selectDireccion.innerHTML = `<option value="">Cargando direcciones...</option>`;
 
-
-    if (!clienteId) return;
-
-    try {
-        const response = await fetch(`${API_BASE_URL}/clientes/${clienteId}`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-
-        if (!response.ok) {
-            selectDireccion.innerHTML = `<option value="">Error al cargar direcciones</option>`;
-            return;
-        }
-
-        const cliente = await response.json();
-        const direcciones = cliente.direcciones || [];
-
+    if (!clienteId) {
         selectDireccion.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
-
-        if (direcciones.length === 0) {
-            selectDireccion.innerHTML = `<option value="">Sin direcciones registradas</option>`;
-            return;
-        }
-
-        direcciones.forEach(dir => {
-            const option = document.createElement("option");
-            option.value = dir.direccion; // puedes poner dir.id si luego la tarea necesita ID
-            option.textContent = dir.direccion;
-            option.dataset.maps = dir.maps || null; // por si quieres abrir mapa después
-            selectDireccion.appendChild(option);
-        });
-
-    } catch (error) {
-        console.error("ERROR al cargar direcciones:", error);
-        selectDireccion.innerHTML = `<option value="">Error cargando direcciones</option>`;
+        return;
     }
+
+    // 1) Intentar usar los datos que ya tenemos en memoria
+    const cliente = window.clientesData ? window.clientesData[clienteId] : null;
+    let direcciones = cliente?.direcciones || [];
+
+    // 2) Si por algún motivo no vienen las direcciones, intentamos un fetch de respaldo
+    if (!direcciones.length) {
+        try {
+            const token = localStorage.getItem("userToken");
+            const resp = await fetch(`${API_BASE_URL}/clientes/${clienteId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (resp.ok) {
+                const cli = await resp.json();
+                direcciones = cli.direcciones || [];
+            }
+        } catch (err) {
+            console.error("Error extra al cargar direcciones:", err);
+        }
+    }
+
+    // 3) Pintar el <select>
+    selectDireccion.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
+
+    if (!direcciones.length) {
+        selectDireccion.innerHTML = `<option value="">Sin direcciones registradas</option>`;
+        return;
+    }
+
+    direcciones.forEach(dir => {
+        const option = document.createElement("option");
+        option.value = dir.direccion;            // lo que guardas en la tarea
+        option.textContent = dir.direccion;      // lo que se muestra
+        option.dataset.maps = dir.maps || "";    // por si luego quieres usar el link
+        selectDireccion.appendChild(option);
+    });
 }
 
