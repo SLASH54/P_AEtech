@@ -222,7 +222,7 @@ exports.deleteTarea = async (req, res) => {
 // ===============================
 // 6. FUNCIÓN INTERNA: CREAR NOTIFICACIÓN
 // ===============================
-async function crearNotificacion(usuarioId, mensaje, tareaCreada) {
+async function crearNotificacion(usuarioId, mensaje, ) {
     try {
         await Notificacion.create({
             usuarioId,
