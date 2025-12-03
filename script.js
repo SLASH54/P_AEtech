@@ -3195,14 +3195,13 @@ if (clienteSelectTarea) {
 }
 
 async function cargarDireccionesCliente(clienteId) {
-    console.log("➡ Ejecutando cargarDireccionesCliente para cliente:", clienteId);
+    console.log("Ejecutando cargarDireccionesCliente para cliente:", clienteId);
 
     const selectDireccion = document.getElementById("tareaDireccionCliente");
     const token = localStorage.getItem("userToken");
 
-
-    // limpiar lista
     selectDireccion.innerHTML = `<option value="">Cargando direcciones...</option>`;
+
 
     if (!clienteId) return;
 
