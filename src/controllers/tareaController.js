@@ -9,21 +9,27 @@ const { ClienteDireccion } = require('../models/relations');
 // ===============================
 // CONFIGURACIÓN DE INCLUSIÓN
 // ===============================
-const includeConfig = [
-    { model: Usuario, as: 'AsignadoA', attributes: ['id', 'nombre', 'rol'] },
-    { model: Actividad, attributes: ['id', 'nombre', 'campos_evidencia'] },
-    { model: Sucursal, attributes: ['id', 'nombre', 'direccion'] },
+    const includeConfig = [
+    {
+        model: Usuario,
+        as: 'AsignadoA',
+        attributes: ['id', 'nombre', 'fcmToken']
+    },
+    {
+        model: Actividad,
+        as: 'Actividad'
+    },
     {
         model: ClienteNegocio,
-        attributes: ['id', 'nombre', 'email', 'telefono'],
-        include: [
-            {
-                model: ClienteDireccion,
-                as: "direcciones",
-                attributes: ["id", "direccion", "maps", "estado", "municipio"]
-            }
-        ]
+        as: 'Cliente'
+    },
+    {
+        model: ClienteDireccion,
+        as: "direcciones",
+        attributes: ["id", "direccion", "maps", "estado", "municipio"]
     }
+        
+    
 ];
 
 
@@ -60,19 +66,22 @@ exports.createTarea = async (req, res) => {
         // Obtener detalles de la tarea creada
         const tareaCreada = await Tarea.findByPk(tarea.id, { include: includeConfig });
 
+
         //✅ Crear notificación automática para el usuario asignado
-        await crearNotificacion(usuarioAsignadoId, `Se te ha asignado una nueva tarea: "${nombre}".`
-        );
-        
-// ... dentro de createTarea, justo después de crear `tareaCreada`
+        // Crear notificación interna
+await crearNotificacion(
+  usuarioAsignadoId,
+  `Se te ha asignado una nueva tarea: "${nombre}".`,
+  tareaCreada
+);
+
+// También crear registro normal
 await Notificacion.create({
   usuarioId: usuarioAsignadoId,
   tareaId: tareaCreada.id,
   mensaje: `Tienes una nueva tarea: ${tareaCreada.nombre}`,
   leida: false
 });
-
-console.log("🟦 Usuario recibido para notificación:", usuario);
 
 
 // ✅ 🔔 Enviar notificación Push FCM
@@ -86,6 +95,9 @@ console.log("🟦 Usuario recibido para notificación:", usuario);
           },
           token: usuarioAsignado.fcmToken,
         };
+
+
+
         await admin.messaging().send(mensaje);
         console.log("✅ Notificación FCM enviada a:", usuarioAsignado.nombre);
       } else {

@@ -1350,10 +1350,6 @@ function setupTareaModal() {
 };
 
 
-// DEBUG 🔥🔥🔥
-    console.log("📤 DATA ENVIADA AL BACKEND:", data);
-
-
 
 
         const result = await saveOrUpdateData(endpoint, method, data);
@@ -1422,9 +1418,10 @@ function openTareaModal(tareaIdOrObject, mode) {
         }
 
         // SELECTS IMPORTANTES 🔥🔥🔥
-        document.getElementById('tareaAsignadoA').value = tarea.usuarioAsignadoId || "";
-        document.getElementById('tareaActividadId').value = tarea.actividadId || "";
-        document.getElementById('tareaClienteId').value = tarea.clienteNegocioId || "";
+       document.getElementById('tareaActividadId').value = tarea.actividadId || "";
+       document.getElementById('tareaClienteId').value = tarea.clienteNegocioId || "";
+       document.getElementById('tareaDireccionCliente').value = tarea.direccionCliente || "";
+       ;
 
         // Cargar direcciones
         cargarDireccionesCliente(tarea.clienteNegocioId);
