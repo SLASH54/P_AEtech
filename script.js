@@ -1350,6 +1350,12 @@ function setupTareaModal() {
 };
 
 
+// DEBUG 🔥🔥🔥
+    console.log("📤 DATA ENVIADA AL BACKEND:", data);
+
+
+
+
         const result = await saveOrUpdateData(endpoint, method, data);
         if (result) {
             // Se recomienda usar un modal personalizado en lugar de alert
