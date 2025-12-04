@@ -887,23 +887,29 @@ async function procesarDireccion(valor) {
 
     const esLink = valor.includes("maps.app") || valor.includes("google.com/maps");
 
+    // Si NO es link → se guarda tal cual
     if (!esLink) {
         return { direccion: valor.trim(), maps: null };
     }
 
+    // SI es link → extraer dirección en texto
     try {
         const resp = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(valor)}`);
         const data = await resp.json();
         const html = data.contents;
-        const match = html.match(/"title":"([^"]+)"/);
-        const direccion = match ? match[1] : valor;
 
-        return { direccion, maps: valor };
+        // Buscar la dirección en el HTML devuelto por Google
+        const match = html.match(/"title":"([^"]+)"/);
+        const direccionTexto = match ? match[1] : extraerDireccionGoogle(valor);
+
+        return { direccion: direccionTexto, maps: valor };
 
     } catch (e) {
-        return { direccion: valor, maps: valor };
+        // Backup: si falla, al menos guardamos texto limpio y el link
+        return { direccion: extraerDireccionGoogle(valor), maps: valor };
     }
 }
+
 
 
 // ===================================================
