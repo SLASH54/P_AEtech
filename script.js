@@ -253,6 +253,10 @@ const registerUser = async (e) => {
 const registerClient = async (e) => {
     e.preventDefault();
 
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.innerHTML = "Registrando... ⏳";
+
     const token = localStorage.getItem('userToken');
     if (!token) {
         alert("Necesitas iniciar sesión para registrar clientes.");
@@ -274,7 +278,7 @@ const registerClient = async (e) => {
 // ===========================
 // DIRECCIONES del cliente
 // ===========================
-const inputsDireccion = [...document.querySelectorAll('input[name="direccion[]"]')];
+const inputsDireccion = [...document.querySelectorAll('#direccionesContainerRegistro input[name="direccion[]"]')];
 
 const direcciones = [];
 const maps = [];
@@ -322,9 +326,6 @@ if (direcciones.length === 0) {
     };
 
     try {
-      const btn = e.target.querySelector('button[type="submit"]');
-btn.disabled = true;
-btn.innerHTML = "Registrando... ⏳";
 
         const response = await fetch(`${API_BASE_URL}/clientes`, {
             method: 'POST',
@@ -367,8 +368,8 @@ const registroClienteForm = document.getElementById('registroClienteFrom');
     }
 
 
-document.getElementById("btnAgregarDireccion").addEventListener("click", () => {
-    const cont = document.getElementById("direccionesContainer");
+document.getElementById("btnAgregarDireccionRegistro").addEventListener("click", () => {
+    const cont = document.getElementById("direccionesContainerRegistro");
 
     cont.insertAdjacentHTML("beforeend", `
         <div class="direccion-item">
