@@ -885,30 +885,56 @@ async function procesarDireccion(valor) {
         return { direccion: "", maps: null };
     }
 
-    const esLink = valor.includes("maps.app") || valor.includes("google.com/maps");
+    const limpio = valor.trim();
+    const esLink = limpio.includes("maps.app") || limpio.includes("google.com/maps");
 
-    // Si NO es link → se guarda tal cual
+    // 👉 Si NO es link de Google Maps, se guarda tal cual
     if (!esLink) {
-        return { direccion: valor.trim(), maps: null };
+        return { direccion: limpio, maps: null };
     }
 
-    // SI es link → extraer dirección en texto
+    let direccionTexto = "";
+
     try {
-        const resp = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(valor)}`);
+        const resp = await fetch(
+            `https://api.allorigins.win/get?url=${encodeURIComponent(limpio)}`
+        );
         const data = await resp.json();
-        const html = data.contents;
+        const html = data.contents || "";
 
-        // Buscar la dirección en el HTML devuelto por Google
-        const match = html.match(/"title":"([^"]+)"/);
-        const direccionTexto = match ? match[1] : extraerDireccionGoogle(valor);
+        // 1) Buscar meta og:title
+        let match = html.match(
+            /<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i
+        );
+        if (match && match[1]) {
+            direccionTexto = match[1];
+        }
 
-        return { direccion: direccionTexto, maps: valor };
+        // 2) Si no hay og:title, buscar "title":"..."
+        if (!direccionTexto) {
+            match = html.match(/"title":"([^"]+)"/);
+            if (match && match[1]) {
+                direccionTexto = match[1];
+            }
+        }
 
+        // 3) Si aún nada, usar extraerDireccionGoogle como último intento
+        if (!direccionTexto) {
+            direccionTexto = extraerDireccionGoogle(limpio);
+        }
     } catch (e) {
-        // Backup: si falla, al menos guardamos texto limpio y el link
-        return { direccion: extraerDireccionGoogle(valor), maps: valor };
+        // Si el fetch falla, intentamos al menos extraer algo del link
+        direccionTexto = extraerDireccionGoogle(limpio);
     }
+
+    // 🧹 Si por alguna razón lo que salió sigue pareciendo URL, mejor lo dejamos vacío
+    if (!direccionTexto || direccionTexto.startsWith("http")) {
+        direccionTexto = "";
+    }
+
+    return { direccion: direccionTexto, maps: limpio };
 }
+
 
 
 
