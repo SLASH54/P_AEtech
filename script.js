@@ -886,39 +886,17 @@ async function procesarDireccion(valor) {
     }
 
     const limpio = valor.trim();
-    const esLink = limpio.includes("maps.app") || limpio.includes("google.com/maps");
+    const esLink = limpio.includes("http://") || limpio.includes("https://");
 
-    if (!esLink) {
-        return { direccion: limpio, maps: null };
+    // Si es link → se guarda como direccion y maps
+    if (esLink) {
+        return { direccion: limpio, maps: limpio };
     }
 
-    try {
-        // 1) Intentar expandir el link acortado
-        const expand = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(limpio)}`);
-        const expandData = await expand.json();
-        const redirectedURL = expandData.url || limpio;
-
-        // 2) Volver a leer la URL expandida
-        const resp = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(redirectedURL)}`);
-        const data = await resp.json();
-        const html = data.contents || "";
-
-        // 3) Extraer dirección desde <title>
-        let match = html.match(/<title>([^<]+)<\/title>/i);
-        if (match && match[1]) {
-            let clean = match[1]
-                .replace("- Google Maps", "")
-                .replace("·", "")
-                .trim();
-            return { direccion: clean, maps: limpio };
-        }
-
-        return { direccion: "", maps: limpio };
-
-    } catch (e) {
-        return { direccion: "", maps: limpio };
-    }
+    // Si es texto → se guarda solo como dirección
+    return { direccion: limpio, maps: null };
 }
+
 
 
 
