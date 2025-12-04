@@ -4,28 +4,51 @@ const router = express.Router();
 const { protect } = require('../middleware/authMiddleware');
 const notificacionController = require('../controllers/notificacionController');
 
+// 🟡 Obtener solo notificaciones NO leídas del usuario logueado
+// GET /api/notificaciones
+router.get(
+  '/',
+  protect,
+  notificacionController.getNotificacionesNoLeidas
+);
 
+// 🟢 (Opcional) Obtener TODAS las notificaciones del usuario
+// GET /api/notificaciones/all
+router.get(
+  '/all',
+  protect,
+  notificacionController.getNotificacionesUsuario
+);
 
-// 🟢 Marcar como leídas las notificaciones de una tarea completada o eliminada
-router.put('/mark-read-by-tarea/:tareaId', protect, notificacionController.markReadByTarea);
+// 🟢 Marcar una notificación específica como leída
+// PUT /api/notificaciones/:id/leida
+router.put(
+  '/:id/leida',
+  protect,
+  notificacionController.marcarLeida
+);
 
-// 🟡 Obtener solo notificaciones no leídas
-router.get('/', protect, notificacionController.getNotificacionesNoLeidas);
+// 🟢 Marcar como leídas las notificaciones de una tarea
+// PUT /api/notificaciones/mark-read-by-tarea/:tareaId
+router.put(
+  '/mark-read-by-tarea/:tareaId',
+  protect,
+  notificacionController.markReadByTarea
+);
 
-router.delete('/clean-orphans', protect, notificacionController.cleanOrphanNotificaciones);
+// 🟢 Eliminar una notificación
+// DELETE /api/notificaciones/:id
+router.delete(
+  '/:id',
+  protect,
+  notificacionController.eliminarNotificacion
+);
 
-
-
-// 🔹 Obtener notificaciones del usuario logueado
-router.get('/', protect, notificacionController.getNotificacionesUsuario);
-
-// 🔹 Marcar una notificación como leída
-router.put('/:id/leida', protect, notificacionController.marcarLeida);
-
-router.put('/mark-read-by-tarea/:tareaId', protect, notificacionController.markReadByTarea);
-
-
-// 🔹 Eliminar notificación
-router.delete('/:id', protect, notificacionController.eliminarNotificacion);
+// 🧹 Limpieza (sigue deshabilitada)
+router.delete(
+  '/clean-orphans',
+  protect,
+  notificacionController.cleanOrphanNotificaciones
+);
 
 module.exports = router;
