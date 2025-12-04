@@ -39,6 +39,18 @@ const API_BASE_URL = 'https://p-aetech.onrender.com/api'; // Esto lo reemplazar�
 /**
  * Verifica si hay un token de sesión guardado y lo valida si es necesario.
  */
+
+function extraerDireccionGoogle(url) {
+    try {
+        const decoded = decodeURIComponent(url);
+        const match = decoded.match(/!2s([^!]+)/);
+        return match ? match[1].replace(/\+/g, " ") : url;
+    } catch {
+        return url;
+    }
+}
+
+
 const checkSession = async () => {
     const token = localStorage.getItem('userToken');
     const currentPage = window.location.pathname;
@@ -259,23 +271,30 @@ const registerClient = async (e) => {
 
     // Múltiples direcciones dinámicas
     // Filtrar inputs vacíos reales (que no contienen texto ni link)
-const inputs = [...document.querySelectorAll('input[name="direccion[]"]')];
+// ===========================
+// DIRECCIONES del cliente
+// ===========================
+const inputsDireccion = [...document.querySelectorAll('input[name="direccion[]"]')];
 
-const direccionesValidas = inputs.filter(input => input.value.trim() !== "");
-
-// Si después de filtrar no queda ninguna → error
-if (direccionesValidas.length === 0) {
-    alert("Debes ingresar al menos una dirección o un link de Google Maps.");
-    return;
-}
-  const direcciones = [];
+const direcciones = [];
 const maps = [];
 
-for (let input of direccionesValidas) {
-    const procesada = await procesarDireccion(input.value);
-    direcciones.push(procesada.direccion);
-    maps.push(procesada.maps);
+for (let input of inputsDireccion) {
+    const valor = input.value.trim();
+    if (!valor) continue;
+
+    // procesar texto o link Google
+    const p = await procesarDireccion(valor);
+
+    direcciones.push(p.direccion);
+    maps.push(p.maps);
 }
+
+if (direcciones.length === 0) {
+    alert("Debes ingresar al menos una dirección.");
+    return;
+}
+
 
 
 //    const maps = [...document.querySelectorAll('input[name="maps[]"]')].map(i => i.value || null);
@@ -303,6 +322,10 @@ for (let input of direccionesValidas) {
     };
 
     try {
+      const btn = e.target.querySelector('button[type="submit"]');
+btn.disabled = true;
+btn.innerHTML = "Registrando... ⏳";
+
         const response = await fetch(`${API_BASE_URL}/clientes`, {
             method: 'POST',
             headers: {
@@ -328,6 +351,8 @@ for (let input of direccionesValidas) {
                 <button type="button" class="btn-remove-dir" onclick="this.parentElement.remove()">Eliminar</button>
             </div>
         `;
+        btn.disabled = false;
+btn.innerHTML = "Registrar Cliente";
 
     } catch (err) {
         console.error(err);
@@ -345,20 +370,15 @@ const registroClienteForm = document.getElementById('registroClienteFrom');
 document.getElementById("btnAgregarDireccion").addEventListener("click", () => {
     const cont = document.getElementById("direccionesContainer");
 
-    const div = document.createElement("div");
-    div.classList.add("direccion-item");
+    cont.insertAdjacentHTML("beforeend", `
+        <div class="direccion-item">
+            <input type="text" name="direccion[]" placeholder="Ej. Calle 10 Sur #123 o link Google Maps">
 
-    div.innerHTML = `
-        <input type="text" name="direccion[]" placeholder="Ej. Calle, número o link Maps" required>
-
-        <input type="url" name="maps[]" placeholder="Link Google Maps (opcional)">
-
-        <button type="button" class="btn-remove-dir" onclick="this.parentElement.remove()">
-            Eliminar
-        </button>
-    `;
-
-    cont.appendChild(div);
+            <button type="button" class="btn-remove-dir" onclick="this.parentElement.remove()">
+                Eliminar
+            </button>
+        </div>
+    `);
 });
 
 
