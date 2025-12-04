@@ -2697,24 +2697,38 @@ if (tarea && tarea.estado !== 'Completada') {
 const token = localStorage.getItem('userToken');
 
 async function cargarNotificaciones() {
-  const token = localStorage.getItem('userToken');
-  if (!token) return;
-
   try {
-    const resp = await fetch(`${API_BASE_URL}/notificaciones`, {
-      headers: { Authorization: `Bearer ${token}` },
+    const jwt = localStorage.getItem('userToken');
+    const res = await fetch(`${API_BASE_URL}/notificaciones`, {
+      headers: { Authorization: `Bearer ${jwt}` }
+    });
+    const data = await res.json();
+
+    const num = document.getElementById('numNotificaciones');
+    const lista = document.getElementById('listaNotificaciones');
+
+    // Filtrar solo las notificaciones activas
+    const activas = data.filter(n => !n.leida);
+    num.textContent = activas.length;
+    lista.innerHTML = '';
+
+    activas.forEach(n => {
+      const li = document.createElement('li');
+      li.textContent = n.mensaje;
+      li.style.fontWeight = 'bold';
+      lista.appendChild(li);
     });
 
-    if (!resp.ok) throw new Error('Error al cargar notificaciones');
+    // 🔄 Limpieza periódica (cada carga)
+    await fetch(`${API_BASE_URL}/notificaciones/clean-orphans`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${jwt}` }
+    });
 
-    const notifs = await resp.json();
-    // aquí ya usas tu lógica para pintar el panel
-    renderNotificaciones(notifs);
   } catch (err) {
     console.error('Error al cargar notificaciones:', err);
   }
 }
-
 
 
 
