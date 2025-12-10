@@ -713,9 +713,10 @@ function mostrarContenido(seccionId) {
     }
 
      // Inicializar sección de Levantamientos
-    if (seccionId === 'Levantamientos') {
-        initLevantamientos();
-    }
+   if (seccionId === 'Levantamientos') {
+    initLevantamientos();  // <-- sin esto, nada funciona
+}
+
 
      // Ocultar el menú después de la selección en móvil
      const menu = document.getElementById('main-menu');
@@ -3124,10 +3125,9 @@ function toggleDescripcion(id) {
 
 
 
-
-/* ================================
-   LEVANTAMIENTOS — CLIENTES
-================================ */
+/* ============================================
+   LEVANTAMIENTOS — CARGAR CLIENTES
+============================================ */
 
 async function loadClientesForLevantamientos() {
     const clienteSelect = document.getElementById("lev-clienteSelect");
@@ -3135,7 +3135,7 @@ async function loadClientesForLevantamientos() {
 
     clienteSelect.innerHTML = `<option value="">Cargando clientes...</option>`;
 
-    const clientes = await fetchData('/clientes');  // Igual que en tareas
+    const clientes = await fetchData('/clientes'); // Igual que tareas
 
     clienteSelect.innerHTML = `<option value="">Selecciona un cliente</option>`;
 
@@ -3152,9 +3152,10 @@ async function loadClientesForLevantamientos() {
 }
 
 
-/* ================================
+
+/* ============================================
    LEVANTAMIENTOS — NECESIDADES
-================================ */
+============================================ */
 
 function agregarNecesidadUI() {
     const cont = document.getElementById("lev-necesidadesContainer");
@@ -3171,57 +3172,60 @@ function agregarNecesidadUI() {
         <textarea class="desc lev-input" placeholder="Describe la necesidad..."></textarea>
 
         <label>Foto(s)</label>
-        <input type="file" accept="image/*" capture="camera" 
+        <input type="file" accept="image/*" capture="camera"
                class="foto" data-id="${id}" multiple>
 
         <div id="preview-${id}" class="preview"></div>
 
-        <button type="button" class="lev-btn-sec eliminar-necesidad">
-            Eliminar necesidad
-        </button>
+        <button type="button" class="lev-btn-sec eliminar-necesidad">Eliminar necesidad</button>
     `;
 
     cont.appendChild(div);
 }
 
 
-/* ================================
-   LEVANTAMIENTOS — MATERIALES
-================================ */
 
-const levInputMaterial = document.getElementById("lev-materialInput");
-const levBtnMaterial = document.getElementById("lev-agregarMaterialBtn");
-const levListaMateriales = document.getElementById("lev-materialesLista");
-let levMaterialesList = [];
+/* ============================================
+   LEVANTAMIENTOS — MATERIALES (LISTA FUNCIONAL)
+============================================ */
 
-if (levBtnMaterial) {
-    levBtnMaterial.addEventListener("click", () => {
-        const texto = levInputMaterial.value.trim();
+function setupMaterialesLevantamientos() {
+    const input = document.getElementById("lev-materialInput");
+    const btn = document.getElementById("lev-agregarMaterialBtn");
+    const lista = document.getElementById("lev-materialesLista");
+
+    if (!input || !btn || !lista) {
+        console.warn("Materiales no listos todavía");
+        return;
+    }
+
+    btn.addEventListener("click", () => {
+        const texto = input.value.trim();
         if (!texto) return;
-
-        levMaterialesList.push(texto);
 
         const li = document.createElement("li");
         li.className = "lev-material-item";
+
         li.innerHTML = `
             <span>${texto}</span>
             <button class="lev-remove-btn">❌</button>
         `;
 
-        levListaMateriales.appendChild(li);
-        levInputMaterial.value = "";
+        lista.appendChild(li);
+        input.value = "";
 
+        // eliminar un material
         li.querySelector(".lev-remove-btn").addEventListener("click", () => {
             li.remove();
-            levMaterialesList = levMaterialesList.filter(item => item !== texto);
         });
     });
 }
 
 
-/* ================================
-   LEVANTAMIENTOS — GUARDAR
-================================ */
+
+/* ============================================
+   LEVANTAMIENTOS — GUARDAR FORMULARIO
+============================================ */
 
 async function guardarLevantamiento() {
     const clienteId = document.getElementById("lev-clienteSelect").value;
@@ -3245,7 +3249,7 @@ async function guardarLevantamiento() {
     let index = 0;
 
     document.querySelectorAll(".necesidad-item").forEach(div => {
-        const desc = div.querySelector(".desc").value;
+        const desc = div.querySelector(".desc").value.trim();
         const inputFotos = div.querySelector(".foto");
         const files = inputFotos?.files || [];
 
@@ -3275,27 +3279,30 @@ async function guardarLevantamiento() {
 
         if (!res.ok) throw new Error("Error al guardar levantamiento");
 
-        alert("Levantamiento guardado correctamente");
+        alert("Levantamiento guardado correctamente ✔");
 
     } catch (err) {
         console.error(err);
-        alert("Ocurrió un error al guardar el levantamiento");
+        alert("Error al guardar levantamiento");
     }
 }
 
 
-/* ================================
-   LEVANTAMIENTOS — INIT
-================================ */
+
+/* ============================================
+   LEVANTAMIENTOS — INIT (SE ACTIVA AL ABRIR)
+============================================ */
 
 function initLevantamientos() {
     loadClientesForLevantamientos();
+    setupMaterialesLevantamientos();
 
     const btnNecesidad = document.getElementById("agregarNecesidadBtn");
     if (btnNecesidad) {
         btnNecesidad.addEventListener("click", agregarNecesidadUI);
     }
 
+    // PREVIEW de fotos
     document.addEventListener("change", function (e) {
         if (!e.target.classList.contains("foto")) return;
 
@@ -3305,7 +3312,9 @@ function initLevantamientos() {
         preview.innerHTML = "";
 
         [...e.target.files].forEach(file => {
-            preview.innerHTML += `<img src="${URL.createObjectURL(file)}" class="thumb">`;
+            preview.innerHTML += `
+                <img src="${URL.createObjectURL(file)}" class="thumb">
+            `;
         });
     });
 
@@ -3314,6 +3323,21 @@ function initLevantamientos() {
         btnGuardar.addEventListener("click", guardarLevantamiento);
     }
 }
+
+
+
+/* ============================================
+   ACTIVAR SECCIÓN LEVANTAMIENTOS
+============================================ */
+
+/// MUY IMPORTANTE ///
+//// AGREGA ESTO EN mostrarContenido() ////
+
+// if (seccionId === "Levantamientos") {
+//     initLevantamientos();
+// }
+
+
 
 
 
