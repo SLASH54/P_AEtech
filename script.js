@@ -3059,19 +3059,19 @@ function cambiarFondoSegunHora() {
         return;
     }
 
-    card.classList.remove("fondo-manana", "fondo-tarde", "fondo-noche");
+    card.classList.remove("tablero-manana", "tablero-tarde", "tablero-noche");
     console.log("Clases eliminadas");
 
     if (hora >= 6 && hora < 12) {
-        card.classList.add("fondo-manana");
+        card.classList.add("tablero-manana");
         console.log("Clase aplicada: fondo-manana");
     }
     else if (hora >= 12 && hora < 18) {
-        card.classList.add("fondo-tarde");
+        card.classList.add("tablero-tarde");
         console.log("Clase aplicada: fondo-tarde");
     }
     else {
-        card.classList.add("fondo-noche");
+        card.classList.add("tablero-noche");
         console.log("Clase aplicada: fondo-noche");
     }
 }
