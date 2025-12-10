@@ -3196,7 +3196,7 @@ function cargarDireccionesCliente(clienteId) {
 
 
 
-
+//cargar tabla de levantamientos
 
 async function cargarLevantamientosTabla() {
     const token = localStorage.getItem("userToken");
