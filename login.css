@@ -3553,3 +3553,15 @@ h3 {
     font-size: 16px;
 }
 
+
+.tabla-aetech th, 
+.tabla-aetech td {
+    text-align: left;
+    padding: 12px;
+    font-size: 14px;
+}
+
+.acciones button {
+    margin-right: 6px;
+}
+
