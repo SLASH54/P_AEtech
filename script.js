@@ -1631,7 +1631,7 @@ function llenarSelectActividades(tareas) {
 
 
 // EVENTOS DE FILTRO
-document.getElementById('filterEstado').addEventListener('change', filtrarTareas);
+//document.getElementById('filterEstado').addEventListener('change', filtrarTareas);
 document.getElementById('filterCliente').addEventListener('change', filtrarTareas);
 document.getElementById('filterActividad').addEventListener('change', filtrarTareas);
 
