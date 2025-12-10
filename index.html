@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenidos a AE tech</title>
+    <link rel="stylesheet" href="login.css">
+    <link rel="icon" href="img/logoAEtech.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* Los estilos CSS se encuentran en el archivo login.css */
+    </style>
+</head>
+<body>
+    <section id="Usuarios" class="main-content show">
+    <div class="form-container">
+        <div class="logo-container">
+            <img src="img/logoAEtech.png" alt="imgae.jpg">
+        </div>
+
+        <!-- Pantalla de Bienvenida -->
+        <div id="welcome-screen">
+            <h2>Bienvenido a AEtech</h2>
+            <button id="login-btn">Iniciar Sesión</button>
+            <button id="register-btn">Registrarse</button>
+        </div>
+
+        <!-- Formulario de Registro (Oculto inicialmente) -->
+        <form id="registroForm" style="display: none;">
+            <div class="form-group">
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" name="nombre" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" name="password" required>
+                
+            </div>
+
+            <button type="submit">Registrar</button>
+            <button type="button" class="back-btn">Volver</button> <!-- Botón de Volver -->
+        </form>
+
+        <!-- Formulario de Inicio de Sesión (Añádelo aquí, oculto inicialmente) -->
+        <form id="loginForm" style="display: none;">
+    <div class="form-group">
+        <label for="email_input">Email:</label>
+        <input type="text" id="email_input" name="username" required>
+    </div>
+    <div class="form-group">
+        <label for="password">Contraseña:</label>
+        <input type="password" id="password_input" name="password" required>
+       
+    </div>
+    <button type="submit">Iniciar Sesión</button> 
+    <div class="form-group">
+        
+      <a href="#">Verifica tus datos </a>
+    </div>
+    <button type="button" class="back-btn">Volver</button>
+</form>
+
+    </div>
+
+    <script>
+
+        // Función para mostrar la pantalla de bienvenida y ocultar los formularios
+                function showWelcomeScreen() {
+                    welcomeScreen.style.display = 'block';
+                    loginForm.style.display = 'none';
+                    registroForm.style.display = 'none';
+                }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginBtn = document.getElementById('login-btn');
+            const registerBtn = document.getElementById('register-btn');
+            const welcomeScreen = document.getElementById('welcome-screen');    
+            const registroForm = document.getElementById('registroForm'); // << ESTE
+            const loginForm = document.getElementById('loginForm');     // << Y ESTE
+
+            checkSession();
+            loginForm.addEventListener('submit', loginUser); 
+            registroForm.addEventListener('submit', registerUser); 
+
+            // Mostrar/ocultar contraseña
+        document.querySelectorAll('.toggle-password').forEach(icon => {
+          icon.addEventListener('click', () => {
+            const targetId = icon.getAttribute('data-target');
+            const passwordInput = document.getElementById(targetId);
+            if (passwordInput.type === 'password') {
+              passwordInput.type = 'text';
+              icon.classList.remove('fa-eye');
+              icon.classList.add('fa-eye-slash');
+            } else {
+              passwordInput.type = 'password';
+              icon.classList.remove('fa-eye-slash');
+              icon.classList.add('fa-eye');
+            }
+          });
+        });
+
+            // Función para mostrar la pantalla de bienvenida y ocultar los formularios
+            function showWelcomeScreen() {
+                welcomeScreen.style.display = 'block';
+                loginForm.style.display = 'none';
+                registroForm.style.display = 'none';
+            }
+
+            loginBtn.addEventListener('click', function() {
+                welcomeScreen.style.display = 'none';
+                loginForm.style.display = 'block';
+            });
+
+            registerBtn.addEventListener('click', function() {
+                welcomeScreen.style.display = 'none';
+                registroForm.style.display = 'block';
+            });
+
+            // Agregar event listeners a los botones de "Volver"
+            const backButtons = document.querySelectorAll('.back-btn');
+            backButtons.forEach(button => {
+                button.addEventListener('click', showWelcomeScreen);
+            });
+        });
+    </script>
+    <script src="script.js"></script>
+</section>
+</body>
+</html>

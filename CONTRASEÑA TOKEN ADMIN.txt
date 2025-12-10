@@ -1,0 +1,23 @@
+
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sIjoiQWRtaW4iLCJpYXQiOjE3NTk4NjkxMzMsImV4cCI6MTc1OTk1NTUzM30.mSCtFbwznEsZGL9_RgBlkN9N9ry2CfsLdkL8-C7F47s
+
+{
+  "nombre": "admin",
+  "email": "aetech@install.mx",
+  "password": "aetech2024"
+}
+
+{
+    "nombre": "GPS",
+    "descripcion": "Instalación de dispositivo GPS en unidad móvil.",
+    "campos_evidencia": [
+      {"nombre": "Confirmacion de la ubicacion", "tipo": "geo", "requerido": true},
+        {"nombre": "Foto antes de instalación", "tipo": "foto", "requerido": true},
+        {"nombre": "IMEI o ID", "tipo": "texto", "requerido": true},
+        {"nombre": "SIM Datos", "tipo": "texto", "requerido": true},
+        {"nombre": "Ubicación GPS", "tipo": "geo", "requerido": true},
+        {"nombre": "Instalación antenas GPS GSM", "tipo": "foto", "requerido": true},
+        {"nombre": "Conexiones Electricas", "tipo": "foto", "requerido": true},
+        {"nombre": "Prueba GPS", "tipo": "geo", "requerido": true}
+        ]
+}

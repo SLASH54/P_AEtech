@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AETech App</title>
+
+    <link rel="stylesheet" href="login.css">
+    <link rel="icon" href="img/logoAEtech.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* Los estilos CSS se encuentran en el archivo login.css */
+        
+    </style>
+</head>
+<body>
+
+    <!-- 🔹 Pantalla de carga -->
+<div id="loader" class="loader-overlay" style="display: none;">
+  <div class="loader-container">
+    <div class="spinner"></div>
+    <p>Procesando, por favor espera...</p>
+  </div>
+</div>
+
+
+    <div class="container">
+        <header>
+            <img src="img/logoAEtech.png" width="80px" height="80px">
+                         <section class="login-section">
+    <div class="login-menu">
+    
+    <!-- 🔔 BOTÓN DE NOTIFICACIONES -->
+    <div class="notificaciones-container">
+        <button id="btnNotificaciones" class="notif-btn" aria-label="Notificaciones">
+            🔔 <span id="numNotificaciones">0</span>
+        </button>
+        <ul id="listaNotificaciones" class="notificaciones-lista"></ul>
+    </div>
+
+    <!-- 👤 BOTÓN DE PERFIL -->
+    <button id="login-button" aria-label="Perfil de usuario">
+        <i class="fas fa-user-circle"></i>
+    </button>
+
+    <div class="dropdown-menu" id="dropdown-menu">
+        <!-- Información del perfil -->
+        <div class="profile-info" id="profile-info">
+            <img src="img/perfil.jpg" alt="perfil.jpg" class="profile-image">
+            <p class="profile-name">Nombre del Usuario</p>
+            <p class="profile-email">usuario@email.com</p>
+        </div>
+        <!-- Botón de cerrar sesión -->
+        <button id="logout-button" onclick="logout('logout-button')">Cerrar Sesión</button>
+    </div>
+</div>
+
+
+    <script>
+        const loginButton = document.getElementById('login-button');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        const profileInfo = document.getElementById('profile-info');
+        const logoutButton = document.getElementById('logout-button');
+
+        // Oculta el menú desplegable al principio
+        dropdownMenu.style.display = 'none';
+
+        loginButton.addEventListener('click', (event) => {
+            event.stopPropagation(); // Evita que el clic se propague
+            // Muestra u oculta el menú al hacer clic en el icono
+            if (dropdownMenu.style.display === 'none') {
+                dropdownMenu.style.display = 'block';
+            } else {
+                dropdownMenu.style.display = 'none';
+            }
+        });
+
+        // Cierra el menú si se hace clic fuera de él
+        document.addEventListener('click', (event) => {
+            if (!loginButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                dropdownMenu.style.display = 'none';
+            }
+        });
+
+        
+
+        // Función para actualizar la información del perfil (ejemplo)
+        function updateProfileInfo(name, email, image) {
+            document.querySelector('.profile-name').textContent = name;
+            document.querySelector('.profile-email').textContent = email;
+            document.querySelector('.profile-image').src = image;
+        }
+
+        
+    </script>
+</section>
+
+
+            
+        </header>
+
+    <nav class="sidebar-nav">
+        <button class="menu-toggle" onclick="toggleMenu()">
+            &#9776; 
+        </button>
+
+        <ul id="main-menu">
+            <li><button onclick="mostrarContenido('Tablero')">Tablero</button></li>
+            <li><button onclick="mostrarContenido('organizador-tareas')">Tareas</button></li>
+            <li><button onclick="mostrarContenido('Levantamientos')">Levantamientos</button></li>
+           
+            <li><button onclick="mostrarContenido('Sucursales')">Sucursales</button></li>
+           
+            <li><button onclick="mostrarContenido('Administracion')">Personal</button></li>
+            <li><button onclick="mostrarContenido('Clientes')">Clientes</button></li>
+        </ul>
+    </nav>
+        <main>
+
+
+
+            
+    <section id="Evidencia" class="main-content ">
+                
+    </section>
+
+
+
+            <section id="Tablero" class="main-content">
+
+
+                <div class="quick-actions">
+    <div class="qa-card" onclick="mostrarContenido('organizador-tareas')">
+        📝 <span>Tareas</span>
+    </div>
+
+    <div class="qa-card" onclick="mostrarContenido('Clientes')">
+        👥 <span>Clientes</span>
+    </div>
+
+    <div class="qa-card" onclick="mostrarContenido('Levantamientos')">
+        📋 <span>Levantamientos</span>
+    </div>
+
+    
+
+    <div class="qa-card" onclick="mostrarContenido('Administracion')">
+        👤 <span>Personal</span>
+    </div>
+</div>
+
+
+
+             
+  <div class="tablero-container">
+   <div class="top-bar">
+    <div class="social-icons">
+     <a href="https://wa.me/2212724031" target="_blank" dm_dont_rewrite_url="true" aria-label="whatsapp" onclick="dm_gaq_push_event &amp; dm_gaq_push_event('socialLink', 'click', 'Whatsapp')"> <span class="dmSocialWhatsapp dm-social-icons-whatsapp oneIcon socialHubIcon style6" aria-hidden="true" data-hover-effect="float" class="social-icon"><img src="img/whatsapp.jpg" alt="whatsapp.jpg"></a></span>
+     <a href="https://facebook.com/AETech18" target="_blank" dm_dont_rewrite_url="true" aria-label="facebook" onclick="dm_gaq_push_event &amp;  dm_gaq_push_event('socialLink', 'click', 'Facebook')"> <span class="dmSocialFacebook dm-social-icons-facebook oneIcon socialHubIcon style6" aria-hidden="true" data-hover-effect="float" class="social-icon"><img src="img/facebook.jpg" alt="facebook.jpg"></a></span>
+     <a href="http://instagram.com/aetech18" target="_blank" dm_dont_rewrite_url="true" aria-label="instagram" onclick="dm_gaq_push_event &amp; dm_gaq_push_event('socialLink', 'click', 'Instagram')"> <span class="dmSocialInstagram dm-social-icons-instagram oneIcon socialHubIcon style6" aria-hidden="true" data-hover-effect="float" class="social-icon"><img src="img/instagram.jpg" alt="instagram.jpg"></a></span>
+     <a href="mailto:contacto@aetech.com.mx" dm_dont_rewrite_url="true" aria-label="email" onclick="dm_gaq_push_event &amp; dm_gaq_push_event('socialLink', 'click', 'Email')" target="_blank"> <span class="dmSocialEmail dm-social-icons-email oneIcon socialHubIcon style6" aria-hidden="true" data-hover-effect="float" class="social-icon"><img src="img/gmail.jpg" alt="gmail.jpg"></a></span>
+    </div>
+    
+    
+     <img src="img/imgae.jpg" alt="imgae.jpg">
+     
+
+
+    <div class="contact-info">
+     <i class="fas fa-phone"></i> <a class="u_1788509405 default dmDefaultGradient align-center dmCall voipReplacement dmWidget dmNoMark dmWwr" contenteditable="false" onclick=";return dm_gaq_push_event('ClickToCall', 'Call',null,'4f1868a89c9c49a1800af08875200556', this);" id="1788509405" dmle_extension="clicktocall" data-element-type="clicktocall" data-buttonstyle="FLAT_ROUND_ICON" wr="true" data-display-type="block" localization_key_description="googleTranslate.HLc6QEJ.39" icon="true" surround="true" description="Llama ahora" adwords="" icon-name="icon-phone" phone="222 143 4363" text="" image="" target="_blank"> <span class="iconBg" aria-hidden="true"></a> 
+     <a class="default dmDefaultGradient align-center dmCall voipReplacement dmWidget dmNoMark dmWwr" href="tel:222 143 4363" contenteditable="false" onclick=";return dm_gaq_push_event('ClickToCall', 'Call',null,'4f1868a89c9c49a1800af08875200556', this);" id="1302615267" dmle_extension="clicktocall" data-element-type="clicktocall" wr="true" data-display-type="block" localization_key_description="googleTranslate.oJ4SyII.32" icon="true" surround="true" description="Llamar" adwords="" icon-name="icon-phone" phone="222 143 4363" text="" image="" target="_blank"> <span class="iconBg" aria-hidden="true"> <span class="icon hasFontIcon icon-phone"></span> 
+        </span> 
+        <span class="text">Llama ahora</span> 
+        <span class="text phoneNumHolder">222 143 4363</span>
+     </a>
+    </div>
+   </div>
+   
+   
+  <section id="TableroAetech" class="tablero-aetech">
+  <div class="dashboard-card">
+    <h2>👋 ¡Hola, <span id="nombreUsuario"></span>!</h2>
+    <p id="fraseDia">"La tecnología es mejor cuando une a las personas."</p>
+    <div class="info-extra">
+      <p>🕒 <span id="horaActual"></span></p>
+      <p>📅 <span id="fechaActual"></span></p>
+      <p>🌤️ <span id="climaActual">Cargando clima...</span></p>
+    </div>
+  </div>
+</section>
+
+ 
+
+
+
+   <div class="main-content-area">
+    <img id="logo-animado" src="img/logoNavidad.png" alt="logo.jpg" class="logo.jpg">
+
+    <div class="viva-mexico">
+     <span class="viva">Feliz</span>
+     <span class="mexico">Navidad</span>
+    </div>
+
+   
+
+   <div class="bottom-bar">
+    <p>© 2025 AE Tech. Todos los derechos reservados.</p>
+   </div>
+  </div>
+     
+            </section>
+
+
+         <!-- NUEVO CONTENEDOR ORGANIZADOR DE TAREAS -->
+<!-- Sección de Tareas -->
+<section id="organizador-tareas" class="main-content">
+    <div class="p-8">
+        <h2 class="text-3xl font-bold mb-6 text-gray-800 border-b pb-2">Organizador de Tareas</h2>
+
+        <div class="flex justify-between items-center mb-6">
+            <p class="text-gray-600">Gestión centralizada de las tareas asignadas y sus estados.</p>
+            <button id="openAddTaskModal" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 transform hover:scale-105">
+                + Nueva Tarea
+            </button>
+        </div>
+
+        <!-- Aquí se moverá el contenedor de la tabla -->
+
+    </div>
+
+    <div id="filtrosTareas"
+     style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px; width:100%;">
+    
+    <select id="filterCliente" class="form-control">
+        <option value="">Todos los clientes</option>
+    </select>
+
+    <select id="filterActividad" class="form-control">
+        <option value="">Todas las actividades</option>
+    </select>
+
+
+    <button id="btnLimpiarFiltros"
+        style="padding:6px 14px; border-radius:6px; background:#850f0f;
+               border:1px solid #850f0f; cursor:pointer; height:32px;">
+        Limpiar
+    </button>
+</div>
+
+
+
+
+    <!-- Contenedor de la tabla (MOVIDO AQUÍ) -->
+    <div class="bg-white shadow-xl rounded-xl overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200" id="tareasTable">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Título</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asignado a</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Direccion</th>
+                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Límite</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200" id="tareasBody">
+                <!-- Aquí se cargarán las tareas con JavaScript -->
+                <tr>
+                    <td colspan="6" class="p-4 text-center text-gray-500">Cargando tareas...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- MODAL para Agregar/Editar Tarea -->
+    <div id="tareaModal"
+        class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6">
+            <h3 id="tareaModalTitle" class="text-2xl font-semibold mb-4 border-b pb-2">Crear Nueva Tarea</h3>
+            <form id="tareaForm">
+                <input type="hidden" id="tareaId">
+
+                <div class="mb-4">
+                    <label for="tareaTitulo" class="block text-sm font-medium text-gray-700">Título</label>
+                    <input type="text" id="tareaTitulo" name="titulo" required
+                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        
+                </div>
+
+                <div class="mb-4">
+                    <label for="tareaDescripcion" class="block text-sm font-medium text-gray-700">Descripción</label>
+                    <textarea id="tareaDescripcion" name="descripcion" required rows="3"
+                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label for="tareaAsignadoA" class="block text-sm font-medium text-gray-700">Asignar a
+                            Usuario</label>
+
+                        <select id="tareaAsignadoA" name="asignadoA" required
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="" disabled selected>-- Seleccione Usuario --</option>
+                            <!-- Opciones cargadas dinámicamente -->
+                        </select>
+                    </div>
+                    <div>
+                        <label for="tareaClienteId" class="block text-sm font-medium text-gray-700">Cliente
+                            Asociado</label>
+                        <select id="tareaClienteId" name="clienteId" required
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="" disabled selected>-- Seleccione Cliente --</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="tareaFechaLimite" class="block text-sm font-medium text-gray-700">Fecha
+                            Límite</label>
+                        <input type="date" id="tareaFechaLimite" name="fechaLimite" required
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                </div>
+
+                <div class="mb-4">
+    <label for="tareaDireccionCliente" class="block text-sm font-medium text-gray-700">
+        Dirección del Cliente
+    </label>
+
+    <select id="tareaDireccionCliente" name="direccionCliente"
+        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+        <option value="">-- Seleccione Dirección --</option>
+    </select>
+</div>
+
+
+                <div class="mb-4">
+                    <label for="tareaActividadId" class="block text-sm font-medium text-gray-700">Tipo de
+                        Actividad</label>
+                    <select id="tareaActividadId" name="actividad" required
+                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="" disabled selected>-- Seleccione Actividad --</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label for="tareaEstado" class="block text-sm font-medium text-gray-700">Estado</label>
+                    <select id="tareaEstado" name="estado" required
+                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="En Progreso">En Progreso</option>
+                        <option value="Completada">Completada</option>
+                        <option value="Bloqueada">Bloqueada</option>
+                    </select>
+                </div>
+
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button type="button" id="closeTareaModal"
+                        class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-lg transition duration-300">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-300">
+                        Guardar Tarea
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+            
+     
+
+
+
+
+
+
+
+
+            <section id="Sucursales" class="main-content">
+    <h2>Sucursales</h2>
+    <div class="contenedor-tarjetas">
+
+        <!-- Tarjetas de Sucursales  -->
+        <div class="tarjeta">
+            <div class="map-container">
+                <h3>Sucursal Atlixco</h3>
+                <p>Calzada Oaxaca #3112, segundo piso, Francisco I. Madero, Atlixco, Puebla</p>
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3771.471895372691!2d-98.2224834!3d19.042978899999998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x85cfc7032f95847f%3A0x14368cb67647d37!2sAE%20TECH!5e0!3m2!1ses!2smx!4v1759351519212!5m2!1ses!2smx"
+                    width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+        </div>
+
+        <div class="tarjeta">
+            <div class="map-container">
+                <h3>Punto de Venta Atlixco</h3>
+                <p>Calle 15 Poniente #107, Alvaro Obregon, Atlixco, Puebla</p>
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3774.9294048160427!2d-98.43886917431595!3d18.89021274801054!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x85cfb3b2f3c72c4b%3A0x7997679f2d024d6e!2sAE%20TECH!5e0!3m2!1ses!2smx!4v1759349314481!5m2!1ses!2smx"
+                    width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+        </div>
+
+        <div class="tarjeta">
+            <div class="map-container">
+                <h3>Sucursal Puebla</h3>
+                <p>Calle 25 Sur #2710, Benito Juarez, Puebla, Puebla</p>
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3774.670411065148!2d-98.43769879999999!3d18.9016973!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x85cfb47f9d4aa489%3A0xecab6b4b061b7393!2sAE%20TECH!5e0!3m2!1ses!2smx!4v1759350362434!5m2!1ses!2smx"
+                    width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+        </div>
+</section>
+</section>
+
+
+<section id="agregar-comentario" class="main-content">
+    <h2>Agregar Comentario</h2>
+    <form id="form-comentario">
+        <div class="form-group">
+            <label for="comentario">Comentario:</label>
+            <textarea id="comentario" name="comentario" rows="4" required></textarea>
+        </div>
+        <div class="form-group">
+            <label>Calificación:</label>
+            <div class="rating">
+                <span class="star" data-rating="1">&#9733;</span>
+                <span class="star" data-rating="2">&#9733;</span>
+                <span class="star" data-rating="3">&#9733;</span>
+                <span class="star" data-rating="4">&#9733;</span>
+                <span class="star" data-rating="5">&#9733;</span>
+                <input type="hidden" id="rating-value" name="rating" value="0">
+            </div>
+        </div>
+        <button type="submit">Publicar Comentario</button>
+        <button type="button" id="btn-cancelar-comentario">Cancelar</button>
+    </form>
+
+    <section id="lista-comentarios" style="display: none;">
+        <h2>Comentarios</h2>
+        <!-- Aquí se mostrarán los comentarios -->
+        <!-- Ejemplo de un comentario -->
+        <div class="comentario">
+            <div class="comentario-header">
+                <img src="img/default-user.png" alt="Avatar" class="comentario-avatar">
+                <div class="comentario-info">
+                    <span class="comentario-autor">Nombre del Autor</span>
+                    <div class="comentario-calificacion">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                            class="fas fa-star"></i><i class="far fa-star"></i>
+                    </div>
+                </div>
+            </div>
+            <p class="comentario-texto">Este es un ejemplo de comentario. ¡El servicio fue excelente!</p>
+        </div>
+        <!-- Fin del ejemplo de comentario -->
+    </section>
+</section>
+
+<script>
+            // Función para alternar la visibilidad del menú
+        function toggleUserMenu() {
+            const menu = document.getElementById('user-dropdown-menu');
+            menu.classList.toggle('show');
+        }
+
+        // Función para cargar los datos en el menú al iniciar la página
+        function loadUserInfo() {
+            const name = localStorage.getItem('userName') || 'Usuario';
+            const email = localStorage.getItem('userEmail') || 'No logeado';
+
+            document.getElementById('menu-user-name').textContent = name;
+            document.getElementById('menu-user-email').textContent = email;
+        }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const agregarComentarioSection = document.getElementById('agregar-comentario');
+        const formComentario = document.getElementById('form-comentario');
+        const listaComentarios = document.getElementById('lista-comentarios');
+        const btnCancelarComentario = document.getElementById('btn-cancelar-comentario');
+        const stars = document.querySelectorAll('.star');
+        const ratingValueInput = document.getElementById('rating-value');
+        const profileButton = document.getElementById('user-profile-btn');
+        const logoutMenuButton = document.getElementById('menu-logout-btn');
+
+    if (profileButton && logoutMenuButton) {
+        // 1. Conecta el botón de perfil para abrir/cerrar el menú
+        profileButton.addEventListener('click', toggleUserMenu);
+        
+        // 2. Conecta el botón de cerrar sesión del menú
+        logoutMenuButton.addEventListener('click', logout);
+        
+        // 3. Carga los datos del usuario
+        loadUserInfo();
+    }
+
+
+        // Ocultar la sección de comentarios al cargar la página
+        listaComentarios.style.display = 'none';
+
+        // Cancelar la creación del comentario
+        btnCancelarComentario.addEventListener('click', function () {
+            document.getElementById('comentario').value = '';
+            ratingValueInput.value = "0";
+            stars.forEach(star => star.classList.remove('selected'));
+            
+        });
+
+        // Publicar el comentario
+        formComentario.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const comentario = document.getElementById('comentario').value;
+            const ratingValue = ratingValueInput.value;
+
+            if (!comentario || ratingValue === "0") {
+                alert('Por favor, ingrese un comentario y seleccione una calificación.');
+                return;
+            }
+
+            // Crear el elemento del comentario
+            const nuevoComentario = document.createElement('div');
+            nuevoComentario.classList.add('comentario');
+            nuevoComentario.innerHTML = `
+                <div class="comentario-header">
+                    <img src="img/default-user.png" alt="Avatar" class="comentario-avatar">
+                    <div class="comentario-info">
+                        <span class="comentario-autor">Anónimo</span>
+                        <div class="comentario-calificacion">
+                            ${generarEstrellas(ratingValue)}
+                        </div>
+                    </div>
+                </div>
+                <p class="comentario-texto">${comentario}</p>
+            `;
+
+            listaComentarios.appendChild(nuevoComentario);
+
+            // Limpiar el formulario
+            document.getElementById('comentario').value = '';
+            ratingValueInput.value = "0"; // Reset rating value
+            stars.forEach(star => star.classList.remove('selected')); // Remove selected class
+
+            listaComentarios.style.display = 'block'; // Mostrar la lista de comentarios al publicar
+        });
+
+        // Función para generar las estrellas según la calificación
+        function generarEstrellas(rating) {
+            let estrellas = '';
+            for (let i = 0; i < rating; i++) {
+                estrellas += '<i class="fas fa-star"></i>';
+            }
+            for (let i = rating; i < 5; i++) {
+                estrellas += '<i class="far fa-star"></i>';
+            }
+            return estrellas;
+        }
+
+        // Star rating functionality
+        stars.forEach(star => {
+            star.addEventListener('click', function () {
+                const rating = this.dataset.rating;
+                ratingValueInput.value = rating;
+
+                // Highlight selected stars
+                stars.forEach(star => star.classList.remove('selected'));
+                for (let i = 0; i < rating; i++) {
+                    stars[i].classList.add('selected');
+                }
+            });
+        });
+    });
+</script>
+
+
+<section id="Administracion" class="main-content">
+    <h2>Administración de Usuarios</h2>
+
+    <h3>Usuarios con Roles</h3>
+    <div class="datagrid-container">
+        <table id="datagridUsuariosRoles">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Rol</th>
+                    <th>Contraseña</th>
+                    <th>Acciones</th> </tr>
+            </thead>
+            <tbody>
+                </tbody>
+        </table>
+    </div>
+
+    
+
+  <div id="editModal" class="modal">
+  <div class="modal-content">
+    <span class="close-button" onclick="closeModal('editModal')">&times;</span>
+    <h3>Editar Registro (<span id="recordType"></span>)</h3>
+
+    <form id="editForm">
+      <input type="hidden" id="edit-id" name="id">
+      <input type="hidden" id="edit-type" name="type">
+
+      <label for="edit-nombre">Nombre:</label>
+      <input type="text" id="edit-nombre" name="nombre" required>
+
+      <label for="edit-email">Email:</label>
+      <input type="email" id="edit-email" name="email">
+
+      <!-- CAMPOS SOLO PARA USUARIOS -->
+      <div id="userFields" style="display:none;">
+        <label for="edit-rol">Rol:</label>
+        <select id="edit-rol" name="rol">
+          <option value="" disabled selected>-- Selecciona un rol --</option>
+          <option value="Admin">Admin</option>
+          <option value="Ingeniero">Ingeniero</option>
+          <option value="Residente">Residente</option>
+          <option value="Practicante">Practicante</option>
+        </select>
+      </div>
+
+      <!-- CAMPOS SOLO PARA CLIENTE -->
+      <div id="clientFields" style="display:none;">
+        <label for="edit-telefono">Teléfono:</label>
+        <input type="text" id="edit-telefono" name="telefono">
+
+        <label for="">Direcciones del Cliente:</label>
+
+        <div id="direccionesContainer"></div>
+
+        <button type="button" onclick="agregarDireccion()" class="btn-add-dir">
+          + Agregar dirección
+        </button>
+      </div>
+
+      <button type="submit" class="btn-save">Guardar Cambios</button>
+    </form>
+  </div>
+</div>
+
+</section>
+
+
+<section id="Clientes" class="main-content">
+    <h3>Clientes</h3>
+    <button id="btnIrFormularioCliente" class="glass-btn-ios">
+    <span class="glass-text">+ Agregar Cliente</span>
+    <span class="shine"></span>
+</button>
+
+    <div class="datagrid-container">
+        <table id="datagridClientes">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Dirección</th> 
+                    <th>Teléfono</th>
+                    <th>Acciones</th> </tr>
+            </thead>
+            <tbody>
+                </tbody>
+        </table>
+    </div>
+  <div class="form-container">
+    <div class="logo-container">
+      <img src="img/logoAEtech.png" alt="logoAEtech">
+    </div>
+
+    <form id="registroClienteForm"> 
+      <div class="form-group">
+        <label for="client-nombre">Nombre:</label>
+        <input type="text" id="client-nombre" name="nombre" required> 
+      </div>
+
+      <div class="form-group">
+        <label for="client-email">Email (opcional):</label>
+        <input type="email" id="client-email" name="email" placeholder="Ej. usuario@correo.com">
+      </div>
+
+      <div class="form-group">
+        <label for="client-telefono">Teléfono:</label>
+        <input type="text" id="client-telefono" name="telefono" placeholder="Ej. 2441234567" required> 
+      </div>
+
+      <div class="form-group">
+        <label for="client-estado">Estado:</label>
+        <select id="client-estado" name="estado">
+          <option value="">Selecciona un estado</option>
+          <option value="Aguascalientes">Aguascalientes</option>
+          <option value="Baja California">Baja California</option>
+          <option value="Baja California Sur">Baja California Sur</option>
+          <option value="Campeche">Campeche</option>
+          <option value="Chiapas">Chiapas</option>
+          <option value="Chihuahua">Chihuahua</option>
+          <option value="Ciudad de México">Ciudad de México</option>
+          <option value="Coahuila">Coahuila</option>
+          <option value="Colima">Colima</option>
+          <option value="Durango">Durango</option>
+          <option value="Estado de México">Estado de México</option>
+          <option value="Guanajuato">Guanajuato</option>
+          <option value="Guerrero">Guerrero</option>
+          <option value="Hidalgo">Hidalgo</option>
+          <option value="Jalisco">Jalisco</option>
+          <option value="Michoacán">Michoacán</option>
+          <option value="Morelos">Morelos</option>
+          <option value="Nayarit">Nayarit</option>
+          <option value="Nuevo León">Nuevo León</option>
+          <option value="Oaxaca">Oaxaca</option>
+          <option value="Puebla">Puebla</option>
+          <option value="Querétaro">Querétaro</option>
+          <option value="Quintana Roo">Quintana Roo</option>
+          <option value="San Luis Potosí">San Luis Potosí</option>
+          <option value="Sinaloa">Sinaloa</option>
+          <option value="Sonora">Sonora</option>
+          <option value="Tabasco">Tabasco</option>
+          <option value="Tamaulipas">Tamaulipas</option>
+          <option value="Tlaxcala">Tlaxcala</option>
+          <option value="Veracruz">Veracruz</option>
+          <option value="Yucatán">Yucatán</option>
+          <option value="Zacatecas">Zacatecas</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="client-municipio">Municipio:</label>
+        <input type="text" id="client-municipio" name="municipio" placeholder="Ej. Atlixco">
+      </div>
+
+      <!-- CONTENEDOR PRINCIPAL DE DIRECCIONES -->
+    <div class="form-group">
+        <label>Direcciones del Cliente:</label>
+
+        <div id="direccionesContainerRegistro">
+            <!-- Dirección inicial -->
+            <div class="direccion-item">
+                <input type="text" name="direccion[]" placeholder="Ej. Calle 10 Sur #123 o link Google Maps">
+
+                <button type="button" class="btn-remove-dir" onclick="this.parentElement.remove()">
+                    Eliminar
+                </button>
+            </div>
+        </div>
+
+        <button type="button" id="btnAgregarDireccionRegistro" class="btn-add-dir">
+            + Agregar otra dirección
+        </button>
+    </div>
+
+
+      <button type="submit">Registrar Cliente</button>
+    </form>
+  </div>
+  
+</section>
+
+
+
+
+
+
+
+
+<section id="Actividades" class="main-content">
+  <h2 class="titulo-seccion">📸 Registro de Evidencias</h2>
+
+  <div id="contenedor-evidencias" class="evidencias-grid">
+
+    <!-- Campo 1 -->
+    <div class="card-evidencia">
+      <label>Título de la evidencia</label>
+      <input type="text" name="titulo[]" placeholder="Ej: Foto antes de la instalación">
+      <!-- PREVISUALIZACIÓN DE IMAGEN -->
+<div class="preview-container">
+  <img class="preview-img" src="" alt="Vista previa" style="display:none;">
+</div>
+
+      <label class="label-file">
+        <i class="fa-solid fa-camera"></i> Tomar Foto / Elegir Archivo
+        <input type="file" name="archivos" class="archivo" accept="image/*">
+      </label>
+    </div>
+
+    <!-- Campo 2 -->
+    <div class="card-evidencia">
+      <label>Título de la evidencia</label>
+      <input type="text" name="titulo[]" placeholder="Ej: Foto después de la instalación">
+      <!-- PREVISUALIZACIÓN DE IMAGEN -->
+<div class="preview-container">
+  <img class="preview-img" src="" alt="Vista previa" style="display:none;">
+</div>
+
+      <label class="label-file">
+        <i class="fa-solid fa-camera"></i> Tomar Foto / Elegir Archivo
+        <input type="file" name="archivos" class="archivo" accept="image/*">
+      </label>
+    </div>
+  </div>
+
+  <!-- FIRMA DEL CLIENTE -->
+    <section id="firma-cliente" class="firma-section">
+    <h2>🖊️ Firma del Cliente</h2>
+    <canvas id="signature-pad" width="400" height="200"></canvas>
+    <div class="firma-botones">
+        <button type="button" id="btnLimpiarFirma">
+        <i class="fa-solid fa-eraser"></i> Limpiar
+        </button>
+        <button type="button" id="btnGuardarFirma">
+        <i class="fa-solid fa-floppy-disk"></i> Guardar Firma
+        </button>
+    </div>
+    </section>
+  <div class="botones-evidencias">
+    <button type="button" id="btnAgregarFoto">
+      <i class="fa-solid fa-plus"></i> Agregar Foto Adicional
+    </button>
+
+
+    <button type="button" id="btnGuardarEvidencias">
+      <i class="fa-solid fa-floppy-disk"></i> Guardar Evidencias
+    </button>
+  </div>
+</section>
+
+
+   
+    <script>
+
+
+
+        // Función para mostrar el contenido de una sección y ocultar las demás
+        
+
+        function toggleEvaluacion(element) {
+            let detalles = element.parentNode.nextElementSibling;
+            if (detalles.style.display === "none") {
+                detalles.style.display = "block";
+                element.innerHTML = '<i class="fas fa-chevron-up"></i>';
+            } else {
+                detalles.style.display = "none";
+                element.innerHTML = '<i class="fas fa-chevron-down"></i>';
+            }
+        }
+
+        // --- Lógica de inicialización y actualización ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Mostrar la sección de Evidencias por defecto al cargar la página
+            mostrarContenido('Tablero');
+            checkSession();
+            
+
+        const registroClienteForm = document.getElementById('registroClienteForm');
+            if(registroClienteForm) {
+                registroClienteForm.addEventListener('submit', registerClient);
+            }
+        
+            // 🔑 LLAMAR A LA RESTRICCIÓN AQUÍ 🔑
+        restrictAdminSection();
+        });
+
+        //Cerrar Sesion
+        document.getElementById('logout-button').addEventListener('click', logout);
+
+       
+
+    </script>
+    
+        <!-- Firebase (Compat para FCM en web + SW) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
+
+    <!-- Tu configuración (rellena con tus valores reales) -->
+    <script>
+    window.FB_CONFIG = {
+        apiKey: "AIzaSyBa6KYyhwI4scIblnOY_VKb-1kSwwO9_Ts",
+        authDomain: "aetech-notificaciones.firebaseapp.com",
+        projectId: "aetech-notificaciones",
+        storageBucket: "aetech-notificaciones.firebasestorage.app",
+        messagingSenderId: "742322294289",
+        appId: "1:742322294289:web:5bd9e894ad92dbef4dabb0",
+        vapidKey: "BOTEAlz-7hYedgFy9YSbo3txG_14XJaf0tt4qCCwS3ifs67umn8UDn5fLirfmTmSh17P5r_cUMhrL8uDnZsiWys" // la que te dio Cloud Messaging
+    };
+    </script>
+
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+    <script src="script.js"></script>
+
+    <!-- MODAL PARA VISUALIZAR EVIDENCIAS -->
+<div id="modalEvidencias" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="cerrarModalEvidencias()">&times;</span>
+    <h2>📸 Evidencias</h2>
+
+    <div id="contenedorEvidencias"></div>
+
+    <!-- 🔹 Botón de descarga -->
+    <button id="btnDescargarEvidencias" class="btn-descargar" onclick="descargarEvidencias()">
+      ⬇️ Descargar todas
+    </button>
+  </div>
+</div>
+
+
+
+
+
+<section id="Levantamientos" class="main-content">
+
+  <div class="lev-container">
+
+    <h2 class="titulo-lev">📋 Levantamientos</h2>
+
+    <!-- CLIENTE -->
+    <div class="lev-bloque">
+        <label class="lev-label">Cliente</label>
+        <select id="clienteSelect" class="lev-input"></select>
+
+        <button id="registrarClienteBtn" class="lev-btn-sec" onclick="mostrarContenido('Clientes')">
+            + Registrar Cliente
+        </button>
+    </div>
+
+    <!-- FECHA -->
+    <div class="lev-bloque">
+        <label class="lev-label">Fecha y hora</label>
+        <input type="datetime-local" id="fechaHora" class="lev-input">
+    </div>
+
+    <!-- NECESIDADES -->
+    <div class="lev-bloque">
+        <h3 class="subtitulo-lev">📌 Necesidades</h3>
+
+        <div id="necesidadesContainer"></div>
+
+        <button id="agregarNecesidadBtn" class="lev-btn">
+            + Agregar necesidad
+        </button>
+    </div>
+
+    <!-- MATERIALES -->
+    <div class="lev-bloque">
+        <h3 class="subtitulo-lev">🧱 Materiales</h3>
+
+        <div class="flex-row">
+            <input id="materialInput" class="lev-input">
+            <button id="agregarMaterialBtn" class="lev-btn-sec">Agregar</button>
+        </div>
+
+        <ul id="materialesLista" class="lev-lista"></ul>
+    </div>
+
+    <!-- GUARDAR -->
+    <div class="lev-bloque" style="text-align:center;">
+        <button id="guardarLevantamientoBtn" class="lev-btn-guardar">
+            Guardar levantamiento
+        </button>
+    </div>
+
+</div>
+
+
+
+</section>
+
+
+
+</body>
+</html>
