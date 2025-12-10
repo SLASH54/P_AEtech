@@ -654,6 +654,7 @@ async function cargarClientesTabla() {
 
 
   const tbodyClientes = document.getElementById('datagridClientes')?.querySelector('tbody');
+  
   const clientes = await fetchData('/clientes');
   if (clientes && Array.isArray(clientes) && tbodyClientes) {
     generarFilasClientes(clientes, tbodyClientes);
@@ -3123,12 +3124,13 @@ function toggleDescripcion(id) {
 
 // Cargar clientes para levantamientos
 async function loadClientesForLevantamientos() {
+
     const clienteSelect = document.getElementById('lev-clienteSelect');
     if (!clienteSelect) return;
 
     clienteSelect.innerHTML = '<option value="" disabled selected>-- Cargando Clientes... --</option>';
 
-    const clientes = await fetchData('/clientes');
+    const clientes = await fetchData('/clientes-negocio');
 
     clienteSelect.innerHTML = '<option value="" disabled selected>-- Selecciona Cliente --</option>';
 
