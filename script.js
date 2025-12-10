@@ -3125,23 +3125,18 @@ function toggleDescripcion(id) {
 
 
 
-// ================= LEVANTAMIENTOS =================
+/* ================================
+   LEVANTAMIENTOS — CLIENTES
+================================ */
 
-
-// Cargar clientes para levantamientos
-
-// Cargar clientes para levantamientos (mismos clientes que en tareas)
 async function loadClientesForLevantamientos() {
     const clienteSelect = document.getElementById("lev-clienteSelect");
     if (!clienteSelect) return;
 
-    // Mensaje mientras carga
     clienteSelect.innerHTML = `<option value="">Cargando clientes...</option>`;
 
-    // Usa la MISMA función genérica que ya usas en tareas
-    const clientes = await fetchData('/clientes');
+    const clientes = await fetchData('/clientes');  // Igual que en tareas
 
-    // Limpiar y poner placeholder
     clienteSelect.innerHTML = `<option value="">Selecciona un cliente</option>`;
 
     if (clientes && Array.isArray(clientes) && clientes.length > 0) {
@@ -3152,24 +3147,21 @@ async function loadClientesForLevantamientos() {
             clienteSelect.appendChild(option);
         });
     } else {
-        const msg = (clientes === null)
-            ? 'No tienes permisos para ver clientes'
-            : 'No se encontraron clientes';
-
-        clienteSelect.innerHTML = `<option value="">${msg}</option>`;
+        clienteSelect.innerHTML = `<option value="">No se encontraron clientes</option>`;
     }
 }
 
 
-
-
-// ================= NECESIDADES =================
+/* ================================
+   LEVANTAMIENTOS — NECESIDADES
+================================ */
 
 function agregarNecesidadUI() {
     const cont = document.getElementById("lev-necesidadesContainer");
     if (!cont) return;
 
     const id = Date.now();
+
     const div = document.createElement("div");
     div.className = "necesidad-item";
     div.dataset.id = id;
@@ -3193,8 +3185,9 @@ function agregarNecesidadUI() {
 }
 
 
-
-// ================= MATERIAL =================
+/* ================================
+   LEVANTAMIENTOS — MATERIALES
+================================ */
 
 const levInputMaterial = document.getElementById("lev-materialInput");
 const levBtnMaterial = document.getElementById("lev-agregarMaterialBtn");
@@ -3209,16 +3202,26 @@ if (levBtnMaterial) {
         levMaterialesList.push(texto);
 
         const li = document.createElement("li");
-        li.textContent = texto;
-        levListaMateriales.appendChild(li);
+        li.className = "lev-material-item";
+        li.innerHTML = `
+            <span>${texto}</span>
+            <button class="lev-remove-btn">❌</button>
+        `;
 
+        levListaMateriales.appendChild(li);
         levInputMaterial.value = "";
+
+        li.querySelector(".lev-remove-btn").addEventListener("click", () => {
+            li.remove();
+            levMaterialesList = levMaterialesList.filter(item => item !== texto);
+        });
     });
 }
 
 
-
-// ================= GUARDAR LEVANTAMIENTO =================
+/* ================================
+   LEVANTAMIENTOS — GUARDAR
+================================ */
 
 async function guardarLevantamiento() {
     const clienteId = document.getElementById("lev-clienteSelect").value;
@@ -3230,7 +3233,7 @@ async function guardarLevantamiento() {
     }
 
     const materiales = [...document.querySelectorAll("#lev-materialesLista li")]
-        .map(li => li.textContent);
+        .map(li => li.textContent.trim());
 
     const necesidades = [];
     const fd = new FormData();
@@ -3281,8 +3284,9 @@ async function guardarLevantamiento() {
 }
 
 
-
-// ================= INICIALIZAR =================
+/* ================================
+   LEVANTAMIENTOS — INIT
+================================ */
 
 function initLevantamientos() {
     loadClientesForLevantamientos();
