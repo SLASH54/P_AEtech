@@ -3119,47 +3119,36 @@ function toggleDescripcion(id) {
 
 
 
-
 // ================= LEVANTAMIENTOS =================
 
-
-
-
-// Cargar clientes para la sección de Levantamientos
+// Cargar clientes para levantamientos
 async function loadClientesForLevantamientos() {
-    const clienteSelect = document.getElementById('clienteSelect');
+    const clienteSelect = document.getElementById('lev-clienteSelect');
     if (!clienteSelect) return;
 
-    // mensaje temporal mientras carga
     clienteSelect.innerHTML = '<option value="" disabled selected>-- Cargando Clientes... --</option>';
 
-    // 👇 MUY IMPORTANTE: usar fetchData, igual que en tareas
-    const clientes = await fetchData('/clientes'); 
+    const clientes = await fetchData('/clientes');
 
     clienteSelect.innerHTML = '<option value="" disabled selected>-- Selecciona Cliente --</option>';
 
     if (clientes && Array.isArray(clientes) && clientes.length > 0) {
         clientes.forEach(cliente => {
             const option = document.createElement('option');
-            option.value = cliente._id || cliente.id;   // igualito que en tareas
-            option.textContent = cliente.nombre;        // nombre del cliente
+            option.value = cliente._id || cliente.id;
+            option.textContent = cliente.nombre;
             clienteSelect.appendChild(option);
         });
     } else {
-        const errorMessage = (clientes === null)
-            ? 'No tienes permisos para ver clientes.'
-            : 'No se encontraron clientes.';
-        
-        clienteSelect.innerHTML = `<option value="" disabled selected>${errorMessage}</option>`;
+        clienteSelect.innerHTML = `<option value="" disabled selected>No se encontraron clientes</option>`;
     }
 }
 
 
-
-
+// ================= NECESIDADES =================
 
 function agregarNecesidadUI() {
-    const cont = document.getElementById("necesidadesContainer");
+    const cont = document.getElementById("lev-necesidadesContainer");
     if (!cont) return;
 
     const id = Date.now();
@@ -3167,8 +3156,7 @@ function agregarNecesidadUI() {
     div.className = "necesidad-item";
     div.dataset.id = id;
 
-    div.innerHTML =
-     `
+    div.innerHTML = `
         <label>Descripción</label>
         <textarea class="desc lev-input" placeholder="Describe la necesidad..."></textarea>
 
@@ -3186,8 +3174,11 @@ function agregarNecesidadUI() {
     cont.appendChild(div);
 }
 
+
+// ================= GUARDAR LEVANTAMIENTO =================
+
 async function guardarLevantamiento() {
-    const clienteId = document.getElementById("clienteSelect").value;
+    const clienteId = document.getElementById("lev-clienteSelect").value;
     const fechaHora = document.getElementById("fechaHora").value;
 
     if (!clienteId || !fechaHora) {
@@ -3195,7 +3186,7 @@ async function guardarLevantamiento() {
         return;
     }
 
-    const materiales = [...document.querySelectorAll("#materialesLista li")]
+    const materiales = [...document.querySelectorAll("#lev-materialesLista li")]
         .map(li => li.textContent);
 
     const necesidades = [];
@@ -3242,10 +3233,33 @@ async function guardarLevantamiento() {
     }
 }
 
-function initLevantamientos() {
-    const clienteSelect = document.getElementById("clienteSelect");
-    if (!clienteSelect) return;
 
+// ================= MATERIALES =================
+
+const levInputMaterial = document.getElementById("lev-materialInput");
+const levBtnMaterial = document.getElementById("lev-agregarMaterialBtn");
+const levListaMateriales = document.getElementById("lev-materialesLista");
+let levMaterialesList = [];
+
+if (levBtnMaterial) {
+    levBtnMaterial.addEventListener("click", () => {
+        const texto = levInputMaterial.value.trim();
+        if (!texto) return;
+
+        levMaterialesList.push(texto);
+
+        const li = document.createElement("li");
+        li.textContent = texto;
+
+        levListaMateriales.appendChild(li);
+        levInputMaterial.value = "";
+    });
+}
+
+
+// ================= INIT =================
+
+function initLevantamientos() {
     loadClientesForLevantamientos();
 
     const btnNecesidad = document.getElementById("agregarNecesidadBtn");
@@ -3263,26 +3277,11 @@ function initLevantamientos() {
         });
     });
 
-    const btnMaterial = document.getElementById("agregarMaterialBtn");
-    const inputMaterial = document.getElementById("materialInput");
-    const listaMateriales = document.getElementById("materialesLista");
-
-    if (btnMaterial) {
-        btnMaterial.addEventListener("click", () => {
-            if (!inputMaterial.value.trim()) return;
-            const li = document.createElement("li");
-            li.textContent = inputMaterial.value.trim();
-            listaMateriales.appendChild(li);
-            inputMaterial.value = "";
-        });
-    }
-
     const btnGuardar = document.getElementById("guardarLevantamientoBtn");
     if (btnGuardar) {
         btnGuardar.addEventListener("click", guardarLevantamiento);
     }
 }
-window.addEventListener("DOMContentLoaded", initLevantamientos);
 
 
 

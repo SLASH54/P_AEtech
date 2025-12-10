@@ -915,7 +915,7 @@
     <!-- CLIENTE -->
     <div class="lev-bloque">
         <label class="lev-label">Cliente</label>
-        <select id="clienteSelect" class="lev-input"></select>
+        <select id="lev-clienteSelect"></select>
 
         <button id="registrarClienteBtn" class="lev-btn-sec" onclick="mostrarContenido('Clientes')">
             + Registrar Cliente
@@ -932,7 +932,7 @@
     <div class="lev-bloque">
         <h3 class="subtitulo-lev">📌 Necesidades</h3>
 
-        <div id="necesidadesContainer"></div>
+        <div id="lev-necesidadesContainer"></div>
 
         <button id="agregarNecesidadBtn" class="lev-btn">
             + Agregar necesidad
@@ -944,11 +944,11 @@
         <h3 class="subtitulo-lev">🧱 Materiales</h3>
 
         <div class="flex-row">
-            <input id="materialInput" class="lev-input">
-            <button id="agregarMaterialBtn" class="lev-btn-sec">Agregar</button>
+            <input id="lev-materialInput" placeholder="Agregar material...">
+            <button id="lev-agregarMaterialBtn">Agregar</button>
         </div>
 
-        <ul id="materialesLista" class="lev-lista"></ul>
+        <ul id="lev-materialesLista" class="lev-lista"></ul>
     </div>
 
     <!-- GUARDAR -->
@@ -958,9 +958,7 @@
         </button>
     </div>
 
-</div>
-
-
+  </div>
 
 </section>
 
