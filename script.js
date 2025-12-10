@@ -712,10 +712,25 @@ function mostrarContenido(seccionId) {
         initTareas();
     }
 
-     // Inicializar sección de Levantamientos
-   if (seccionId === 'Levantamientos') {
-    initLevantamientos();  // <-- sin esto, nada funciona
+
+
+
+
+if (seccionId === "listaLevantamientos") {
+    document.getElementById("listaLevantamientos").style.display = "block";
+    document.getElementById("Levantamientos").style.display = "none";
+    cargarLevantamientosTabla();
 }
+
+if (seccionId === "Levantamientos") {
+    document.getElementById("listaLevantamientos").style.display = "none";
+    document.getElementById("Levantamientos").style.display = "block";
+    prepararNuevoLevantamiento();
+}
+
+
+
+
 
 
      // Ocultar el menú después de la selección en móvil
@@ -3388,41 +3403,165 @@ function cargarDireccionesCliente(clienteId) {
     });
 }
 
+//finnde muchas direcciones cliente
 
 
-async function cargarLevantamientosTabla() {
+
+
+//LEVANTAMIENTOS NUEVO 
+
+
+document.getElementById("btnNuevoLevantamiento")
+    .addEventListener("click", () => {
+        mostrarContenido("Levantamientos");
+    });
+
+
+    async function loadClientesForLevantamientos() {
+    const select = document.getElementById("lev-clienteSelect");
+
+    select.innerHTML = `<option value="">Cargando clientes...</option>`;
+
+    const clientes = await fetchData('/clientes-negocio');
+
+    select.innerHTML = `<option value="">Seleccione un cliente</option>`;
+
+    clientes.forEach(c => {
+        const opt = document.createElement("option");
+        opt.value = c.id;
+        opt.textContent = c.nombre;
+        select.appendChild(opt);
+    });
+}
+
+
+function activarAutollenadoDireccion() {
+    const select = document.getElementById("lev-clienteSelect");
+    const dir = document.getElementById("lev-direccion");
+
+    select.addEventListener("change", async () => {
+        const res = await fetch(`${API_BASE_URL}/clientes-negocio/${select.value}`);
+        const data = await res.json();
+
+        dir.value = data.direcciones?.[0]?.direccionEscrita || "";
+    });
+}
+
+
+function prepararNuevoLevantamiento() {
+    document.getElementById("lev-materialesLista").innerHTML = "";
+    document.getElementById("lev-necesidadesContainer").innerHTML = "";
+
+    loadClientesForLevantamientos();
+    activarAutollenadoDireccion();
+
+    const now = new Date();
+    document.getElementById("lev-fechaHora").value =
+        now.toISOString().slice(0, 16);
+
+    const user = JSON.parse(localStorage.getItem("userData"));
+    window.personalNombre = user?.nombre || "Desconocido";
+}
+
+
+document.getElementById("lev-agregarMaterialBtn")
+    .addEventListener("click", () => {
+        const lista = document.getElementById("lev-materialesLista");
+        const val = document.getElementById("lev-materialInput").value.trim();
+
+        if (!val) return;
+
+        const li = document.createElement("li");
+        li.innerHTML = `${val} <button onclick="this.parentNode.remove()">❌</button>`;
+        lista.appendChild(li);
+
+        document.getElementById("lev-materialInput").value = "";
+    });
+
+
+    document.getElementById("agregarNecesidadBtn")
+    .addEventListener("click", () => {
+        const cont = document.getElementById("lev-necesidadesContainer");
+
+        const div = document.createElement("div");
+        div.classList.add("necesidad-item");
+
+        div.innerHTML = `
+            <textarea placeholder="Describe la necesidad..."></textarea>
+            <button onclick="this.parentNode.remove()">❌</button>
+        `;
+
+        cont.appendChild(div);
+    });
+
+
+    async function guardarLevantamiento() {
+
+    const cliente = document.getElementById("lev-clienteSelect").value;
+    const direccion = document.getElementById("lev-direccion").value;
+    const fecha = document.getElementById("lev-fechaHora").value;
+
+    const materiales = [...document.querySelectorAll("#lev-materialesLista li")]
+        .map(li => li.textContent.replace("❌", "").trim());
+
+    const necesidades = [...document.querySelectorAll(".necesidad-item textarea")]
+        .map(t => t.value.trim());
+
+    const fd = new FormData();
+    fd.append("clienteNegocioId", cliente);
+    fd.append("direccion", direccion);
+    fd.append("fecha", fecha);
+    fd.append("materiales", JSON.stringify(materiales));
+    fd.append("necesidades", JSON.stringify(necesidades));
+    fd.append("personalNombre", window.personalNombre);
 
     const token = localStorage.getItem("userToken");
 
+    const res = await fetch(`${API_BASE_URL}/levantamientos`, {
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${token}`
+        },
+        body: fd
+    });
+
+    if (!res.ok) {
+        alert("Error al guardar");
+        return;
+    }
+
+    alert("Levantamiento guardado");
+    mostrarContenido("listaLevantamientos");
+    cargarLevantamientosTabla();
+}
+
+
+
+async function cargarLevantamientosTabla() {
+    const token = localStorage.getItem("userToken");
     const res = await fetch(`${API_BASE_URL}/levantamientos`, {
         headers: { Authorization: `Bearer ${token}` }
     });
 
     const data = await res.json();
     const tbody = document.getElementById("tablaLevantamientos");
-
     tbody.innerHTML = "";
 
     data.forEach(lv => {
         const tr = document.createElement("tr");
 
         tr.innerHTML = `
-            <td>${lv.cliente?.nombre || "Sin cliente"}</td>
-            <td>${lv.direccion || "Sin dirección"}</td>
-            <td>${lv.personal?.nombre || "Sin asignar"}</td>
-            <td>${lv.fecha || "N/A"}</td>
-
-            <td class="acciones">
+            <td>${lv.clienteNombre}</td>
+            <td>${lv.direccion}</td>
+            <td>${lv.personalNombre}</td>
+            <td>${lv.fecha?.split("T")[0]}</td>
+            <td>
                 <button class="btn-sm btn-edit">Editar</button>
                 <button class="btn-sm btn-delete">Eliminar</button>
-                <button class="btn-sm btn-green">Agregar Evidencias</button>
                 <button class="btn-sm btn-gray">PDF</button>
-                <button class="btn-sm btn-blue">Ver</button>
             </td>
         `;
 
         tbody.appendChild(tr);
     });
 }
-
-
