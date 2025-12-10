@@ -906,7 +906,7 @@
 
 
 
-<section id="lista-levantamientos" class="main-content">
+<section id="listaLevantamientos" class="main-content" style="display:none;">
 
     <div class="top-bar-lev">
         <h2>Organizador de Levantamientos</h2>
@@ -924,13 +924,15 @@
                     <th>ACCIONES</th>
                 </tr>
             </thead>
+
             <tbody id="tablaLevantamientos"></tbody>
         </table>
     </div>
 
 </section>
 
-<section id="Levantamientos" class="main-content">
+
+<section id="Levantamientos" class="main-content" style="display:none;">
 
   <div class="lev-container">
 
@@ -938,7 +940,7 @@
 
     <!-- CLIENTE -->
     <div class="lev-bloque">
-        <label class="lev-label">Cliente</label>
+        <label>Cliente</label>
         <select id="lev-clienteSelect"></select>
 
         <button onclick="mostrarContenido('Clientes')" class="lev-btn-sec">
@@ -946,15 +948,15 @@
         </button>
     </div>
 
+    <!-- DIRECCIÓN (AUTOMÁTICA) -->
     <div class="lev-bloque">
-    <label class="lev-label">Dirección</label>
-    <input id="lev-direccion" class="lev-input" placeholder="Dirección del cliente">
-</div>
-
+        <label>Dirección</label>
+        <input id="lev-direccion" class="lev-input" placeholder="Dirección del cliente">
+    </div>
 
     <!-- FECHA -->
     <div class="lev-bloque">
-        <label class="lev-label">Fecha y hora</label>
+        <label>Fecha y hora</label>
         <input type="datetime-local" id="fechaHora" class="lev-input">
     </div>
 
@@ -981,6 +983,7 @@
         <ul id="lev-materialesLista" class="lev-lista"></ul>
     </div>
 
+    <!-- BOTÓN GUARDAR -->
     <div class="lev-bloque" style="text-align:center;">
         <button id="guardarLevantamientoBtn" class="lev-btn-guardar">
             Guardar levantamiento
