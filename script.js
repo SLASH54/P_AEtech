@@ -3141,6 +3141,204 @@ function toggleDescripcion(id) {
 
 
 
+/* ============================================
+   LEVANTAMIENTOS — CARGAR CLIENTES
+============================================ */
+
+async function loadClientesForLevantamientos() {
+    const clienteSelect = document.getElementById("lev-clienteSelect");
+    if (!clienteSelect) return;
+
+    clienteSelect.innerHTML = `<option value="">Cargando clientes...</option>`;
+
+    const clientes = await fetchData('/clientes'); // Igual que tareas
+
+    clienteSelect.innerHTML = `<option value="">Selecciona un cliente</option>`;
+
+    if (clientes && Array.isArray(clientes) && clientes.length > 0) {
+        clientes.forEach(c => {
+            const option = document.createElement('option');
+            option.value = c._id || c.id;
+            option.textContent = c.nombre;
+            clienteSelect.appendChild(option);
+        });
+    } else {
+        clienteSelect.innerHTML = `<option value="">No se encontraron clientes</option>`;
+    }
+}
+
+
+
+/* ============================================
+   LEVANTAMIENTOS — NECESIDADES
+============================================ */
+
+function agregarNecesidadUI() {
+    const cont = document.getElementById("lev-necesidadesContainer");
+    if (!cont) return;
+
+    const id = Date.now();
+
+    const div = document.createElement("div");
+    div.className = "necesidad-item";
+    div.dataset.id = id;
+
+    div.innerHTML = `
+        <label>Descripción</label>
+        <textarea class="desc lev-input" placeholder="Describe la necesidad..."></textarea>
+
+        <label>Foto(s)</label>
+        <input type="file" accept="image/*" capture="camera"
+               class="foto" data-id="${id}" multiple>
+
+        <div id="preview-${id}" class="preview"></div>
+
+        <button type="button" class="lev-btn-sec eliminar-necesidad">Eliminar necesidad</button>
+    `;
+
+    cont.appendChild(div);
+}
+
+
+
+/* ============================================
+   LEVANTAMIENTOS — MATERIALES (LISTA FUNCIONAL)
+============================================ */
+
+function setupMaterialesLevantamientos() {
+    const input = document.getElementById("lev-materialInput");
+    const btn = document.getElementById("lev-agregarMaterialBtn");
+    const lista = document.getElementById("lev-materialesLista");
+
+    if (!input || !btn || !lista) {
+        console.warn("Materiales no listos todavía");
+        return;
+    }
+
+    btn.addEventListener("click", () => {
+        const texto = input.value.trim();
+        if (!texto) return;
+
+        const li = document.createElement("li");
+        li.className = "lev-material-item";
+
+        li.innerHTML = `
+            <span>${texto}</span>
+            <button class="lev-remove-btn">❌</button>
+        `;
+
+        lista.appendChild(li);
+        input.value = "";
+
+        // eliminar un material
+        li.querySelector(".lev-remove-btn").addEventListener("click", () => {
+            li.remove();
+        });
+    });
+}
+
+
+
+/* ============================================
+   LEVANTAMIENTOS — GUARDAR FORMULARIO
+============================================ */
+
+async function guardarLevantamiento() {
+    const clienteId = document.getElementById("lev-clienteSelect").value;
+    const fechaHora = document.getElementById("fechaHora").value;
+    const direccion = document.getElementById("lev-direccion").value;
+    const personalNombre = window.personalAsignado;
+
+    if (!clienteId || !fechaHora) {
+        alert("Selecciona un cliente y una fecha/hora.");
+        return;
+    }
+
+    const materiales = [...document.querySelectorAll("#lev-materialesLista li")]
+        .map(li => li.textContent.trim());
+
+    const necesidades = [];
+    document.querySelectorAll(".necesidad-item").forEach((div, idx) => {
+        const desc = div.querySelector(".desc").value.trim();
+        necesidades.push({ descripcion: desc, idx });
+    });
+
+    const fd = new FormData();
+    fd.append("clienteNegocioId", clienteId);
+    fd.append("fecha", fechaHora);
+    fd.append("direccion", direccion || "");
+    fd.append("personalNombre", personalNombre);
+    fd.append("materiales", JSON.stringify(materiales));
+    fd.append("necesidades", JSON.stringify(necesidades));
+
+    const token = localStorage.getItem('userToken');
+
+    const res = await fetch(`${API_BASE_URL}/levantamientos`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: fd
+    });
+
+    if (!res.ok) {
+        alert("Error al guardar levantamiento");
+        return;
+    }
+
+    alert("Levantamiento guardado correctamente");
+    mostrarContenido("lista-levantamientos");
+    cargarLevantamientosTabla();
+}
+
+
+
+/* ============================================
+   LEVANTAMIENTOS — INIT (SE ACTIVA AL ABRIR)
+============================================ */
+
+function initLevantamientos() {
+    loadClientesForLevantamientos();
+    setupMaterialesLevantamientos();
+
+    const btnNecesidad = document.getElementById("agregarNecesidadBtn");
+    if (btnNecesidad) {
+        btnNecesidad.addEventListener("click", agregarNecesidadUI);
+    }
+
+    // PREVIEW de fotos
+    document.addEventListener("change", function (e) {
+        if (!e.target.classList.contains("foto")) return;
+
+        const id = e.target.dataset.id;
+        const preview = document.getElementById(`preview-${id}`);
+
+        preview.innerHTML = "";
+
+        [...e.target.files].forEach(file => {
+            preview.innerHTML += `
+                <img src="${URL.createObjectURL(file)}" class="thumb">
+            `;
+        });
+    });
+
+    const btnGuardar = document.getElementById("guardarLevantamientoBtn");
+    if (btnGuardar) {
+        btnGuardar.addEventListener("click", guardarLevantamiento);
+    }
+}
+
+
+
+/* ============================================
+   ACTIVAR SECCIÓN LEVANTAMIENTOS
+============================================ */
+
+/// MUY IMPORTANTE ///
+//// AGREGA ESTO EN mostrarContenido() ////
+
+// if (seccionId === "Levantamientos") {
+//     if (seccionId === "Tareas")
+// }
+
 
 
 
@@ -3185,20 +3383,11 @@ function cargarDireccionesCliente(clienteId) {
     });
 }
 
-//clientes muchas direcciones xd 
 
 
-
-
-
-
-
-
-
-
-//cargar tabla de levantamientos
 
 async function cargarLevantamientosTabla() {
+
     const token = localStorage.getItem("userToken");
 
     const res = await fetch(`${API_BASE_URL}/levantamientos`, {
@@ -3207,24 +3396,26 @@ async function cargarLevantamientosTabla() {
 
     const data = await res.json();
     const tbody = document.getElementById("tablaLevantamientos");
+
     tbody.innerHTML = "";
 
     data.forEach(lv => {
         const tr = document.createElement("tr");
 
         tr.innerHTML = `
-            <td>${lv.clienteNombre || "Sin cliente"}</td>
+            <td>${lv.cliente?.nombre || "Sin cliente"}</td>
             <td>${lv.direccion || "Sin dirección"}</td>
-            <td>${lv.personalNombre || "Sin asignar"}</td>
-            <td>${lv.fecha?.split("T")[0] || "N/A"}</td>
+            <td>${lv.personal?.nombre || "Sin asignar"}</td>
+            <td>${lv.fecha || "N/A"}</td>
 
-            <td>
-                <button class="btn-sm btn-edit">Editar</button>
-                <button class="btn-sm btn-delete">Eliminar</button>
-                <button class="btn-sm btn-blue">Ver</button>
-                <button class="btn-sm btn-green">Evidencias</button>
-                <button class="btn-sm btn-gray">PDF</button>
-            </td>
+         <td class="acciones">
+    <button class="btn-sm btn-edit">Editar</button>
+    <button class="btn-sm btn-delete">Eliminar</button>
+    <button class="btn-sm btn-green">Agregar Evidencias</button>
+    <button class="btn-sm btn-gray">PDF</button>
+    <button class="btn-sm btn-blue">Ver</button>
+</td>
+
         `;
 
         tbody.appendChild(tr);
@@ -3232,141 +3423,6 @@ async function cargarLevantamientosTabla() {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//nuevo levantamiento 
-
-
-    function prepararNuevoLevantamiento() {
-
-    // limpiar listas
-    document.getElementById("lev-materialesLista").innerHTML = "";
-    document.getElementById("lev-necesidadesContainer").innerHTML = "";
-
-    // cargar clientes
-    loadClientesForLevantamientos();
-
-    // autollenar fecha y hora
-    const ahora = new Date();
-    document.getElementById("fechaHora").value =
-        ahora.toISOString().slice(0, 16);
-
-    // autollenar personal
-    const user = JSON.parse(localStorage.getItem("userData"));
-    window.personalAsignado = user?.nombre || "Desconocido";
-
-    activarAutollenadoDireccion();
-    }
-
-
-
-
-
-
-
-//auto llenado de la direccion
-function activarAutollenadoDireccion() {
-    const select = document.getElementById("lev-clienteSelect");
-    const direccionInput = document.getElementById("lev-direccion");
-
-    select.addEventListener("change", async () => {
-        const clienteId = select.value;
-        const token = localStorage.getItem('userToken');
-
-        const res = await fetch(`${API_BASE_URL}/clientes-negocio/${clienteId}`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-
-        const cliente = await res.json();
-        const dir = cliente.direcciones?.[0]?.direccionEscrita;
-
-        direccionInput.value = dir || "";
-    });
-}
-
-
-//cargar clientes select 
-async function loadClientesForLevantamientos() {
-    const select = document.getElementById("lev-clienteSelect");
-
-    select.innerHTML = `<option value="">Cargando clientes...</option>`;
-
-    const clientes = await fetchData('/clientes-negocio');
-
-    select.innerHTML = `<option value="">Seleccione un cliente</option>`;
-
-    clientes.forEach(c => {
-        const opt = document.createElement("option");
-        opt.value = c.id;
-        opt.textContent = c.nombre;
-        select.appendChild(opt);
-    });
-}
-
-
-//guardar levantamiento
-async function guardarLevantamiento() {
-
-    const clienteId = document.getElementById("lev-clienteSelect").value;
-    const fechaHora = document.getElementById("fechaHora").value;
-    const direccion = document.getElementById("lev-direccion").value;
-
-    const materiales = [...document.querySelectorAll("#lev-materialesLista li")]
-        .map(li => li.textContent.trim());
-
-    const necesidades = [];
-    document.querySelectorAll(".necesidad-item").forEach((div, idx) => {
-        const desc = div.querySelector(".desc").value.trim();
-        necesidades.push({ descripcion: desc, idx });
-    });
-
-    const fd = new FormData();
-    fd.append("clienteNegocioId", clienteId);
-    fd.append("fecha", fechaHora);
-    fd.append("direccion", direccion || "");
-    fd.append("personalNombre", window.personalAsignado);
-    fd.append("materiales", JSON.stringify(materiales));
-    fd.append("necesidades", JSON.stringify(necesidades));
-
-    const token = localStorage.getItem('userToken');
-
-    const res = await fetch(`${API_BASE_URL}/levantamientos`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: fd
-    });
-
-    if (!res.ok) {
-        alert("Error al guardar levantamiento");
-        return;
-    }
-
-    alert("Levantamiento guardado");
-    mostrarContenido("listaLevantamientos");
-}
-
-
-//activar el boton de nuevo levantamineto 
 document.getElementById("btnNuevoLevantamiento")
     .addEventListener("click", () => {
         mostrarContenido("Levantamientos");
@@ -3374,3 +3430,65 @@ document.getElementById("btnNuevoLevantamiento")
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    function prepararNuevoLevantamiento() {
+
+    // --- LIMPIAR FORMULARIO ---
+    document.getElementById("lev-materialesLista").innerHTML = "";
+    document.getElementById("lev-necesidadesContainer").innerHTML = "";
+
+    // --- CARGAR CLIENTES ---
+    loadClientesForLevantamientos();
+
+    // --- PONER FECHA Y HORA ACTUAL ---
+    const ahora = new Date();
+    document.getElementById("fechaHora").value =
+        ahora.toISOString().slice(0, 16); // formato yyyy-mm-ddThh:mm
+
+    // --- ASIGNAR PERSONAL AUTOMÁTICO ---
+    const user = JSON.parse(localStorage.getItem("userData"));
+    if (user) {
+        window.personalAsignado = user.nombre;  // guardo globalmente
+    }
+
+    // --- CUANDO SELECCIONEN CLIENTE → AUTOLLENAR DIRECCIÓN ---
+    const selectCliente = document.getElementById("lev-clienteSelect");
+
+    selectCliente.addEventListener("change", async () => {
+        const clienteId = selectCliente.value;
+        const token = localStorage.getItem('userToken');
+
+        const res = await fetch(`${API_BASE_URL}/clientes-negocio/${clienteId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        const cliente = await res.json();
+
+        if (cliente.direcciones && cliente.direcciones.length > 0) {
+            document.getElementById("lev-direccion").value =
+                cliente.direcciones[0].direccionEscrita || "";
+        }
+    });
+}
