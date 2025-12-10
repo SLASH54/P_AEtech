@@ -3236,14 +3236,17 @@ async function guardarLevantamiento() {
         return;
     }
 
+    // MATERIAL
     const materiales = [...document.querySelectorAll("#lev-materialesLista li")]
         .map(li => li.textContent.trim());
 
+    // NECESIDADES
     const necesidades = [];
     const fd = new FormData();
 
-    fd.append("clienteId", clienteId);
-    fd.append("fechaHora", fechaHora);
+    // CAMPOS QUE ESPERA EL BACKEND
+    fd.append("clienteNegocioId", clienteId);  // CAMBIO IMPORTANTE
+    fd.append("fecha", fechaHora);             // CAMBIO IMPORTANTE
     fd.append("materiales", JSON.stringify(materiales));
 
     let index = 0;
@@ -3255,12 +3258,13 @@ async function guardarLevantamiento() {
 
         necesidades.push({
             descripcion: desc,
-            fotosQty: files.length,
+            fotos: files.length,
             idx: index
         });
 
+        // FOTOS EN FORMATO QUE TU BACKEND SI SOPORTA
         for (let i = 0; i < files.length; i++) {
-            fd.append(`foto_${index}_${i}`, files[i]);
+            fd.append("fotos", files[i]);  
         }
 
         index++;
@@ -3277,11 +3281,14 @@ async function guardarLevantamiento() {
             body: fd
         });
 
-        if (!res.ok) throw new Error("Error al guardar levantamiento");
+        if (!res.ok) {
+            const msg = await res.text();
+            throw new Error("Error al guardar levantamiento: " + msg);
+        }
 
         alert("Levantamiento guardado correctamente ✔");
-
-    } catch (err) {
+    } 
+    catch (err) {
         console.error(err);
         alert("Error al guardar levantamiento");
     }
@@ -3380,3 +3387,46 @@ function cargarDireccionesCliente(clienteId) {
         selectDireccion.appendChild(option);
     });
 }
+
+
+
+async function cargarLevantamientosTabla() {
+
+    const token = localStorage.getItem("userToken");
+
+    const res = await fetch(`${API_BASE_URL}/levantamientos`, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+
+    const data = await res.json();
+    const tbody = document.getElementById("tablaLevantamientos");
+
+    tbody.innerHTML = "";
+
+    data.forEach(lv => {
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+            <td>${lv.cliente?.nombre || "Sin cliente"}</td>
+            <td>${lv.direccion || "Sin dirección"}</td>
+            <td>${lv.personal?.nombre || "Sin asignar"}</td>
+            <td>${lv.fecha || "N/A"}</td>
+
+            <td class="acciones">
+                <button class="btn-sm btn-edit">Editar</button>
+                <button class="btn-sm btn-delete">Eliminar</button>
+                <button class="btn-sm btn-green">Agregar Evidencias</button>
+                <button class="btn-sm btn-gray">PDF</button>
+                <button class="btn-sm btn-blue">Ver</button>
+            </td>
+        `;
+
+        tbody.appendChild(tr);
+    });
+}
+
+
+document.getElementById("btnNuevoLevantamiento")
+    .addEventListener("click", () => {
+        mostrarContenido("Levantamientos");
+    });
