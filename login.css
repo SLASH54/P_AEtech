@@ -2721,7 +2721,7 @@ body::after {
 /* === SISTEMA DE FONDO DINÁMICO FINAL (FUNCIONAL) === */
 
 #TableroAetech {
-  position: relative;
+  position: sticky;
   min-height: 100vh;
   overflow: hidden;
 }
