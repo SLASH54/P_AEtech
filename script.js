@@ -3049,7 +3049,8 @@ setInterval(mostrarSaludoPersonalizado, 60000); // se actualiza cada minuto
 // === Cambiar fondo del tablero según la hora ===
 function cambiarFondoSegunHora() {
     const hora = new Date().getHours();
-    const card = document.querySelector(".dashboard-card");
+    const card = document.getElementById("TableroAetech");
+
 
     console.log("Función ejecutada. Hora detectada:", hora);
     
