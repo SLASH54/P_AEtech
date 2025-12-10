@@ -3047,17 +3047,34 @@ setInterval(mostrarSaludoPersonalizado, 60000); // se actualiza cada minuto
 
 
 // === Cambiar fondo del tablero según la hora ===
-function cambiarFondoSegunHora() {
-  const tablero = document.getElementById('TableroAetech');
-  if (!tablero) return;
+function aplicarFondoPorHora() {
+    const hora = new Date().getHours();
+    const card = document.querySelector(".dashboard-card");
 
-  const hora = new Date().getHours();
-  tablero.classList.remove('tablero-manana', 'tablero-tarde', 'tablero-noche');
+    console.log("Función ejecutada. Hora detectada:", hora);
+    
+    if (!card) {
+        console.log("Dashboard-card NO encontrado!");
+        return;
+    }
 
-  if (hora >= 6 && hora < 15) tablero.classList.add('tablero-manana');
-  else if (hora >= 15 && hora < 19) tablero.classList.add('tablero-tarde');
-  else tablero.classList.add('tablero-noche');
+    card.classList.remove("fondo-manana", "fondo-tarde", "fondo-noche");
+    console.log("Clases eliminadas");
+
+    if (hora >= 6 && hora < 12) {
+        card.classList.add("fondo-manana");
+        console.log("Clase aplicada: fondo-manana");
+    }
+    else if (hora >= 12 && hora < 18) {
+        card.classList.add("fondo-tarde");
+        console.log("Clase aplicada: fondo-tarde");
+    }
+    else {
+        card.classList.add("fondo-noche");
+        console.log("Clase aplicada: fondo-noche");
+    }
 }
+
 
 cambiarFondoSegunHora();
 setInterval(cambiarFondoSegunHora, 3600000);
