@@ -3047,7 +3047,7 @@ setInterval(mostrarSaludoPersonalizado, 60000); // se actualiza cada minuto
 
 
 // === Cambiar fondo del tablero según la hora ===
-function aplicarFondoPorHora() {
+function cambiarFondoSegunHora() {
     const hora = new Date().getHours();
     const card = document.querySelector(".dashboard-card");
 
