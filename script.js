@@ -3124,27 +3124,29 @@ function toggleDescripcion(id) {
 
 // Cargar clientes para levantamientos
 async function loadClientesForLevantamientos() {
-
-    const clienteSelect = document.getElementById('lev-clienteSelect');
+    const clienteSelect = document.getElementById("lev-clienteSelect");
     if (!clienteSelect) return;
 
-    clienteSelect.innerHTML = '<option value="" disabled selected>-- Cargando Clientes... --</option>';
+    clienteSelect.innerHTML = `<option value="">Cargando clientes...</option>`;
 
-    const clientes = await fetchData('/clientes-negocio');
+    const token = localStorage.getItem("userToken");
 
-    clienteSelect.innerHTML = '<option value="" disabled selected>-- Selecciona Cliente --</option>';
+    const res = await fetch(`${API_BASE_URL}/clientes-negocio`, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
 
-    if (clientes && Array.isArray(clientes) && clientes.length > 0) {
-        clientes.forEach(cliente => {
-            const option = document.createElement('option');
-            option.value = cliente._id || cliente.id;
-            option.textContent = cliente.nombre;
-            clienteSelect.appendChild(option);
-        });
-    } else {
-        clienteSelect.innerHTML = `<option value="" disabled selected>No se encontraron clientes</option>`;
-    }
+    const clientes = await res.json();
+
+    clienteSelect.innerHTML = `<option value="">Selecciona un cliente</option>`;
+
+    clientes.forEach(c => {
+        const option = document.createElement("option");
+        option.value = c.id || c._id;
+        option.textContent = c.nombre;
+        clienteSelect.appendChild(option);
+    });
 }
+
 
 
 // ================= NECESIDADES =================
@@ -3163,7 +3165,7 @@ function agregarNecesidadUI() {
         <textarea class="desc lev-input" placeholder="Describe la necesidad..."></textarea>
 
         <label>Foto(s)</label>
-        <input type="file" accept="image/*" capture="camera"
+        <input type="file" accept="image/*" capture="camera" 
                class="foto" data-id="${id}" multiple>
 
         <div id="preview-${id}" class="preview"></div>
@@ -3175,6 +3177,31 @@ function agregarNecesidadUI() {
 
     cont.appendChild(div);
 }
+
+
+
+// ================= MATERIAL =================
+
+const levInputMaterial = document.getElementById("lev-materialInput");
+const levBtnMaterial = document.getElementById("lev-agregarMaterialBtn");
+const levListaMateriales = document.getElementById("lev-materialesLista");
+let levMaterialesList = [];
+
+if (levBtnMaterial) {
+    levBtnMaterial.addEventListener("click", () => {
+        const texto = levInputMaterial.value.trim();
+        if (!texto) return;
+
+        levMaterialesList.push(texto);
+
+        const li = document.createElement("li");
+        li.textContent = texto;
+        levListaMateriales.appendChild(li);
+
+        levInputMaterial.value = "";
+    });
+}
+
 
 
 // ================= GUARDAR LEVANTAMIENTO =================
@@ -3193,11 +3220,13 @@ async function guardarLevantamiento() {
 
     const necesidades = [];
     const fd = new FormData();
+
     fd.append("clienteId", clienteId);
     fd.append("fechaHora", fechaHora);
     fd.append("materiales", JSON.stringify(materiales));
 
     let index = 0;
+
     document.querySelectorAll(".necesidad-item").forEach(div => {
         const desc = div.querySelector(".desc").value;
         const inputFotos = div.querySelector(".foto");
@@ -3220,6 +3249,7 @@ async function guardarLevantamiento() {
 
     try {
         const token = localStorage.getItem('userToken');
+
         const res = await fetch(`${API_BASE_URL}/levantamientos`, {
             method: "POST",
             headers: { Authorization: `Bearer ${token}` },
@@ -3229,6 +3259,7 @@ async function guardarLevantamiento() {
         if (!res.ok) throw new Error("Error al guardar levantamiento");
 
         alert("Levantamiento guardado correctamente");
+
     } catch (err) {
         console.error(err);
         alert("Ocurrió un error al guardar el levantamiento");
@@ -3236,30 +3267,8 @@ async function guardarLevantamiento() {
 }
 
 
-// ================= MATERIALES =================
 
-const levInputMaterial = document.getElementById("lev-materialInput");
-const levBtnMaterial = document.getElementById("lev-agregarMaterialBtn");
-const levListaMateriales = document.getElementById("lev-materialesLista");
-let levMaterialesList = [];
-
-if (levBtnMaterial) {
-    levBtnMaterial.addEventListener("click", () => {
-        const texto = levInputMaterial.value.trim();
-        if (!texto) return;
-
-        levMaterialesList.push(texto);
-
-        const li = document.createElement("li");
-        li.textContent = texto;
-
-        levListaMateriales.appendChild(li);
-        levInputMaterial.value = "";
-    });
-}
-
-
-// ================= INIT =================
+// ================= INICIALIZAR =================
 
 function initLevantamientos() {
     loadClientesForLevantamientos();
@@ -3271,9 +3280,12 @@ function initLevantamientos() {
 
     document.addEventListener("change", function (e) {
         if (!e.target.classList.contains("foto")) return;
+
         const id = e.target.dataset.id;
         const preview = document.getElementById(`preview-${id}`);
+
         preview.innerHTML = "";
+
         [...e.target.files].forEach(file => {
             preview.innerHTML += `<img src="${URL.createObjectURL(file)}" class="thumb">`;
         });
