@@ -712,6 +712,11 @@ function mostrarContenido(seccionId) {
         initTareas();
     }
 
+     // Inicializar sección de Levantamientos
+    if (seccionId === 'Levantamientos') {
+        initLevantamientos();
+    }
+
      // Ocultar el menú después de la selección en móvil
      const menu = document.getElementById('main-menu');
      if (menu.classList.contains('open') && window.innerWidth <= 910) {
@@ -3122,30 +3127,39 @@ function toggleDescripcion(id) {
 
 // ================= LEVANTAMIENTOS =================
 
+
 // Cargar clientes para levantamientos
+
+// Cargar clientes para levantamientos (mismos clientes que en tareas)
 async function loadClientesForLevantamientos() {
     const clienteSelect = document.getElementById("lev-clienteSelect");
     if (!clienteSelect) return;
 
+    // Mensaje mientras carga
     clienteSelect.innerHTML = `<option value="">Cargando clientes...</option>`;
 
-    const token = localStorage.getItem("userToken");
+    // Usa la MISMA función genérica que ya usas en tareas
+    const clientes = await fetchData('/clientes');
 
-    const res = await fetch(`${API_BASE_URL}/clientes-negocio`, {
-        headers: { Authorization: `Bearer ${token}` }
-    });
-
-    const clientes = await res.json();
-
+    // Limpiar y poner placeholder
     clienteSelect.innerHTML = `<option value="">Selecciona un cliente</option>`;
 
-    clientes.forEach(c => {
-        const option = document.createElement("option");
-        option.value = c.id || c._id;
-        option.textContent = c.nombre;
-        clienteSelect.appendChild(option);
-    });
+    if (clientes && Array.isArray(clientes) && clientes.length > 0) {
+        clientes.forEach(c => {
+            const option = document.createElement('option');
+            option.value = c._id || c.id;
+            option.textContent = c.nombre;
+            clienteSelect.appendChild(option);
+        });
+    } else {
+        const msg = (clientes === null)
+            ? 'No tienes permisos para ver clientes'
+            : 'No se encontraron clientes';
+
+        clienteSelect.innerHTML = `<option value="">${msg}</option>`;
+    }
 }
+
 
 
 
