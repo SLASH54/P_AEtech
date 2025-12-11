@@ -3364,10 +3364,7 @@ async function cargarLevantamientosTabla() {
 
 /* 8. Conectar botones al cargar */
 document.getElementById("btnNuevoLevantamiento")
-    .addEventListener("click", () => {
-        mostrarContenido("Levantamientos");
-        prepararNuevoLevantamiento();
-    });
+?.addEventListener("click", addNuevoLevantamiento);
 
 document.getElementById("btnAddNecesidad")
     ?.addEventListener("click", addNecesidad);

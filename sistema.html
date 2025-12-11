@@ -904,18 +904,20 @@
 
 
 
-
-<!-- ============ LISTA DE LEVANTAMIENTOS ============ -->
-<div id="listaLevantamientos" class="main-content">
+<!-- ========== LISTA DE LEVANTAMIENTOS ========== -->
+<div id="listaLevantamientos" class="main-content show">
 
     <div class="tareas-container">
+
         <h2 class="section-title">Organizador de Levantamientos</h2>
 
+        <!-- BOTÓN NUEVO -->
         <button id="btnNuevoLevantamiento" class="btn btn-primary" style="margin-bottom: 15px;">
             + Nuevo Levantamiento
         </button>
 
-        <div class="table-responsive">
+        <!-- TABLA -->
+        <div class="table-responsive" style="margin-top: 15px;">
             <table class="table table-hover table-striped">
                 <thead>
                     <tr>
@@ -927,59 +929,64 @@
                     </tr>
                 </thead>
                 <tbody id="tablaLevantamientos">
-                    <!-- Se llena desde script.js -->
+                    <!-- JS llena esto -->
                 </tbody>
             </table>
         </div>
+
     </div>
 
 </div>
 
+
 <!-- ========== MODAL NUEVO LEVANTAMIENTO (iOS Style) ========== -->
-<div id="modalLevantamiento" class="modalGlass">
-    <div class="modalGlass-content">
+<!-- ========== NUEVO LEVANTAMIENTO ========== -->
+<div id="Levantamientos" class="main-content" style="display:none;">
 
-        <h2 class="modalGlass-title">Nuevo Levantamiento</h2>
+    <div class="tareas-container">
 
-        <span class="modalGlass-close" onclick="closeLevantamientoModal()">✖</span>
+        <h2 class="section-title">Nuevo Levantamiento</h2>
 
-        <!-- CLIENTE -->
+        <!-- Cliente -->
         <label>Cliente:</label>
         <select id="lev-clienteSelect" class="form-select"></select>
 
-        <!-- DIRECCIÓN -->
+        <!-- Dirección -->
         <label>Dirección:</label>
-        <input id="lev-direccion" type="text" class="form-control" readonly />
+        <input id="lev-direccion" type="text" class="form-control" readonly>
 
-        <!-- PERSONAL -->
+        <!-- Personal -->
         <label>Personal:</label>
-        <input id="lev-personal" type="text" class="form-control" readonly />
+        <input id="lev-personal" type="text" class="form-control" readonly>
 
-        <!-- FECHA -->
+        <!-- Fecha -->
         <label>Fecha y Hora:</label>
         <input id="lev-fechaHora" type="datetime-local" class="form-control">
 
         <hr>
 
-        <!-- NECESIDADES -->
+        <!-- Necesidades -->
         <h4>Necesidades</h4>
         <div id="lev-necesidadesContainer"></div>
-        <button id="btnAddNecesidad" class="btn btn-secondary">+ Agregar</button>
+        <button id="btnAddNecesidad" class="btn btn-secondary" type="button">+ Agregar</button>
 
         <hr>
 
-        <!-- MATERIALES -->
+        <!-- Materiales -->
         <h4>Materiales</h4>
         <input id="lev-materialInput" class="form-control" placeholder="Ej. Cable UTP 20m">
-        <button id="lev-addMaterialBtn" class="btn btn-secondary">+ Agregar</button>
+        <button id="lev-addMaterialBtn" class="btn btn-secondary" type="button">+ Agregar</button>
+
         <ul id="lev-materialesLista"></ul>
 
         <hr>
 
-        <!-- GUARDAR -->
-        <button id="btnGuardarLevantamiento" class="btn btn-success">Guardar</button>
+        <button id="btnGuardarLevantamiento" class="btn btn-success">
+            Guardar Levantamiento
+        </button>
 
     </div>
+
 </div>
 
 
