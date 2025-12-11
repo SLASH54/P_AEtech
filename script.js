@@ -716,17 +716,7 @@ function mostrarContenido(seccionId) {
 
 
 
-if (seccionId === "Levantamientos") {
-    document.getElementById("listaLevantamientos").style.display = "none";
-    document.getElementById("Levantamientos").style.display = "block";
-    prepararNuevoLevantamiento();
-}
 
-if (seccionId === "listaLevantamientos") {
-    document.getElementById("listaLevantamientos").style.display = "block";
-    document.getElementById("Levantamientos").style.display = "none";
-    cargarLevantamientosTabla();
-}
 
 
 
