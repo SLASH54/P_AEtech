@@ -907,99 +907,63 @@
 
 
 <!-- ORGANIZADOR DE LEVANTAMIENTOS -->
-<section id="listaLevantamientos" class="main-content">
-    <div class="contenedor">
-        <h2>Organizador de Levantamientos</h2>
+<section id="listaLevantamientos" class="main-content show">
+    <h2>Organizador de Levantamientos</h2>
 
-        <button id="btnNuevoLevantamiento" class="btn-primary">
-            + Nuevo Levantamiento
-        </button>
+    <button id="btnNuevoLevantamiento" class="btn-success">
+        + Nuevo Levantamiento
+    </button>
 
-        <table class="tabla">
-            <thead>
-                <tr>
-                    <th>CLIENTE</th>
-                    <th>DIRECCIÓN</th>
-                    <th>PERSONAL</th>
-                    <th>FECHA</th>
-                    <th>ACCIONES</th>
-                </tr>
-            </thead>
-            <tbody id="tablaLevantamientos"></tbody>
-        </table>
-    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Cliente</th>
+                <th>Dirección</th>
+                <th>Personal</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="tablaLevantamientos"></tbody>
+    </table>
 </section>
+
 
 
 
 <!-- FORMULARIO NUEVO LEVANTAMIENTO -->
-<section id="Levantamientos" class="main-content" style="display:none;">
+<section id="Levantamientos" class="main-content">
 
-  <div class="lev-container">
+    <div class="lev-card">
 
-    <h2 class="titulo-lev">📋 Nuevo Levantamiento</h2>
+        <h2>📋 Nuevo Levantamiento</h2>
 
-    <!-- CLIENTE -->
-    <div class="lev-bloque">
         <label>Cliente</label>
         <select id="lev-clienteSelect"></select>
 
-        <button onclick="mostrarContenido('Clientes')" class="lev-btn-sec">
-            + Registrar Cliente
-        </button>
-    </div>
-
-    <!-- DIRECCIÓN (AUTOMÁTICA) -->
-    <div class="lev-bloque">
         <label>Dirección</label>
-        <input id="lev-direccion" class="lev-input" placeholder="Dirección del cliente">
-    </div>
+        <input id="lev-direccion" type="text" placeholder="Dirección del cliente" />
 
-    <!-- FECHA -->
-    <div class="lev-bloque">
         <label>Fecha y hora</label>
-        <input type="datetime-local" id="lev-fechaHora" class="lev-input">
-    </div>
+        <input id="lev-fechaHora" type="datetime-local" />
 
-    <!-- PERSONAL (solo lectura) -->
-    <div class="lev-bloque">
         <label>Personal</label>
-        <input id="lev-personal" class="lev-input" readonly>
-    </div>
+        <input id="lev-personal" type="text" disabled />
 
-    <!-- NECESIDADES -->
-    <div class="lev-bloque">
-        <h3 class="subtitulo-lev">📌 Necesidades</h3>
-
+        <h3>📌 Necesidades</h3>
+        <button id="btnAddNecesidad" type="button">+ Agregar necesidad</button>
         <div id="lev-necesidadesContainer"></div>
 
-        <button id="agregarNecesidadBtn" class="lev-btn">
-            + Agregar necesidad
-        </button>
+        <h3>🧱 Materiales</h3>
+        <input id="lev-materialInput" placeholder="Ej: Cable 3m" />
+        <button id="lev-addMaterialBtn" type="button">Agregar</button>
+        <ul id="lev-materialesLista"></ul>
+
+        <button id="btnGuardarLevantamiento" class="btnGuardar">Guardar levantamiento</button>
     </div>
-
-    <!-- MATERIALES -->
-    <div class="lev-bloque">
-        <h3 class="subtitulo-lev">🧱 Materiales</h3>
-
-        <div class="flex-row">
-            <input id="lev-materialInput" placeholder="Material...">
-            <button id="lev-agregarMaterialBtn">Agregar</button>
-        </div>
-
-        <ul id="lev-materialesLista" class="lev-lista"></ul>
-    </div>
-
-    <!-- BOTÓN GUARDAR -->
-    <div class="lev-bloque" style="text-align:center;">
-        <button id="guardarLevantamientoBtn" class="lev-btn-guardar">
-            Guardar levantamiento
-        </button>
-    </div>
-
-  </div>
 
 </section>
+
 
 
 </body>

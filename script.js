@@ -3194,14 +3194,34 @@ function cargarDireccionesCliente(clienteId) {
 
 
 
+/* ========== LEVANTAMIENTOS ========== */
 
+/* 1. Autollenar dirección cuando cambie el cliente */
+async function activarAutollenadoDireccion() {
+    const select = document.getElementById("lev-clienteSelect");
+    const direccionInput = document.getElementById("lev-direccion");
 
-/* ============================================================
-      LEVANTAMIENTOS — SISTEMA COMPLETO Y LIMPIO
-============================================================ */
+    select.addEventListener("change", async () => {
+        const clienteId = select.value;
+        if (!clienteId) {
+            direccionInput.value = "";
+            return;
+        }
 
+        const token = localStorage.getItem('userToken');
 
-/* ------------ 1. Cargar clientes en el select ------------------ */
+        const res = await fetch(`${API_BASE_URL}/clientes-negocio/${clienteId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const cliente = await res.json();
+        const dir = cliente.direcciones?.[0]?.direccionEscrita;
+
+        direccionInput.value = dir || "";
+    });
+}
+
+/* 2. Cargar clientes en el select del formulario */
 async function loadClientesForLevantamientos() {
     const select = document.getElementById("lev-clienteSelect");
 
@@ -3219,128 +3239,66 @@ async function loadClientesForLevantamientos() {
     });
 }
 
-function activarAutollenadoDireccion() {
-    const select = document.getElementById("lev-clienteSelect");
-    const dir = document.getElementById("lev-direccion");
+/* 3. Preparar el formulario cada vez que se abre */
+function prepararNuevoLevantamiento() {
+    // limpiar listas
+    document.getElementById("lev-materialesLista").innerHTML = "";
+    document.getElementById("lev-necesidadesContainer").innerHTML = "";
 
-    select.addEventListener("change", async () => {
-        const res = await fetch(`${API_BASE_URL}/clientes-negocio/${select.value}`);
-        const data = await res.json();
+    // recargar clientes y direccion automática
+    loadClientesForLevantamientos();
+    activarAutollenadoDireccion();
 
-        dir.value = data.direcciones?.[0]?.direccionEscrita || "";
-    });
+    // fecha actual
+    const now = new Date();
+    document.getElementById("lev-fechaHora").value = now.toISOString().slice(0, 16);
+
+    // personal actual desde el usuario logueado
+    const user = JSON.parse(localStorage.getItem("userData"));
+    document.getElementById("lev-personal").value = user?.nombre || "Desconocido";
 }
 
-
-/* ------------ 2. Autollenar dirección cuando cambie el cliente ---- */
-async function loadClientesForLevantamientos() {
-    const select = document.getElementById("lev-clienteSelect");
-
-    select.innerHTML = `<option value="">Cargando clientes...</option>`;
-
-    const clientes = await fetchData('/clientes-negocio');
-
-    select.innerHTML = `<option value="">Seleccione un cliente</option>`;
-
-    clientes.forEach(c => {
-        const opt = document.createElement("option");
-        opt.value = c.id;
-        opt.textContent = c.nombre;
-        select.appendChild(opt);
-    });
-}
-
-function activarAutollenadoDireccion() {
-    const select = document.getElementById("lev-clienteSelect");
-    const dir = document.getElementById("lev-direccion");
-
-    select.addEventListener("change", async () => {
-        const res = await fetch(`${API_BASE_URL}/clientes-negocio/${select.value}`);
-        const data = await res.json();
-
-        dir.value = data.direcciones?.[0]?.direccionEscrita || "";
-    });
-}
-
-
-/* ------------ 3. Necesidades dinámicas ------------------ */
+/* 4. Necesidades */
 function addNecesidad() {
     const cont = document.getElementById("lev-necesidadesContainer");
-    if (!cont) return;
 
     const div = document.createElement("div");
-    div.className = "nec-item";
+    div.classList.add("nec-item");
+
     div.innerHTML = `
         <textarea placeholder="Describe la necesidad..."></textarea>
         <button type="button" onclick="this.parentNode.remove()">❌</button>
     `;
+
     cont.appendChild(div);
 }
 
-/* ------------ 4. Materiales dinámicos ------------------ */
+/* 5. Materiales */
 function addMaterial() {
-    const input = document.getElementById("lev-materialInput");
     const lista = document.getElementById("lev-materialesLista");
-    if (!input || !lista) return;
+    const val = document.getElementById("lev-materialInput").value.trim();
 
-    const text = input.value.trim();
-    if (!text) return;
+    if (!val) return;
 
     const li = document.createElement("li");
-    li.innerHTML = `
-        <span>${text}</span>
-        <button type="button" onclick="this.parentNode.remove()">❌</button>
-    `;
+    li.innerHTML = `${val} <button type="button" onclick="this.parentNode.remove()">❌</button>`;
     lista.appendChild(li);
-    input.value = "";
+
+    document.getElementById("lev-materialInput").value = "";
 }
 
-/* ------------ 5. Preparar formulario de nuevo levantamiento ------- */
-function prepararNuevoLevantamiento() {
-    // reset listas
-    const listaMat = document.getElementById("lev-materialesLista");
-    const contNec  = document.getElementById("lev-necesidadesContainer");
-    const fechaInp = document.getElementById("lev-fechaHora");
-    const personal = document.getElementById("lev-personal");
-
-    if (listaMat) listaMat.innerHTML = "";
-    if (contNec) contNec.innerHTML = "";
-
-    loadClientesForLev();
-    activarAutollenadoDireccion();
-
-    // Fecha/hora actual
-    if (fechaInp) {
-        const now = new Date();
-        fechaInp.value = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
-            .toISOString()
-            .slice(0, 16);
-    }
-
-    // Nombre del usuario logueado
-    if (personal) {
-        personal.value = localStorage.getItem("userName") || "Desconocido";
-    }
-}
-
-/* ------------ 6. Guardar levantamiento en backend ----------------- */
+/* 6. Guardar en backend */
 async function guardarLevantamiento() {
-    const clienteId = document.getElementById("lev-clienteSelect")?.value;
-    const direccion = document.getElementById("lev-direccion")?.value || "";
-    const fecha     = document.getElementById("lev-fechaHora")?.value;
-    const personal  = document.getElementById("lev-personal")?.value || "";
+    const clienteId  = document.getElementById("lev-clienteSelect").value;
+    const direccion  = document.getElementById("lev-direccion").value;
+    const fecha      = document.getElementById("lev-fechaHora").value;
+    const personal   = document.getElementById("lev-personal").value;
 
-    if (!clienteId || !fecha) {
-        alert("Selecciona un cliente y una fecha/hora.");
-        return;
-    }
-
-    const materiales = [...document.querySelectorAll("#lev-materialesLista li span")]
-        .map(span => span.textContent.trim());
+    const materiales = [...document.querySelectorAll("#lev-materialesLista li")]
+        .map(li => li.textContent.replace("❌", "").trim());
 
     const necesidades = [...document.querySelectorAll(".nec-item textarea")]
-        .map(t => t.value.trim())
-        .filter(t => t !== "");
+        .map(t => t.value.trim());
 
     const fd = new FormData();
     fd.append("clienteNegocioId", clienteId);
@@ -3351,10 +3309,6 @@ async function guardarLevantamiento() {
     fd.append("necesidades", JSON.stringify(necesidades));
 
     const token = localStorage.getItem("userToken");
-    if (!token) {
-        alert("Sesión expirada.");
-        return;
-    }
 
     const res = await fetch(`${API_BASE_URL}/levantamientos`, {
         method: "POST",
@@ -3363,105 +3317,63 @@ async function guardarLevantamiento() {
     });
 
     if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        alert(data.message || "Error al guardar levantamiento");
+        alert("❌ Error al guardar.");
         return;
     }
 
-    alert("✅ Levantamiento guardado correctamente");
+    alert("✔ Levantamiento guardado");
     mostrarContenido("listaLevantamientos");
     cargarLevantamientosTabla();
 }
 
-/* ------------ 7. Cargar tabla de levantamientos ------------------- */
+/* 7. Cargar tabla de levantamientos (cuando tengas el backend listo) */
 async function cargarLevantamientosTabla() {
     const token = localStorage.getItem("userToken");
+
+    const res = await fetch(`${API_BASE_URL}/levantamientos`, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+
+    if (!res.ok) {
+        console.error("Error al cargar levantamientos");
+        return;
+    }
+
+    const data = await res.json();
     const tbody = document.getElementById("tablaLevantamientos");
-    if (!tbody) return;
+    tbody.innerHTML = "";
 
-    tbody.innerHTML = `<tr><td colspan="5">Cargando...</td></tr>`;
+    data.forEach(lv => {
+        const tr = document.createElement("tr");
 
-    try {
-        const res = await fetch(`${API_BASE_URL}/levantamientos`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        const data = await res.json();
+        tr.innerHTML = `
+            <td>${lv.clienteNombre}</td>
+            <td>${lv.direccion}</td>
+            <td>${lv.personalNombre}</td>
+            <td>${lv.fecha?.split("T")[0]}</td>
+            <td>
+                <button class="btn-edit">Editar</button>
+                <button class="btn-delete">Eliminar</button>
+                <button class="btn-pdf">PDF</button>
+            </td>
+        `;
 
-        tbody.innerHTML = "";
-
-        if (!Array.isArray(data) || data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5">Sin levantamientos registrados.</td></tr>`;
-            return;
-        }
-
-        data.forEach(lv => {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td>${lv.clienteNombre || "Sin cliente"}</td>
-                <td>${lv.direccion || ""}</td>
-                <td>${lv.personalNombre || ""}</td>
-                <td>${(lv.fecha || "").split("T")[0]}</td>
-                <td>
-                    <button class="btn-edit">Editar</button>
-                    <button class="btn-delete">Eliminar</button>
-                    <button class="btn-pdf">PDF</button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-
-    } catch (err) {
-        console.error(err);
-        tbody.innerHTML = `<tr><td colspan="5">Error al cargar levantamientos.</td></tr>`;
-    }
+        tbody.appendChild(tr);
+    });
 }
 
-/* ------------ 8. Conectar botones (esperando al DOM) -------------- */
-document.addEventListener("DOMContentLoaded", () => {
-    const btnNuevo   = document.getElementById("btnNuevoLevantamiento");
-    const btnNec     = document.getElementById("btnAddNecesidad");
-    const btnMat     = document.getElementById("lev-addMaterialBtn");
-    const btnGuardar = document.getElementById("btnGuardarLevantamiento");
+/* 8. Conectar botones al cargar */
+document.getElementById("btnNuevoLevantamiento")
+    .addEventListener("click", () => {
+        mostrarContenido("Levantamientos");
+        prepararNuevoLevantamiento();
+    });
 
-   // Botón "+ Nuevo Levantamiento" (se engancha cuando el DOM ya cargó)
-document.addEventListener("DOMContentLoaded", () => {
-    const btnNuevo = document.getElementById("btnNuevoLevantamiento");
-    if (btnNuevo) {
-        btnNuevo.addEventListener("click", () => {
-            mostrarContenido("Levantamientos");
-        });
-    }
-});
+document.getElementById("btnAddNecesidad")
+    ?.addEventListener("click", addNecesidad);
 
- 
-    if (btnNec)     btnNec.addEventListener("click", addNecesidad);
-    if (btnMat)     btnMat.addEventListener("click", addMaterial);
-    if (btnGuardar) btnGuardar.addEventListener("click", guardarLevantamiento);
-});
+document.getElementById("lev-addMaterialBtn")
+    ?.addEventListener("click", addMaterial);
 
-
-
-
-function prepararNuevoLevantamiento() {
-    loadClientesForLevantamientos();
-    activarAutollenadoDireccion();
-
-    // Fecha/hora actual
-    const now = new Date();
-    const inputFecha = document.getElementById("lev-fechaHora");
-    if (inputFecha) {
-        inputFecha.value = now.toISOString().slice(0, 16);
-    }
-
-    // Nombre del personal logueado
-    const user = JSON.parse(localStorage.getItem("userData"));
-    const inputPersonal = document.getElementById("lev-personal");
-    if (inputPersonal) {
-        inputPersonal.value = user?.nombre || "Desconocido";
-    }
-}
-
-
-
-mostrarContenido("listaLevantamientos");
-cargarLevantamientosTabla();
+document.getElementById("btnGuardarLevantamiento")
+    ?.addEventListener("click", guardarLevantamiento);
