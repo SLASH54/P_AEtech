@@ -3140,226 +3140,6 @@ function toggleDescripcion(id) {
 
 
 
-/* ============================================
-   LEVANTAMIENTOS — CARGAR CLIENTES
-============================================ */
-
-async function loadClientesForLevantamientos() {
-    const clienteSelect = document.getElementById("lev-clienteSelect");
-    if (!clienteSelect) return;
-
-    clienteSelect.innerHTML = `<option value="">Cargando clientes...</option>`;
-
-    const clientes = await fetchData('/clientes'); // Igual que tareas
-
-    clienteSelect.innerHTML = `<option value="">Selecciona un cliente</option>`;
-
-    if (clientes && Array.isArray(clientes) && clientes.length > 0) {
-        clientes.forEach(c => {
-            const option = document.createElement('option');
-            option.value = c._id || c.id;
-            option.textContent = c.nombre;
-            clienteSelect.appendChild(option);
-        });
-    } else {
-        clienteSelect.innerHTML = `<option value="">No se encontraron clientes</option>`;
-    }
-}
-
-
-
-/* ============================================
-   LEVANTAMIENTOS — NECESIDADES
-============================================ */
-
-function agregarNecesidadUI() {
-    const cont = document.getElementById("lev-necesidadesContainer");
-    if (!cont) return;
-
-    const id = Date.now();
-
-    const div = document.createElement("div");
-    div.className = "necesidad-item";
-    div.dataset.id = id;
-
-    div.innerHTML = `
-        <label>Descripción</label>
-        <textarea class="desc lev-input" placeholder="Describe la necesidad..."></textarea>
-
-        <label>Foto(s)</label>
-        <input type="file" accept="image/*" capture="camera"
-               class="foto" data-id="${id}" multiple>
-
-        <div id="preview-${id}" class="preview"></div>
-
-        <button type="button" class="lev-btn-sec eliminar-necesidad">Eliminar necesidad</button>
-    `;
-
-    cont.appendChild(div);
-}
-
-
-
-/* ============================================
-   LEVANTAMIENTOS — MATERIALES (LISTA FUNCIONAL)
-============================================ */
-
-function setupMaterialesLevantamientos() {
-    const input = document.getElementById("lev-materialInput");
-    const btn = document.getElementById("lev-agregarMaterialBtn");
-    const lista = document.getElementById("lev-materialesLista");
-
-    if (!input || !btn || !lista) {
-        console.warn("Materiales no listos todavía");
-        return;
-    }
-
-    btn.addEventListener("click", () => {
-        const texto = input.value.trim();
-        if (!texto) return;
-
-        const li = document.createElement("li");
-        li.className = "lev-material-item";
-
-        li.innerHTML = `
-            <span>${texto}</span>
-            <button class="lev-remove-btn">❌</button>
-        `;
-
-        lista.appendChild(li);
-        input.value = "";
-
-        // eliminar un material
-        li.querySelector(".lev-remove-btn").addEventListener("click", () => {
-            li.remove();
-        });
-    });
-}
-
-
-
-/* ============================================
-   LEVANTAMIENTOS — GUARDAR FORMULARIO
-============================================ */
-
-async function guardarLevantamiento() {
-    const clienteId = document.getElementById("lev-clienteSelect").value;
-    const fechaHora = document.getElementById("fechaHora").value;
-
-    if (!clienteId || !fechaHora) {
-        alert("Selecciona un cliente y una fecha/hora.");
-        return;
-    }
-
-    // MATERIAL
-    const materiales = [...document.querySelectorAll("#lev-materialesLista li")]
-        .map(li => li.textContent.trim());
-
-    // NECESIDADES
-    const necesidades = [];
-    const fd = new FormData();
-
-    // CAMPOS QUE ESPERA EL BACKEND
-    fd.append("clienteNegocioId", clienteId);  // CAMBIO IMPORTANTE
-    fd.append("fecha", fechaHora);             // CAMBIO IMPORTANTE
-    fd.append("materiales", JSON.stringify(materiales));
-
-    let index = 0;
-
-    document.querySelectorAll(".necesidad-item").forEach(div => {
-        const desc = div.querySelector(".desc").value.trim();
-        const inputFotos = div.querySelector(".foto");
-        const files = inputFotos?.files || [];
-
-        necesidades.push({
-            descripcion: desc,
-            fotos: files.length,
-            idx: index
-        });
-
-        // FOTOS EN FORMATO QUE TU BACKEND SI SOPORTA
-        for (let i = 0; i < files.length; i++) {
-            fd.append("fotos", files[i]);  
-        }
-
-        index++;
-    });
-
-    fd.append("necesidades", JSON.stringify(necesidades));
-
-    try {
-        const token = localStorage.getItem('userToken');
-
-        const res = await fetch(`${API_BASE_URL}/levantamientos`, {
-            method: "POST",
-            headers: { Authorization: `Bearer ${token}` },
-            body: fd
-        });
-
-        if (!res.ok) {
-            const msg = await res.text();
-            throw new Error("Error al guardar levantamiento: " + msg);
-        }
-
-        alert("Levantamiento guardado correctamente ✔");
-    } 
-    catch (err) {
-        console.error(err);
-        alert("Error al guardar levantamiento");
-    }
-}
-
-
-
-/* ============================================
-   LEVANTAMIENTOS — INIT (SE ACTIVA AL ABRIR)
-============================================ */
-
-function initLevantamientos() {
-    loadClientesForLevantamientos();
-    setupMaterialesLevantamientos();
-
-    const btnNecesidad = document.getElementById("agregarNecesidadBtn");
-    if (btnNecesidad) {
-        btnNecesidad.addEventListener("click", agregarNecesidadUI);
-    }
-
-    // PREVIEW de fotos
-    document.addEventListener("change", function (e) {
-        if (!e.target.classList.contains("foto")) return;
-
-        const id = e.target.dataset.id;
-        const preview = document.getElementById(`preview-${id}`);
-
-        preview.innerHTML = "";
-
-        [...e.target.files].forEach(file => {
-            preview.innerHTML += `
-                <img src="${URL.createObjectURL(file)}" class="thumb">
-            `;
-        });
-    });
-
-    const btnGuardar = document.getElementById("guardarLevantamientoBtn");
-    if (btnGuardar) {
-        btnGuardar.addEventListener("click", guardarLevantamiento);
-    }
-}
-
-
-
-/* ============================================
-   ACTIVAR SECCIÓN LEVANTAMIENTOS
-============================================ */
-
-/// MUY IMPORTANTE ///
-//// AGREGA ESTO EN mostrarContenido() ////
-
-// if (seccionId === "Levantamientos") {
-//     initLevantamientos();
-// }
-
-
 
 
 
@@ -3408,143 +3188,146 @@ function cargarDireccionesCliente(clienteId) {
 
 
 
-//LEVANTAMIENTOS NUEVO 
 
 
-document.getElementById("btnNuevoLevantamiento")
-    .addEventListener("click", () => {
-        mostrarContenido("Levantamientos");
-    });
 
 
-    async function loadClientesForLevantamientos() {
+
+
+
+
+
+
+/* ============================================================
+      LEVANTAMIENTOS — SISTEMA COMPLETO Y LIMPIO
+============================================================ */
+
+/* ------------ 1. Cargar clientes ------------------ */
+async function loadClientesForLev() {
     const select = document.getElementById("lev-clienteSelect");
 
-    select.innerHTML = `<option value="">Cargando clientes...</option>`;
+    select.innerHTML = `<option value="">Cargando...</option>`;
 
-    const clientes = await fetchData('/clientes-negocio');
+    const clientes = await fetchData("/clientes");
 
     select.innerHTML = `<option value="">Seleccione un cliente</option>`;
 
-    clientes.forEach(c => {
+    clientes?.forEach(c => {
         const opt = document.createElement("option");
-        opt.value = c.id;
+        opt.value = c.id || c._id;
         opt.textContent = c.nombre;
+        opt.dataset.dir = c.direcciones?.[0]?.direccion || "";
         select.appendChild(opt);
     });
 }
 
-
+/* ------------ 2. Autollenar dirección ------------------ */
 function activarAutollenadoDireccion() {
     const select = document.getElementById("lev-clienteSelect");
     const dir = document.getElementById("lev-direccion");
 
-    select.addEventListener("change", async () => {
-        const res = await fetch(`${API_BASE_URL}/clientes-negocio/${select.value}`);
-        const data = await res.json();
-
-        dir.value = data.direcciones?.[0]?.direccionEscrita || "";
+    select.addEventListener("change", () => {
+        const opcion = select.selectedOptions[0];
+        dir.value = opcion.dataset.dir || "";
     });
 }
 
+/* ------------ 3. Agregar necesidades ------------------ */
+function addNecesidad() {
+    const cont = document.getElementById("lev-necesidadesContainer");
 
+    const div = document.createElement("div");
+    div.className = "nec-item";
+
+    div.innerHTML = `
+        <textarea placeholder="Describe la necesidad..."></textarea>
+        <button onclick="this.parentNode.remove()">❌</button>
+    `;
+
+    cont.appendChild(div);
+}
+
+/* ------------ 4. Agregar materiales ------------------ */
+function addMaterial() {
+    const input = document.getElementById("lev-materialInput");
+    const lista = document.getElementById("lev-materialesLista");
+
+    const text = input.value.trim();
+    if (!text) return;
+
+    const li = document.createElement("li");
+    li.innerHTML = `${text} <button onclick="this.parentNode.remove()">❌</button>`;
+    lista.appendChild(li);
+
+    input.value = "";
+}
+
+/* ------------ 5. Preparar formulario ------------------ */
 function prepararNuevoLevantamiento() {
-    document.getElementById("lev-materialesLista").innerHTML = "";
     document.getElementById("lev-necesidadesContainer").innerHTML = "";
+    document.getElementById("lev-materialesLista").innerHTML = "";
+    document.getElementById("lev-materialInput").value = "";
 
-    loadClientesForLevantamientos();
+    loadClientesForLev();
     activarAutollenadoDireccion();
 
-    const now = new Date();
-    document.getElementById("lev-fechaHora").value =
-        now.toISOString().slice(0, 16);
+    document.getElementById("lev-personal").value =
+        localStorage.getItem("userName") || "Desconocido";
 
-    const user = JSON.parse(localStorage.getItem("userData"));
-    window.personalNombre = user?.nombre || "Desconocido";
+    document.getElementById("lev-fechaHora").value =
+        new Date().toISOString().slice(0, 16);
 }
 
-
-document.getElementById("lev-agregarMaterialBtn")
-    .addEventListener("click", () => {
-        const lista = document.getElementById("lev-materialesLista");
-        const val = document.getElementById("lev-materialInput").value.trim();
-
-        if (!val) return;
-
-        const li = document.createElement("li");
-        li.innerHTML = `${val} <button onclick="this.parentNode.remove()">❌</button>`;
-        lista.appendChild(li);
-
-        document.getElementById("lev-materialInput").value = "";
-    });
-
-
-    document.getElementById("agregarNecesidadBtn")
-    .addEventListener("click", () => {
-        const cont = document.getElementById("lev-necesidadesContainer");
-
-        const div = document.createElement("div");
-        div.classList.add("necesidad-item");
-
-        div.innerHTML = `
-            <textarea placeholder="Describe la necesidad..."></textarea>
-            <button onclick="this.parentNode.remove()">❌</button>
-        `;
-
-        cont.appendChild(div);
-    });
-
-
-    async function guardarLevantamiento() {
-
-    const cliente = document.getElementById("lev-clienteSelect").value;
+/* ------------ 6. Guardar en backend ------------------ */
+async function guardarLevantamiento() {
+    const clienteId = document.getElementById("lev-clienteSelect").value;
     const direccion = document.getElementById("lev-direccion").value;
     const fecha = document.getElementById("lev-fechaHora").value;
+    const personal = document.getElementById("lev-personal").value;
 
     const materiales = [...document.querySelectorAll("#lev-materialesLista li")]
         .map(li => li.textContent.replace("❌", "").trim());
 
-    const necesidades = [...document.querySelectorAll(".necesidad-item textarea")]
+    const necesidades = [...document.querySelectorAll(".nec-item textarea")]
         .map(t => t.value.trim());
 
     const fd = new FormData();
-    fd.append("clienteNegocioId", cliente);
+    fd.append("clienteNegocioId", clienteId);
     fd.append("direccion", direccion);
     fd.append("fecha", fecha);
+    fd.append("personalNombre", personal);
     fd.append("materiales", JSON.stringify(materiales));
     fd.append("necesidades", JSON.stringify(necesidades));
-    fd.append("personalNombre", window.personalNombre);
 
     const token = localStorage.getItem("userToken");
 
     const res = await fetch(`${API_BASE_URL}/levantamientos`, {
         method: "POST",
-        headers: {
-            Authorization: `Bearer ${token}`
-        },
+        headers: { Authorization: `Bearer ${token}` },
         body: fd
     });
 
     if (!res.ok) {
-        alert("Error al guardar");
+        alert("❌ Error al guardar.");
         return;
     }
 
-    alert("Levantamiento guardado");
+    alert("✔ Levantamiento guardado");
     mostrarContenido("listaLevantamientos");
     cargarLevantamientosTabla();
 }
 
-
-
+/* ------------ 7. Tabla de levantamientos ------------------ */
 async function cargarLevantamientosTabla() {
     const token = localStorage.getItem("userToken");
+
     const res = await fetch(`${API_BASE_URL}/levantamientos`, {
         headers: { Authorization: `Bearer ${token}` }
     });
 
     const data = await res.json();
     const tbody = document.getElementById("tablaLevantamientos");
+
     tbody.innerHTML = "";
 
     data.forEach(lv => {
@@ -3556,12 +3339,28 @@ async function cargarLevantamientosTabla() {
             <td>${lv.personalNombre}</td>
             <td>${lv.fecha?.split("T")[0]}</td>
             <td>
-                <button class="btn-sm btn-edit">Editar</button>
-                <button class="btn-sm btn-delete">Eliminar</button>
-                <button class="btn-sm btn-gray">PDF</button>
+                <button class="btn-edit">Editar</button>
+                <button class="btn-delete">Eliminar</button>
+                <button class="btn-pdf">PDF</button>
             </td>
         `;
 
         tbody.appendChild(tr);
     });
 }
+
+/* ------------ 8. Conectar botones ------------------ */
+document.getElementById("btnNuevoLevantamiento")
+    .addEventListener("click", () => {
+        mostrarContenido("Levantamientos");
+        prepararNuevoLevantamiento();
+    });
+
+document.getElementById("btnAddNecesidad")
+    .addEventListener("click", addNecesidad);
+
+document.getElementById("lev-addMaterialBtn")
+    .addEventListener("click", addMaterial);
+
+document.getElementById("btnGuardarLevantamiento")
+    .addEventListener("click", guardarLevantamiento);
