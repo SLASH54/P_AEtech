@@ -3200,9 +3200,11 @@ function cargarDireccionesCliente(clienteId) {
       LEVANTAMIENTOS — SISTEMA COMPLETO Y LIMPIO
 ============================================================ */
 
-/* ------------ 1. Cargar clientes ------------------ */
+
+/* ------------ 1. Cargar clientes en el select ------------------ */
 async function loadClientesForLev() {
     const select = document.getElementById("lev-clienteSelect");
+    if (!select) return;
 
     select.innerHTML = `<option value="">Cargando...</option>`;
 
@@ -3210,7 +3212,9 @@ async function loadClientesForLev() {
 
     select.innerHTML = `<option value="">Seleccione un cliente</option>`;
 
-    clientes?.forEach(c => {
+    if (!clientes || !Array.isArray(clientes)) return;
+
+    clientes.forEach(c => {
         const opt = document.createElement("option");
         opt.value = c.id || c._id;
         opt.textContent = c.nombre;
@@ -3219,81 +3223,96 @@ async function loadClientesForLev() {
     });
 }
 
-/* ------------ 2. Autollenar dirección ------------------ */
+/* ------------ 2. Autollenar dirección cuando cambie el cliente ---- */
 function activarAutollenadoDireccion() {
     const select = document.getElementById("lev-clienteSelect");
-    const dir = document.getElementById("lev-direccion");
+    const dir    = document.getElementById("lev-direccion");
+    if (!select || !dir) return;
 
     select.addEventListener("change", () => {
         const opcion = select.selectedOptions[0];
-        dir.value = opcion.dataset.dir || "";
+        dir.value = opcion?.dataset.dir || "";
     });
 }
 
-/* ------------ 3. Agregar necesidades ------------------ */
+/* ------------ 3. Necesidades dinámicas ------------------ */
 function addNecesidad() {
     const cont = document.getElementById("lev-necesidadesContainer");
+    if (!cont) return;
 
     const div = document.createElement("div");
     div.className = "nec-item";
-
     div.innerHTML = `
         <textarea placeholder="Describe la necesidad..."></textarea>
-        <button onclick="this.parentNode.remove()">❌</button>
+        <button type="button" onclick="this.parentNode.remove()">❌</button>
     `;
-
     cont.appendChild(div);
 }
 
-/* ------------ 4. Agregar materiales ------------------ */
+/* ------------ 4. Materiales dinámicos ------------------ */
 function addMaterial() {
     const input = document.getElementById("lev-materialInput");
     const lista = document.getElementById("lev-materialesLista");
+    if (!input || !lista) return;
 
     const text = input.value.trim();
     if (!text) return;
 
     const li = document.createElement("li");
-    li.innerHTML = `${text} <button onclick="this.parentNode.remove()">❌</button>`;
+    li.innerHTML = `
+        <span>${text}</span>
+        <button type="button" onclick="this.parentNode.remove()">❌</button>
+    `;
     lista.appendChild(li);
-
     input.value = "";
 }
 
-/* ------------ 5. Preparar formulario ------------------ */
+/* ------------ 5. Preparar formulario de nuevo levantamiento ------- */
 function prepararNuevoLevantamiento() {
-    // limpiar listas
-    document.getElementById("lev-materialesLista").innerHTML = "";
-    document.getElementById("lev-necesidadesContainer").innerHTML = "";
+    // reset listas
+    const listaMat = document.getElementById("lev-materialesLista");
+    const contNec  = document.getElementById("lev-necesidadesContainer");
+    const fechaInp = document.getElementById("lev-fechaHora");
+    const personal = document.getElementById("lev-personal");
 
-    // cargar clientes
+    if (listaMat) listaMat.innerHTML = "";
+    if (contNec) contNec.innerHTML = "";
+
     loadClientesForLev();
-
-    // activar autollenado de dirección
     activarAutollenadoDireccion();
 
-    // autollenar fecha
-    document.getElementById("lev-fechaHora").value = 
-        new Date().toISOString().slice(0, 16);
+    // Fecha/hora actual
+    if (fechaInp) {
+        const now = new Date();
+        fechaInp.value = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+            .toISOString()
+            .slice(0, 16);
+    }
 
-    // autollenar personal
-    document.getElementById("lev-personal").value =
-        JSON.parse(localStorage.getItem("userData"))?.nombre || "Desconocido";
+    // Nombre del usuario logueado
+    if (personal) {
+        personal.value = localStorage.getItem("userName") || "Desconocido";
+    }
 }
 
-
-/* ------------ 6. Guardar en backend ------------------ */
+/* ------------ 6. Guardar levantamiento en backend ----------------- */
 async function guardarLevantamiento() {
-    const clienteId = document.getElementById("lev-clienteSelect").value;
-    const direccion = document.getElementById("lev-direccion").value;
-    const fecha = document.getElementById("lev-fechaHora").value;
-    const personal = document.getElementById("lev-personal").value;
+    const clienteId = document.getElementById("lev-clienteSelect")?.value;
+    const direccion = document.getElementById("lev-direccion")?.value || "";
+    const fecha     = document.getElementById("lev-fechaHora")?.value;
+    const personal  = document.getElementById("lev-personal")?.value || "";
 
-    const materiales = [...document.querySelectorAll("#lev-materialesLista li")]
-        .map(li => li.textContent.replace("❌", "").trim());
+    if (!clienteId || !fecha) {
+        alert("Selecciona un cliente y una fecha/hora.");
+        return;
+    }
+
+    const materiales = [...document.querySelectorAll("#lev-materialesLista li span")]
+        .map(span => span.textContent.trim());
 
     const necesidades = [...document.querySelectorAll(".nec-item textarea")]
-        .map(t => t.value.trim());
+        .map(t => t.value.trim())
+        .filter(t => t !== "");
 
     const fd = new FormData();
     fd.append("clienteNegocioId", clienteId);
@@ -3304,6 +3323,10 @@ async function guardarLevantamiento() {
     fd.append("necesidades", JSON.stringify(necesidades));
 
     const token = localStorage.getItem("userToken");
+    if (!token) {
+        alert("Sesión expirada.");
+        return;
+    }
 
     const res = await fetch(`${API_BASE_URL}/levantamientos`, {
         method: "POST",
@@ -3312,60 +3335,74 @@ async function guardarLevantamiento() {
     });
 
     if (!res.ok) {
-        alert("❌ Error al guardar.");
+        const data = await res.json().catch(() => ({}));
+        alert(data.message || "Error al guardar levantamiento");
         return;
     }
 
-    alert("✔ Levantamiento guardado");
+    alert("✅ Levantamiento guardado correctamente");
     mostrarContenido("listaLevantamientos");
     cargarLevantamientosTabla();
 }
 
-/* ------------ 7. Tabla de levantamientos ------------------ */
+/* ------------ 7. Cargar tabla de levantamientos ------------------- */
 async function cargarLevantamientosTabla() {
     const token = localStorage.getItem("userToken");
-
-    const res = await fetch(`${API_BASE_URL}/levantamientos`, {
-        headers: { Authorization: `Bearer ${token}` }
-    });
-
-    const data = await res.json();
     const tbody = document.getElementById("tablaLevantamientos");
+    if (!tbody) return;
 
-    tbody.innerHTML = "";
+    tbody.innerHTML = `<tr><td colspan="5">Cargando...</td></tr>`;
 
-    data.forEach(lv => {
-        const tr = document.createElement("tr");
+    try {
+        const res = await fetch(`${API_BASE_URL}/levantamientos`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
 
-        tr.innerHTML = `
-            <td>${lv.clienteNombre}</td>
-            <td>${lv.direccion}</td>
-            <td>${lv.personalNombre}</td>
-            <td>${lv.fecha?.split("T")[0]}</td>
-            <td>
-                <button class="btn-edit">Editar</button>
-                <button class="btn-delete">Eliminar</button>
-                <button class="btn-pdf">PDF</button>
-            </td>
-        `;
+        tbody.innerHTML = "";
 
-        tbody.appendChild(tr);
-    });
+        if (!Array.isArray(data) || data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5">Sin levantamientos registrados.</td></tr>`;
+            return;
+        }
+
+        data.forEach(lv => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${lv.clienteNombre || "Sin cliente"}</td>
+                <td>${lv.direccion || ""}</td>
+                <td>${lv.personalNombre || ""}</td>
+                <td>${(lv.fecha || "").split("T")[0]}</td>
+                <td>
+                    <button class="btn-edit">Editar</button>
+                    <button class="btn-delete">Eliminar</button>
+                    <button class="btn-pdf">PDF</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+    } catch (err) {
+        console.error(err);
+        tbody.innerHTML = `<tr><td colspan="5">Error al cargar levantamientos.</td></tr>`;
+    }
 }
 
-/* ------------ 8. Conectar botones ------------------ */
-document.getElementById("btnNuevoLevantamiento")
-    .addEventListener("click", () => {
-        mostrarContenido("Levantamientos");  // ← ESTE ES EL ID REAL DEL FORMULARIO
-        prepararNuevoLevantamiento();       // ← llena dirección, fecha, personal, etc.
-    });
+/* ------------ 8. Conectar botones (esperando al DOM) -------------- */
+document.addEventListener("DOMContentLoaded", () => {
+    const btnNuevo   = document.getElementById("btnNuevoLevantamiento");
+    const btnNec     = document.getElementById("btnAddNecesidad");
+    const btnMat     = document.getElementById("lev-addMaterialBtn");
+    const btnGuardar = document.getElementById("btnGuardarLevantamiento");
 
+    if (btnNuevo) {
+        btnNuevo.addEventListener("click", () => {
+            // Muestra el formulario de levantamiento
+            mostrarContenido("Levantamientos");
+        });
+    }
 
-document.getElementById("btnAddNecesidad")
-    .addEventListener("click", addNecesidad);
-
-document.getElementById("lev-addMaterialBtn")
-    .addEventListener("click", addMaterial);
-
-document.getElementById("btnGuardarLevantamiento")
-    .addEventListener("click", guardarLevantamiento);
+    if (btnNec)     btnNec.addEventListener("click", addNecesidad);
+    if (btnMat)     btnMat.addEventListener("click", addMaterial);
+    if (btnGuardar) btnGuardar.addEventListener("click", guardarLevantamiento);
+});
