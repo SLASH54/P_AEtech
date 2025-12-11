@@ -3230,6 +3230,26 @@ async function cargarLevantamientosTabla() {
     });
 }
 
+
+/* =================== MODAL LEVANTAMIENTOS (CORRECTO) =================== */
+
+// ABRIR MODAL
+function openNuevoLevantamiento() {
+    prepararNuevoLevantamiento();
+    document.getElementById("modalNuevoLevantamiento").style.display = "flex";
+}
+
+// CERRAR MODAL
+function closeNuevoLevantamiento() {
+    document.getElementById("modalNuevoLevantamiento").style.display = "none";
+}
+
+// BOTÓN + NUEVO LEVANTAMIENTO
+document.getElementById("btnNuevoLevantamiento")?.addEventListener("click", () => {
+    openNuevoLevantamiento();
+});
+
+
 /* ============================================
    2. Cargar clientes en el modal
 ============================================ */
@@ -3366,20 +3386,22 @@ async function guardarLevantamiento() {
 /* ============================================
    8. Modal (abrir/cerrar)
 ============================================ */
-function openLevantamientoModal() {
+function openNuevoLevantamiento() {
     prepararNuevoLevantamiento();
-    document.getElementById("modalLevantamiento").style.display = "flex";
+    document.getElementById("modalNuevoLevantamiento").style.display = "flex";
 }
 
-function closeLevantamientoModal() {
-    document.getElementById("modalLevantamiento").style.display = "none";
+function closeNuevoLevantamiento() {
+    document.getElementById("modalNuevoLevantamiento").style.display = "none";
 }
+
+document.getElementById("btnNuevoLevantamiento")
+    ?.addEventListener("click", openNuevoLevantamiento);
 
 /* ============================================
    9. Botones del modal
 ============================================ */
-document.getElementById("btnNuevoLevantamiento")
-    ?.addEventListener("click", openLevantamientoModal);
+
 
 document.getElementById("btnAddNecesidad")
     ?.addEventListener("click", addNecesidad);
