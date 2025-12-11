@@ -716,19 +716,17 @@ function mostrarContenido(seccionId) {
 
 
 
-if (seccionId === "listaLevantamientos") {
-    document.getElementById("listaLevantamientos").style.display = "block";
-    document.getElementById("Levantamientos").style.display = "none";
-    cargarLevantamientosTabla();
-}
-
 if (seccionId === "Levantamientos") {
     document.getElementById("listaLevantamientos").style.display = "none";
     document.getElementById("Levantamientos").style.display = "block";
     prepararNuevoLevantamiento();
 }
 
-
+if (seccionId === "listaLevantamientos") {
+    document.getElementById("listaLevantamientos").style.display = "block";
+    document.getElementById("Levantamientos").style.display = "none";
+    cargarLevantamientosTabla();
+}
 
 
 
@@ -3264,19 +3262,25 @@ function addMaterial() {
 
 /* ------------ 5. Preparar formulario ------------------ */
 function prepararNuevoLevantamiento() {
-    document.getElementById("lev-necesidadesContainer").innerHTML = "";
+    // limpiar listas
     document.getElementById("lev-materialesLista").innerHTML = "";
-    document.getElementById("lev-materialInput").value = "";
+    document.getElementById("lev-necesidadesContainer").innerHTML = "";
 
+    // cargar clientes
     loadClientesForLev();
+
+    // activar autollenado de dirección
     activarAutollenadoDireccion();
 
-    document.getElementById("lev-personal").value =
-        localStorage.getItem("userName") || "Desconocido";
-
-    document.getElementById("lev-fechaHora").value =
+    // autollenar fecha
+    document.getElementById("lev-fechaHora").value = 
         new Date().toISOString().slice(0, 16);
+
+    // autollenar personal
+    document.getElementById("lev-personal").value =
+        JSON.parse(localStorage.getItem("userData"))?.nombre || "Desconocido";
 }
+
 
 /* ------------ 6. Guardar en backend ------------------ */
 async function guardarLevantamiento() {
@@ -3352,9 +3356,10 @@ async function cargarLevantamientosTabla() {
 /* ------------ 8. Conectar botones ------------------ */
 document.getElementById("btnNuevoLevantamiento")
     .addEventListener("click", () => {
-        mostrarContenido("Levantamientos");
-        prepararNuevoLevantamiento();
+        mostrarContenido("Levantamientos");  // ← ESTE ES EL ID REAL DEL FORMULARIO
+        prepararNuevoLevantamiento();       // ← llena dirección, fecha, personal, etc.
     });
+
 
 document.getElementById("btnAddNecesidad")
     .addEventListener("click", addNecesidad);
