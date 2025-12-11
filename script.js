@@ -3381,3 +3381,20 @@ document.getElementById("btnGuardarLevantamiento")
 
 
     //lo ultimo que me dio el amiko
+
+
+    function openLevantamientoModal() {
+    prepararNuevoLevantamiento();
+    document.getElementById("modalLevantamiento").style.display = "flex";
+}
+
+function closeLevantamientoModal() {
+    document.getElementById("modalLevantamiento").style.display = "none";
+}
+
+
+
+
+document.getElementById("btnNuevoLevantamiento").addEventListener("click", () => {
+    openLevantamientoModal();
+});
