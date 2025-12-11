@@ -3191,46 +3191,56 @@ function cargarDireccionesCliente(clienteId) {
 
 
 
+/* ========== LEVANTAMIENTOS – VERSIÓN FINAL ARREGLADA ========== */
 
+/* ============================================
+   1. Cargar lista en tabla
+============================================ */
+async function cargarLevantamientosTabla() {
+    const token = localStorage.getItem("userToken");
+    const tbody = document.getElementById("tablaLevantamientos");
 
+    if (!tbody) return;
 
-/* ========== LEVANTAMIENTOS ========== */
+    const res = await fetch(`${API_BASE_URL}/levantamientos`, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
 
-/* 1. Autollenar dirección cuando cambie el cliente */
-async function activarAutollenadoDireccion() {
-    const select = document.getElementById("lev-clienteSelect");
-    const direccionInput = document.getElementById("lev-direccion");
+    if (!res.ok) {
+        console.error("Error cargando levantamientos");
+        return;
+    }
 
-    select.addEventListener("change", async () => {
-        const clienteId = select.value;
-        if (!clienteId) {
-            direccionInput.value = "";
-            return;
-        }
+    const data = await res.json();
+    tbody.innerHTML = "";
 
-        const token = localStorage.getItem('userToken');
-
-        const res = await fetch(`${API_BASE_URL}/clientes-negocio/${clienteId}`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-
-        const cliente = await res.json();
-        const dir = cliente.direcciones?.[0]?.direccionEscrita;
-
-        direccionInput.value = dir || "";
+    data.forEach(lv => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${lv.clienteNombre || "-"}</td>
+            <td>${lv.direccion || "-"}</td>
+            <td>${lv.personalNombre || "-"}</td>
+            <td>${lv.fecha?.split("T")[0] || "-"}</td>
+            <td>
+                <button class="btn btn-sm btn-primary">Editar</button>
+                <button class="btn btn-sm btn-danger">Eliminar</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
     });
 }
 
-/* 2. Cargar clientes en el select del formulario */
+/* ============================================
+   2. Cargar clientes en el modal
+============================================ */
 async function loadClientesForLevantamientos() {
     const select = document.getElementById("lev-clienteSelect");
+    if (!select) return;
 
-    select.innerHTML = `<option value="">Cargando clientes...</option>`;
-
+    select.innerHTML = `<option value="">Cargando...</option>`;
     const clientes = await fetchData('/clientes-negocio');
 
-    select.innerHTML = `<option value="">Seleccione un cliente</option>`;
-
+    select.innerHTML = `<option value="">Seleccione cliente</option>`;
     clientes.forEach(c => {
         const opt = document.createElement("option");
         opt.value = c.id;
@@ -3239,29 +3249,35 @@ async function loadClientesForLevantamientos() {
     });
 }
 
-/* 3. Preparar el formulario cada vez que se abre */
-function prepararNuevoLevantamiento() {
-    // limpiar listas
-    document.getElementById("lev-materialesLista").innerHTML = "";
-    document.getElementById("lev-necesidadesContainer").innerHTML = "";
+/* ============================================
+   3. Autollenado de dirección según cliente
+============================================ */
+async function activarAutollenadoDireccion() {
+    const select = document.getElementById("lev-clienteSelect");
+    const direccionInput = document.getElementById("lev-direccion");
 
-    // recargar clientes y direccion automática
-    loadClientesForLevantamientos();
-    activarAutollenadoDireccion();
+    select.addEventListener("change", async () => {
+        const id = select.value;
+        if (!id) {
+            direccionInput.value = "";
+            return;
+        }
 
-    // fecha actual
-    const now = new Date();
-    document.getElementById("lev-fechaHora").value = now.toISOString().slice(0, 16);
+        const token = localStorage.getItem("userToken");
+        const res = await fetch(`${API_BASE_URL}/clientes-negocio/${id}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
 
-    // personal actual desde el usuario logueado
-    const user = JSON.parse(localStorage.getItem("userData"));
-    document.getElementById("lev-personal").value = user?.nombre || "Desconocido";
+        const cliente = await res.json();
+        direccionInput.value = cliente?.direcciones?.[0]?.direccion || "";
+    });
 }
 
-/* 4. Necesidades */
+/* ============================================
+   4. Necesidades
+============================================ */
 function addNecesidad() {
     const cont = document.getElementById("lev-necesidadesContainer");
-
     const div = document.createElement("div");
     div.classList.add("nec-item");
 
@@ -3273,26 +3289,47 @@ function addNecesidad() {
     cont.appendChild(div);
 }
 
-/* 5. Materiales */
+/* ============================================
+   5. Materiales
+============================================ */
 function addMaterial() {
     const lista = document.getElementById("lev-materialesLista");
-    const val = document.getElementById("lev-materialInput").value.trim();
+    const text = document.getElementById("lev-materialInput").value.trim();
 
-    if (!val) return;
+    if (!text) return;
 
     const li = document.createElement("li");
-    li.innerHTML = `${val} <button type="button" onclick="this.parentNode.remove()">❌</button>`;
+    li.innerHTML = `${text} <button onclick="this.parentNode.remove()">❌</button>`;
     lista.appendChild(li);
 
     document.getElementById("lev-materialInput").value = "";
 }
 
-/* 6. Guardar en backend */
+/* ============================================
+   6. Preparación del modal cada vez que se abre
+============================================ */
+function prepararNuevoLevantamiento() {
+    document.getElementById("lev-materialesLista").innerHTML = "";
+    document.getElementById("lev-necesidadesContainer").innerHTML = "";
+
+    loadClientesForLevantamientos();
+    activarAutollenadoDireccion();
+
+    const now = new Date();
+    document.getElementById("lev-fechaHora").value = now.toISOString().slice(0, 16);
+
+    const nombre = localStorage.getItem("userName") || "Personal";
+    document.getElementById("lev-personal").value = nombre;
+}
+
+/* ============================================
+   7. Guardar levantamiento
+============================================ */
 async function guardarLevantamiento() {
-    const clienteId  = document.getElementById("lev-clienteSelect").value;
-    const direccion  = document.getElementById("lev-direccion").value;
-    const fecha      = document.getElementById("lev-fechaHora").value;
-    const personal   = document.getElementById("lev-personal").value;
+    const clienteId = document.getElementById("lev-clienteSelect").value;
+    const direccion = document.getElementById("lev-direccion").value;
+    const fecha = document.getElementById("lev-fechaHora").value;
+    const personal = document.getElementById("lev-personal").value;
 
     const materiales = [...document.querySelectorAll("#lev-materialesLista li")]
         .map(li => li.textContent.replace("❌", "").trim());
@@ -3317,54 +3354,32 @@ async function guardarLevantamiento() {
     });
 
     if (!res.ok) {
-        alert("❌ Error al guardar.");
+        alert("❌ Error al guardar");
         return;
     }
 
     alert("✔ Levantamiento guardado");
-    mostrarContenido("listaLevantamientos");
+    closeLevantamientoModal();
     cargarLevantamientosTabla();
 }
 
-/* 7. Cargar tabla de levantamientos (cuando tengas el backend listo) */
-async function cargarLevantamientosTabla() {
-    const token = localStorage.getItem("userToken");
-
-    const res = await fetch(`${API_BASE_URL}/levantamientos`, {
-        headers: { Authorization: `Bearer ${token}` }
-    });
-
-    if (!res.ok) {
-        console.error("Error al cargar levantamientos");
-        return;
-    }
-
-    const data = await res.json();
-    const tbody = document.getElementById("tablaLevantamientos");
-    tbody.innerHTML = "";
-
-    data.forEach(lv => {
-        const tr = document.createElement("tr");
-
-        tr.innerHTML = `
-            <td>${lv.clienteNombre}</td>
-            <td>${lv.direccion}</td>
-            <td>${lv.personalNombre}</td>
-            <td>${lv.fecha?.split("T")[0]}</td>
-            <td>
-                <button class="btn-edit">Editar</button>
-                <button class="btn-delete">Eliminar</button>
-                <button class="btn-pdf">PDF</button>
-            </td>
-        `;
-
-        tbody.appendChild(tr);
-    });
+/* ============================================
+   8. Modal (abrir/cerrar)
+============================================ */
+function openLevantamientoModal() {
+    prepararNuevoLevantamiento();
+    document.getElementById("modalLevantamiento").style.display = "flex";
 }
 
-/* 8. Conectar botones al cargar */
+function closeLevantamientoModal() {
+    document.getElementById("modalLevantamiento").style.display = "none";
+}
+
+/* ============================================
+   9. Botones del modal
+============================================ */
 document.getElementById("btnNuevoLevantamiento")
-?.addEventListener("click", addNuevoLevantamiento);
+    ?.addEventListener("click", openLevantamientoModal);
 
 document.getElementById("btnAddNecesidad")
     ?.addEventListener("click", addNecesidad);
@@ -3374,24 +3389,3 @@ document.getElementById("lev-addMaterialBtn")
 
 document.getElementById("btnGuardarLevantamiento")
     ?.addEventListener("click", guardarLevantamiento);
-
-
-
-    //lo ultimo que me dio el amiko
-
-
-    function openLevantamientoModal() {
-    prepararNuevoLevantamiento();
-    document.getElementById("modalLevantamiento").style.display = "flex";
-}
-
-function closeLevantamientoModal() {
-    document.getElementById("modalLevantamiento").style.display = "none";
-}
-
-
-
-
-document.getElementById("btnNuevoLevantamiento").addEventListener("click", () => {
-    openLevantamientoModal();
-});

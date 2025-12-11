@@ -940,12 +940,12 @@
 
 
 <!-- ========== MODAL NUEVO LEVANTAMIENTO (iOS Style) ========== -->
-<!-- ========== NUEVO LEVANTAMIENTO ========== -->
-<div id="Levantamientos" class="main-content" style="display:none;">
+<!-- ========== MODAL NUEVO LEVANTAMIENTO (iOS / Glass) ========== -->
+<div id="modalNuevoLevantamiento" class="modalGlass">
+    <div class="modalGlass-content">
 
-    <div class="tareas-container">
-
-        <h2 class="section-title">Nuevo Levantamiento</h2>
+        <h2 class="modalGlass-title">Nuevo Levantamiento</h2>
+        <span class="modalGlass-close" onclick="closeNuevoLevantamiento()">✖</span>
 
         <!-- Cliente -->
         <label>Cliente:</label>
@@ -953,27 +953,27 @@
 
         <!-- Dirección -->
         <label>Dirección:</label>
-        <input id="lev-direccion" type="text" class="form-control" readonly>
+        <input id="lev-direccion" type="text" class="form-control" readonly />
 
         <!-- Personal -->
         <label>Personal:</label>
-        <input id="lev-personal" type="text" class="form-control" readonly>
+        <input id="lev-personal" type="text" class="form-control" readonly />
 
         <!-- Fecha -->
         <label>Fecha y Hora:</label>
-        <input id="lev-fechaHora" type="datetime-local" class="form-control">
+        <input id="lev-fechaHora" type="datetime-local" class="form-control" />
 
         <hr>
 
-        <!-- Necesidades -->
-        <h4>Necesidades</h4>
+        <!-- NECESIDADES -->
+        <h4>Necesidades:</h4>
         <div id="lev-necesidadesContainer"></div>
         <button id="btnAddNecesidad" class="btn btn-secondary" type="button">+ Agregar</button>
 
         <hr>
 
-        <!-- Materiales -->
-        <h4>Materiales</h4>
+        <!-- MATERIALES -->
+        <h4>Materiales:</h4>
         <input id="lev-materialInput" class="form-control" placeholder="Ej. Cable UTP 20m">
         <button id="lev-addMaterialBtn" class="btn btn-secondary" type="button">+ Agregar</button>
 
@@ -986,8 +986,8 @@
         </button>
 
     </div>
-
 </div>
+
 
 
 
