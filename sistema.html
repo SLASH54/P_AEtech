@@ -905,63 +905,85 @@
 
 
 
+<!-- ============ LISTA DE LEVANTAMIENTOS ============ -->
+<div id="listaLevantamientos" class="main-content">
 
-<!-- ORGANIZADOR DE LEVANTAMIENTOS -->
-<section id="listaLevantamientos" class="main-content show">
-    <h2>Organizador de Levantamientos</h2>
+    <div class="tareas-container">
+        <h2 class="section-title">Organizador de Levantamientos</h2>
 
-    <button id="btnNuevoLevantamiento" class="btn-success">
-        + Nuevo Levantamiento
-    </button>
+        <button id="btnNuevoLevantamiento" class="btn btn-primary" style="margin-bottom: 15px;">
+            + Nuevo Levantamiento
+        </button>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Cliente</th>
-                <th>Dirección</th>
-                <th>Personal</th>
-                <th>Fecha</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody id="tablaLevantamientos"></tbody>
-    </table>
-</section>
-
-
-
-<!-- FORMULARIO NUEVO LEVANTAMIENTO -->
-<section id="Levantamientos" class="main-content">
-
-    <div class="lev-card">
-
-        <h2>📋 Nuevo Levantamiento</h2>
-
-        <label>Cliente</label>
-        <select id="lev-clienteSelect"></select>
-
-        <label>Dirección</label>
-        <input id="lev-direccion" type="text" placeholder="Dirección del cliente" />
-
-        <label>Fecha y hora</label>
-        <input id="lev-fechaHora" type="datetime-local" />
-
-        <label>Personal</label>
-        <input id="lev-personal" type="text" disabled />
-
-        <h3>📌 Necesidades</h3>
-        <button id="btnAddNecesidad" type="button">+ Agregar necesidad</button>
-        <div id="lev-necesidadesContainer"></div>
-
-        <h3>🧱 Materiales</h3>
-        <input id="lev-materialInput" placeholder="Ej: Cable 3m" />
-        <button id="lev-addMaterialBtn" type="button">Agregar</button>
-        <ul id="lev-materialesLista"></ul>
-
-        <button id="btnGuardarLevantamiento" class="btnGuardar">Guardar levantamiento</button>
+        <div class="table-responsive">
+            <table class="table table-hover table-striped">
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Dirección</th>
+                        <th>Personal</th>
+                        <th>Fecha</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaLevantamientos">
+                    <!-- Se llena desde script.js -->
+                </tbody>
+            </table>
+        </div>
     </div>
 
-</section>
+</div>
+
+<!-- ============ FORMULARIO NUEVO LEVANTAMIENTO ============ -->
+<div id="Levantamientos" class="main-content" style="display:none;">
+
+    <div class="tareas-container">
+        <h2 class="section-title">Nuevo Levantamiento</h2>
+
+        <!-- CLIENTE -->
+        <label>Cliente:</label>
+        <select id="lev-clienteSelect" class="form-select"></select>
+
+        <!-- Dirección Autollenada -->
+        <label>Dirección:</label>
+        <input id="lev-direccion" type="text" class="form-control" readonly>
+
+        <!-- Personal -->
+        <label>Personal:</label>
+        <input id="lev-personal" type="text" class="form-control" readonly>
+
+        <!-- Fecha -->
+        <label>Fecha y hora:</label>
+        <input id="lev-fechaHora" type="datetime-local" class="form-control">
+
+        <hr>
+
+        <!-- NECESIDADES -->
+        <h4>Necesidades</h4>
+        <div id="lev-necesidadesContainer"></div>
+        <button id="btnAddNecesidad" class="btn btn-secondary" type="button">+ Agregar</button>
+
+        <hr>
+
+        <!-- MATERIALES -->
+        <h4>Materiales necesarios</h4>
+        <input id="lev-materialInput" class="form-control" placeholder="Ej. Cable UTP 20m">
+        <button id="lev-addMaterialBtn" class="btn btn-secondary" type="button">+ Agregar</button>
+
+        <ul id="lev-materialesLista"></ul>
+
+        <hr>
+
+        <!-- GUARDAR -->
+        <button id="btnGuardarLevantamiento" class="btn btn-success">
+            Guardar Levantamiento
+        </button>
+
+    </div>
+
+</div>
+
 
 
 
