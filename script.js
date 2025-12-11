@@ -3202,38 +3202,66 @@ function cargarDireccionesCliente(clienteId) {
 
 
 /* ------------ 1. Cargar clientes en el select ------------------ */
-async function loadClientesForLev() {
+async function loadClientesForLevantamientos() {
     const select = document.getElementById("lev-clienteSelect");
-    if (!select) return;
 
-    select.innerHTML = `<option value="">Cargando...</option>`;
+    select.innerHTML = `<option value="">Cargando clientes...</option>`;
 
-    const clientes = await fetchData("/clientes");
+    const clientes = await fetchData('/clientes-negocio');
 
     select.innerHTML = `<option value="">Seleccione un cliente</option>`;
 
-    if (!clientes || !Array.isArray(clientes)) return;
-
     clientes.forEach(c => {
         const opt = document.createElement("option");
-        opt.value = c.id || c._id;
+        opt.value = c.id;
         opt.textContent = c.nombre;
-        opt.dataset.dir = c.direcciones?.[0]?.direccion || "";
         select.appendChild(opt);
     });
 }
 
-/* ------------ 2. Autollenar dirección cuando cambie el cliente ---- */
 function activarAutollenadoDireccion() {
     const select = document.getElementById("lev-clienteSelect");
-    const dir    = document.getElementById("lev-direccion");
-    if (!select || !dir) return;
+    const dir = document.getElementById("lev-direccion");
 
-    select.addEventListener("change", () => {
-        const opcion = select.selectedOptions[0];
-        dir.value = opcion?.dataset.dir || "";
+    select.addEventListener("change", async () => {
+        const res = await fetch(`${API_BASE_URL}/clientes-negocio/${select.value}`);
+        const data = await res.json();
+
+        dir.value = data.direcciones?.[0]?.direccionEscrita || "";
     });
 }
+
+
+/* ------------ 2. Autollenar dirección cuando cambie el cliente ---- */
+async function loadClientesForLevantamientos() {
+    const select = document.getElementById("lev-clienteSelect");
+
+    select.innerHTML = `<option value="">Cargando clientes...</option>`;
+
+    const clientes = await fetchData('/clientes-negocio');
+
+    select.innerHTML = `<option value="">Seleccione un cliente</option>`;
+
+    clientes.forEach(c => {
+        const opt = document.createElement("option");
+        opt.value = c.id;
+        opt.textContent = c.nombre;
+        select.appendChild(opt);
+    });
+}
+
+function activarAutollenadoDireccion() {
+    const select = document.getElementById("lev-clienteSelect");
+    const dir = document.getElementById("lev-direccion");
+
+    select.addEventListener("change", async () => {
+        const res = await fetch(`${API_BASE_URL}/clientes-negocio/${select.value}`);
+        const data = await res.json();
+
+        dir.value = data.direcciones?.[0]?.direccionEscrita || "";
+    });
+}
+
 
 /* ------------ 3. Necesidades dinámicas ------------------ */
 function addNecesidad() {
@@ -3395,14 +3423,45 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnMat     = document.getElementById("lev-addMaterialBtn");
     const btnGuardar = document.getElementById("btnGuardarLevantamiento");
 
+   // Botón "+ Nuevo Levantamiento" (se engancha cuando el DOM ya cargó)
+document.addEventListener("DOMContentLoaded", () => {
+    const btnNuevo = document.getElementById("btnNuevoLevantamiento");
     if (btnNuevo) {
         btnNuevo.addEventListener("click", () => {
-            // Muestra el formulario de levantamiento
             mostrarContenido("Levantamientos");
         });
     }
+});
 
+ 
     if (btnNec)     btnNec.addEventListener("click", addNecesidad);
     if (btnMat)     btnMat.addEventListener("click", addMaterial);
     if (btnGuardar) btnGuardar.addEventListener("click", guardarLevantamiento);
 });
+
+
+
+
+function prepararNuevoLevantamiento() {
+    loadClientesForLevantamientos();
+    activarAutollenadoDireccion();
+
+    // Fecha/hora actual
+    const now = new Date();
+    const inputFecha = document.getElementById("lev-fechaHora");
+    if (inputFecha) {
+        inputFecha.value = now.toISOString().slice(0, 16);
+    }
+
+    // Nombre del personal logueado
+    const user = JSON.parse(localStorage.getItem("userData"));
+    const inputPersonal = document.getElementById("lev-personal");
+    if (inputPersonal) {
+        inputPersonal.value = user?.nombre || "Desconocido";
+    }
+}
+
+
+
+mostrarContenido("listaLevantamientos");
+cargarLevantamientosTabla();

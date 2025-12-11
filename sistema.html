@@ -934,36 +934,71 @@
 
 <!-- FORMULARIO NUEVO LEVANTAMIENTO -->
 <section id="Levantamientos" class="main-content" style="display:none;">
-    <div class="form-container">
 
-        <h2>📝 Nuevo Levantamiento</h2>
+  <div class="lev-container">
 
+    <h2 class="titulo-lev">📋 Nuevo Levantamiento</h2>
+
+    <!-- CLIENTE -->
+    <div class="lev-bloque">
         <label>Cliente</label>
         <select id="lev-clienteSelect"></select>
 
+        <button onclick="mostrarContenido('Clientes')" class="lev-btn-sec">
+            + Registrar Cliente
+        </button>
+    </div>
+
+    <!-- DIRECCIÓN (AUTOMÁTICA) -->
+    <div class="lev-bloque">
         <label>Dirección</label>
-        <input id="lev-direccion" type="text" readonly placeholder="Dirección del cliente">
+        <input id="lev-direccion" class="lev-input" placeholder="Dirección del cliente">
+    </div>
 
+    <!-- FECHA -->
+    <div class="lev-bloque">
         <label>Fecha y hora</label>
-        <input id="lev-fechaHora" type="datetime-local">
+        <input type="datetime-local" id="lev-fechaHora" class="lev-input">
+    </div>
 
+    <!-- PERSONAL (solo lectura) -->
+    <div class="lev-bloque">
         <label>Personal</label>
-        <input id="lev-personal" type="text" readonly>
+        <input id="lev-personal" class="lev-input" readonly>
+    </div>
 
-        <h3>📌 Necesidades</h3>
+    <!-- NECESIDADES -->
+    <div class="lev-bloque">
+        <h3 class="subtitulo-lev">📌 Necesidades</h3>
+
         <div id="lev-necesidadesContainer"></div>
-        <button id="btnAddNecesidad">+ Agregar necesidad</button>
 
-        <h3>🧱 Materiales</h3>
-        <input id="lev-materialInput" placeholder="Ej. Cable 3 metros">
-        <button id="lev-addMaterialBtn">Agregar</button>
-        <ul id="lev-materialesLista"></ul>
+        <button id="agregarNecesidadBtn" class="lev-btn">
+            + Agregar necesidad
+        </button>
+    </div>
 
-        <button id="btnGuardarLevantamiento" class="btn-guardar">
+    <!-- MATERIALES -->
+    <div class="lev-bloque">
+        <h3 class="subtitulo-lev">🧱 Materiales</h3>
+
+        <div class="flex-row">
+            <input id="lev-materialInput" placeholder="Material...">
+            <button id="lev-agregarMaterialBtn">Agregar</button>
+        </div>
+
+        <ul id="lev-materialesLista" class="lev-lista"></ul>
+    </div>
+
+    <!-- BOTÓN GUARDAR -->
+    <div class="lev-bloque" style="text-align:center;">
+        <button id="guardarLevantamientoBtn" class="lev-btn-guardar">
             Guardar levantamiento
         </button>
-
     </div>
+
+  </div>
+
 </section>
 
 
