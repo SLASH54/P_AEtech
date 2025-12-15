@@ -839,21 +839,22 @@ window.onclick = function(event) {
 
 // script.js (Asegúrate de que esta función esté definida globalmente)
 
-function attachCrudListeners() {
-    
-    // 🗑️ Conectar botones de Eliminar (.delete-btn)
-    document.querySelectorAll('.delete-btn').forEach(button => {
-        // Importante: Remover listeners anteriores para evitar duplicados al recargar el panel
-        button.removeEventListener('click', handleDeleteClick); 
-        button.addEventListener('click', handleDeleteClick);
-    });
-    
-    // ✍️ Conectar botones de Editar (.edit-btn) - Lo haremos en el siguiente paso
-    document.querySelectorAll('.edit-btn').forEach(button => {
-         button.removeEventListener('click', handleEditClick);
-         button.addEventListener('click', handleEditClick);
-    });
-}
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.edit-btn, .delete-btn');
+  if (!btn) return;
+
+  const id = btn.dataset.id;
+  const type = btn.dataset.type;
+
+  if (btn.classList.contains('edit-btn')) {
+    openEditModal(type, id);
+  }
+
+  if (btn.classList.contains('delete-btn')) {
+    openDeleteModal(type, id);
+  }
+});
+
 
 
 
