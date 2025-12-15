@@ -994,6 +994,7 @@
     </div>
 </div>
 
+
 <script>
 /* ===== MODAL NUEVO LEVANTAMIENTO (FORZADO) ===== */
 
@@ -1001,8 +1002,10 @@ function openNuevoLevantamiento() {
     const modal = document.getElementById("modalNuevoLevantamiento");
     modal.classList.add("active");
 
-    cargarClientesLev(); // ← OBLIGATORIO
+    cargarClientesLev();   // clientes
+    setPersonalActual();   // 👈 personal automático
 }
+
 
 function closeNuevoLevantamiento() {
     const modal = document.getElementById("modalNuevoLevantamiento");
@@ -1043,23 +1046,54 @@ document.getElementById("btnNuevoLevantamiento")
     }
 }
 
+
+function setPersonalActual() {
+    const input = document.getElementById("lev-personal");
+    if (!input) return;
+
+    input.value =
+        localStorage.getItem("userName") ||
+        localStorage.getItem("usuario") ||
+        localStorage.getItem("nombreUsuario") ||
+        "Usuario";
+}
+
+
+
 // ================= DIRECCIÓN AUTOMÁTICA =================
 async function clienteChangeLev() {
-    const clienteId = document.getElementById("lev-clienteSelect").value;
-    const direccionInput = document.getElementById("lev-direccion");
+    const select = document.getElementById("lev-clienteSelect");
+    const inputDir = document.getElementById("lev-direccion");
 
-    if (!clienteId) {
-        direccionInput.value = "";
+    if (!select || !inputDir || !select.value) {
+        inputDir.value = "";
         return;
     }
 
     const token = localStorage.getItem("userToken");
-    const res = await fetch(`${API_BASE_URL}/clientes-negocio/${clienteId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-    });
 
-    const cliente = await res.json();
-    direccionInput.value = cliente?.direcciones?.[0]?.direccion || "";
+    try {
+        const res = await fetch(`${API_BASE_URL}/clientes/${select.value}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (!res.ok) {
+            console.error("Error al obtener cliente");
+            inputDir.value = "";
+            return;
+        }
+
+        const cliente = await res.json();
+
+        // 👉 toma la primera dirección en texto
+        inputDir.value =
+            cliente?.direcciones?.[0]?.direccion ||
+            cliente?.direccion ||
+            "";
+    } catch (e) {
+        console.error("Error dirección:", e);
+        inputDir.value = "";
+    }
 }
 
 // conectar cambio
