@@ -1008,92 +1008,33 @@ function openNuevoLevantamiento() {
 
     async function cargarClientesLev() {
     const select = document.getElementById("lev-clienteSelect");
-    if (!select) {
-        console.error("No existe lev-clienteSelect");
-        return;
-    }
-
-
-
+    if (!select) return;
 
     select.innerHTML = `<option value="">Cargando clientes...</option>`;
 
     const token = localStorage.getItem("userToken");
-    if (!token) {
-        console.error("No hay token");
-        select.innerHTML = `<option value="">Sin sesión</option>`;
+
+    const res = await fetch(`${API_BASE_URL}/clientes`, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+
+    if (!res.ok) {
+        console.error("Error cargando clientes", res.status);
+        select.innerHTML = `<option value="">Error</option>`;
         return;
     }
 
-    try {
-        const res = await fetch(`${API_BASE_URL}/clientes-negocio`, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
-
-        console.log("Status clientes:", res.status);
-
-        if (!res.ok) {
-            throw new Error("Error API");
-        }
-
-        const clientes = await res.json();
-        console.log("Clientes recibidos:", clientes);
-
-        select.innerHTML = `<option value="">Seleccione cliente</option>`;
-
-        clientes.forEach(c => {
-            const opt = document.createElement("option");
-            opt.value = c.id;
-            opt.textContent = c.nombre;
-            select.appendChild(opt);
-        });
-
-    } catch (err) {
-        console.error("Error cargando clientes:", err);
-        select.innerHTML = `<option value="">Error al cargar</option>`;
-    }
-}
-
-
-function closeNuevoLevantamiento() {
-    const modal = document.getElementById("modalNuevoLevantamiento");
-    if (modal) modal.classList.remove("active");
-}
-
-
-
-/* BOTÓN */
-document.getElementById("btnNuevoLevantamiento")
-    ?.addEventListener("click", openNuevoLevantamiento);
-
-
-
-    async function cargarClientesLev() {
-    const select = document.getElementById("lev-clienteSelect");
-    if (!select) return;
+    const clientes = await res.json();
 
     select.innerHTML = `<option value="">Seleccione cliente</option>`;
-
-    try {
-        const token = localStorage.getItem("userToken");
-        const res = await fetch(`${API_BASE_URL}/clientes-negocio`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-
-        const clientes = await res.json();
-
-        clientes.forEach(c => {
-            const opt = document.createElement("option");
-            opt.value = c.id;
-            opt.textContent = c.nombre;
-            select.appendChild(opt);
-        });
-    } catch (e) {
-        console.error("Error cargando clientes", e);
-    }
+    clientes.forEach(c => {
+        const opt = document.createElement("option");
+        opt.value = c.id;
+        opt.textContent = c.nombre;
+        select.appendChild(opt);
+    });
 }
+
 
 // ================= DIRECCIÓN AUTOMÁTICA =================
 async function clienteChangeLev() {
