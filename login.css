@@ -3714,3 +3714,36 @@ h3 {
     border-radius: 10px;
     border: 1px solid rgba(255,255,255,0.4);
 }
+
+
+/* ===== Layout formulario levantamiento ===== */
+.lev-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.lev-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.lev-field label {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #111;
+}
+
+.lev-field input,
+.lev-field select {
+    height: 36px;
+}
+
+
+@media (max-width: 600px) {
+    .lev-form-grid {
+        grid-template-columns: 1fr;
+    }
+}
