@@ -1110,72 +1110,59 @@ function addNecesidad() {
     const div = document.createElement("div");
     div.className = "nec-item";
 
+    // 1️⃣ Estructura HTML
     div.innerHTML = `
-        <textarea placeholder="Describe la necesidad..." class="form-control"></textarea>
+        <div class="nec-row">
+            <div class="nec-left">
+                <textarea placeholder="Describe la necesidad..." class="form-control"></textarea>
+                <img class="img-preview">
+            </div>
 
-     <button type="button" class="btn btn-primary btn-sm btn-foto">
-    📸 Tomar / Elegir foto
-</button>
+            <div class="nec-right">
+                <button type="button" class="btn btn-primary btn-sm btn-foto">
+                    📸 Tomar / Elegir foto
+                </button>
 
-<input type="file" accept="image/*" class="input-foto" hidden>
-
-
-       <img class="img-preview">
-
-
-        <button type="button" class="btn btn-danger btn-sm" style="margin-top:6px;">
-            Eliminar
-        </button>
+                <button type="button" class="btn btn-danger btn-sm">
+                    Eliminar
+                </button>
+            </div>
+        </div>
         <hr>
-    `;div.innerHTML = `
-    <div class="nec-row">
-        <!-- COLUMNA TEXTO + IMAGEN -->
-        <div class="nec-left">
-            <textarea placeholder="Describe la necesidad..." class="form-control"></textarea>
-            <img class="img-preview">
-        </div>
+    `;
 
-        <!-- COLUMNA BOTONES -->
-        <div class="nec-right">
-            <button type="button" class="btn btn-primary btn-sm btn-foto">
-                📸 Tomar / Elegir foto
-            </button>
+    // 2️⃣ EL CÓDIGO QUE PREGUNTAS VA EXACTO AQUÍ 👇
+    const btnEliminar = div.querySelector(".btn-danger");
+    btnEliminar.onclick = () => div.remove();
 
-            <button type="button" class="btn btn-danger btn-sm">
-                Eliminar
-            </button>
-        </div>
-    </div>
-    <hr>
-`;
+    const btnFoto = div.querySelector(".btn-foto");
 
-const btnFoto = div.querySelector(".btn-foto");
-const fileInput = div.querySelector(".input-foto");
-const imgPreview = div.querySelector(".img-preview");
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = "image/*";
+    fileInput.hidden = true;
+    div.appendChild(fileInput);
 
-btnFoto.addEventListener("click", () => fileInput.click());
+    const imgPreview = div.querySelector(".img-preview");
 
-fileInput.addEventListener("change", () => {
-    const file = fileInput.files[0];
-    if (!file) return;
+    btnFoto.addEventListener("click", () => fileInput.click());
 
-    const reader = new FileReader();
-    reader.onload = e => {
-        imgPreview.src = e.target.result;
-        imgPreview.style.display = "block";
-    };
-    reader.readAsDataURL(file);
-});
+    fileInput.addEventListener("change", () => {
+        const file = fileInput.files[0];
+        if (!file) return;
 
+        const reader = new FileReader();
+        reader.onload = e => {
+            imgPreview.src = e.target.result;
+            imgPreview.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+    });
 
-    
-
-    // eliminar necesidad
-    div.querySelector(".btn-danger").onclick = () => div.remove();
-
-   
+    // 3️⃣ Agregar al contenedor (AL FINAL)
     cont.appendChild(div);
 }
+
 
 // botón
 document.getElementById("btnAddNecesidad")
