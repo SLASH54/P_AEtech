@@ -1135,6 +1135,17 @@ async function initTareas() {
   llenarSelectClientes(tareas);
   llenarSelectActividades(tareas);
 
+
+  document.getElementById('filterCliente')?.addEventListener('change', filtrarTareas);
+document.getElementById('filterActividad')?.addEventListener('change', filtrarTareas);
+
+document.getElementById('btnLimpiarFiltros')?.addEventListener('click', () => {
+  document.getElementById('filterCliente').value = "";
+  document.getElementById('filterActividad').value = "";
+  renderTareasTable(window.tareasOriginales);
+});
+
+
 }
 
 
@@ -1646,26 +1657,24 @@ document.getElementById('filterCliente').addEventListener('change', filtrarTarea
 document.getElementById('filterActividad').addEventListener('change', filtrarTareas);
 
 
-// FILTRADO FINAL FUNCIONAL
+// FILTRADO FINAL TAREAS 
 function filtrarTareas() {
-    const estado = document.getElementById('filterEstado').value;
-    const cliente = document.getElementById('filterCliente').value;
-    const actividad = document.getElementById('filterActividad').value;
+  const cliente = document.getElementById('filterCliente')?.value || "";
+  const actividad = document.getElementById('filterActividad')?.value || "";
 
-    const tareasFiltradas = window.tareasOriginales.filter(t => {
+  const tareasFiltradas = window.tareasOriginales.filter(t => {
+    const clienteNombre = t.ClienteNegocio?.nombre || "";
+    const actividadNombre = t.Actividad?.nombre || "";
 
-        const clienteNombre = t.ClienteNegocio?.nombre || "";
-        const actividadNombre = t.Actividad?.nombre || "";
+    const condCliente = !cliente || clienteNombre === cliente;
+    const condActividad = !actividad || actividadNombre === actividad;
 
-        const condEstado = !estado || t.estado === estado;
-        const condCliente = !cliente || clienteNombre === cliente;
-        const condActividad = !actividad || actividadNombre === actividad;
+    return condCliente && condActividad;
+  });
 
-        return condEstado && condCliente && condActividad;
-    });
-
-    renderTareasTable(tareasFiltradas);
+  renderTareasTable(tareasFiltradas);
 }
+
 
 
 // BOTÓN LIMPIAR
