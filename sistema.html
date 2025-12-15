@@ -1113,12 +1113,14 @@ function addNecesidad() {
     div.innerHTML = `
         <textarea placeholder="Describe la necesidad..." class="form-control"></textarea>
 
-        <label class="btn btn-primary" style="margin-top:6px;">
+      <label class="btn btn-outline-primary btn-sm" style="margin-top:6px;">
+
             📸 Tomar / Elegir foto
             <input type="file" accept="image/*" style="display:none">
         </label>
 
-        <img style="display:none; max-width:100%; margin-top:8px; border-radius:8px;">
+       <img class="img-preview">
+
 
         <button type="button" class="btn btn-danger btn-sm" style="margin-top:6px;">
             Eliminar
