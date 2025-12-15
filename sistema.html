@@ -1218,31 +1218,6 @@ function setFechaHoraActual() {
     input.value = fechaHora;
 }
 
-const btnEliminar = div.querySelector(".btn-danger");
-btnEliminar.onclick = () => div.remove();
-
-const btnFoto = div.querySelector(".btn-foto");
-const fileInput = document.createElement("input");
-fileInput.type = "file";
-fileInput.accept = "image/*";
-fileInput.hidden = true;
-div.appendChild(fileInput);
-
-const imgPreview = div.querySelector(".img-preview");
-
-btnFoto.addEventListener("click", () => fileInput.click());
-
-fileInput.addEventListener("change", () => {
-    const file = fileInput.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = e => {
-        imgPreview.src = e.target.result;
-        imgPreview.style.display = "block";
-    };
-    reader.readAsDataURL(file);
-});
 
 
 
