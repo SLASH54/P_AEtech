@@ -1004,6 +1004,9 @@ function openNuevoLevantamiento() {
         return;
     }
     modal.classList.add("active");
+
+    cargarClientesLev();
+
 }
 
 function closeNuevoLevantamiento() {
@@ -1064,6 +1067,56 @@ async function clienteChangeLev() {
 // conectar cambio
 document.getElementById("lev-clienteSelect")
     ?.addEventListener("change", clienteChangeLev);
+
+
+    // ================= NECESIDADES =================
+function addNecesidad() {
+    const cont = document.getElementById("lev-necesidadesContainer");
+
+    const div = document.createElement("div");
+    div.className = "nec-item";
+
+    div.innerHTML = `
+        <textarea placeholder="Describe la necesidad..." class="form-control"></textarea>
+
+        <label class="btn btn-outline-secondary" style="margin-top:6px;">
+            📸 Tomar / Elegir foto
+            <input type="file" accept="image/*" style="display:none">
+        </label>
+
+        <button type="button" class="btn btn-danger btn-sm" style="margin-top:6px;">
+            Eliminar
+        </button>
+        <hr>
+    `;
+
+    div.querySelector(".btn-danger").onclick = () => div.remove();
+    cont.appendChild(div);
+}
+
+// botón
+document.getElementById("btnAddNecesidad")
+    ?.addEventListener("click", addNecesidad);
+
+
+
+
+    //materiales 
+function addMaterial() {
+    const input = document.getElementById("lev-materialInput");
+    const list = document.getElementById("lev-materialesLista");
+
+    if (!input.value.trim()) return;
+
+    const li = document.createElement("li");
+    li.innerHTML = `
+        ${input.value}
+        <button type="button" onclick="this.parentElement.remove()">❌</button>
+    `;
+    list.appendChild(li);
+    input.value = "";
+}
+
 
 
 
