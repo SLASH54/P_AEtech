@@ -1113,11 +1113,12 @@ function addNecesidad() {
     div.innerHTML = `
         <textarea placeholder="Describe la necesidad..." class="form-control"></textarea>
 
-      <label class="btn btn-outline-primary btn-sm" style="margin-top:6px;">
+     <button type="button" class="btn btn-primary btn-sm btn-foto">
+    📸 Tomar / Elegir foto
+</button>
 
-            📸 Tomar / Elegir foto
-            <input type="file" accept="image/*" style="display:none">
-        </label>
+<input type="file" accept="image/*" class="input-foto" hidden>
+
 
        <img class="img-preview">
 
@@ -1127,26 +1128,31 @@ function addNecesidad() {
         </button>
         <hr>
     `;
+const btnFoto = div.querySelector(".btn-foto");
+const fileInput = div.querySelector(".input-foto");
+const imgPreview = div.querySelector(".img-preview");
+
+btnFoto.addEventListener("click", () => fileInput.click());
+
+fileInput.addEventListener("change", () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = e => {
+        imgPreview.src = e.target.result;
+        imgPreview.style.display = "block";
+    };
+    reader.readAsDataURL(file);
+});
+
+
+    
 
     // eliminar necesidad
     div.querySelector(".btn-danger").onclick = () => div.remove();
 
-    // previsualizar imagen
-    const fileInput = div.querySelector("input[type='file']");
-    const imgPreview = div.querySelector("img");
-
-    fileInput.addEventListener("change", () => {
-        const file = fileInput.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = e => {
-            imgPreview.src = e.target.result;
-            imgPreview.style.display = "block";
-        };
-        reader.readAsDataURL(file);
-    });
-
+   
     cont.appendChild(div);
 }
 
@@ -1190,6 +1196,9 @@ function setFechaHoraActual() {
 
     input.value = fechaHora;
 }
+
+
+
 
 
 

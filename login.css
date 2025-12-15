@@ -3677,3 +3677,8 @@ h3 {
     margin-top: 8px;
     border: 1px solid rgba(255,255,255,0.4);
 }
+
+
+.btn-foto {
+    min-width: 140px;
+}
