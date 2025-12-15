@@ -3373,40 +3373,44 @@ async function guardarLevantamiento() {
     cargarLevantamientosTabla();
 }
 
-/* ============================================
-   8. Modal (abrir/cerrar)
-============================================ */
 
+// ================= MODAL NUEVO LEVANTAMIENTO =================
 
-// ==== MODAL LEVANTAMIENTOS (usa el id modalNuevoLevantamiento) ====
-// ==== MODAL LEVANTAMIENTOS (usa el id modalNuevoLevantamiento) ====
+// ABRIR
 function openNuevoLevantamiento() {
     prepararNuevoLevantamiento();
-    const modal = document.getElementById("modalNuevoLevantamiento");
-    if (modal) modal.style.display = "flex";
+    document
+        .getElementById("modalNuevoLevantamiento")
+        .classList.add("active");
 }
 
+// CERRAR
 function closeNuevoLevantamiento() {
-    const modal = document.getElementById("modalNuevoLevantamiento");
-    if (modal) modal.style.display = "none";
+    document
+        .getElementById("modalNuevoLevantamiento")
+        .classList.remove("active");
 }
 
+// BOTÓN
+document.addEventListener("DOMContentLoaded", () => {
+    const btn = document.getElementById("btnNuevoLevantamiento");
+    if (btn) {
+        btn.addEventListener("click", openNuevoLevantamiento);
+    }
+});
 
+// ================= BOTONES MODAL LEVANTAMIENTOS =================
+document.addEventListener("DOMContentLoaded", () => {
 
-// Botones del modal de levantamientos
-document.getElementById("btnNuevoLevantamiento")
-    ?.addEventListener("click", openNuevoLevantamiento);
+    const btnNuevo = document.getElementById("btnNuevoLevantamiento");
+    if (btnNuevo) btnNuevo.addEventListener("click", openNuevoLevantamiento);
 
-document.getElementById("btnAddNecesidad")
-    ?.addEventListener("click", addNecesidad);
+    const btnNec = document.getElementById("btnAddNecesidad");
+    if (btnNec) btnNec.addEventListener("click", addNecesidad);
 
-document.getElementById("lev-addMaterialBtn")
-    ?.addEventListener("click", addMaterial);
+    const btnMat = document.getElementById("lev-addMaterialBtn");
+    if (btnMat) btnMat.addEventListener("click", addMaterial);
 
-document.getElementById("btnGuardarLevantamiento")
-    ?.addEventListener("click", guardarLevantamiento);
-
-
-alert("✔ Levantamiento guardado");
-closeNuevoLevantamiento();          // <--- usa este
-cargarLevantamientosTabla();
+    const btnGuardar = document.getElementById("btnGuardarLevantamiento");
+    if (btnGuardar) btnGuardar.addEventListener("click", guardarLevantamiento);
+});
