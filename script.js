@@ -40,6 +40,11 @@ const API_BASE_URL = 'https://p-aetech.onrender.com/api'; // Esto lo reemplazar�
  * Verifica si hay un token de sesión guardado y lo valida si es necesario.
  */
 
+function initCrudGlobal() {
+  attachCrudListeners();
+}
+
+
 function extraerDireccionGoogle(url) {
     try {
         const decoded = decodeURIComponent(url);
@@ -126,6 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+  initCrudGlobal();
 });
 
 // Función para manejar el inicio de sesión
@@ -1700,13 +1706,13 @@ function filtrarTareas() {
 
 
 // BOTÓN LIMPIAR
-document.getElementById('btnLimpiarFiltros').addEventListener('click', () => {
-    document.getElementById('filterEstado').value = "";
-    document.getElementById('filterCliente').value = "";
-    document.getElementById('filterActividad').value = "";
-
-    renderTareasTable(window.tareasOriginales);
-});
+//document.getElementById('btnLimpiarFiltros').addEventListener('click', () => {
+//    document.getElementById('filterEstado').value = "";
+//    document.getElementById('filterCliente').value = "";
+//    document.getElementById('filterActividad').value = "";
+//
+//    renderTareasTable(window.tareasOriginales);
+//});
 
 
 
