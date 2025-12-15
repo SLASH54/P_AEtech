@@ -1003,8 +1003,10 @@ function openNuevoLevantamiento() {
     modal.classList.add("active");
 
     cargarClientesLev();   // clientes
-    setPersonalActual();   // 👈 personal automático
+    setPersonalActual();   // personal
+    setFechaHoraActual();  // 👈 fecha y hora automática
 }
+
 
 
 function closeNuevoLevantamiento() {
@@ -1150,6 +1152,22 @@ function addMaterial() {
 }
 
 
+function setFechaHoraActual() {
+    const input = document.getElementById("lev-fechaHora");
+    if (!input) return;
+
+    const now = new Date();
+
+    // Formato YYYY-MM-DDTHH:MM
+    const fechaHora =
+        now.getFullYear() + "-" +
+        String(now.getMonth() + 1).padStart(2, "0") + "-" +
+        String(now.getDate()).padStart(2, "0") + "T" +
+        String(now.getHours()).padStart(2, "0") + ":" +
+        String(now.getMinutes()).padStart(2, "0");
+
+    input.value = fechaHora;
+}
 
 
 
