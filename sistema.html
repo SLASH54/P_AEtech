@@ -995,8 +995,6 @@
 </div>
 
 <script>
-    const API_BASE_URL = "https://aetechprueba.netlify.app/api";
-
 /* ===== MODAL NUEVO LEVANTAMIENTO (FORZADO) ===== */
 
 function openNuevoLevantamiento() {
@@ -1018,40 +1016,20 @@ document.getElementById("btnNuevoLevantamiento")
     ?.addEventListener("click", openNuevoLevantamiento);
 
 
-    //cargar clientes
-async function cargarClientesLev() {
+
+    async function cargarClientesLev() {
     const select = document.getElementById("lev-clienteSelect");
-    if (!select) {
-        console.error("No existe lev-clienteSelect");
-        return;
-    }
+    if (!select) return;
 
-    select.innerHTML = `<option value="">Cargando clientes...</option>`;
-
-    const token = localStorage.getItem("userToken");
-    if (!token) {
-        console.error("No hay token");
-        select.innerHTML = `<option value="">Sin sesión</option>`;
-        return;
-    }
+    select.innerHTML = `<option value="">Seleccione cliente</option>`;
 
     try {
+        const token = localStorage.getItem("userToken");
         const res = await fetch(`${API_BASE_URL}/clientes-negocio`, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
+            headers: { Authorization: `Bearer ${token}` }
         });
 
-        console.log("Status clientes:", res.status);
-
-        if (!res.ok) {
-            throw new Error("Error API");
-        }
-
         const clientes = await res.json();
-        console.log("Clientes recibidos:", clientes);
-
-        select.innerHTML = `<option value="">Seleccione cliente</option>`;
 
         clientes.forEach(c => {
             const opt = document.createElement("option");
@@ -1059,14 +1037,10 @@ async function cargarClientesLev() {
             opt.textContent = c.nombre;
             select.appendChild(opt);
         });
-
-    } catch (err) {
-        console.error("Error cargando clientes:", err);
-        select.innerHTML = `<option value="">Error al cargar</option>`;
+    } catch (e) {
+        console.error("Error cargando clientes", e);
     }
 }
-
-
 
 // ================= DIRECCIÓN AUTOMÁTICA =================
 async function clienteChangeLev() {
@@ -1092,39 +1066,9 @@ document.getElementById("lev-clienteSelect")
     ?.addEventListener("change", clienteChangeLev);
 
 
-// ================= NECESIDADES =================
-function addNecesidad() {
-    const cont = document.getElementById("lev-necesidadesContainer");
-
-    const div = document.createElement("div");
-    div.className = "nec-item";
-
-    div.innerHTML = `
-        <textarea placeholder="Describe la necesidad..." class="form-control"></textarea>
-
-        <label class="btn btn-outline-secondary" style="margin-top:6px;">
-            📸 Tomar / Elegir foto
-            <input type="file" accept="image/*" style="display:none">
-        </label>
-
-        <button type="button" class="btn btn-danger btn-sm" style="margin-top:6px;">
-            Eliminar
-        </button>
-        <hr>
-    `;
-
-    div.querySelector(".btn-danger").onclick = () => div.remove();
-    cont.appendChild(div);
-}
-
-// botón
-document.getElementById("btnAddNecesidad")
-    ?.addEventListener("click", addNecesidad);
 
 
-
-
-
+    
 </script>
 
 
