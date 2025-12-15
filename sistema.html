@@ -1127,7 +1127,28 @@ function addNecesidad() {
             Eliminar
         </button>
         <hr>
-    `;
+    `;div.innerHTML = `
+    <div class="nec-row">
+        <!-- COLUMNA TEXTO + IMAGEN -->
+        <div class="nec-left">
+            <textarea placeholder="Describe la necesidad..." class="form-control"></textarea>
+            <img class="img-preview">
+        </div>
+
+        <!-- COLUMNA BOTONES -->
+        <div class="nec-right">
+            <button type="button" class="btn btn-primary btn-sm btn-foto">
+                📸 Tomar / Elegir foto
+            </button>
+
+            <button type="button" class="btn btn-danger btn-sm">
+                Eliminar
+            </button>
+        </div>
+    </div>
+    <hr>
+`;
+
 const btnFoto = div.querySelector(".btn-foto");
 const fileInput = div.querySelector(".input-foto");
 const imgPreview = div.querySelector(".img-preview");
@@ -1197,6 +1218,31 @@ function setFechaHoraActual() {
     input.value = fechaHora;
 }
 
+const btnEliminar = div.querySelector(".btn-danger");
+btnEliminar.onclick = () => div.remove();
+
+const btnFoto = div.querySelector(".btn-foto");
+const fileInput = document.createElement("input");
+fileInput.type = "file";
+fileInput.accept = "image/*";
+fileInput.hidden = true;
+div.appendChild(fileInput);
+
+const imgPreview = div.querySelector(".img-preview");
+
+btnFoto.addEventListener("click", () => fileInput.click());
+
+fileInput.addEventListener("change", () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = e => {
+        imgPreview.src = e.target.result;
+        imgPreview.style.display = "block";
+    };
+    reader.readAsDataURL(file);
+});
 
 
 

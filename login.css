@@ -3682,3 +3682,35 @@ h3 {
 .btn-foto {
     min-width: 140px;
 }
+
+
+/* ===== Necesidades layout ===== */
+.nec-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.nec-left {
+    flex: 1;
+}
+
+.nec-left textarea {
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.nec-right {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.img-preview {
+    display: none;
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.4);
+}
