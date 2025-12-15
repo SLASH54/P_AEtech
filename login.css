@@ -3804,3 +3804,116 @@ h3 {
   transform: scale(1);
   transition: all .35s ease;
 }
+
+
+/* ===== iOS Liquid Glass Modal ===== */
+.ios-modal{
+  position:fixed; inset:0;
+  display:none;
+  align-items:center; justify-content:center;
+  padding:24px;
+  background:rgba(0,0,0,.35);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index:99999;
+}
+
+.ios-sheet{
+  width:min(720px, 96vw);
+  max-height:min(82vh, 860px);
+  overflow:auto;
+
+  background: rgba(255,255,255,.16);
+  border:1px solid rgba(255,255,255,.25);
+  border-radius:22px;
+
+  box-shadow:
+    0 20px 60px rgba(0,0,0,.35),
+    inset 0 1px 0 rgba(255,255,255,.25);
+
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+
+  transform: translateY(12px) scale(.98);
+  opacity: 0;
+  transition: transform .28s ease, opacity .28s ease;
+  padding:18px;
+}
+
+.ios-modal.is-open{ display:flex; }
+.ios-modal.is-open .ios-sheet{
+  transform: translateY(0) scale(1);
+  opacity:1;
+}
+
+.ios-close{
+  position: sticky;
+  top: 8px;
+  float:right;
+  width:36px; height:36px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.25);
+  background: rgba(255,255,255,.16);
+  cursor:pointer;
+}
+
+.ios-title{
+  margin:4px 0 14px;
+  font-size:20px;
+  color:#0b0b0b;
+}
+
+.ios-label{
+  display:block;
+  font-size:12px;
+  opacity:.85;
+  margin:10px 0 6px;
+  color:#0b0b0b;
+}
+
+.ios-input{
+  width:100%;
+  padding:10px 12px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.25);
+  background: rgba(255,255,255,.14);
+  outline:none;
+}
+
+.ios-input:focus{
+  border-color: rgba(255,255,255,.45);
+  box-shadow: 0 0 0 4px rgba(255,255,255,.12);
+}
+
+.ios-direcciones .direccion-item{
+  display:flex;
+  gap:10px;
+  margin:10px 0;
+}
+
+.ios-btn{
+  border:none;
+  border-radius:14px;
+  padding:10px 14px;
+  cursor:pointer;
+  font-weight:600;
+}
+
+.ios-btn-primary{
+  color:white;
+  background: linear-gradient(135deg, rgba(0,122,255,.95), rgba(0,200,255,.8));
+  box-shadow: 0 10px 25px rgba(0,122,255,.25);
+}
+
+.ios-btn-secondary{
+  color:#0b0b0b;
+  background: rgba(255,255,255,.16);
+  border:1px solid rgba(255,255,255,.25);
+}
+
+.ios-actions{
+  margin-top:14px;
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+}

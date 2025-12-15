@@ -820,7 +820,9 @@ function openEditModal(data, type) {
         }
     }
 
-    modal.style.display = 'block';
+    //modal.style.display = 'block';
+    modal.classList.add('is-open');
+
 }
 
 
@@ -828,8 +830,11 @@ function openEditModal(data, type) {
 
 
 function closeModal(modalId) {
-    document.getElementById(modalId).style.display = 'none';
+  const m = document.getElementById(modalId);
+  if (!m) return;
+  m.classList.remove('is-open');
 }
+
 
 // Opcional: Cerrar modal haciendo clic fuera de la ventana
 window.onclick = function(event) {
