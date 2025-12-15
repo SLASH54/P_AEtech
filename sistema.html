@@ -1014,7 +1014,93 @@ function closeNuevoLevantamiento() {
 /* BOTÓN */
 document.getElementById("btnNuevoLevantamiento")
     ?.addEventListener("click", openNuevoLevantamiento);
+
+
+
+    async function cargarClientesLev() {
+    const select = document.getElementById("lev-clienteSelect");
+    if (!select) return;
+
+    select.innerHTML = `<option value="">Seleccione cliente</option>`;
+
+    try {
+        const token = localStorage.getItem("userToken");
+        const res = await fetch(`${API_BASE_URL}/clientes-negocio`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const clientes = await res.json();
+
+        clientes.forEach(c => {
+            const opt = document.createElement("option");
+            opt.value = c.id;
+            opt.textContent = c.nombre;
+            select.appendChild(opt);
+        });
+    } catch (e) {
+        console.error("Error cargando clientes", e);
+    }
+}
+
+// ================= DIRECCIÓN AUTOMÁTICA =================
+async function clienteChangeLev() {
+    const clienteId = document.getElementById("lev-clienteSelect").value;
+    const direccionInput = document.getElementById("lev-direccion");
+
+    if (!clienteId) {
+        direccionInput.value = "";
+        return;
+    }
+
+    const token = localStorage.getItem("userToken");
+    const res = await fetch(`${API_BASE_URL}/clientes-negocio/${clienteId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+
+    const cliente = await res.json();
+    direccionInput.value = cliente?.direcciones?.[0]?.direccion || "";
+}
+
+// conectar cambio
+document.getElementById("lev-clienteSelect")
+    ?.addEventListener("change", clienteChangeLev);
+
+
+// ================= NECESIDADES =================
+function addNecesidad() {
+    const cont = document.getElementById("lev-necesidadesContainer");
+
+    const div = document.createElement("div");
+    div.className = "nec-item";
+
+    div.innerHTML = `
+        <textarea placeholder="Describe la necesidad..." class="form-control"></textarea>
+
+        <label class="btn btn-outline-secondary" style="margin-top:6px;">
+            📸 Tomar / Elegir foto
+            <input type="file" accept="image/*" style="display:none">
+        </label>
+
+        <button type="button" class="btn btn-danger btn-sm" style="margin-top:6px;">
+            Eliminar
+        </button>
+        <hr>
+    `;
+
+    div.querySelector(".btn-danger").onclick = () => div.remove();
+    cont.appendChild(div);
+}
+
+// botón
+document.getElementById("btnAddNecesidad")
+    ?.addEventListener("click", addNecesidad);
+
+
+
+
+
 </script>
+
 
 
 
