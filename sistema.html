@@ -979,13 +979,66 @@
         <hr>
 
         <!-- MATERIALES -->
-        <h4>Materiales:</h4>
-        <input id="lev-materialInput" class="form-control" placeholder="Ej. Cable UTP 20m">
-        <button id="lev-addMaterialBtn" class="btn btn-secondary" type="button">+ Agregar</button>
+       <h4>Materiales:</h4>
 
-        <ul id="lev-materialesLista"></ul>
+<div class="lev-material-container">
+    <select id="levInsumo" onchange="levMostrarCampoExtra()">
+        <option value="" disabled selected>Seleccione un insumo</option>
 
-        <hr>
+        <optgroup label="Cable">
+            <option value="Cable">Cable</option>
+        </optgroup>
+
+        <optgroup label="Transceptor">
+            <option value="Transceptor">Transceptor</option>
+        </optgroup>
+
+        <optgroup label="Conectores">
+            <option value="Conector de corriente">Conector de corriente</option>
+        </optgroup>
+
+        <optgroup label="Fuente de poder 12V">
+            <option value="12vdc 1A">12vdc 1A</option>
+            <option value="12vdc 1.5A">12vdc 1.5A</option>
+            <option value="12vdc 2A">12vdc 2A</option>
+            <option value="12vdc 4.1A">12vdc 4.1A</option>
+            <option value="12vdc 5A">12vdc 5A</option>
+        </optgroup>
+
+        <optgroup label="Fuente centralizada">
+            <option value="Fuente de poder centralizada">Fuente de poder centralizada</option>
+        </optgroup>
+
+        <optgroup label="Cajas">
+            <option value="Caja estanca">Caja estanca</option>
+            <option value="Caja plástica 180x125x57">Caja plástica 180x125x57</option>
+            <option value="Caja plástica 190x290x140">Caja plástica 190x290x140</option>
+        </optgroup>
+
+        <optgroup label="Otro">
+            <option value="Otro">Otro (especificar)</option>
+        </optgroup>
+    </select>
+
+    <input type="text" id="levInsumoExtra" placeholder="Especificar modelo..."
+           style="display:none; margin-top:6px;">
+
+    <input type="number" id="levCantidad" placeholder="Cantidad" min="0">
+
+    <select id="levUnidadOtro" style="display:none;">
+        <option value="Metros">Metros</option>
+        <option value="Unidades">Unidades</option>
+    </select>
+
+    <button id="levBtnAgregarMaterial" class="btn btn-success btn-sm">
+        + Agregar
+    </button>
+</div>
+
+<ul id="levListaMateriales"></ul>
+
+
+
 
         <button id="btnGuardarLevantamiento" class="btn btn-success">
             Guardar Levantamiento
@@ -1203,6 +1256,178 @@ function setFechaHoraActual() {
         String(now.getMinutes()).padStart(2, "0");
 
     input.value = fechaHora;
+}
+
+
+
+//materiales 
+
+/* ================= MATERIALES LEVANTAMIENTOS ================= */
+
+let levMaterialesList = [];
+
+const levCategoriaPorInsumo = {
+    "Transceptor": "Transceptor",
+    "Conector de corriente": "Conectores",
+
+    "12vdc 1A": "Fuentes de poder",
+    "12vdc 1.5A": "Fuentes de poder",
+    "12vdc 2A": "Fuentes de poder",
+    "12vdc 4.1A": "Fuentes de poder",
+    "12vdc 5A": "Fuentes de poder",
+    "Fuente de poder centralizada": "Fuentes de poder",
+
+    "Cable": "Cableado",
+
+    "Caja estanca": "Cajas",
+    "Caja plástica 180x125x57": "Cajas",
+    "Caja plástica 190x290x140": "Cajas",
+
+    "Otro": "Otros"
+};
+
+const levUnidadesPorInsumo = {
+    "Transceptor": "Unidades",
+    "Conector de corriente": "Unidades",
+
+    "12vdc 1A": "Unidades",
+    "12vdc 1.5A": "Unidades",
+    "12vdc 2A": "Unidades",
+    "12vdc 4.1A": "Unidades",
+    "12vdc 5A": "Unidades",
+
+    "Fuente de poder centralizada": "Unidades",
+
+    "Caja estanca": "Unidades",
+    "Caja plástica 180x125x57": "Unidades",
+    "Caja plástica 190x290x140": "Unidades",
+
+    "Cable": "Metros",
+    "Otro": "Unidades"
+};
+
+// ➕ AGREGAR MATERIAL
+document.getElementById("levBtnAgregarMaterial")
+    ?.addEventListener("click", () => {
+
+        const insumoBase = document.getElementById("levInsumo").value;
+        const extra = document.getElementById("levInsumoExtra").value.trim();
+        const cantidad = document.getElementById("levCantidad").value.trim();
+
+        if (!insumoBase || !cantidad) {
+            alert("Completa los campos de material");
+            return;
+        }
+
+        if ((insumoBase === "Fuente de poder centralizada" || insumoBase === "Otro") && !extra) {
+            alert("Especifica el modelo");
+            return;
+        }
+
+        let unidad;
+        if (insumoBase === "Otro") {
+            unidad = document.getElementById("levUnidadOtro").value;
+            if (!unidad) {
+                alert("Selecciona unidad");
+                return;
+            }
+        } else {
+            unidad = levUnidadesPorInsumo[insumoBase] || "Unidades";
+        }
+
+        const insumoFinal = extra ? `${insumoBase} (${extra})` : insumoBase;
+        const categoria = levCategoriaPorInsumo[insumoBase] || "Otros";
+
+        // 🔁 detectar duplicado
+        const existente = levMaterialesList.find(
+            m => m.insumo === insumoFinal && m.unidad === unidad
+        );
+
+        if (existente) {
+            existente.cantidad += parseFloat(cantidad);
+            levRenderMateriales();
+            levLimpiarInputs();
+            return;
+        }
+
+        levMaterialesList.push({
+            insumo: insumoFinal,
+            categoria,
+            cantidad: parseFloat(cantidad),
+            unidad
+        });
+
+        levRenderMateriales();
+        levLimpiarInputs();
+    });
+
+// 🧹 LIMPIAR INPUTS
+function levLimpiarInputs() {
+    document.getElementById("levInsumo").selectedIndex = 0;
+    document.getElementById("levCantidad").value = "";
+    document.getElementById("levInsumoExtra").value = "";
+    document.getElementById("levInsumoExtra").style.display = "none";
+    document.getElementById("levUnidadOtro").value = "";
+    document.getElementById("levUnidadOtro").style.display = "none";
+}
+
+// 🖨️ RENDER MATERIALES
+function levRenderMateriales() {
+    const ul = document.getElementById("levListaMateriales");
+    ul.innerHTML = "";
+
+    const grupos = {};
+
+    levMaterialesList.forEach(mat => {
+        if (!grupos[mat.categoria]) grupos[mat.categoria] = [];
+        grupos[mat.categoria].push(mat);
+    });
+
+    Object.keys(grupos).sort().forEach(cat => {
+
+        const header = document.createElement("li");
+        header.innerHTML = `<strong>${cat}</strong>`;
+        header.style.marginTop = "10px";
+        ul.appendChild(header);
+
+        grupos[cat].forEach(mat => {
+            const li = document.createElement("li");
+            li.innerHTML = `
+                ${mat.insumo} – ${mat.cantidad} ${mat.unidad}
+                <button class="levBtnEliminarMat">❌</button>
+            `;
+
+            li.querySelector(".levBtnEliminarMat").onclick = () => {
+                levMaterialesList = levMaterialesList.filter(
+                    m => !(m.insumo === mat.insumo && m.unidad === mat.unidad)
+                );
+                levRenderMateriales();
+            };
+
+            ul.appendChild(li);
+        });
+    });
+}
+
+// 👁️ MOSTRAR CAMPOS EXTRA
+function levMostrarCampoExtra() {
+    const insumo = document.getElementById("levInsumo").value;
+    const extra = document.getElementById("levInsumoExtra");
+    const unidadOtro = document.getElementById("levUnidadOtro");
+
+    if (insumo === "Fuente de poder centralizada" || insumo === "Otro") {
+        extra.style.display = "block";
+    } else {
+        extra.style.display = "none";
+        extra.value = "";
+    }
+
+    if (insumo === "Otro") {
+        unidadOtro.style.display = "block";
+    } else {
+        unidadOtro.style.display = "none";
+        unidadOtro.value = "";
+    }
 }
 
 
