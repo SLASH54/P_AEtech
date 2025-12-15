@@ -1083,7 +1083,7 @@ document.getElementById("btnNuevoLevantamiento")
     select.innerHTML = `<option value="">Seleccione cliente</option>`;
 
     try {
-        const token = localStorage.getItem("userToken");
+        const token = localStorage.getItem("accessToken");
         const res = await fetch(`${API_BASE_URL}/clientes`, {
     headers: { Authorization: `Bearer ${token}` }
 });
@@ -1126,7 +1126,7 @@ async function clienteChangeLev() {
         return;
     }
 
-    const token = localStorage.getItem("userToken");
+    const token = localStorage.getItem("accessToken");
 
     try {
         const res = await fetch(`${API_BASE_URL}/clientes/${select.value}`, {

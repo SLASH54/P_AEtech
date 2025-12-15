@@ -48,6 +48,21 @@ exports.registerUser = async (req, res) => {
 // ==============================================
 // 2. INICIO DE SESIÓN
 // ==============================================
+const signAccessToken = (user) =>
+  jwt.sign(
+    { id: user.id, rol: user.rol },
+    process.env.JWT_SECRET,
+    { expiresIn: '1h' } // corto
+  );
+
+const signRefreshToken = (user) =>
+  jwt.sign(
+    { id: user.id },
+    process.env.JWT_REFRESH_SECRET,
+    { expiresIn: '30d' } // largo
+  );
+
+
 exports.loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -65,21 +80,21 @@ exports.loginUser = async (req, res) => {
         }
 
         // 3. Generar JWT
-        const token = jwt.sign(
-            { id: user.id, rol: user.rol }, 
-            JWT_SECRET, 
-            { expiresIn: '1d' } // Válido por 1 día
-        );
+        const accessToken = signAccessToken(user);
+        const refreshToken = signRefreshToken(user);
+
 
         // 4. Responder con el token (sesión)
-        res.json({ 
-            message: 'Inicio de sesión exitoso.',
-            token,
-            nombre: user.nombre,
-            email: user.email,
-            rol: user.rol,
-            usuarioId: user.id
+        res.json({
+        message: 'Inicio de sesión exitoso.',
+        accessToken,
+        refreshToken,
+        nombre: user.nombre,
+        email: user.email,
+        rol: user.rol,
+        usuarioId: user.id
         });
+
 
     } catch (error) {
         console.error('Error al iniciar sesión:', error);
@@ -98,4 +113,30 @@ exports.logoutUser = (req, res) => {
     res.status(200).json({ 
         message: 'Sesión cerrada exitosamente.' 
     });
+};
+
+
+
+
+exports.refreshToken = (req, res) => {
+  const { refreshToken } = req.body;
+  if (!refreshToken)
+    return res.status(401).json({ message: 'No refresh token' });
+
+  try {
+    const decoded = jwt.verify(
+      refreshToken,
+      process.env.JWT_REFRESH_SECRET
+    );
+
+    const newAccessToken = jwt.sign(
+      { id: decoded.id },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    res.json({ accessToken: newAccessToken });
+  } catch {
+    res.status(401).json({ message: 'Refresh inválido o expirado' });
+  }
 };

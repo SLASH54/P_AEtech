@@ -39,6 +39,23 @@ const API_BASE_URL = 'https://p-aetech.onrender.com/api'; // Esto lo reemplazar�
 /**
  * Verifica si hay un token de sesión guardado y lo valida si es necesario.
  */
+async function refreshAccessToken() {
+  const rt = localStorage.getItem('refreshToken');
+  if (!rt) return false;
+
+  const res = await fetch(`${API_BASE_URL}/auth/refresh`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refreshToken: rt })
+  });
+
+  if (!res.ok) return false;
+
+  const data = await res.json();
+  localStorage.setItem('accessToken', data.accessToken);
+  return true;
+}
+
 
 function initCrudGlobal() {
   attachCrudListeners();
@@ -57,7 +74,7 @@ function extraerDireccionGoogle(url) {
 
 
 const checkSession = async () => {
-    const token = localStorage.getItem('userToken');
+    const token = localStorage.getItem('accessToken');
     const currentPage = window.location.pathname;
 
     // A) Si estamos en la página de login (index.html) y hay un token, redirigir al dashboard.
@@ -81,7 +98,7 @@ const checkSession = async () => {
  * Función para cerrar sesión.
  */
 const logout = () => {
-    localStorage.removeItem('userToken');
+    localStorage.removeItem('accessToken');
     alert('Sesión cerrada.');
     window.location.href = '/index.html'; // Redirige al login
 };
@@ -164,7 +181,10 @@ const loginUser = async (e) => {
         console.log('Respuesta COMPLETA del Servidor al Login:', data);
         
         // 1. Guardar el Token
-        localStorage.setItem('userToken', data.token);
+        //localStorage.setItem('accessToken', data.token);
+        localStorage.setItem('accessToken', data.accessToken);
+        localStorage.setItem('refreshToken', data.refreshToken);
+
         let rolDelUsuario = 'Usuario'; // Valor por defecto
 
     
@@ -271,7 +291,7 @@ const registerClient = async (e) => {
     btn.disabled = true;
     btn.innerHTML = "Registrando... ⏳";
 
-    const token = localStorage.getItem('userToken');
+    const token = localStorage.getItem('accessToken');
     if (!token) {
         alert("Necesitas iniciar sesión para registrar clientes.");
         window.location.href = '/index.html';
@@ -508,41 +528,34 @@ function restrictAdminSection() {
 }
 
 // Función fetchData - (OK, déjala global)
-async function fetchData(endpoint) {
-    const token = localStorage.getItem('userToken');
-    if (!token) {
-        alert("Sesión expirada. Inicie sesión.");
-        window.location.href = '/index.html';
-        return null;
+async function fetchData(endpoint, options = {}) {
+  let token = localStorage.getItem('accessToken');
+  if (!token) return null;
+
+  options.headers = {
+    ...options.headers,
+    Authorization: `Bearer ${token}`,
+    'Content-Type': 'application/json'
+  };
+
+  let res = await fetch(`${API_BASE_URL}${endpoint}`, options);
+
+  if (res.status === 401) {
+    const ok = await refreshAccessToken();
+    if (!ok) {
+      logout();
+      return null;
     }
 
-    try {
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
+    token = localStorage.getItem('accessToken');
+    options.headers.Authorization = `Bearer ${token}`;
+    res = await fetch(`${API_BASE_URL}${endpoint}`, options);
+  }
 
-        if (response.status === 401 || response.status === 403) {
-            console.warn("⚠️ Acceso restringido al panel administrativo, pero usuario puede acceder al tablero.");
-            return null; // no bloquear el resto del sistema
-            //alert("No tiene permisos de administrador para ver estos datos.");
-            //return null;
-        }
-
-        if (!response.ok) {
-            throw new Error(`Error ${response.status} al obtener datos.`);
-        }
-
-        return await response.json();
-
-    } catch (error) {
-        console.error(`Error fetching ${endpoint}:`, error);
-        return null;
-    }
+  if (!res.ok) return null;
+  return await res.json();
 }
+
 
 
     // 2. OBTENER Y CARGAR DATOS (Tu lógica actual)
@@ -870,7 +883,7 @@ async function deleteRecord(type, id) {
         return; // Detiene la ejecución si el usuario cancela
     }
 
-    const token = localStorage.getItem('userToken');
+    const token = localStorage.getItem('accessToken');
     // Define el endpoint basado en el tipo (ej: /users/1 o /clientes/5)
     const endpoint = (type === 'usuario') ? `/users/${id}` : `/clientes/${id}`;
 
@@ -972,7 +985,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const id = document.getElementById('edit-id').value;
     const type = document.getElementById('edit-type').value;
-    const token = localStorage.getItem('userToken');
+    const token = localStorage.getItem('accessToken');
 
     let data;
 
@@ -1575,7 +1588,7 @@ async function deleteTarea(tareaId) {
 
 async function saveOrUpdateData(endpoint, method, data) {
     
-    const token = localStorage.getItem('userToken');
+    const token = localStorage.getItem('accessToken');
     if (!token) {
         alert('Sesión expirada. Por favor, inicie sesión de nuevo.');
         return null;
@@ -1607,7 +1620,7 @@ async function saveOrUpdateData(endpoint, method, data) {
 }
 
 async function deleteData(endpoint) {
-    const token = localStorage.getItem('userToken');
+    const token = localStorage.getItem('accessToken');
     if (!token) {
         alert('Sesión expirada. Por favor, inicie sesión de nuevo.');
         return false;
@@ -1856,7 +1869,7 @@ function initEvidencias(tareaId) {
   const container = document.getElementById('contenedor-evidencias');
   const addBtn = document.getElementById('btnAgregarFoto');
   const saveBtn = document.getElementById('btnGuardarEvidencias');
-  const token = localStorage.getItem('userToken');
+  const token = localStorage.getItem('accessToken');
 
   if (!container) {
     console.error('No se encontró el contenedor de evidencias');
@@ -2438,7 +2451,7 @@ async function subirEvidencias(tareaId) {
 
 
 
-  const token = localStorage.getItem('userToken');
+  const token = localStorage.getItem('accessToken');
 const res = await fetch(`${API_BASE_URL}/evidencias/upload-multiple/${tareaId}`, {
   method: 'POST',
   headers: { Authorization: `Bearer ${token}` },
@@ -2524,7 +2537,7 @@ function cargarEvidencias() {
 
 
 async function verEvidencias(tareaId) {
-  const token = localStorage.getItem('userToken');
+  const token = localStorage.getItem('accessToken');
   const modal = document.getElementById('modalEvidencias');
   const contenedor = document.getElementById('contenedorEvidencias');
   contenedor.innerHTML = '<p>📸 Cargando evidencias...</p>';
@@ -2785,7 +2798,7 @@ document.addEventListener("DOMContentLoaded", function() {
 // 📄 Función para descargar reporte PDF de una tarea
 // ---------------------------------------------------------
 async function descargarReportePDF(tareaId) {
-  const token = localStorage.getItem('userToken');
+  const token = localStorage.getItem('accessToken');
   if (!token) {
     alert('No hay sesión activa.');
     return;
@@ -2841,11 +2854,11 @@ if (tarea && tarea.estado !== 'Completada') {
 
 // notificaciones xd ajajajajaja 
 
-const token = localStorage.getItem('userToken');
+const token = localStorage.getItem('accessToken');
 
 async function cargarNotificaciones() {
   try {
-    const jwt = localStorage.getItem('userToken');
+    const jwt = localStorage.getItem('accessToken');
     const res = await fetch(`${API_BASE_URL}/notificaciones`, {
       headers: { Authorization: `Bearer ${jwt}` }
     });
@@ -2956,7 +2969,7 @@ if ('serviceWorker' in navigator) {
         });
         console.log("✅ Token FCM generado:", tokenFCM);
 
-        const jwt = localStorage.getItem("userToken");
+        const jwt = localStorage.getItem("accessToken");
         if (jwt && tokenFCM) {
           await fetch(`${API_BASE_URL}/users/me/fcm-token`, {
             method: "POST",
@@ -2985,7 +2998,7 @@ if ('serviceWorker' in navigator) {
   });
 
   setTimeout(() => {
-    if (localStorage.getItem("userToken")) {
+    if (localStorage.getItem("accessToken")) {
       solicitarPermisoNotificaciones();
     }
   }, 3000);
@@ -3229,7 +3242,7 @@ function cargarDireccionesCliente(clienteId) {
    1. Cargar lista en tabla
 ============================================ */
 async function cargarLevantamientosTabla() {
-    const token = localStorage.getItem("userToken");
+    const token = localStorage.getItem("accessToken");
     const tbody = document.getElementById("tablaLevantamientos");
 
     if (!tbody) return;
@@ -3303,7 +3316,7 @@ async function cargarClientesLev() {
     if (!sel) return;
 
     sel.innerHTML = `<option value="">Seleccione cliente</option>`;
-    const token = localStorage.getItem("userToken");
+    const token = localStorage.getItem("accessToken");
 
     const r = await fetch(`${API_BASE_URL}/clientes-negocio`, {
         headers: { Authorization: `Bearer ${token}` }
@@ -3323,7 +3336,7 @@ async function onClienteChange() {
     const dir = document.getElementById("lev-direccion");
     if (!sel || !dir || !sel.value) { if (dir) dir.value = ""; return; }
 
-    const token = localStorage.getItem("userToken");
+    const token = localStorage.getItem("accessToken");
     const r = await fetch(`${API_BASE_URL}/clientes-negocio/${sel.value}`, {
         headers: { Authorization: `Bearer ${token}` }
     });
@@ -3377,7 +3390,7 @@ async function guardarLevantamiento() {
     const necesidades = [...document.querySelectorAll(".nec-item textarea")]
         .map(t => t.value.trim()).filter(Boolean);
 
-    const token = localStorage.getItem("userToken");
+    const token = localStorage.getItem("accessToken");
     const res = await fetch(`${API_BASE_URL}/levantamientos`, {
         method: "POST",
         headers: {
@@ -3408,7 +3421,7 @@ async function cargarLevantamientosTabla() {
     const tbody = document.getElementById("tablaLevantamientos");
     if (!tbody) return;
 
-    const token = localStorage.getItem("userToken");
+    const token = localStorage.getItem("accessToken");
     const r = await fetch(`${API_BASE_URL}/levantamientos`, {
         headers: { Authorization: `Bearer ${token}` }
     });

@@ -1,6 +1,7 @@
 // src/routes/authRoutes.js
 const express = require('express');
-const { registerUser, loginUser, logoutUser} = require('../controllers/authController');
+const { registerUser, loginUser, logoutUser, refreshToken} = require('../controllers/authController');
+
 
 const router = express.Router();
 
@@ -12,6 +13,9 @@ router.post('/login', loginUser);
 
 // POST /api/auth/logout
 router.post('/logout', logoutUser); // <--- Nueva ruta
+
+//ruta para el refresh del token de inicio de sesion
+router.post('/refresh', refreshToken);
 
 
 module.exports = router;
