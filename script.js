@@ -857,21 +857,7 @@ function attachCrudListeners() {
     });
 }
 
-document.addEventListener('click', (e) => {
-  const btn = e.target.closest('.edit-btn, .delete-btn');
-  if (!btn) return;
 
-  const id = btn.dataset.id;
-  const type = btn.dataset.type;
-
-  if (btn.classList.contains('edit-btn')) {
-    openEditModal(type, id);
-  }
-
-  if (btn.classList.contains('delete-btn')) {
-    openDeleteModal(type, id);
-  }
-});
 
 
 
