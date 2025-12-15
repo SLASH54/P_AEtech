@@ -1139,10 +1139,16 @@ async function initTareas() {
   document.getElementById('filterCliente')?.addEventListener('change', filtrarTareas);
 document.getElementById('filterActividad')?.addEventListener('change', filtrarTareas);
 
-document.getElementById('btnLimpiarFiltros')?.addEventListener('click', () => {
-  document.getElementById('filterCliente').value = "";
-  document.getElementById('filterActividad').value = "";
-  renderTareasTable(window.tareasOriginales);
+document.getElementById('btnLimpiarFiltros').addEventListener('click', () => {
+  const btn = document.getElementById('btnLimpiarFiltros');
+  btn.style.transform = 'scale(0.9)';
+
+  setTimeout(() => {
+    btn.style.transform = 'scale(1)';
+    document.getElementById('filterCliente').value = "";
+    document.getElementById('filterActividad').value = "";
+    renderTareasConAnimacion(window.tareasOriginales);
+  }, 120);
 });
 
 
@@ -1261,6 +1267,16 @@ async function loadActividadesForTareaSelect() {
 function renderTareasTable(tareas) {
     const tareasBody = document.getElementById('tareasBody');
     if (!tareasBody) return;
+
+    body.classList.add('fade-out');
+
+  setTimeout(() => {
+    renderTareasTable(tareas);
+    body.classList.remove('fade-out');
+    body.classList.add('fade-in');
+
+    setTimeout(() => body.classList.remove('fade-in'), 350);
+  }, 200);
 
     tareasBody.innerHTML = ''; // Limpiar contenido previo
     window.tareasList = tareas; // Guardar globalmente (opcional)
