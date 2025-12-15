@@ -994,6 +994,29 @@
     </div>
 </div>
 
+<script>
+/* ===== MODAL NUEVO LEVANTAMIENTO (FORZADO) ===== */
+
+function openNuevoLevantamiento() {
+    const modal = document.getElementById("modalNuevoLevantamiento");
+    if (!modal) {
+        console.error("No existe modalNuevoLevantamiento");
+        return;
+    }
+    modal.classList.add("active");
+}
+
+function closeNuevoLevantamiento() {
+    const modal = document.getElementById("modalNuevoLevantamiento");
+    if (modal) modal.classList.remove("active");
+}
+
+/* BOTÓN */
+document.getElementById("btnNuevoLevantamiento")
+    ?.addEventListener("click", openNuevoLevantamiento);
+</script>
+
+
 
 
 
