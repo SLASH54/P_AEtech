@@ -1268,16 +1268,6 @@ function renderTareasTable(tareas) {
     const tareasBody = document.getElementById('tareasBody');
     if (!tareasBody) return;
 
-    body.classList.add('fade-out');
-
-  setTimeout(() => {
-    renderTareasTable(tareas);
-    body.classList.remove('fade-out');
-    body.classList.add('fade-in');
-
-    setTimeout(() => body.classList.remove('fade-in'), 350);
-  }, 200);
-
     tareasBody.innerHTML = ''; // Limpiar contenido previo
     window.tareasList = tareas; // Guardar globalmente (opcional)
 
@@ -1383,6 +1373,22 @@ const clienteMapsLink = clienteMaps
         tareasBody.appendChild(row);
     });
 }
+
+function renderTareasConAnimacion(tareas) {
+  const body = document.getElementById('tareasBody');
+  if (!body) return;
+
+  body.classList.add('fade-out');
+
+  setTimeout(() => {
+    renderTareasTable(tareas); // 👈 usa tu render original
+    body.classList.remove('fade-out');
+    body.classList.add('fade-in');
+
+    setTimeout(() => body.classList.remove('fade-in'), 350);
+  }, 200);
+}
+
 
 
 
@@ -1688,7 +1694,7 @@ function filtrarTareas() {
     return condCliente && condActividad;
   });
 
-  renderTareasTable(tareasFiltradas);
+  renderTareasConAnimacion(tareasFiltradas);
 }
 
 
