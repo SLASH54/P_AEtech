@@ -3379,16 +3379,18 @@ async function guardarLevantamiento() {
 
 
 // ==== MODAL LEVANTAMIENTOS (usa el id modalNuevoLevantamiento) ====
+// ==== MODAL LEVANTAMIENTOS (usa el id modalNuevoLevantamiento) ====
 function openNuevoLevantamiento() {
     prepararNuevoLevantamiento();
     const modal = document.getElementById("modalNuevoLevantamiento");
-    modal.style.display = "flex";
+    if (modal) modal.style.display = "flex";
 }
 
 function closeNuevoLevantamiento() {
     const modal = document.getElementById("modalNuevoLevantamiento");
-    modal.style.display = "none";
+    if (modal) modal.style.display = "none";
 }
+
 
 
 // Botones del modal de levantamientos
@@ -3405,6 +3407,6 @@ document.getElementById("btnGuardarLevantamiento")
     ?.addEventListener("click", guardarLevantamiento);
 
 
-    alert("✔ Levantamiento guardado");
+alert("✔ Levantamiento guardado");
 closeNuevoLevantamiento();          // <--- usa este
 cargarLevantamientosTabla();
