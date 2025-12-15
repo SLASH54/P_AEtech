@@ -775,6 +775,8 @@ function handleEditClick(event) {
 
 
 function openEditModal(data, type) {
+  console.log('Edit modal abierto');
+
     const modal = document.getElementById('editModal');
 
     document.getElementById('edit-id').value = data.id;
@@ -838,6 +840,22 @@ window.onclick = function(event) {
 }
 
 // script.js (Asegúrate de que esta función esté definida globalmente)
+
+function attachCrudListeners() {
+    
+    // 🗑️ Conectar botones de Eliminar (.delete-btn)
+    document.querySelectorAll('.delete-btn').forEach(button => {
+        // Importante: Remover listeners anteriores para evitar duplicados al recargar el panel
+        button.removeEventListener('click', handleDeleteClick); 
+        button.addEventListener('click', handleDeleteClick);
+    });
+    
+    // ✍️ Conectar botones de Editar (.edit-btn) - Lo haremos en el siguiente paso
+    document.querySelectorAll('.edit-btn').forEach(button => {
+         button.removeEventListener('click', handleEditClick);
+         button.addEventListener('click', handleEditClick);
+    });
+}
 
 document.addEventListener('click', (e) => {
   const btn = e.target.closest('.edit-btn, .delete-btn');
