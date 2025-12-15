@@ -3221,196 +3221,187 @@ async function cargarLevantamientosTabla() {
 }
 
 
-/* =================== MODAL LEVANTAMIENTOS (CORRECTO) =================== */
+/* ================= LEVANTAMIENTOS ================= */
 
-// ABRIR MODAL
+/* ---------- MODAL (NO display:none, usa clase active) ---------- */
 function openNuevoLevantamiento() {
     prepararNuevoLevantamiento();
-    document.getElementById("modalNuevoLevantamiento").style.display = "flex";
+    const modal = document.getElementById("modalNuevoLevantamiento");
+    if (modal) modal.classList.add("active");
 }
 
-// CERRAR MODAL
 function closeNuevoLevantamiento() {
-    document.getElementById("modalNuevoLevantamiento").style.display = "none";
+    const modal = document.getElementById("modalNuevoLevantamiento");
+    if (modal) modal.classList.remove("active");
 }
 
-// BOTÓN + NUEVO LEVANTAMIENTO
-document.getElementById("btnNuevoLevantamiento")?.addEventListener("click", () => {
-    openNuevoLevantamiento();
-});
+/* ---------- PREPARAR MODAL ---------- */
+function prepararNuevoLevantamiento() {
+    // limpiar
+    const matList = document.getElementById("lev-materialesLista");
+    const necCont = document.getElementById("lev-necesidadesContainer");
+    if (matList) matList.innerHTML = "";
+    if (necCont) necCont.innerHTML = "";
 
+    // fecha
+    const f = document.getElementById("lev-fechaHora");
+    if (f) f.value = new Date().toISOString().slice(0, 16);
 
-/* ============================================
-   2. Cargar clientes en el modal
-============================================ */
-async function loadClientesForLevantamientos() {
-    const select = document.getElementById("lev-clienteSelect");
-    if (!select) return;
+    // personal
+    const p = document.getElementById("lev-personal");
+    if (p) p.value = localStorage.getItem("userName") || "";
 
-    select.innerHTML = `<option value="">Cargando...</option>`;
-    const clientes = await fetchData('/clientes-negocio');
+    // cargar clientes
+    cargarClientesLev();
+}
 
-    select.innerHTML = `<option value="">Seleccione cliente</option>`;
-    clientes.forEach(c => {
-        const opt = document.createElement("option");
-        opt.value = c.id;
-        opt.textContent = c.nombre;
-        select.appendChild(opt);
+/* ---------- CLIENTES + DIRECCIÓN ---------- */
+async function cargarClientesLev() {
+    const sel = document.getElementById("lev-clienteSelect");
+    if (!sel) return;
+
+    sel.innerHTML = `<option value="">Seleccione cliente</option>`;
+    const token = localStorage.getItem("userToken");
+
+    const r = await fetch(`${API_BASE_URL}/clientes-negocio`, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+    const data = await r.json();
+
+    data.forEach(c => {
+        const o = document.createElement("option");
+        o.value = c.id;
+        o.textContent = c.nombre;
+        sel.appendChild(o);
     });
 }
 
-/* ============================================
-   3. Autollenado de dirección según cliente
-============================================ */
-async function activarAutollenadoDireccion() {
-    const select = document.getElementById("lev-clienteSelect");
-    const direccionInput = document.getElementById("lev-direccion");
+async function onClienteChange() {
+    const sel = document.getElementById("lev-clienteSelect");
+    const dir = document.getElementById("lev-direccion");
+    if (!sel || !dir || !sel.value) { if (dir) dir.value = ""; return; }
 
-    select.addEventListener("change", async () => {
-        const id = select.value;
-        if (!id) {
-            direccionInput.value = "";
-            return;
-        }
-
-        const token = localStorage.getItem("userToken");
-        const res = await fetch(`${API_BASE_URL}/clientes-negocio/${id}`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-
-        const cliente = await res.json();
-        direccionInput.value = cliente?.direcciones?.[0]?.direccion || "";
+    const token = localStorage.getItem("userToken");
+    const r = await fetch(`${API_BASE_URL}/clientes-negocio/${sel.value}`, {
+        headers: { Authorization: `Bearer ${token}` }
     });
+    const c = await r.json();
+    dir.value = c?.direcciones?.[0]?.direccion || "";
 }
 
-/* ============================================
-   4. Necesidades
-============================================ */
+/* ---------- NECESIDADES ---------- */
 function addNecesidad() {
     const cont = document.getElementById("lev-necesidadesContainer");
-    const div = document.createElement("div");
-    div.classList.add("nec-item");
+    if (!cont) return;
 
-    div.innerHTML = `
+    const d = document.createElement("div");
+    d.className = "nec-item";
+    d.innerHTML = `
         <textarea placeholder="Describe la necesidad..."></textarea>
-        <button type="button" onclick="this.parentNode.remove()">❌</button>
+        <button type="button">❌</button>
     `;
-
-    cont.appendChild(div);
+    d.querySelector("button").onclick = () => d.remove();
+    cont.appendChild(d);
 }
 
-/* ============================================
-   5. Materiales
-============================================ */
+/* ---------- MATERIALES ---------- */
 function addMaterial() {
-    const lista = document.getElementById("lev-materialesLista");
-    const text = document.getElementById("lev-materialInput").value.trim();
-
-    if (!text) return;
+    const inp = document.getElementById("lev-materialInput");
+    const list = document.getElementById("lev-materialesLista");
+    if (!inp || !list || !inp.value.trim()) return;
 
     const li = document.createElement("li");
-    li.innerHTML = `${text} <button onclick="this.parentNode.remove()">❌</button>`;
-    lista.appendChild(li);
-
-    document.getElementById("lev-materialInput").value = "";
+    li.innerHTML = `${inp.value.trim()} <button type="button">❌</button>`;
+    li.querySelector("button").onclick = () => li.remove();
+    list.appendChild(li);
+    inp.value = "";
 }
 
-/* ============================================
-   6. Preparación del modal cada vez que se abre
-============================================ */
-function prepararNuevoLevantamiento() {
-    document.getElementById("lev-materialesLista").innerHTML = "";
-    document.getElementById("lev-necesidadesContainer").innerHTML = "";
-
-    loadClientesForLevantamientos();
-    activarAutollenadoDireccion();
-
-    const now = new Date();
-    document.getElementById("lev-fechaHora").value = now.toISOString().slice(0, 16);
-
-    const nombre = localStorage.getItem("userName") || "Personal";
-    document.getElementById("lev-personal").value = nombre;
-}
-
-/* ============================================
-   7. Guardar levantamiento
-============================================ */
+/* ---------- GUARDAR ---------- */
 async function guardarLevantamiento() {
-    const clienteId = document.getElementById("lev-clienteSelect").value;
-    const direccion = document.getElementById("lev-direccion").value;
-    const fecha = document.getElementById("lev-fechaHora").value;
-    const personal = document.getElementById("lev-personal").value;
+    const clienteId = document.getElementById("lev-clienteSelect")?.value;
+    const direccion = document.getElementById("lev-direccion")?.value;
+    const fecha = document.getElementById("lev-fechaHora")?.value;
+    const personal = document.getElementById("lev-personal")?.value;
+
+    if (!clienteId || !direccion || !fecha) {
+        alert("Completa los campos obligatorios");
+        return;
+    }
 
     const materiales = [...document.querySelectorAll("#lev-materialesLista li")]
         .map(li => li.textContent.replace("❌", "").trim());
 
     const necesidades = [...document.querySelectorAll(".nec-item textarea")]
-        .map(t => t.value.trim());
-
-    const fd = new FormData();
-    fd.append("clienteNegocioId", clienteId);
-    fd.append("direccion", direccion);
-    fd.append("fecha", fecha);
-    fd.append("personalNombre", personal);
-    fd.append("materiales", JSON.stringify(materiales));
-    fd.append("necesidades", JSON.stringify(necesidades));
+        .map(t => t.value.trim()).filter(Boolean);
 
     const token = localStorage.getItem("userToken");
-
     const res = await fetch(`${API_BASE_URL}/levantamientos`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: fd
+        headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            clienteNegocioId: clienteId,
+            direccion,
+            fecha,
+            personalNombre: personal,
+            materiales,
+            necesidades
+        })
     });
 
     if (!res.ok) {
-        alert("❌ Error al guardar");
+        alert("Error al guardar");
         return;
     }
 
-    alert("✔ Levantamiento guardado");
-    closeLevantamientoModal();
+    closeNuevoLevantamiento();
     cargarLevantamientosTabla();
 }
 
+/* ---------- TABLA ---------- */
+async function cargarLevantamientosTabla() {
+    const tbody = document.getElementById("tablaLevantamientos");
+    if (!tbody) return;
 
-// ================= MODAL NUEVO LEVANTAMIENTO =================
+    const token = localStorage.getItem("userToken");
+    const r = await fetch(`${API_BASE_URL}/levantamientos`, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+    const data = await r.json();
 
-// ABRIR
-function openNuevoLevantamiento() {
-    prepararNuevoLevantamiento();
-    document
-        .getElementById("modalNuevoLevantamiento")
-        .classList.add("active");
+    tbody.innerHTML = "";
+    data.forEach(l => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${l.clienteNombre || "-"}</td>
+            <td>${l.direccion || "-"}</td>
+            <td>${l.personalNombre || "-"}</td>
+            <td>${(l.fecha || "").split("T")[0]}</td>
+            <td>—</td>
+        `;
+        tbody.appendChild(tr);
+    });
 }
 
-// CERRAR
-function closeNuevoLevantamiento() {
-    document
-        .getElementById("modalNuevoLevantamiento")
-        .classList.remove("active");
-}
-
-// BOTÓN
+/* ---------- EVENTOS (UNO SOLO) ---------- */
 document.addEventListener("DOMContentLoaded", () => {
-    const btn = document.getElementById("btnNuevoLevantamiento");
-    if (btn) {
-        btn.addEventListener("click", openNuevoLevantamiento);
-    }
-});
+    document.getElementById("btnNuevoLevantamiento")
+        ?.addEventListener("click", openNuevoLevantamiento);
 
-// ================= BOTONES MODAL LEVANTAMIENTOS =================
-document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("btnAddNecesidad")
+        ?.addEventListener("click", addNecesidad);
 
-    const btnNuevo = document.getElementById("btnNuevoLevantamiento");
-    if (btnNuevo) btnNuevo.addEventListener("click", openNuevoLevantamiento);
+    document.getElementById("lev-addMaterialBtn")
+        ?.addEventListener("click", addMaterial);
 
-    const btnNec = document.getElementById("btnAddNecesidad");
-    if (btnNec) btnNec.addEventListener("click", addNecesidad);
+    document.getElementById("btnGuardarLevantamiento")
+        ?.addEventListener("click", guardarLevantamiento);
 
-    const btnMat = document.getElementById("lev-addMaterialBtn");
-    if (btnMat) btnMat.addEventListener("click", addMaterial);
+    document.getElementById("lev-clienteSelect")
+        ?.addEventListener("change", onClienteChange);
 
-    const btnGuardar = document.getElementById("btnGuardarLevantamiento");
-    if (btnGuardar) btnGuardar.addEventListener("click", guardarLevantamiento);
+    cargarLevantamientosTabla();
 });

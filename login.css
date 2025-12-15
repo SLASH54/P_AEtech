@@ -3579,18 +3579,24 @@ h3 {
 /* ===================== MODAL GLASS (iOS STYLE) ===================== */
 
 .modalGlass {
-    display: flex;
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     backdrop-filter: blur(12px);
-    background: rgba(0, 0, 0, 0.35);
+    background: rgba(0,0,0,.35);
+    display: flex;
     justify-content: center;
     align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease;
     z-index: 99999;
 }
+
+.modalGlass.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
 
 .modalGlass-content {
     background: rgba(255, 255, 255, 0.25);
