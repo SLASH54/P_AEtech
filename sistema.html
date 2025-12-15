@@ -952,24 +952,29 @@
 
         <h2 class="modalGlass-title">Nuevo Levantamiento</h2>
         <span class="modalGlass-close" onclick="closeNuevoLevantamiento()">✖</span>
+<div class="lev-form-grid">
 
-        <!-- Cliente -->
-        <label>Cliente:</label>
-        <select id="lev-clienteSelect" class="form-select"></select>
+    <div class="lev-field">
+        <label>Cliente</label>
+        <select id="lev-clienteSelect"></select>
+    </div>
 
-        <!-- Dirección -->
-        <label>Dirección:</label>
-        <input id="lev-direccion" type="text" class="form-control" readonly />
+    <div class="lev-field">
+        <label>Dirección</label>
+        <input id="lev-direccion" type="text">
+    </div>
 
-        <!-- Personal -->
-        <label>Personal:</label>
-        <input id="lev-personal" type="text" class="form-control" readonly />
+    <div class="lev-field">
+        <label>Personal</label>
+        <input id="lev-personal" type="text" readonly>
+    </div>
 
-        <!-- Fecha -->
-        <label>Fecha y Hora:</label>
-        <input id="lev-fechaHora" type="datetime-local" class="form-control" />
+    <div class="lev-field">
+        <label>Fecha y Hora</label>
+        <input id="lev-fechaHora" type="datetime-local">
+    </div>
 
-        <hr>
+</div>
 
         <!-- NECESIDADES -->
         <h4>Necesidades:</h4>
