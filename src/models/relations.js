@@ -1,20 +1,22 @@
 // src/models/relations.js
 
-const Usuario = require('./Usuario');
-const Actividad = require('./Actividad'); 
-const Sucursal = require('./Sucursal');
-const ClienteNegocio = require('./ClienteNegocio');
-const Tarea = require('./Tarea');
-const Evidencia = require('./Evidencia');
-const ClienteDireccion = require('./ClienteDireccion');
-const Notificacion = require('./Notificacion');
-const Levantamiento = require("./Levantamiento");
+const { sequelize } = require('../database');
+const { DataTypes } = require('sequelize');
 
+// Inicializar modelos correctamente
+const Usuario = require('./Usuario')(sequelize, DataTypes);
+const Actividad = require('./Actividad')(sequelize, DataTypes);
+const Sucursal = require('./Sucursal')(sequelize, DataTypes);
+const ClienteNegocio = require('./ClienteNegocio')(sequelize, DataTypes);
+const Tarea = require('./Tarea')(sequelize, DataTypes);
+const Evidencia = require('./Evidencia')(sequelize, DataTypes);
+const ClienteDireccion = require('./ClienteDireccion')(sequelize, DataTypes);
+const Notificacion = require('./Notificacion')(sequelize, DataTypes);
+const Levantamiento = require('./Levantamiento')(sequelize, DataTypes);
 
+// ================= RELACIONES =================
 
-
-
-// Un cliente tiene muchas direcciones
+// Cliente → Direcciones
 ClienteNegocio.hasMany(ClienteDireccion, {
   foreignKey: "clienteId",
   as: "direcciones",
@@ -26,23 +28,23 @@ ClienteDireccion.belongsTo(ClienteNegocio, {
   as: "cliente"
 });
 
-// Tarea -> Usuario
+// Tarea → Usuario
 Tarea.belongsTo(Usuario, { foreignKey: 'usuarioAsignadoId', as: 'AsignadoA' });
 Usuario.hasMany(Tarea, { foreignKey: 'usuarioAsignadoId', as: 'TareasAsignadas' });
 
-// Tarea -> Actividad
+// Tarea → Actividad
 Tarea.belongsTo(Actividad, { foreignKey: 'actividadId' });
 Actividad.hasMany(Tarea, { foreignKey: 'actividadId' });
 
-// Tarea -> Sucursal
+// Tarea → Sucursal
 Tarea.belongsTo(Sucursal, { foreignKey: 'sucursalId' });
 Sucursal.hasMany(Tarea, { foreignKey: 'sucursalId' });
 
-// Tarea -> ClienteNegocio
+// Tarea → Cliente
 Tarea.belongsTo(ClienteNegocio, { foreignKey: 'clienteNegocioId' });
 ClienteNegocio.hasMany(Tarea, { foreignKey: 'clienteNegocioId' });
 
-// Evidencia -> Tarea
+// Evidencia → Tarea
 Tarea.hasMany(Evidencia, { 
   foreignKey: 'tareaId',
   onDelete: 'CASCADE',
@@ -50,7 +52,7 @@ Tarea.hasMany(Evidencia, {
 });
 Evidencia.belongsTo(Tarea, { foreignKey: 'tareaId' });
 
-// Evidencia -> Usuario
+// Evidencia → Usuario
 Evidencia.belongsTo(Usuario, { foreignKey: 'usuarioId', as: 'Autor' });
 Usuario.hasMany(Evidencia, { foreignKey: 'usuarioId', as: 'EvidenciasCreadas' });
 
@@ -66,12 +68,9 @@ module.exports = {
   Actividad,
   Sucursal,
   ClienteNegocio,
+  ClienteDireccion,
   Tarea,
   Evidencia,
-  ClienteDireccion,
   Notificacion,
   Levantamiento
 };
-
-
-
