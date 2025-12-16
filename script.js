@@ -364,10 +364,24 @@ for (const bloque of bloques) {
 
   // ⚠️ Advertir si es link y no hay alias
   if (esLinkGoogleMaps(raw) && !alias && warning) {
-    warning.style.display = 'block';
-  } else if (warning) {
-    warning.style.display = 'none';
+  warning.style.display = 'block';
+
+  // ⛔ detener registro la PRIMERA vez
+  if (!aliasWarningTriggered) {
+    aliasWarningTriggered = true;
+
+    alert(
+      "Recomendamos agregar un alias (ej. Sucursal Centro) para identificar mejor esta ubicación."
+    );
+
+    btn.disabled = false;
+    btn.innerHTML = "Registrar Cliente";
+    return;
   }
+} else if (warning) {
+  warning.style.display = 'none';
+}
+
 
   direccionesFinales.push({
     alias: alias || null,
@@ -432,6 +446,7 @@ const alias = direccionesFinales.map(d => d.alias);
         }
 
         alert(`Cliente ${nombre} registrado con éxito`);
+        aliasWarningTriggered = false;
         e.target.reset();
 
         // limpiar direcciones dinámicas excepto la primera
