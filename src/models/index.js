@@ -1,5 +1,7 @@
 const { Sequelize, DataTypes } = require("sequelize");
-const sequelize = require("../database");
+
+const { sequelize } = require('../config/database');
+
 
 const LevantamientoModel = require("./Levantamiento");
 
