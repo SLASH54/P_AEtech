@@ -1,4 +1,4 @@
-const pool = require("../db"); // o como tengas tu conexión
+const pool = require('../config/database'); // o como tengas tu conexión
 
 // GUARDAR LEVANTAMIENTO
 exports.createLevantamiento = async (req, res) => {
