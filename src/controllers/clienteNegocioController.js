@@ -4,7 +4,7 @@ const ClienteDireccion = require('../models/ClienteDireccion');
 
 exports.createClienteNegocio = async (req, res) => {
     try {
-        const { nombre, email, telefono, estado = [], municipio = [], direccion = [], maps = [] } = req.body;
+        const { nombre, email, telefono, alias, estado = [], municipio = [], direccion = [], maps = [] } = req.body;
 
         // limpiar email vacío
         const emailFinal = email?.trim() === "" ? null : email;
@@ -21,6 +21,7 @@ exports.createClienteNegocio = async (req, res) => {
             await ClienteDireccion.create({
                 clienteId: cliente.id,
                 estado: estado[i],
+                alias: alias?.[i] || null,
                 municipio: municipio[i],
                 direccion: direccion[i],
                 maps: maps[i] || null
