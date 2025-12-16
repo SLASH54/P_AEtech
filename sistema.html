@@ -1142,6 +1142,28 @@ document.getElementById("btnGuardarLevantamiento")
   ?.addEventListener("click", guardarLevantamiento);
 
 
+
+
+  if (levantamientoEditando) {
+  await fetch(`${API_BASE_URL}/levantamientos/${levantamientoEditando}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify(data)
+  });
+
+  levantamientoEditando = null;
+} else {
+  // POST (ya lo tienes)
+}
+
+
+
+
+
+
 // ================= DIRECCIÓN AUTOMÁTICA =================
 async function clienteChangeLev() {
     const select = document.getElementById("lev-clienteSelect");
@@ -1479,11 +1501,14 @@ async function cargarTablaLevantamientos() {
       <td>${l.personal}</td>
       <td>${new Date(l.fecha).toLocaleDateString()}</td>
       <td>
-        <button class="btn-editar">Editar</button>
-        <button class="btn-eliminar">Eliminar</button>
-        <button class="btn-evidencias">Agregar Evidencias</button>
+       <button class="btn btn-warning" onclick='editarLevantamiento(${JSON.stringify(l)})'> Editar  </button>
+
+
+      <button class="btn btn-danger" onclick="eliminarLevantamiento(${l.id})"> Eliminar </button>
+
+       
         <button class="btn-pdf">PDF</button>
-        <button class="btn-ver">Ver Evidencias</button>
+        <button class="btn-ver">Ver Levantamiento</button>
       </td>
     `;
     tbody.appendChild(tr);
@@ -1492,6 +1517,32 @@ async function cargarTablaLevantamientos() {
 
 
 cargarTablaLevantamientos();
+
+
+async function eliminarLevantamiento(id) {
+  if (!confirm("¿Eliminar levantamiento?")) return;
+
+  await fetch(`${API_BASE_URL}/levantamientos/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("userToken")}`
+    }
+  });
+
+  cargarTablaLevantamientos();
+}
+
+function editarLevantamiento(l) {
+  levantamientoEditando = l.id;
+
+  document.getElementById("lev-direccion").value = l.direccion;
+  document.getElementById("lev-personal").value = l.personal;
+  document.getElementById("lev-fechaHora").value = l.fecha;
+
+  openNuevoLevantamiento();
+}
+
+
 
     
 </script>

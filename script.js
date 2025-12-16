@@ -1837,6 +1837,8 @@ window.evidenciaData = {
 // Referencia global al contexto del Canvas de firma
 let signaturePad = null;
 let firmaCanvas = null;
+let levantamientoEditando = null;
+
 
 
 

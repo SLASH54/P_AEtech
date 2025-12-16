@@ -43,3 +43,38 @@ exports.getLevantamientos = async (req, res) => {
     res.status(500).json({ msg: "Error al obtener levantamientos" });
   }
 };
+
+
+// ===============================
+// ELIMINAR LEVANTAMIENTO
+// ===============================
+exports.deleteLevantamiento = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await Levantamiento.destroy({ where: { id } });
+    res.json({ ok: true });
+  } catch (error) {
+    console.error("ERROR DELETE:", error);
+    res.status(500).json({ msg: "Error al eliminar levantamiento" });
+  }
+};
+
+// ===============================
+// EDITAR LEVANTAMIENTO
+// ===============================
+exports.updateLevantamiento = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { direccion, personal, fecha } = req.body;
+
+    await Levantamiento.update(
+      { direccion, personal, fecha },
+      { where: { id } }
+    );
+
+    res.json({ ok: true });
+  } catch (error) {
+    console.error("ERROR UPDATE:", error);
+    res.status(500).json({ msg: "Error al editar levantamiento" });
+  }
+};
