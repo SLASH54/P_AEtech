@@ -53,7 +53,7 @@ app.use('/api/evidencias', require('./src/routes/evidenciaRoutes'));
 app.use('/api/reportes', require('./src/routes/reporteRoutes'));
 app.use('/api/upload', require('./src/routes/uploadRoutes'));
 app.use('/api/notificaciones', require('./src/routes/NotificacionRoutes'));
-app.use("/api/levantamientos", require("./routes/LevantamientosRoutes"));
+app.use("/api/levantamientos", require("./src/routes/LevantamientosRoutes"));
 
 
 // === INICIO DEL SERVIDOR – SOLO UNA VEZ ===
