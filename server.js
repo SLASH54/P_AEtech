@@ -55,7 +55,6 @@ app.use('/api/upload', require('./src/routes/uploadRoutes'));
 app.use('/api/notificaciones', require('./src/routes/NotificacionRoutes'));
 app.use("/api/levantamientos", require("./src/routes/LevantamientosRoutes"));
 
-
 // === INICIO DEL SERVIDOR – SOLO UNA VEZ ===
 connectDB()
   .then(() => {

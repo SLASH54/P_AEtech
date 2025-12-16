@@ -1,21 +1,11 @@
 module.exports = (sequelize, DataTypes) => {
   const Levantamiento = sequelize.define("Levantamiento", {
-    clienteId: {
-      type: DataTypes.INTEGER,
-      allowNull: false
-    },
-    clienteNombre: {
-      type: DataTypes.STRING
-    },
-    direccion: {
-      type: DataTypes.TEXT
-    },
-    personal: {
-      type: DataTypes.STRING
-    },
-    fecha: {
-      type: DataTypes.DATE
-    }
+    clienteNegocioId: DataTypes.INTEGER,
+    direccion: DataTypes.STRING,
+    fecha: DataTypes.DATE,
+    personalNombre: DataTypes.STRING,
+    materiales: DataTypes.JSON,
+    necesidades: DataTypes.JSON
   });
 
   return Levantamiento;

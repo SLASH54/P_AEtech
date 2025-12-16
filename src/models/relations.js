@@ -1,4 +1,3 @@
-// src/models/relations.js
 const Usuario = require('./Usuario');
 const Actividad = require('./Actividad');
 const Sucursal = require('./Sucursal');
@@ -7,7 +6,6 @@ const ClienteDireccion = require('./ClienteDireccion');
 const Tarea = require('./Tarea');
 const Evidencia = require('./Evidencia');
 const Notificacion = require('./Notificacion');
-const Levantamiento = require('./Levantamiento');
 
 /* ================= RELACIONES ================= */
 
@@ -58,6 +56,5 @@ module.exports = {
   ClienteDireccion,
   Tarea,
   Evidencia,
-  Notificacion,
-  Levantamiento
+  Notificacion
 };
