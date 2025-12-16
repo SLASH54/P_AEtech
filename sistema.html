@@ -920,20 +920,19 @@
 
         <!-- TABLA -->
         <div class="table-responsive" style="margin-top: 15px;">
-            <table class="table table-hover table-striped">
-                <thead>
-                    <tr>
-                        <th>Cliente</th>
-                        <th>Dirección</th>
-                        <th>Personal</th>
-                        <th>Fecha</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="tablaLevantamientos">
-                    <!-- JS llena esto -->
-                </tbody>
-            </table>
+          <table class="tabla">
+  <thead>
+    <tr>
+      <th>Cliente</th>
+      <th>Dirección</th>
+      <th>Personal</th>
+      <th>Fecha</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody id="tablaLevantamientos"></tbody>
+</table>
+
         </div>
 
     </div>
@@ -1114,6 +1113,33 @@ function setPersonalActual() {
         "Usuario";
 }
 
+
+async function guardarLevantamiento() {
+  const data = {
+    clienteId: document.getElementById("lev-clienteSelect").value,
+    clienteNombre: document.getElementById("lev-clienteSelect").selectedOptions[0].text,
+    direccion: document.getElementById("lev-direccion").value,
+    personal: document.getElementById("lev-personal").value,
+    fecha: document.getElementById("lev-fechaHora").value
+  };
+
+  const token = localStorage.getItem("userToken");
+
+  await fetch(`${API_BASE_URL}/levantamientos`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify(data)
+  });
+
+  closeNuevoLevantamiento();
+  cargarTablaLevantamientos();
+}
+
+document.getElementById("btnGuardarLevantamiento")
+  ?.addEventListener("click", guardarLevantamiento);
 
 
 // ================= DIRECCIÓN AUTOMÁTICA =================
@@ -1431,6 +1457,41 @@ function levMostrarCampoExtra() {
     }
 }
 
+
+//cargar tabla 
+
+async function cargarTablaLevantamientos() {
+  const res = await fetch(`${API_BASE_URL}/levantamientos`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("userToken")}`
+    }
+  });
+
+  const data = await res.json();
+  const tbody = document.getElementById("tablaLevantamientos");
+  tbody.innerHTML = "";
+
+  data.forEach(l => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${l.cliente_nombre}</td>
+      <td>${l.direccion}</td>
+      <td>${l.personal}</td>
+      <td>${new Date(l.fecha).toLocaleDateString()}</td>
+      <td>
+        <button class="btn-editar">Editar</button>
+        <button class="btn-eliminar">Eliminar</button>
+        <button class="btn-evidencias">Agregar Evidencias</button>
+        <button class="btn-pdf">PDF</button>
+        <button class="btn-ver">Ver Evidencias</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+
+cargarTablaLevantamientos();
 
 
 
