@@ -1,25 +1,15 @@
-console.log("DB PATH OK");
-
-
 // src/models/relations.js
+const Usuario = require('./Usuario');
+const Actividad = require('./Actividad');
+const Sucursal = require('./Sucursal');
+const ClienteNegocio = require('./ClienteNegocio');
+const ClienteDireccion = require('./ClienteDireccion');
+const Tarea = require('./Tarea');
+const Evidencia = require('./Evidencia');
+const Notificacion = require('./Notificacion');
+const Levantamiento = require('./Levantamiento');
 
-const { sequelize } = require('../config/database');
-
-
-const { DataTypes } = require('sequelize');
-
-// Inicializar modelos correctamente
-const Usuario = require('./Usuario')(sequelize, DataTypes);
-const Actividad = require('./Actividad')(sequelize, DataTypes);
-const Sucursal = require('./Sucursal')(sequelize, DataTypes);
-const ClienteNegocio = require('./ClienteNegocio')(sequelize, DataTypes);
-const Tarea = require('./Tarea')(sequelize, DataTypes);
-const Evidencia = require('./Evidencia')(sequelize, DataTypes);
-const ClienteDireccion = require('./ClienteDireccion')(sequelize, DataTypes);
-const Notificacion = require('./Notificacion')(sequelize, DataTypes);
-const Levantamiento = require('./Levantamiento')(sequelize, DataTypes);
-
-// ================= RELACIONES =================
+/* ================= RELACIONES ================= */
 
 // Cliente → Direcciones
 ClienteNegocio.hasMany(ClienteDireccion, {
@@ -49,21 +39,13 @@ Sucursal.hasMany(Tarea, { foreignKey: 'sucursalId' });
 Tarea.belongsTo(ClienteNegocio, { foreignKey: 'clienteNegocioId' });
 ClienteNegocio.hasMany(Tarea, { foreignKey: 'clienteNegocioId' });
 
-// Evidencia → Tarea
-Tarea.hasMany(Evidencia, { 
-  foreignKey: 'tareaId',
-  onDelete: 'CASCADE',
-  hooks: true
-});
+// Evidencias
+Tarea.hasMany(Evidencia, { foreignKey: 'tareaId', onDelete: 'CASCADE' });
 Evidencia.belongsTo(Tarea, { foreignKey: 'tareaId' });
 
-// Evidencia → Usuario
-Evidencia.belongsTo(Usuario, { foreignKey: 'usuarioId', as: 'Autor' });
-Usuario.hasMany(Evidencia, { foreignKey: 'usuarioId', as: 'EvidenciasCreadas' });
-
 // Notificaciones
-Usuario.hasMany(Notificacion, { foreignKey: 'usuarioId', as: 'Notificaciones' });
-Notificacion.belongsTo(Usuario, { foreignKey: 'usuarioId', as: 'Usuario' });
+Usuario.hasMany(Notificacion, { foreignKey: 'usuarioId' });
+Notificacion.belongsTo(Usuario, { foreignKey: 'usuarioId' });
 
 Tarea.hasMany(Notificacion, { foreignKey: 'tareaId', onDelete: 'CASCADE' });
 Notificacion.belongsTo(Tarea, { foreignKey: 'tareaId' });
@@ -79,4 +61,3 @@ module.exports = {
   Notificacion,
   Levantamiento
 };
-
