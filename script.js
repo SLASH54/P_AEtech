@@ -463,10 +463,27 @@ document.getElementById("btnAgregarDireccionRegistro").addEventListener("click",
 
     cont.insertAdjacentHTML("beforeend", `
         <div class="direccion-item">
-            <input type="text" name="direccion[]" placeholder="Ej. Calle 10 Sur #123 o link Google Maps">
+            <input
+            type="text"
+            name="alias[]"
+            placeholder="Alias (opcional) ej. Sucursal Centro"
+            class="input-alias"
+            />
 
-            <button type="button" class="btn-remove-dir" onclick="this.parentElement.remove()">
-                Eliminar
+            <small class="alias-warning" style="display:none; color:#ffb703;">
+            ⚠️ Recomendado agregar un alias para identificar mejor esta ubicación
+            </small>
+
+            <input
+            type="text"
+            name="direccion[]"
+            placeholder="Ej. Calle 10 Sur #123 o link Google Maps"
+            required
+            />
+
+            <button type="button" class="btn-remove-dir"
+            onclick="this.parentElement.remove()">
+            Eliminar
             </button>
         </div>
     `);
