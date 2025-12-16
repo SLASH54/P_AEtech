@@ -1,4 +1,5 @@
 
+let aliasWarningShown = false;
 
 
 
@@ -350,38 +351,22 @@ const registerClient = async (e) => {
 const bloques = document.querySelectorAll('#direccionesContainerRegistro .direccion-item');
 const direccionesFinales = [];
 
+let requiereAliasWarning = false;
+
 for (const bloque of bloques) {
   const aliasInput = bloque.querySelector('input[name="alias[]"]');
   const dirInput = bloque.querySelector('input[name="direccion[]"]');
-  const warning = bloque.querySelector('.alias-warning');
 
-  const alias = aliasInput ? aliasInput.value.trim() : "";
-  const raw = dirInput.value.trim();
+  const alias = aliasInput?.value.trim();
+  const raw = dirInput?.value.trim();
 
   if (!raw) continue;
 
   const p = procesarDireccionInput(raw);
 
-  // ⚠️ Advertir si es link y no hay alias
-  if (esLinkGoogleMaps(raw) && !alias && warning) {
-  warning.style.display = 'block';
-
-  // ⛔ detener registro la PRIMERA vez
-  if (!aliasWarningTriggered) {
-    aliasWarningTriggered = true;
-
-    alert(
-      "Recomendamos agregar un alias (ej. Sucursal Centro) para identificar mejor esta ubicación."
-    );
-
-    btn.disabled = false;
-    btn.innerHTML = "Registrar Cliente";
-    return;
+  if (esLinkGoogleMaps(raw) && !alias) {
+    requiereAliasWarning = true;
   }
-} else if (warning) {
-  warning.style.display = 'none';
-}
-
 
   direccionesFinales.push({
     alias: alias || null,
@@ -390,10 +375,29 @@ for (const bloque of bloques) {
   });
 }
 
-if (direccionesFinales.length === 0) {
+if (!direccionesFinales.length) {
   alert("Debes ingresar al menos una dirección.");
+  btn.disabled = false;
+  btn.innerHTML = "Registrar Cliente";
   return;
 }
+
+// 🚨 BLOQUEO CORRECTO (FUERA DEL LOOP)
+if (requiereAliasWarning && !aliasWarningShown) {
+  aliasWarningShown = true;
+
+  const toast = document.getElementById('aliasToast');
+  toast.style.display = 'block';
+
+  setTimeout(() => {
+    toast.style.display = 'none';
+  }, 3500);
+
+  btn.disabled = false;
+  btn.innerHTML = "Registrar Cliente";
+  return;
+}
+
 
 // separar para backend
 const direcciones = direccionesFinales.map(d => d.direccion);
