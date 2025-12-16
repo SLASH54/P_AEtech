@@ -681,6 +681,25 @@
 
       <!-- CONTENEDOR PRINCIPAL DE DIRECCIONES -->
     <div class="form-group">
+                <input
+        type="text"
+        name="alias[]"
+        placeholder="Alias (opcional) ej. Sucursal Centro"
+        class="input-alias"
+        />
+
+        <small class="alias-warning" style="display:none; color:#ffb703;">
+        ⚠️ Recomendado agregar un alias para identificar mejor esta ubicación
+        </small>
+
+        <input
+        type="text"
+        name="direccion[]"
+        placeholder="Calle o link Google Maps"
+        required
+        />
+
+
         <label>Direcciones del Cliente:</label>
 
         <div id="direccionesContainerRegistro">

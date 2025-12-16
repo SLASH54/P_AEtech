@@ -283,6 +283,10 @@ const registerUser = async (e) => {
 //-----------------------------------------//
 //EXTRAER DIRECCIONES PARA LA BASE DE DATOS//
 //-----------------------------------------//
+function esLinkGoogleMaps(texto) {
+  return /maps\.google\.|maps\.app\.goo\.gl/.test(texto);
+}
+
 
 function extraerDireccionDeMaps(url) {
   try {
@@ -343,20 +347,44 @@ const registerClient = async (e) => {
 // ===========================
 // DIRECCIONES del cliente
 // ===========================
-const direccionesProcesadas = [
-  ...document.querySelectorAll('#direccionesContainerRegistro input[name="direccion[]"]')
-]
-  .map(input => procesarDireccionInput(input.value))
-  .filter(d => d.direccion);
+const bloques = document.querySelectorAll('#direccionesContainerRegistro .direccion-item');
+const direccionesFinales = [];
 
-if (direccionesProcesadas.length === 0) {
+for (const bloque of bloques) {
+  const aliasInput = bloque.querySelector('input[name="alias[]"]');
+  const dirInput = bloque.querySelector('input[name="direccion[]"]');
+  const warning = bloque.querySelector('.alias-warning');
+
+  const alias = aliasInput ? aliasInput.value.trim() : "";
+  const raw = dirInput.value.trim();
+
+  if (!raw) continue;
+
+  const p = procesarDireccionInput(raw);
+
+  // ⚠️ Advertir si es link y no hay alias
+  if (esLinkGoogleMaps(raw) && !alias && warning) {
+    warning.style.display = 'block';
+  } else if (warning) {
+    warning.style.display = 'none';
+  }
+
+  direccionesFinales.push({
+    alias: alias || null,
+    direccion: p.direccion,
+    maps: p.maps
+  });
+}
+
+if (direccionesFinales.length === 0) {
   alert("Debes ingresar al menos una dirección.");
   return;
 }
 
-// separar para backend (como ya lo usas)
-const direcciones = direccionesProcesadas.map(d => d.direccion);
-const maps = direccionesProcesadas.map(d => d.maps);
+// separar para backend
+const direcciones = direccionesFinales.map(d => d.direccion);
+const maps = direccionesFinales.map(d => d.maps);
+const alias = direccionesFinales.map(d => d.alias);
 
 
 
@@ -382,8 +410,10 @@ const maps = direccionesProcesadas.map(d => d.maps);
         estado: estados,
         municipio: municipios,
         direccion: direcciones,
-        maps
+        maps,
+        alias
     };
+
 
     try {
 
@@ -3245,15 +3275,29 @@ function cargarDireccionesCliente(clienteId) {
         return;
     }
 
-    direcciones.forEach(dir => {
-        const option = document.createElement("option");
-        option.value = dir.direccion;
-        option.textContent = dir.direccion;
-        option.dataset.maps = dir.maps || "";
-        selectDireccion.appendChild(option);
-    });
-}
+   direcciones.forEach(dir => {
+    const option = document.createElement("option");
 
+    // value: usa la dirección (como ya lo usas en backend)
+    option.value = dir.direccion;
+
+    // texto visible (CLAVE)
+    option.textContent =
+        dir.alias
+            ? `${dir.alias} — ${dir.direccion}`
+            : esLinkGoogleMaps(dir.maps || "")
+                ? '📍 Ubicación sin alias — Google Maps'
+                : dir.direccion;
+
+    // guardar maps para uso posterior
+    option.dataset.maps = dir.maps || "";
+
+    selectDireccion.appendChild(option);
+});
+
+}
+ 
+//fin de muchas direcciones para el Cliente en el Select de asignar Tareas
 //finnde muchas direcciones cliente
 
 

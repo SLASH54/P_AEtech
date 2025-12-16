@@ -3806,3 +3806,13 @@ h3 {
 }
 
 
+
+
+.alias-warning {
+  display: block;
+  margin: 4px 0 8px;
+  font-size: 12px;
+  opacity: .9;
+}
+
+
