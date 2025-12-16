@@ -280,6 +280,37 @@ const registerUser = async (e) => {
     }
 };
 
+//-----------------------------------------//
+//EXTRAER DIRECCIONES PARA LA BASE DE DATOS//
+//-----------------------------------------//
+
+function extraerDireccionDeMaps(url) {
+  try {
+    // /place/DIRECCION
+    const match = url.match(/\/place\/([^/]+)/);
+    if (!match) return null;
+    return decodeURIComponent(match[1].replace(/\+/g, " "));
+  } catch {
+    return null;
+  }
+}
+
+function procesarDireccionInput(input) {
+  if (!input) return { direccion: "", maps: null };
+
+  // No es link
+  if (!input.includes("maps")) {
+    return { direccion: input.trim(), maps: null };
+  }
+
+  // Es link de maps
+  const direccionExtraida = extraerDireccionDeMaps(input);
+
+  return {
+    direccion: direccionExtraida || "Ubicación en Google Maps",
+    maps: input
+  };
+}
 
 /**
  * Función para manejar el registro de nuevos clientes.
@@ -312,26 +343,21 @@ const registerClient = async (e) => {
 // ===========================
 // DIRECCIONES del cliente
 // ===========================
-const inputsDireccion = [...document.querySelectorAll('#direccionesContainerRegistro input[name="direccion[]"]')];
+const direccionesProcesadas = [
+  ...document.querySelectorAll('#direccionesContainerRegistro input[name="direccion[]"]')
+]
+  .map(input => procesarDireccionInput(input.value))
+  .filter(d => d.direccion);
 
-const direcciones = [];
-const maps = [];
-
-for (let input of inputsDireccion) {
-    const valor = input.value.trim();
-    if (!valor) continue;
-
-    // procesar texto o link Google
-    const p = await procesarDireccion(valor);
-
-    direcciones.push(p.direccion);
-    maps.push(p.maps);
+if (direccionesProcesadas.length === 0) {
+  alert("Debes ingresar al menos una dirección.");
+  return;
 }
 
-if (direcciones.length === 0) {
-    alert("Debes ingresar al menos una dirección.");
-    return;
-}
+// separar para backend (como ya lo usas)
+const direcciones = direccionesProcesadas.map(d => d.direccion);
+const maps = direccionesProcesadas.map(d => d.maps);
+
 
 
 
