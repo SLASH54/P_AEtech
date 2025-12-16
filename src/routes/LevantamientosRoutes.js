@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const ctrl = require("../controllers/levantamientosController");
+const ctrl = require("../controllers/LevantamientosController");
 
 router.post("/", ctrl.createLevantamiento);
 router.get("/", ctrl.getLevantamientos);

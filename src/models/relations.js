@@ -8,7 +8,7 @@ const Tarea = require('./Tarea');
 const Evidencia = require('./Evidencia');
 const ClienteDireccion = require('./ClienteDireccion');
 const Notificacion = require('./Notificacion');
-const Levantamiento = require("./Levantamiento")(sequelize, DataTypes);
+const Levantamiento = require("./Levantamiento");
 
 
 
