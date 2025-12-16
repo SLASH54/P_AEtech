@@ -1,25 +1,34 @@
-const pool = require('../config/database'); // o como tengas tu conexión
+const { Levantamiento } = require("../models/relations");
 
-// GUARDAR LEVANTAMIENTO
+// POST – crear levantamiento
 exports.createLevantamiento = async (req, res) => {
-  const { clienteId, clienteNombre, direccion, personal, fecha } = req.body;
+  try {
+    const { clienteId, clienteNombre, direccion, personal, fecha } = req.body;
 
-  const q = `
-    INSERT INTO levantamientos
-    (cliente_id, cliente_nombre, direccion, personal, fecha)
-    VALUES ($1,$2,$3,$4,$5)
-    RETURNING *;
-  `;
+    const nuevo = await Levantamiento.create({
+      clienteId,
+      clienteNombre,
+      direccion,
+      personal,
+      fecha
+    });
 
-  const values = [clienteId, clienteNombre, direccion, personal, fecha];
-  const result = await pool.query(q, values);
-
-  res.json(result.rows[0]);
+    return res.status(201).json(nuevo);
+  } catch (error) {
+    console.error("❌ Error creando levantamiento:", error);
+    return res.status(500).json({ msg: "Error al crear levantamiento" });
+  }
 };
 
-// LISTAR LEVANTAMIENTOS
+// GET – listar levantamientos
 exports.getLevantamientos = async (req, res) => {
-  const q = `SELECT * FROM levantamientos ORDER BY fecha DESC`;
-  const result = await pool.query(q);
-  res.json(result.rows);
+  try {
+    const list = await Levantamiento.findAll({
+      order: [["fecha", "DESC"]]
+    });
+    return res.json(list);
+  } catch (error) {
+    console.error("❌ Error obteniendo levantamientos:", error);
+    return res.status(500).json({ msg: "Error al obtener levantamientos" });
+  }
 };

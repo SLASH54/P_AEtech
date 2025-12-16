@@ -1,13 +1,19 @@
 // src/models/relations.js
+const { sequelize, DataTypes } = require("./index");
 
-const Usuario = require('./Usuario');
-const Actividad = require('./Actividad'); 
-const Sucursal = require('./Sucursal');
-const ClienteNegocio = require('./ClienteNegocio');
-const Tarea = require('./Tarea');
-const Evidencia = require('./Evidencia');
-const ClienteDireccion = require('./ClienteDireccion');
-const Notificacion = require('./Notificacion');
+const Usuario = require('./Usuario')(sequelize, DataTypes);
+const Actividad = require('./Actividad')(sequelize, DataTypes);
+const Sucursal = require('./Sucursal')(sequelize, DataTypes);
+const ClienteNegocio = require('./ClienteNegocio')(sequelize, DataTypes);
+const Tarea = require('./Tarea')(sequelize, DataTypes);
+const Evidencia = require('./Evidencia')(sequelize, DataTypes);
+const ClienteDireccion = require('./ClienteDireccion')(sequelize, DataTypes);
+const Notificacion = require('./Notificacion')(sequelize, DataTypes);
+
+// 👇 ESTE YA QUEDA BIEN
+const Levantamiento = require("./Levantamiento")(sequelize, DataTypes);
+
+
 
 // Un cliente tiene muchas direcciones
 ClienteNegocio.hasMany(ClienteDireccion, {
@@ -64,5 +70,9 @@ module.exports = {
   Tarea,
   Evidencia,
   ClienteDireccion,
-  Notificacion
+  Notificacion,
+  Levantamiento
 };
+
+
+
