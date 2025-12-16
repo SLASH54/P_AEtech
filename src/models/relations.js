@@ -1,6 +1,11 @@
+console.log("DB PATH OK");
+
+
 // src/models/relations.js
 
-const { sequelize } = require('../database');
+const { sequelize } = require('../config/database');
+
+
 const { DataTypes } = require('sequelize');
 
 // Inicializar modelos correctamente
