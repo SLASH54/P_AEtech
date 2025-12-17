@@ -1097,38 +1097,43 @@ document.getElementById("btnNuevoLevantamiento")
 
 
     async function cargarClientesLev() {
-    const select = document.getElementById("lev-clienteSelect");
-    if (!select) return;
+  const select = document.getElementById("lev-clienteSelect");
+  if (!select) return;
 
-    select.innerHTML = `<option value="">Seleccione cliente</option>`;
+  select.innerHTML = `<option value="">Seleccione cliente</option>`;
 
-    try {
-        const token = localStorage.getItem("userToken"); // ✅ EL BUENO
-
-        const res = await fetch(`${API_BASE_URL}/clientes`, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
-
-        if (!res.ok) {
-            console.error("Error al cargar clientes", res.status);
-            return;
-        }
-
-        const clientes = await res.json();
-
-        clientes.forEach(c => {
-            const opt = document.createElement("option");
-            opt.value = c.id;
-            opt.textContent = c.nombre;
-            select.appendChild(opt);
-        });
-
-    } catch (e) {
-        console.error("Error cargando clientes", e);
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      console.error("No hay accessToken");
+      return;
     }
+
+    const res = await fetch(`${API_BASE_URL}/clientes`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    if (!res.ok) {
+      console.error("Error al cargar clientes", res.status);
+      return;
+    }
+
+    const clientes = await res.json();
+
+    clientes.forEach(c => {
+      const opt = document.createElement("option");
+      opt.value = c.id;
+      opt.textContent = c.nombre;
+      select.appendChild(opt);
+    });
+
+  } catch (e) {
+    console.error("Error cargando clientes:", e);
+  }
 }
+
 
 
 
