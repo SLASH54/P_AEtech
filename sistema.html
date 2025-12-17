@@ -1143,20 +1143,27 @@ async function guardarLevantamiento() {
     fecha: document.getElementById("lev-fechaHora").value
   };
 
-  const token = localStorage.getItem("userToken");
+  const method = levantamientoEditando ? "PUT" : "POST";
+  const url = levantamientoEditando
+    ? `${API_BASE_URL}/levantamientos/${levantamientoEditando}`
+    : `${API_BASE_URL}/levantamientos`;
 
-  await fetch(`${API_BASE_URL}/levantamientos`, {
-    method: "POST",
+  await fetch(url, {
+    method,
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${localStorage.getItem("userToken")}`
     },
     body: JSON.stringify(data)
   });
 
+  levantamientoEditando = null;
   closeNuevoLevantamiento();
   cargarTablaLevantamientos();
 }
+
+
+
 
 document.getElementById("btnGuardarLevantamiento")
   ?.addEventListener("click", guardarLevantamiento);
@@ -1484,33 +1491,40 @@ function levMostrarCampoExtra() {
 
 //cargar tabla 
 
-async function guardarLevantamiento() {
-  const data = {
-    clienteId: document.getElementById("lev-clienteSelect").value,
-    clienteNombre: document.getElementById("lev-clienteSelect").selectedOptions[0].text,
-    direccion: document.getElementById("lev-direccion").value,
-    personal: document.getElementById("lev-personal").value,
-    fecha: document.getElementById("lev-fechaHora").value
-  };
-
-  const method = levantamientoEditando ? "PUT" : "POST";
-  const url = levantamientoEditando
-    ? `${API_BASE_URL}/levantamientos/${levantamientoEditando}`
-    : `${API_BASE_URL}/levantamientos`;
-
-  await fetch(url, {
-    method,
+async function cargarTablaLevantamientos() {
+  const res = await fetch(`${API_BASE_URL}/levantamientos`, {
     headers: {
-      "Content-Type": "application/json",
       Authorization: `Bearer ${localStorage.getItem("userToken")}`
-    },
-    body: JSON.stringify(data)
+    }
   });
 
-  levantamientoEditando = null;
-  closeNuevoLevantamiento();
-  cargarTablaLevantamientos();
+  const data = await res.json();
+  const tbody = document.getElementById("tablaLevantamientos");
+  tbody.innerHTML = "";
+
+  data.forEach(l => {
+    const tr = document.createElement("tr");
+  tr.innerHTML = `
+  <td>${l.clienteNombre}</td>
+  <td>${l.direccion}</td>
+  <td>${l.personal}</td>
+  <td>${new Date(l.fecha).toLocaleString()}</td>
+  <td>
+    <button onclick="editarLevantamiento(${l.id})">✏️</button>
+    <button onclick="eliminarLevantamiento(${l.id})">🗑️</button>
+    <button onclick="verLevantamiento(${l.id})">👁️</button>
+    <button onclick="pdfLevantamiento(${l.id})">📄</button>
+  </td>
+`;
+
+
+    tbody.appendChild(tr);
+  });
 }
+
+
+cargarTablaLevantamientos();
+
 
 
 
