@@ -1517,17 +1517,18 @@ async function cargarTablaLevantamientos() {
   data.forEach(l => {
     const tr = document.createElement("tr");
   tr.innerHTML = `
-  <td>${l.clienteNombre}</td>
+  <td>${l.cliente_nombre}</td>
   <td>${l.direccion}</td>
   <td>${l.personal}</td>
   <td>${new Date(l.fecha).toLocaleString()}</td>
-  <td>
-    <button onclick="editarLevantamiento(${l.id})">✏️</button>
-    <button onclick="eliminarLevantamiento(${l.id})">🗑️</button>
-    <button onclick="verLevantamiento(${l.id})">👁️</button>
-    <button onclick="pdfLevantamiento(${l.id})">📄</button>
+  <td class="acciones">
+    <button onclick="editarLevantamiento(${l.id})">Editar</button>
+    <button onclick="eliminarLevantamiento(${l.id})">Eliminar</button>
+    <button onclick="verLevantamiento(${l.id})">Ver</button>
+    <button onclick="pdfLevantamiento(${l.id})">PDF</button>
   </td>
 `;
+
 
 
     tbody.appendChild(tr);
