@@ -4233,115 +4233,96 @@ h3 {
 
 
 
-/* ================================
-   📱 MOBILE FIX – LEVANTAMIENTOS
-   Desde 403px hacia abajo
-================================ */
+/* ===============================
+   FIX DEFINITIVO MOBILE (≤ 480px)
+   =============================== */
+@media (max-width: 480px) {
 
-@media (max-width: 420px) {
-
-  /* Evitar overflow horizontal global */
+  /* 🔒 Evitar overflow global */
   html, body {
     width: 100%;
+    max-width: 100%;
     overflow-x: hidden;
   }
 
-  /* Contenedor principal */
+  /* CONTENEDOR PRINCIPAL */
   #listaLevantamientos,
   .tareas-container {
     width: 100%;
-    max-width: 100%;
     padding: 12px;
     box-sizing: border-box;
   }
 
-  /* Tabla se convierte en cards */
+  /* OCULTAR TABLA */
   .tabla,
   .tabla thead {
     display: none;
   }
 
+  /* CONTENEDOR DE FILAS */
+  #tablaLevantamientos {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+  }
+
+  /* CADA LEVANTAMIENTO → CARD */
   #tablaLevantamientos tr {
     display: block;
     width: 100%;
     max-width: 100%;
-    margin-bottom: 16px;
-    background: rgba(255,255,255,0.95);
-    border-radius: 18px;
-    padding: 16px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.12);
-    box-sizing: border-box;
+    margin: 0 auto;
   }
 
+  /* CARD */
   #tablaLevantamientos td {
     display: block;
     width: 100%;
-    padding: 6px 0;
-    font-size: 14px;
+    max-width: 100%;
+    box-sizing: border-box;
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+    overflow-wrap: break-word;
     word-wrap: break-word;
   }
 
-  /* Cliente (título fuerte) */
+  /* TEXTO */
+  #tablaLevantamientos td * {
+    max-width: 100%;
+    word-break: break-word;
+  }
+
+  /* CLIENTE */
   #tablaLevantamientos td:nth-child(1) {
     font-weight: 700;
     font-size: 16px;
     margin-bottom: 6px;
   }
 
-  /* Dirección */
+  /* DIRECCIÓN */
   #tablaLevantamientos td:nth-child(2) {
+    font-size: 14px;
     color: #555;
-    font-size: 13px;
+    margin-bottom: 6px;
   }
 
-  /* Personal */
+  /* PERSONAL */
   #tablaLevantamientos td:nth-child(3) {
     font-size: 13px;
     font-weight: 600;
-    margin-top: 6px;
+    margin-bottom: 6px;
   }
 
-  /* Fecha */
+  /* FECHA */
   #tablaLevantamientos td:nth-child(4) {
     font-size: 12px;
     color: #777;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
   }
 
-  /* ======================
-     BOTONES
-  ====================== */
-
-  #tablaLevantamientos td:nth-child(5) {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 10px;
-  }
-
-  #tablaLevantamientos td:nth-child(5) button {
-    width: 100%;
-    max-width: 100%;
-    padding: 12px;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 600;
-    border: none;
-  }
-
-  /* Colores */
-  .btn-editar { background: #4CAF50; color: #fff; }
-  .btn-eliminar { background: #E53935; color: #fff; }
-  .btn-ver { background: #42A5F5; color: #fff; }
-  .btn-pdf { background: #7E57C2; color: #fff; }
-
-  /* Botón nuevo levantamiento */
-  #btnNuevoLevantamiento {
-    width: 100%;
-    max-width: 100%;
-    margin-bottom: 15px;
-    border-radius: 14px;
-    font-size: 15px;
-  }
-
-}
+  /* ACCIONES */
+  #tablaLevantamientos td
