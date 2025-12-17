@@ -1065,6 +1065,18 @@
 </div>
 
 
+<div id="modalVerLevantamiento" class="modalGlass">
+  <div class="modalGlass-content">
+    <h3>Detalle del Levantamiento</h3>
+
+    <div id="detalleLevantamiento"></div>
+
+    <button onclick="closeVerLevantamiento()">Cerrar</button>
+  </div>
+</div>
+
+
+
 <script>
 
     let levantamientoEditando = null;
@@ -1579,6 +1591,31 @@ function pdfLevantamiento(id) {
   window.open(`${API_BASE_URL}/levantamientos/${id}/pdf`, "_blank");
 }
 
+
+
+//ver modal de levantamiento 
+
+function verLevantamiento(id) {
+  fetch(`${API_BASE_URL}/levantamientos/${id}`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+    }
+  })
+    .then(r => r.json())
+    .then(l => {
+      document.getElementById("detalleLevantamiento").innerHTML = `
+        <p><b>Cliente:</b> ${l.clienteNombre}</p>
+        <p><b>Dirección:</b> ${l.direccion}</p>
+        <p><b>Personal:</b> ${l.personal}</p>
+        <p><b>Fecha:</b> ${new Date(l.fecha).toLocaleString()}</p>
+      `;
+      document.getElementById("modalVerLevantamiento").classList.add("active");
+    });
+}
+
+function closeVerLevantamiento() {
+  document.getElementById("modalVerLevantamiento").classList.remove("active");
+}
 
 
 
