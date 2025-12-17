@@ -95,3 +95,19 @@ exports.remove = async (req,res)=>{
   await Levantamiento.destroy({where:{id:req.params.id}});
   res.json({ok:true});
 };
+
+
+
+
+exports.getLevantamientoById = async (req, res) => {
+  try {
+    const lev = await Levantamiento.findByPk(req.params.id);
+    if (!lev) {
+      return res.status(404).json({ msg: "Levantamiento no encontrado" });
+    }
+    res.json(lev);
+  } catch (err) {
+    console.error("Error obtener levantamiento:", err);
+    res.status(500).json({ msg: "Error interno" });
+  }
+};

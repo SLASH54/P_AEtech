@@ -1065,13 +1065,39 @@
 </div>
 
 
-<div id="modalVerLevantamiento" class="modalGlass">
-  <div class="modalGlass-content">
-    <h3>Detalle del Levantamiento</h3>
+<div id="modalVerLevantamiento" class="ios-modal">
+  <div class="ios-card">
+    <button class="ios-close" onclick="closeVerLevantamiento()">✕</button>
 
-    <div id="detalleLevantamiento"></div>
+    <h2>📋 Levantamiento</h2>
 
-    <button onclick="closeVerLevantamiento()">Cerrar</button>
+    <div class="ios-field">
+      <label>Cliente</label>
+      <div id="verCliente"></div>
+    </div>
+
+    <div class="ios-field">
+      <label>Dirección</label>
+      <div id="verDireccion"></div>
+    </div>
+
+    <div class="ios-field">
+      <label>Personal</label>
+      <div id="verPersonal"></div>
+    </div>
+
+    <div class="ios-field">
+      <label>Fecha</label>
+      <div id="verFecha"></div>
+    </div>
+
+    <hr>
+
+    <h3>🛠 Necesidades</h3>
+    <div id="verNecesidades"></div>
+
+    <h3>🧱 Materiales</h3>
+    <ul id="verMateriales"></ul>
   </div>
 </div>
 
@@ -1080,6 +1106,8 @@
 <script>
 
     let levantamientoEditando = null;
+    let levantamientosCache = [];
+
 
 /* ===== MODAL NUEVO LEVANTAMIENTO (FORZADO) ===== */
 
@@ -1523,6 +1551,9 @@ async function cargarTablaLevantamientos() {
   });
 
   const data = await res.json();
+  levantamientosCache = data;
+  
+
   const tbody = document.getElementById("tablaLevantamientos");
   tbody.innerHTML = "";
 
@@ -1618,6 +1649,25 @@ function closeVerLevantamiento() {
 }
 
 
+function verLevantamiento(id) {
+    const l = levantamientosCache.find(x => x.id === id);
+    if (!l) return alert("Levantamiento no encontrado");
+
+    document.getElementById("verCliente").textContent = l.clienteNombre;
+    document.getElementById("verDireccion").textContent = l.direccion;
+    document.getElementById("verPersonal").textContent = l.personal;
+    document.getElementById("verFecha").textContent =
+        new Date(l.fecha).toLocaleString();
+
+    document.getElementById("modalVerLevantamiento").classList.add("active");
+}
+
+
+
+function cerrarVerLevantamiento() {
+    document.getElementById("modalVerLevantamiento")
+        .classList.remove("active");
+}
 
     
 </script>
