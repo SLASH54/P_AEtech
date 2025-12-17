@@ -1066,6 +1066,9 @@
 
 
 <script>
+
+    let levantamientoEditando = null;
+
 /* ===== MODAL NUEVO LEVANTAMIENTO (FORZADO) ===== */
 
 function openNuevoLevantamiento() {
@@ -1481,41 +1484,74 @@ function levMostrarCampoExtra() {
 
 //cargar tabla 
 
-async function cargarTablaLevantamientos() {
-  const res = await fetch(`${API_BASE_URL}/levantamientos`, {
+async function guardarLevantamiento() {
+  const data = {
+    clienteId: document.getElementById("lev-clienteSelect").value,
+    clienteNombre: document.getElementById("lev-clienteSelect").selectedOptions[0].text,
+    direccion: document.getElementById("lev-direccion").value,
+    personal: document.getElementById("lev-personal").value,
+    fecha: document.getElementById("lev-fechaHora").value
+  };
+
+  const method = levantamientoEditando ? "PUT" : "POST";
+  const url = levantamientoEditando
+    ? `${API_BASE_URL}/levantamientos/${levantamientoEditando}`
+    : `${API_BASE_URL}/levantamientos`;
+
+  await fetch(url, {
+    method,
     headers: {
+      "Content-Type": "application/json",
       Authorization: `Bearer ${localStorage.getItem("userToken")}`
-    }
+    },
+    body: JSON.stringify(data)
   });
 
-  const data = await res.json();
-  const tbody = document.getElementById("tablaLevantamientos");
-  tbody.innerHTML = "";
-
-  data.forEach(l => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${l.cliente_nombre}</td>
-      <td>${l.direccion}</td>
-      <td>${l.personal}</td>
-      <td>${new Date(l.fecha).toLocaleDateString()}</td>
-      <td>
-       <button class="btn btn-warning" onclick='editarLevantamiento(${JSON.stringify(l)})'> Editar  </button>
+  levantamientoEditando = null;
+  closeNuevoLevantamiento();
+  cargarTablaLevantamientos();
+}
 
 
-      <button class="btn btn-danger" onclick="eliminarLevantamiento(${l.id})"> Eliminar </button>
 
-       
-        <button class="btn-pdf">PDF</button>
-        <button class="btn-ver">Ver Levantamiento</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
+
+function editarLevantamiento(id) {
+  levantamientoEditando = id;
+  openNuevoLevantamiento();
+
+  fetch(`${API_BASE_URL}/levantamientos/${id}`, {
+    headers: { Authorization: `Bearer ${localStorage.getItem("userToken")}` }
+  })
+  .then(r => r.json())
+  .then(l => {
+    document.getElementById("lev-clienteSelect").value = l.clienteId;
+    document.getElementById("lev-direccion").value = l.direccion;
+    document.getElementById("lev-personal").value = l.personal;
+    document.getElementById("lev-fechaHora").value = l.fecha.slice(0,16);
   });
 }
 
 
-cargarTablaLevantamientos();
+function eliminarLevantamiento(id) {
+  if (!confirm("¿Eliminar levantamiento?")) return;
+
+  fetch(`${API_BASE_URL}/levantamientos/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("userToken")}`
+    }
+  }).then(() => cargarTablaLevantamientos());
+}
+
+function verLevantamiento(id) {
+  alert("Aquí luego abrimos modal de solo lectura 👀\nID: " + id);
+}
+
+
+function pdfLevantamiento(id) {
+  window.open(`${API_BASE_URL}/levantamientos/${id}/pdf`, "_blank");
+}
+
 
 
 

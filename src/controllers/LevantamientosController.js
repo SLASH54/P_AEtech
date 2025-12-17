@@ -78,3 +78,20 @@ exports.updateLevantamiento = async (req, res) => {
     res.status(500).json({ msg: "Error al editar levantamiento" });
   }
 };
+
+
+
+
+exports.getOne = async (req,res)=>{
+  res.json(await Levantamiento.findByPk(req.params.id));
+};
+
+exports.update = async (req,res)=>{
+  await Levantamiento.update(req.body,{where:{id:req.params.id}});
+  res.json({ok:true});
+};
+
+exports.remove = async (req,res)=>{
+  await Levantamiento.destroy({where:{id:req.params.id}});
+  res.json({ok:true});
+};
