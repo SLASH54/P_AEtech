@@ -1,33 +1,36 @@
 module.exports = (sequelize, DataTypes) => {
-  return sequelize.define(
-    "Levantamiento",
-    {
-      cliente_id: {
-        type: DataTypes.INTEGER,
-        field: "cliente_id"
-      },
-      cliente_nombre: {
-        type: DataTypes.STRING,
-        field: "cliente_nombre"
-      },
-      direccion: {
-        type: DataTypes.TEXT
-      },
-      personal: {
-        type: DataTypes.STRING,
-        field: "personal"
-      },
-      fecha: {
-        type: DataTypes.DATE
-      },
-      created_at: {
-        type: DataTypes.DATE,
-        field: "created_at"
-      }
+  return sequelize.define("Levantamiento", {
+    clienteId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
     },
-    {
-      tableName: "levantamientos", // 👈 NOMBRE REAL
-      timestamps: false            // 👈 NO createdAt / updatedAt
+
+    clienteNombre: {
+      type: DataTypes.STRING
+    },
+
+    direccion: {
+      type: DataTypes.TEXT
+    },
+
+    personal: {
+      type: DataTypes.STRING
+    },
+
+    fecha: {
+      type: DataTypes.DATE
+    },
+
+    // 🧩 NECESIDADES (texto + imagenes)
+    necesidades: {
+      type: DataTypes.JSONB,
+      allowNull: true
+    },
+
+    // 🧱 MATERIALES
+    materiales: {
+      type: DataTypes.JSONB,
+      allowNull: true
     }
-  );
+  });
 };

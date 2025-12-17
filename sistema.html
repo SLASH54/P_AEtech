@@ -1195,35 +1195,37 @@ function setPersonalActual() {
         "Usuario";
 }
 
-
 async function guardarLevantamiento() {
+
   const data = {
     clienteId: document.getElementById("lev-clienteSelect").value,
-    clienteNombre: document.getElementById("lev-clienteSelect").selectedOptions[0].text,
+    clienteNombre: document.getElementById("lev-clienteSelect").selectedOptions[0]?.text,
     direccion: document.getElementById("lev-direccion").value,
     personal: document.getElementById("lev-personal").value,
-    fecha: document.getElementById("lev-fechaHora").value
+    fecha: document.getElementById("lev-fechaHora").value,
+
+    necesidades: obtenerNecesidadesLev(),
+    materiales: levMaterialesList   // 👈 YA EXISTE
   };
 
-  const token = localStorage.getItem("userToken");
+  const method = levantamientoEditando ? "PUT" : "POST";
+  const url = levantamientoEditando
+    ? `${API_BASE_URL}/levantamientos/${levantamientoEditando}`
+    : `${API_BASE_URL}/levantamientos`;
 
-  await fetch(`${API_BASE_URL}/levantamientos`, {
-    method: "POST",
+  await fetch(url, {
+    method,
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${localStorage.getItem("userToken")}`
     },
     body: JSON.stringify(data)
   });
 
+  levantamientoEditando = null;
   closeNuevoLevantamiento();
   cargarTablaLevantamientos();
 }
-
-
-document.getElementById("btnGuardarLevantamiento")
-  ?.addEventListener("click", guardarLevantamiento);
-
 
 
 
@@ -1585,6 +1587,28 @@ async function cargarTablaLevantamientos() {
 
 cargarTablaLevantamientos();
 
+//obtener necesidades 
+
+function obtenerNecesidadesLev() {
+  const items = document.querySelectorAll("#lev-necesidadesContainer .nec-item");
+  const necesidades = [];
+
+  items.forEach(div => {
+    const descripcion = div.querySelector("textarea")?.value || "";
+    const img = div.querySelector(".img-preview");
+    const imagenBase64 = img && img.src ? img.src : null;
+
+    if (descripcion || imagenBase64) {
+      necesidades.push({
+        descripcion,
+        imagen: imagenBase64
+      });
+    }
+  });
+
+  return necesidades;
+}
+
 
 
 
@@ -1660,6 +1684,8 @@ function verLevantamiento(id) {
     }
   })
   .then(r => r.json())
+
+  
   .then(l => {
     document.getElementById("verCliente").textContent = l.clienteNombre;
     document.getElementById("verDireccion").textContent = l.direccion;
@@ -1667,11 +1693,13 @@ function verLevantamiento(id) {
     document.getElementById("verFecha").textContent =
       new Date(l.fecha).toLocaleString();
 
-    renderNecesidades(l.necesidades || []);
-    renderMateriales(l.materiales || []);
+  renderNecesidadesVer(l.necesidades);
+  renderMaterialesVer(l.materiales);
 
     document.getElementById("modalVerLevantamiento").classList.add("active");
   })
+
+
   .catch(err => {
     console.error(err);
     alert("Error al abrir levantamiento");
@@ -1680,28 +1708,45 @@ function verLevantamiento(id) {
 
 
 
-
-function renderNecesidades(necesidades = []) {
+function renderNecesidadesVer(necesidades = []) {
   const cont = document.getElementById("verNecesidades");
   cont.innerHTML = "";
 
   if (!necesidades.length) {
-    cont.innerHTML = "<p class='ios-empty'>Sin necesidades registradas</p>";
+    cont.innerHTML = "<p class='muted'>Sin necesidades registradas</p>";
     return;
   }
 
   necesidades.forEach(n => {
-    const card = document.createElement("div");
-    card.className = "ios-necesidad-card";
+    const div = document.createElement("div");
+    div.className = "ver-necesidad";
 
-    card.innerHTML = `
-      <img src="${n.imagen}" alt="foto necesidad">
-      <p>${n.descripcion}</p>
+    div.innerHTML = `
+      <p>${n.descripcion || ""}</p>
+      ${n.imagen ? `<img src="${n.imagen}" />` : ""}
     `;
 
-    cont.appendChild(card);
+    cont.appendChild(div);
   });
 }
+
+
+function renderMaterialesVer(materiales = []) {
+  const ul = document.getElementById("verMateriales");
+  ul.innerHTML = "";
+
+  if (!materiales.length) {
+    ul.innerHTML = "<li class='muted'>Sin materiales</li>";
+    return;
+  }
+
+  materiales.forEach(m => {
+    const li = document.createElement("li");
+    li.textContent = `${m.insumo} – ${m.cantidad} ${m.unidad}`;
+    ul.appendChild(li);
+  });
+}
+
 
 
 
@@ -1709,6 +1754,10 @@ function cerrarVerLevantamiento() {
     document.getElementById("modalVerLevantamiento")
         .classList.remove("active");
 }
+
+
+
+
 
     
 </script>
