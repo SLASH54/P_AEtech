@@ -4325,4 +4325,41 @@ h3 {
   }
 
   /* ACCIONES */
-  #tablaLevantamientos td
+  #tablaLevantamientos td:nth-child(5) {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+
+  /* BOTONES */
+  #tablaLevantamientos button {
+    width: 100%;
+    padding: 14px;
+    font-size: 15px;
+    border-radius: 14px;
+    border: none;
+    font-weight: 600;
+  }
+
+  /* COLORES iOS */
+  button[onclick^="editar"] {
+    background: #4CAF50;
+    color: #fff;
+  }
+
+  button[onclick^="eliminar"] {
+    background: #E53935;
+    color: #fff;
+  }
+
+  button[onclick^="ver"] {
+    background: #42A5F5;
+    color: #fff;
+  }
+
+  button[onclick^="pdf"] {
+    background: #7E57C2;
+    color: #fff;
+  }
+}
