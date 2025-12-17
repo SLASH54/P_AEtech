@@ -1536,30 +1536,6 @@ async function cargarTablaLevantamientos() {
 cargarTablaLevantamientos();
 
 
-async function eliminarLevantamiento(id) {
-  if (!confirm("¿Eliminar levantamiento?")) return;
-
-  await fetch(`${API_BASE_URL}/levantamientos/${id}`, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("userToken")}`
-    }
-  });
-
-  cargarTablaLevantamientos();
-}
-
-function editarLevantamiento(l) {
-  levantamientoEditando = l.id;
-
-  document.getElementById("lev-direccion").value = l.direccion;
-  document.getElementById("lev-personal").value = l.personal;
-  document.getElementById("lev-fechaHora").value = l.fecha;
-
-  openNuevoLevantamiento();
-}
-
-
 
     
 </script>
