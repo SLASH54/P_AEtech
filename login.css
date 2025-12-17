@@ -4229,24 +4229,89 @@ h3 {
   color: #111;
 }
 
-/* ================================
-   RESPONSIVE
-================================ */
-@media (max-width: 600px) {
-  .tabla tbody tr {
-    display: block;
+
+
+/* ============================
+   LEVANTAMIENTOS – MOBILE iOS
+   ============================ */
+@media (max-width: 768px) {
+
+  /* contenedor principal */
+  #listaLevantamientos {
     padding: 10px;
   }
 
-  .tabla tbody td {
+  .tareas-container {
+    background: transparent;
+    padding: 0;
+  }
+
+  /* ocultar encabezado de tabla */
+  .tabla thead {
+    display: none;
+  }
+
+  /* tabla se vuelve bloques */
+  .tabla,
+  .tabla tbody,
+  .tabla tr,
+  .tabla td {
     display: block;
+    width: 100%;
+  }
+
+  /* CARD estilo iOS */
+  .tabla tr {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    border-radius: 18px;
+    padding: 14px;
+    margin-bottom: 14px;
+    box-shadow:
+      0 8px 20px rgba(0,0,0,0.12);
+  }
+
+  /* campos */
+  .tabla td {
+    border: none;
     padding: 6px 0;
+    font-size: 14px;
+    color: #333;
   }
 
+  /* etiquetas */
+  .tabla td::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #777;
+    margin-bottom: 2px;
+  }
+
+  /* acciones */
   .tabla td:last-child {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 6px;
+    margin-top: 10px;
   }
-}
 
+  .tabla td:last-child button {
+    width: 100%;
+    margin-bottom: 6px;
+    border-radius: 12px;
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  /* colores iOS */
+  .tabla button {
+    border: none;
+    color: #fff;
+    font-weight: 600;
+  }
+
+  .tabla button:nth-child(1) { background: #34c759; } /* editar */
+  .tabla button:nth-child(2) { background: #ff3b30; } /* eliminar */
+  .tabla button:nth-child(3) { background: #0a84ff; } /* ver */
+  .tabla button:nth-child(4) { background: #5856d6; } /* pdf */
+
+}
