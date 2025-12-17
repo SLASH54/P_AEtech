@@ -4230,107 +4230,22 @@ h3 {
 }
 
 
+/* ===============================
+   LEVANTAMIENTOS – MOBILE (iOS)
+   =============================== */
+@media (max-width: 480px) {
 
-/* ============================
-   LEVANTAMIENTOS – MOBILE iOS
-   ============================ */
-@media (max-width: 768px) {
-
-  /* contenedor principal */
-  #listaLevantamientos {
-    padding: 10px;
+  /* Contenedor general */
+  #listaLevantamientos .tareas-container {
+    padding: 12px;
   }
 
-  .tareas-container {
-    background: transparent;
-    padding: 0;
-  }
-
-  /* ocultar encabezado de tabla */
-  .tabla thead {
-    display: none;
-  }
-
-  /* tabla se vuelve bloques */
-  .tabla,
-  .tabla tbody,
-  .tabla tr,
-  .tabla td {
-    display: block;
+  /* Botón nuevo */
+  #btnNuevoLevantamiento {
     width: 100%;
-  }
-
-  /* CARD estilo iOS */
-  .tabla tr {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(12px);
-    border-radius: 18px;
-    padding: 14px;
-    margin-bottom: 14px;
-    box-shadow:
-      0 8px 20px rgba(0,0,0,0.12);
-  }
-
-  /* campos */
-  .tabla td {
-    border: none;
-    padding: 6px 0;
-    font-size: 14px;
-    color: #333;
-  }
-
-  /* etiquetas */
-  .tabla td::before {
-    content: attr(data-label);
-    display: block;
-    font-size: 12px;
-    font-weight: 600;
-    color: #777;
-    margin-bottom: 2px;
-  }
-
-  /* acciones */
-  .tabla td:last-child {
-    margin-top: 10px;
-  }
-
-  .tabla td:last-child button {
-    width: 100%;
-    margin-bottom: 6px;
-    border-radius: 12px;
-    font-size: 14px;
-    padding: 8px;
-  }
-
-  /* colores iOS */
-  .tabla button {
-    border: none;
-    color: #fff;
-    font-weight: 600;
-  }
-
-  .tabla button:nth-child(1) { background: #34c759; } /* editar */
-  .tabla button:nth-child(2) { background: #ff3b30; } /* eliminar */
-  .tabla button:nth-child(3) { background: #0a84ff; } /* ver */
-  .tabla button:nth-child(4) { background: #5856d6; } /* pdf */
-
-}
-
-
-/* ================================
-   📱 LEVANTAMIENTOS – MOBILE FIX
-   >= cualquier teléfono (≤ 430px)
-================================ */
-@media (max-width: 430px) {
-
-  /* Evitar scroll horizontal */
-  body {
-    overflow-x: hidden;
-  }
-
-  #listaLevantamientos {
-    padding: 10px;
-    max-width: 100vw;
+    font-size: 15px;
+    padding: 12px;
+    border-radius: 14px;
   }
 
   /* Ocultar encabezado de tabla */
@@ -4338,7 +4253,7 @@ h3 {
     display: none;
   }
 
-  /* Convertir tabla en cards */
+  /* Tabla como cards */
   .tabla,
   .tabla tbody,
   .tabla tr {
@@ -4346,46 +4261,52 @@ h3 {
     width: 100%;
   }
 
+  /* Card */
   .tabla tr {
     background: #ffffff;
-    border-radius: 16px;
+    border-radius: 18px;
     padding: 14px;
     margin-bottom: 14px;
-    box-shadow: 0 10px 25px rgba(0,0,0,.08);
-    max-width: 100%;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    box-sizing: border-box;
+    overflow: hidden; /* 🔥 CLAVE para que no se salga */
   }
 
+  /* Celdas */
   .tabla td {
     display: block;
     width: 100%;
     padding: 6px 0;
     font-size: 14px;
+    box-sizing: border-box;
     word-wrap: break-word;
   }
 
-  /* Cliente (titulo) */
+  /* Cliente */
   .tabla td:nth-child(1) {
-    font-weight: 700;
-    font-size: 16px;
+    font-weight: 600;
+    font-size: 15px;
     margin-bottom: 6px;
   }
 
   /* Dirección */
   .tabla td:nth-child(2) {
+    font-size: 13px;
     color: #555;
-    font-size: 14px;
+    line-height: 1.4;
   }
 
   /* Personal */
   .tabla td:nth-child(3) {
-    font-weight: 600;
-    margin-top: 6px;
+    font-size: 13px;
+    color: #777;
+    margin-top: 4px;
   }
 
   /* Fecha */
   .tabla td:nth-child(4) {
-    font-size: 13px;
-    color: #777;
+    font-size: 12px;
+    color: #888;
     margin-bottom: 10px;
   }
 
@@ -4394,20 +4315,15 @@ h3 {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    width: 100%;
   }
 
-  /* Botones full width */
+  /* Botones */
   .tabla td:nth-child(5) button {
     width: 100%;
+    padding: 11px;
     border-radius: 12px;
     font-size: 14px;
-    padding: 10px;
   }
 
-  /* Botón nuevo */
-  #btnNuevoLevantamiento {
-    width: 100%;
-    margin-bottom: 15px;
-  }
 }
-
