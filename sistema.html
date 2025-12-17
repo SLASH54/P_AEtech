@@ -1067,7 +1067,10 @@
 
 <div id="modalVerLevantamiento" class="ios-modal">
   <div class="ios-card">
-    <button class="ios-close" onclick="closeVerLevantamiento()">✕</button>
+   
+
+<button class="ios-close" onclick="closeVerLevantamiento()">✕</button>
+
 
     <h2>📋 Levantamiento</h2>
 
@@ -1092,12 +1095,13 @@
     </div>
 
     <hr>
+<h3>🛠 Necesidades</h3>
+<div id="verNecesidades" class="ios-necesidades"></div>
 
-    <h3>🛠 Necesidades</h3>
-    <div id="verNecesidades"></div>
 
-    <h3>🧱 Materiales</h3>
-    <ul id="verMateriales"></ul>
+   <h3>🧱 Materiales</h3>
+<ul id="verMateriales" class="ios-materiales"></ul>
+
   </div>
 </div>
 
@@ -1650,16 +1654,53 @@ function closeVerLevantamiento() {
 
 
 function verLevantamiento(id) {
-    const l = levantamientosCache.find(x => x.id === id);
-    if (!l) return alert("Levantamiento no encontrado");
-
+  fetch(`${API_BASE_URL}/levantamientos/${id}`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("userToken")}`
+    }
+  })
+  .then(r => r.json())
+  .then(l => {
     document.getElementById("verCliente").textContent = l.clienteNombre;
     document.getElementById("verDireccion").textContent = l.direccion;
     document.getElementById("verPersonal").textContent = l.personal;
     document.getElementById("verFecha").textContent =
-        new Date(l.fecha).toLocaleString();
+      new Date(l.fecha).toLocaleString();
+
+    renderNecesidades(l.necesidades || []);
+    renderMateriales(l.materiales || []);
 
     document.getElementById("modalVerLevantamiento").classList.add("active");
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Error al abrir levantamiento");
+  });
+}
+
+
+
+
+function renderNecesidades(necesidades = []) {
+  const cont = document.getElementById("verNecesidades");
+  cont.innerHTML = "";
+
+  if (!necesidades.length) {
+    cont.innerHTML = "<p class='ios-empty'>Sin necesidades registradas</p>";
+    return;
+  }
+
+  necesidades.forEach(n => {
+    const card = document.createElement("div");
+    card.className = "ios-necesidad-card";
+
+    card.innerHTML = `
+      <img src="${n.imagen}" alt="foto necesidad">
+      <p>${n.descripcion}</p>
+    `;
+
+    cont.appendChild(card);
+  });
 }
 
 
