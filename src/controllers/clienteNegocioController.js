@@ -21,10 +21,10 @@ exports.createClienteNegocio = async (req, res) => {
             await ClienteDireccion.create({
                 clienteId: cliente.id,
                 estado: estado[i],
-                alias: alias?.[i] || null,
                 municipio: municipio[i],
                 direccion: direccion[i],
-                maps: maps[i] || null
+                maps: maps[i] || null,
+                alias: alias?.[i] || null,
             });
         }
 
