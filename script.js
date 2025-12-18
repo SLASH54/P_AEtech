@@ -419,20 +419,20 @@ if (direccionesFinales.length === 0) {
 
 
 // 🚨 BLOQUEO CORRECTO (FUERA DEL LOOP)
-if (requiereAliasWarning && !aliasWarningShown) {
-  aliasWarningShown = true;
+//if (requiereAliasWarning && !aliasWarningShown) {
+//  aliasWarningShown = true;
 
-  const toast = document.getElementById('aliasToast');
-  toast.style.display = 'block';
+//  const toast = document.getElementById('aliasToast');
+//  toast.style.display = 'block';
 
-  setTimeout(() => {
-    toast.style.display = 'none';
-  }, 3500);
+//  setTimeout(() => {
+//    toast.style.display = 'none';
+//  }, 3500);
 
-  btn.disabled = false;
-  btn.innerHTML = "Registrar Cliente";
-  return;
-}
+//  btn.disabled = false;
+//  btn.innerHTML = "Registrar Cliente";
+//  return;
+//}
 
 
 // separar para backend
