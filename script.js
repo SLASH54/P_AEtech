@@ -310,13 +310,45 @@ function procesarDireccionInput(input) {
 
   // Es link de maps
   const direccionExtraida = extraerDireccionDeMaps(input);
+  const aliasInput = item.querySelector('input[name="alias[]"]')?.value;
 
   return {
     direccion: direccionExtraida || "Ubicación en Google Maps",
     maps: input,
-    alias: valorAlias?.trim() || null
+    alias: aliasInput.trim() || null
   };
 }
+
+function mostrarAdvertenciaAlias() {
+  if (document.getElementById('alias-warning')) return;
+
+  const warning = document.createElement('div');
+  warning.id = 'alias-warning';
+  warning.innerHTML = `
+    ⚠️ <b>Recomendado:</b> agrega un alias para identificar esta ubicación
+  `;
+
+  Object.assign(warning.style, {
+    position: 'fixed',
+    bottom: '24px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    padding: '14px 22px',
+    borderRadius: '18px',
+    background: 'rgba(255, 200, 0, 0.25)',
+    backdropFilter: 'blur(12px)',
+    color: '#333',
+    fontWeight: '600',
+    boxShadow: '0 10px 30px rgba(0,0,0,.15)',
+    zIndex: 9999
+  });
+
+  document.body.appendChild(warning);
+
+  setTimeout(() => warning.remove(), 5000);
+}
+
+
 
 /**
  * Función para manejar el registro de nuevos clientes.
@@ -353,26 +385,30 @@ const items = [
   ...document.querySelectorAll("#direccionesContainerRegistro .direccion-item")
 ];
 
-const direccionesFinales = [];
+const direccionesFinales = [
+  ...document.querySelectorAll('.direccion-item')
+].map(item => {
+  const direccionInput = item.querySelector('input[name="direccion[]"]').value.trim();
+  const aliasInput = item.querySelector('input[name="alias[]"]')?.value.trim() || null;
 
-items.forEach(item => {
-  const inputDireccion = item.querySelector('input[name="direccion[]"]');
-  const inputAlias = item.querySelector('input[name="alias[]"]');
+  if (!direccionInput) return null;
 
-  const direccionRaw = inputDireccion?.value.trim();
-  const aliasRaw = inputAlias?.value.trim();
+  const esLink = direccionInput.includes('maps.app') || direccionInput.includes('google.com/maps');
 
-  if (!direccionRaw) return;
+  return {
+    direccion: esLink ? 'Ubicación en Google Maps' : direccionInput,
+    maps: esLink ? direccionInput : null,
+    alias: aliasInput
+  };
+}).filter(Boolean);
 
-  // detectar si es link
-  const esLinkMaps = direccionRaw.includes("maps.app") || direccionRaw.includes("google.com/maps");
 
-  direccionesFinales.push({
-    direccion: esLinkMaps ? "Ubicación en Google Maps" : direccionRaw,
-    maps: esLinkMaps ? direccionRaw : null,
-    alias: aliasRaw || null
-  });
-});
+const hayLinkSinAlias = direccionesFinales.some(d => d.maps && !d.alias);
+
+if (hayLinkSinAlias) {
+  mostrarAdvertenciaAlias(); // solo UI, no return
+}
+
 
 if (direccionesFinales.length === 0) {
   alert("Debes ingresar al menos una dirección.");
@@ -400,9 +436,6 @@ if (requiereAliasWarning && !aliasWarningShown) {
 
 
 // separar para backend
-const direcciones = direccionesFinales.map(d => d.direccion);
-const maps = direccionesFinales.map(d => d.maps);
-const alias = direccionesFinales.map(d => d.alias);
 
 
 
@@ -427,12 +460,11 @@ const alias = direccionesFinales.map(d => d.alias);
       nombre,
       email,
       telefono,
-      estado: estados,
-      municipio: municipios,
-      direccion: direcciones,
-      maps,
-      alias
+      estado: direccionesFinales.map(() => estado),
+      municipio: direccionesFinales.map(() => municipio),
+      direcciones: direccionesFinales
     };
+
 
 
     try {

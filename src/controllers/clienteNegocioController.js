@@ -24,7 +24,7 @@ exports.createClienteNegocio = async (req, res) => {
                 municipio: municipio[i],
                 direccion: direccion[i],
                 maps: maps[i] || null,
-                alias: alias?.[i] || null,
+                alias: alias[i] || null,
             });
         }
 
