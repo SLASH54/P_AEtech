@@ -3806,6 +3806,46 @@ h3 {
 }
 
 
+.glass-toast{
+  position: fixed;
+  left: 50%;
+  top: 18px;
+  transform: translateX(-50%);
+  width: min(560px, calc(100% - 24px));
+  z-index: 99999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease, transform .25s ease;
+}
+
+.glass-toast.show{
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.glass-toast .glass-toast-inner{
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: 16px;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  background: rgba(255,255,255,.14);
+  border: 1px solid rgba(255,255,255,.24);
+  box-shadow: 0 12px 30px rgba(0,0,0,.25);
+}
+
+.glass-toast .glass-toast-icon{
+  font-size: 20px;
+}
+
+.glass-toast .glass-toast-text{
+  font-size: 14px;
+  line-height: 1.25;
+  color: #fff;
+  font-weight: 600;
+}
 
 
 .alias-warning {
@@ -3851,7 +3891,7 @@ h3 {
 }
 
 
-.glass-toast {
+/*.glass-toast {
   position: fixed;
   top: 90px;
   left: 50%;
@@ -3888,7 +3928,7 @@ h3 {
     transform: translateX(-50%) translateY(0);
   }
 }
-
+*/
 
 
 
