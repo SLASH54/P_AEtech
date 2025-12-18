@@ -17,6 +17,8 @@ exports.createClienteNegocio = async (req, res) => {
         });
 
         // ➤ Guardar múltiples direcciones
+        const aliasArray = Array.isArray(alias) ? alias : [alias];
+
         for (let i = 0; i < direccion.length; i++) {
             await ClienteDireccion.create({
                 clienteId: cliente.id,
@@ -24,9 +26,10 @@ exports.createClienteNegocio = async (req, res) => {
                 municipio: municipio[i],
                 direccion: direccion[i],
                 maps: maps[i] || null,
-                alias: alias[i] || null,
+                alias: aliasArray[i] || null
             });
         }
+
 
         res.status(201).json({ message: "Cliente registrado con éxito", cliente });
     } catch (error) {
