@@ -313,7 +313,8 @@ function procesarDireccionInput(input) {
 
   return {
     direccion: direccionExtraida || "Ubicación en Google Maps",
-    maps: input
+    maps: input,
+    alias: valorAlias?.trim() || null
   };
 }
 
@@ -421,15 +422,17 @@ const alias = direccionesFinales.map(d => d.alias);
 }
 
 
+    const aliasArray = direccionesFinales.map(d => d.alias || null);
+
     const payload = {
-        nombre,
-        email,
-        telefono,
-        estado: estados,
-        municipio: municipios,
-        direccion: direcciones,
-        maps,
-        alias
+      nombre,
+      email,
+      telefono,
+      estado: estados,
+      municipio: municipios,
+      direccion: direcciones,
+      maps,
+      alias: aliasArray // ✅ ARRAY
     };
 
 

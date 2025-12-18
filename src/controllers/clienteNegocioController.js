@@ -4,7 +4,7 @@ const ClienteDireccion = require('../models/ClienteDireccion');
 
 exports.createClienteNegocio = async (req, res) => {
     try {
-        const { nombre, email, telefono, alias, estado = [], municipio = [], direccion = [], maps = [] } = req.body;
+        const { nombre, email, telefono, alias = [], estado = [], municipio = [], direccion = [], maps = []} = req.body;
 
         // limpiar email vacío
         const emailFinal = email?.trim() === "" ? null : email;
@@ -75,7 +75,7 @@ exports.getAllClientesNegocio = async (req, res) => {
 exports.updateClienteNegocio = async (req, res) => {
     try {
         const clienteId = req.params.id;
-        const { nombre, email, telefono, estado = [], municipio = [], direccion = [], maps = [] } = req.body;
+        const { nombre, email, telefono, alias = [], estado = [], municipio = [], direccion = [], maps = [] } = req.body;
 
         const emailFinal = email?.trim() === "" ? null : email;
 
@@ -94,7 +94,8 @@ exports.updateClienteNegocio = async (req, res) => {
                 estado: estado[i],
                 municipio: municipio[i],
                 direccion: direccion[i],
-                maps: maps[i] || null
+                maps: maps[i] || null,
+                alias: alias?.[i] || null
             });
         }
 
