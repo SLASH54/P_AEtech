@@ -347,41 +347,40 @@ const registerClient = async (e) => {
     // Múltiples direcciones dinámicas
     // Filtrar inputs vacíos reales (que no contienen texto ni link)
 // ===========================
-// DIRECCIONES del cliente
+// DIRECCIONES del cliente (CON ALIAS)
 // ===========================
-const bloques = document.querySelectorAll('#direccionesContainerRegistro .direccion-item');
+const items = [
+  ...document.querySelectorAll("#direccionesContainerRegistro .direccion-item")
+];
+
 const direccionesFinales = [];
 
-let requiereAliasWarning = false;
+items.forEach(item => {
+  const inputDireccion = item.querySelector('input[name="direccion[]"]');
+  const inputAlias = item.querySelector('input[name="alias[]"]');
 
-for (const bloque of bloques) {
-  const aliasInput = bloque.querySelector('input[name="alias[]"]');
-  const dirInput = bloque.querySelector('input[name="direccion[]"]');
+  const direccionRaw = inputDireccion?.value.trim();
+  const aliasRaw = inputAlias?.value.trim();
 
-  const alias = aliasInput?.value.trim();
-  const raw = dirInput?.value.trim();
+  if (!direccionRaw) return;
 
-  if (!raw) continue;
-
-  const p = procesarDireccionInput(raw);
-
-  if (esLinkGoogleMaps(raw) && !alias) {
-    requiereAliasWarning = true;
-  }
+  // detectar si es link
+  const esLinkMaps = direccionRaw.includes("maps.app") || direccionRaw.includes("google.com/maps");
 
   direccionesFinales.push({
-    alias: alias || null,
-    direccion: p.direccion,
-    maps: p.maps
+    direccion: esLinkMaps ? "Ubicación en Google Maps" : direccionRaw,
+    maps: esLinkMaps ? direccionRaw : null,
+    alias: aliasRaw || null
   });
-}
+});
 
-if (!direccionesFinales.length) {
+if (direccionesFinales.length === 0) {
   alert("Debes ingresar al menos una dirección.");
   btn.disabled = false;
   btn.innerHTML = "Registrar Cliente";
   return;
 }
+
 
 // 🚨 BLOQUEO CORRECTO (FUERA DEL LOOP)
 if (requiereAliasWarning && !aliasWarningShown) {
@@ -432,7 +431,7 @@ const alias = direccionesFinales.map(d => d.alias);
       municipio: municipios,
       direccion: direcciones,
       maps,
-      alias: aliasArray // ✅ ARRAY
+      alias
     };
 
 
@@ -3314,25 +3313,20 @@ function cargarDireccionesCliente(clienteId) {
         return;
     }
 
-   direcciones.forEach(dir => {
-    const option = document.createElement("option");
+  direcciones.forEach(dir => {
+  const option = document.createElement("option");
+  option.value = dir.direccion;
 
-    // value: usa la dirección (como ya lo usas en backend)
-    option.value = dir.direccion;
+  option.textContent = dir.alias
+    ? `${dir.alias} – ${dir.direccion}`
+    : dir.maps
+      ? "📍 Ubicación sin alias (Google Maps)"
+      : dir.direccion;
 
-    // texto visible (CLAVE)
-    option.textContent =
-        dir.alias
-            ? `${dir.alias} — ${dir.direccion}`
-            : esLinkGoogleMaps(dir.maps || "")
-                ? '📍 Ubicación sin alias — Google Maps'
-                : dir.direccion;
-
-    // guardar maps para uso posterior
-    option.dataset.maps = dir.maps || "";
-
-    selectDireccion.appendChild(option);
+  option.dataset.maps = dir.maps || "";
+  selectDireccion.appendChild(option);
 });
+
 
 }
  
