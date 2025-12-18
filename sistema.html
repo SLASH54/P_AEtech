@@ -685,11 +685,25 @@
 
         <div id="direccionesContainerRegistro">
         <div class="direccion-item">
-  <input type="text" name="alias[]" placeholder="Alias (opcional) ej. Sucursal Centro">
-  <input type="text" name="direccion[]" placeholder="Calle o link Google Maps">
-  <button type="button" onclick="this.parentElement.remove()">Eliminar</button>
-</div>
+            <input
+            type="text"
+            name="alias[]"
+            placeholder="Alias (opcional) ej. Sucursal Centro"
+            class="input-alias"
+            />
+            
+            <input
+            type="text"
+            name="direccion[]"
+            placeholder="Ej. Calle 10 Sur #123 o link Google Maps"
+            required
+            />
 
+            <button type="button" class="btn-remove-dir"
+            onclick="this.parentElement.remove()">
+            Eliminar
+            </button>
+        </div>
         </div>
 
 
