@@ -395,7 +395,6 @@ const registerClient = async (e) => {
         const token = localStorage.getItem('accessToken');
         if (!token) {
             alert("Necesitas iniciar sesión.");
-            window.location.href = '/index.html';
             return;
         }
 
@@ -408,64 +407,65 @@ const registerClient = async (e) => {
         const municipio = document.getElementById('client-municipio').value;
 
         // ===== DIRECCIONES =====
-        const aliasInputs = document.querySelectorAll(
-            '#direccionesContainerRegistro input[name="alias[]"]'
-        );
-        const direccionInputs = document.querySelectorAll(
-            '#direccionesContainerRegistro input[name="direccion[]"]'
-        );
+        const bloques = document.querySelectorAll('.direccion-item');
 
-        const alias = [];
-        const direccion = [];
+        const direcciones = [];
         const maps = [];
+        const alias = [];
         const estados = [];
         const municipios = [];
 
-        for (let i = 0; i < direccionInputs.length; i++) {
-            const dirValor = direccionInputs[i].value;
-            const aliasValor = aliasInputs[i]?.value?.trim() || null;
+        bloques.forEach((bloque) => {
+            const inputAlias = bloque.querySelector('input[name="alias[]"]');
+            const inputDireccion = bloque.querySelector('input[name="direccion[]"]');
 
-            const procesada = procesarDireccionInput(dirValor);
+            const aliasVal = inputAlias?.value.trim() || null;
+            const valor = inputDireccion?.value.trim();
 
-            if (!procesada.direccion && !procesada.maps) continue;
+            if (!valor) return;
 
-            alias.push(aliasValor);
-            direccion.push(procesada.direccion);
-            maps.push(procesada.maps);
+            // Si es link
+            if (valor.includes('maps.app') || valor.includes('google.com/maps')) {
+                direcciones.push("Ubicación en Google Maps");
+                maps.push(valor);
+            } else {
+                direcciones.push(valor);
+                maps.push(null);
+            }
 
+            alias.push(aliasVal);
             estados.push(estado);
             municipios.push(municipio);
-        }
+        });
 
-        if (direccion.length === 0) {
+        if (direcciones.length === 0) {
             alert("Debes ingresar al menos una dirección.");
             return;
         }
 
-        // ===== PAYLOAD FINAL =====
+        // ===== PAYLOAD CORRECTO =====
         const payload = {
             nombre,
             email,
             telefono,
             estado: estados,
             municipio: municipios,
-            direccion,
+            direccion: direcciones,
             maps,
             alias
         };
 
-        // ===== REQUEST =====
         const response = await fetch(`${API_BASE_URL}/clientes`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(payload)
         });
 
-        const data = await response.json();
         if (!response.ok) {
+            const data = await response.json();
             throw new Error(data.message || "Error al registrar cliente");
         }
 
