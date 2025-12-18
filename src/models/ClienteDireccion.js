@@ -13,7 +13,11 @@ const ClienteDireccion = sequelize.define("ClienteDireccion", {
   municipio: { type: DataTypes.STRING, allowNull: false },
   direccion: { type: DataTypes.STRING, allowNull: false },
 
-  maps: { type: DataTypes.STRING, allowNull: true } // link opcional
+  maps: { type: DataTypes.STRING, allowNull: true }, // link opcional
+  alias: {
+    type: DataTypes.STRING(100),
+    allowNull: true
+  }
 }, {
   tableName: "ClientesDirecciones"
 });
