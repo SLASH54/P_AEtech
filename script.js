@@ -300,22 +300,29 @@ function extraerDireccionDeMaps(url) {
   }
 }
 
-function procesarDireccionInput(input) {
-  const raw = (input || "").trim();
-  if (!raw) return { direccion: "", maps: null };
+function procesarDireccionInput(inputDireccion, inputAlias) {
+  const valor = inputDireccion.trim();
+  const alias = inputAlias?.trim() || null;
 
-  // Si NO es link
-  if (!esLinkGoogleMaps(raw)) {
-    return { direccion: raw, maps: null };
+  if (!valor) return null;
+
+  // No es link
+  if (!valor.includes("maps")) {
+    return {
+      direccion: valor,
+      maps: null,
+      alias
+    };
   }
 
-  // Si es link
-  const direccionExtraida = extraerDireccionDeMaps(raw);
+  // Es link de Google Maps
   return {
-    direccion: direccionExtraida || "Ubicación en Google Maps",
-    maps: raw
+    direccion: "Ubicación en Google Maps",
+    maps: valor,
+    alias
   };
 }
+
 
 function showGlassToast(message, type = "warning") {
   let toast = document.getElementById("glassToast");
@@ -396,36 +403,29 @@ const registerClient = async (e) => {
     const estado = document.getElementById('client-estado').value;
     const municipio = document.getElementById('client-municipio').value;
 
-    const items = [...document.querySelectorAll('#direccionesContainerRegistro .direccion-item')];
+    const direccionItems = document.querySelectorAll('.direccion-item');
 
-    const direccionesFinales = [];
-    let hayLinkSinAlias = false;
+const direccionesFinales = [];
 
-    for (const item of items) {
-      const aliasInput = item.querySelector('input[name="alias[]"]');
-      const dirInput = item.querySelector('input[name="direccion[]"]');
+direccionItems.forEach(item => {
+  const inputDireccion = item.querySelector('input[name="direccion[]"]');
+  const inputAlias = item.querySelector('input[name="alias[]"]');
 
-      const alias = (aliasInput?.value || "").trim();
-      const raw = (dirInput?.value || "").trim();
-      if (!raw) continue;
+  const procesada = procesarDireccionInput(
+    inputDireccion.value,
+    inputAlias?.value
+  );
 
-      const p = procesarDireccionInput(raw);
+  if (procesada) {
+    direccionesFinales.push(procesada);
+  }
+});
 
-      if (esLinkGoogleMaps(raw) && !alias) {
-        hayLinkSinAlias = true;
-      }
+if (direccionesFinales.length === 0) {
+  alert("Debes ingresar al menos una dirección.");
+  return;
+}
 
-      direccionesFinales.push({
-        alias: alias || null,
-        direccion: p.direccion,
-        maps: p.maps
-      });
-    }
-
-    if (direccionesFinales.length === 0) {
-      alert("Debes ingresar al menos una dirección.");
-      return;
-    }
 
     if (hayLinkSinAlias) {
       showGlassToast("Recomendado: agrega un alias para identificar mejor ubicaciones de Google Maps.", "warning");
@@ -443,12 +443,13 @@ const registerClient = async (e) => {
       nombre,
       email,
       telefono,
-      estado: estados,
-      municipio: municipios,
+      estado: direcciones.map(() => estado),
+      municipio: direcciones.map(() => municipio),
       direccion: direcciones,
       maps,
       alias
     };
+
 
     const response = await fetch(`${API_BASE_URL}/clientes`, {
       method: 'POST',
