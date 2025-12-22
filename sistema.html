@@ -1053,9 +1053,10 @@
 
 
 
-        <button id="btnGuardarLevantamiento" class="btn btn-success">
-            Guardar Levantamiento
-        </button>
+       <button id="btnGuardarLevantamiento" class="btn btn-success">
+  Guardar Levantamiento
+</button>
+
 
     </div>
 </div>
@@ -1199,6 +1200,19 @@ function setPersonalActual() {
 
 async function guardarLevantamiento() {
 
+  const cliente = document.getElementById("lev-clienteSelect").value;
+  const direccion = document.getElementById("lev-direccion").value;
+
+  if (!cliente || !direccion) {
+    alert("Selecciona cliente y dirección");
+    return;
+
+    
+    console.log("CLICK GUARDAR LEVANTAMIENTO");
+
+  }
+
+
   const data = {
     clienteId: document.getElementById("lev-clienteSelect").value,
     clienteNombre: document.getElementById("lev-clienteSelect").selectedOptions[0]?.text,
@@ -1229,6 +1243,7 @@ async function guardarLevantamiento() {
   cargarTablaLevantamientos();
 
 
+  
   
 }
 
