@@ -1,11 +1,14 @@
-const Sequelize = require("sequelize");
-const sequelize = require("../database");
+const { Sequelize, DataTypes } = require("sequelize");
 
-const db = {};
+const { sequelize } = require('../config/database');
 
-db.Sequelize = Sequelize;
-db.sequelize = sequelize;
 
-db.Levantamiento = require("./Levantamiento")(sequelize, Sequelize.DataTypes);
+const LevantamientoModel = require("./Levantamiento");
 
-module.exports = db;
+const Levantamiento = LevantamientoModel(sequelize, DataTypes);
+
+module.exports = {
+  sequelize,
+  Sequelize,
+  Levantamiento
+};
