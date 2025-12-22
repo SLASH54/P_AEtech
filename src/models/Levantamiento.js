@@ -5,18 +5,27 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
 
-    clienteNombre: DataTypes.STRING,
-    direccion: DataTypes.TEXT,
-    personal: DataTypes.STRING,
-    fecha: DataTypes.DATE,
+    clienteNombre: {
+      type: DataTypes.STRING
+    },
 
-    // 🔥 AQUÍ SE GUARDAN LAS NECESIDADES
+    direccion: {
+      type: DataTypes.TEXT
+    },
+
+    personal: {
+      type: DataTypes.STRING
+    },
+
+    fecha: {
+      type: DataTypes.DATE
+    },
+
     necesidades: {
       type: DataTypes.JSONB,
       allowNull: true
     },
 
-    // 🔥 AQUÍ SE GUARDAN LOS MATERIALES
     materiales: {
       type: DataTypes.JSONB,
       allowNull: true
