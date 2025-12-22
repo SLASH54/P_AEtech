@@ -5,26 +5,20 @@ const { Levantamiento } = require("../models");
 // ===============================
 exports.createLevantamiento = async (req, res) => {
   try {
-    const {
-      clienteId,
-      clienteNombre,
-      direccion,
-      personal,
-      fecha
-    } = req.body;
-
-    const nuevo = await Levantamiento.create({
-      cliente_id: clienteId,
-      cliente_nombre: clienteNombre,
-      direccion,
-      personal,
-      fecha
+    const levantamiento = await Levantamiento.create({
+      clienteId: req.body.clienteId,
+      clienteNombre: req.body.clienteNombre,
+      direccion: req.body.direccion,
+      personal: req.body.personal,
+      fecha: req.body.fecha,
+      necesidades: req.body.necesidades, // 👈 AHORA SÍ
+      materiales: req.body.materiales     // 👈 AHORA SÍ
     });
 
-    res.status(201).json(nuevo);
-  } catch (error) {
-    console.error("ERROR CREATE LEVANTAMIENTO:", error);
-    res.status(500).json({ msg: "Error al crear levantamiento" });
+    res.status(201).json(levantamiento);
+  } catch (err) {
+    console.error("❌ Error creando levantamiento:", err);
+    res.status(500).json({ error: "Error creando levantamiento" });
   }
 };
 
@@ -111,3 +105,7 @@ exports.getLevantamientoById = async (req, res) => {
     res.status(500).json({ msg: "Error interno" });
   }
 };
+
+
+
+

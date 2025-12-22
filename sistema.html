@@ -1195,37 +1195,57 @@ function setPersonalActual() {
         "Usuario";
 }
 
+
+
 async function guardarLevantamiento() {
 
+  // ================= NECESIDADES =================
+  const necesidades = [];
+  document.querySelectorAll("#lev-necesidadesContainer .nec-item").forEach(item => {
+    const texto = item.querySelector("textarea")?.value || "";
+    const img = item.querySelector(".img-preview")?.src || null;
+
+    necesidades.push({
+      descripcion: texto,
+      imagen: img // base64
+    });
+  });
+
+  // ================= MATERIALES =================
+  const materiales = levMaterialesList; 
+  // 👆 YA lo tienes armado como array
+
+  // ================= DATA FINAL =================
   const data = {
     clienteId: document.getElementById("lev-clienteSelect").value,
-    clienteNombre: document.getElementById("lev-clienteSelect").selectedOptions[0]?.text,
+    clienteNombre: document.getElementById("lev-clienteSelect").selectedOptions[0].text,
     direccion: document.getElementById("lev-direccion").value,
     personal: document.getElementById("lev-personal").value,
     fecha: document.getElementById("lev-fechaHora").value,
-
-    necesidades: obtenerNecesidadesLev(),
-    materiales: levMaterialesList   // 👈 YA EXISTE
+    necesidades,
+    materiales
   };
 
-  const method = levantamientoEditando ? "PUT" : "POST";
-  const url = levantamientoEditando
-    ? `${API_BASE_URL}/levantamientos/${levantamientoEditando}`
-    : `${API_BASE_URL}/levantamientos`;
+  const token = localStorage.getItem("userToken");
 
-  await fetch(url, {
-    method,
+  await fetch(`${API_BASE_URL}/levantamientos`, {
+    method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("userToken")}`
+      Authorization: `Bearer ${token}`
     },
     body: JSON.stringify(data)
   });
 
-  levantamientoEditando = null;
   closeNuevoLevantamiento();
   cargarTablaLevantamientos();
 }
+
+
+
+
+
+
 
 
 
