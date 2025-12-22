@@ -921,7 +921,7 @@ function openEditModal(data, type) {
 
         rolSelect.required = false;
         rolSelect.value = "";
-        cargarDireccionesEnModal(cliente);
+        //cargarDireccionesEnModal(cliente);
 
         document.getElementById('edit-telefono').value = data.telefono || '';
 
