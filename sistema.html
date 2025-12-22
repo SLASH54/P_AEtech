@@ -1622,20 +1622,62 @@ function obtenerNecesidadesLev() {
 
 
 
+//editar el levantamiento
 
 function editarLevantamiento(id) {
   levantamientoEditando = id;
+  limpiarFormularioLev();
   openNuevoLevantamiento();
 
   fetch(`${API_BASE_URL}/levantamientos/${id}`, {
-    headers: { Authorization: `Bearer ${localStorage.getItem("userToken")}` }
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("userToken")}`
+    }
   })
   .then(r => r.json())
   .then(l => {
-    document.getElementById("lev-clienteSelect").value = l.clienteId;
+
+    // CAMPOS BÁSICOS
+    document.getElementById("lev-clienteSelect").value = l.cliente_id;
     document.getElementById("lev-direccion").value = l.direccion;
     document.getElementById("lev-personal").value = l.personal;
     document.getElementById("lev-fechaHora").value = l.fecha.slice(0,16);
+
+    // NECESIDADES
+    if (Array.isArray(l.necesidades)) {
+      l.necesidades.forEach(n => {
+        const cont = document.getElementById("lev-necesidadesContainer");
+        const div = document.createElement("div");
+        div.className = "nec-item";
+
+        div.innerHTML = `
+          <div class="nec-row">
+            <div class="nec-left">
+              <textarea class="form-control">${n.descripcion || ""}</textarea>
+              ${n.imagen ? `<img class="img-preview" src="${n.imagen}" style="display:block;">` : `<img class="img-preview">`}
+            </div>
+            <div class="nec-right">
+              <button type="button" class="btn btn-danger btn-sm">Eliminar</button>
+            </div>
+          </div>
+          <hr>
+        `;
+
+        div.querySelector(".btn-danger").onclick = () => div.remove();
+        cont.appendChild(div);
+      });
+    }
+
+    // MATERIALES
+    if (Array.isArray(l.materiales)) {
+      levMaterialesList = l.materiales;
+      levRenderMateriales();
+    }
+
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Error al cargar levantamiento");
   });
 }
 
@@ -1667,49 +1709,22 @@ function pdfLevantamiento(id) {
 function verLevantamiento(id) {
   fetch(`${API_BASE_URL}/levantamientos/${id}`, {
     headers: {
-      Authorization: `Bearer ${localStorage.getItem("accessToken")}`
-    }
-  })
-    .then(r => r.json())
-    .then(l => {
-      document.getElementById("detalleLevantamiento").innerHTML = `
-        <p><b>Cliente:</b> ${l.clienteNombre}</p>
-        <p><b>Dirección:</b> ${l.direccion}</p>
-        <p><b>Personal:</b> ${l.personal}</p>
-        <p><b>Fecha:</b> ${new Date(l.fecha).toLocaleString()}</p>
-      `;
-      document.getElementById("modalVerLevantamiento").classList.add("active");
-    });
-}
-
-function closeVerLevantamiento() {
-  document.getElementById("modalVerLevantamiento").classList.remove("active");
-}
-
-
-function verLevantamiento(id) {
-  fetch(`${API_BASE_URL}/levantamientos/${id}`, {
-    headers: {
       Authorization: `Bearer ${localStorage.getItem("userToken")}`
     }
   })
   .then(r => r.json())
-
-  
   .then(l => {
-    document.getElementById("verCliente").textContent = l.clienteNombre;
+    document.getElementById("verCliente").textContent = l.cliente_nombre;
     document.getElementById("verDireccion").textContent = l.direccion;
     document.getElementById("verPersonal").textContent = l.personal;
     document.getElementById("verFecha").textContent =
       new Date(l.fecha).toLocaleString();
 
-  renderNecesidadesVer(l.necesidades);
-  renderMaterialesVer(l.materiales);
+    renderNecesidadesVer(l.necesidades || []);
+    renderMaterialesVer(l.materiales || []);
 
     document.getElementById("modalVerLevantamiento").classList.add("active");
   })
-
-
   .catch(err => {
     console.error(err);
     alert("Error al abrir levantamiento");
@@ -1765,6 +1780,16 @@ function cerrarVerLevantamiento() {
         .classList.remove("active");
 }
 
+
+//limpiar formulario 
+function limpiarFormularioLev() {
+  // limpiar materiales
+  levMaterialesList = [];
+  document.getElementById("levListaMateriales").innerHTML = "";
+
+  // limpiar necesidades
+  document.getElementById("lev-necesidadesContainer").innerHTML = "";
+}
 
 
 

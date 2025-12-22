@@ -10,7 +10,9 @@ exports.createLevantamiento = async (req, res) => {
       clienteNombre,
       direccion,
       personal,
-      fecha
+      fecha,
+      necesidades,
+      materiales
     } = req.body;
 
     const nuevo = await Levantamiento.create({
@@ -18,15 +20,18 @@ exports.createLevantamiento = async (req, res) => {
       cliente_nombre: clienteNombre,
       direccion,
       personal,
-      fecha
+      fecha,
+      necesidades,
+      materiales
     });
 
     res.status(201).json(nuevo);
   } catch (error) {
-    console.error("ERROR CREATE LEVANTAMIENTO:", error);
+    console.error(error);
     res.status(500).json({ msg: "Error al crear levantamiento" });
   }
 };
+
 
 // ===============================
 // OBTENER LEVANTAMIENTOS
@@ -65,16 +70,22 @@ exports.deleteLevantamiento = async (req, res) => {
 exports.updateLevantamiento = async (req, res) => {
   try {
     const { id } = req.params;
-    const { direccion, personal, fecha } = req.body;
+    const {
+      direccion,
+      personal,
+      fecha,
+      necesidades,
+      materiales
+    } = req.body;
 
     await Levantamiento.update(
-      { direccion, personal, fecha },
+      { direccion, personal, fecha, necesidades, materiales },
       { where: { id } }
     );
 
     res.json({ ok: true });
   } catch (error) {
-    console.error("ERROR UPDATE:", error);
+    console.error(error);
     res.status(500).json({ msg: "Error al editar levantamiento" });
   }
 };

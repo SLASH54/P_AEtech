@@ -23,7 +23,14 @@ module.exports = (sequelize, DataTypes) => {
       created_at: {
         type: DataTypes.DATE,
         field: "created_at"
-      }
+      },
+      necesidades: {
+        type: DataTypes.JSON
+      },
+      materiales: {
+        type: DataTypes.JSON
+}
+
     },
     {
       tableName: "levantamientos", // 👈 NOMBRE REAL
