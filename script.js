@@ -909,7 +909,7 @@ function openEditModal(data, type) {
     document.getElementById('edit-email').value = data.email || '';
     document.getElementById("edit-telefono").value = data.telefono || "";
 
-    cargarDireccionesEditar(data);
+    cargarDireccionesEditar(data, type);
 
 
     if (type === 'usuario') {
@@ -1103,6 +1103,43 @@ function cargarDireccionesEditar(cliente) {
 
     container.appendChild(div);
   });
+}
+
+
+function crearDireccionItem({ direccion = "", maps = "", alias = "" } = {}) {
+    const div = document.createElement("div");
+    div.className = "direccion-item";
+
+    div.innerHTML = `
+        <input 
+            type="text"
+            name="alias[]"
+            placeholder="Alias (ej. Sucursal Centro)"
+            value="${alias || ""}"
+        >
+
+        <input 
+            type="text"
+            name="direccion[]"
+            placeholder="Dirección o texto"
+            value="${direccion || ""}"
+            required
+        >
+
+        <input 
+            type="url"
+            name="maps[]"
+            placeholder="Link Google Maps"
+            value="${maps || ""}"
+        >
+
+        <button type="button" class="btn-remove-dir"
+            onclick="this.parentElement.remove()">
+            Eliminar
+        </button>
+    `;
+
+    return div;
 }
 
 
