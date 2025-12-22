@@ -726,14 +726,31 @@ function generarFilasClientes(clientes, tbodyElement) {
     clientes.forEach(cliente => {
 
         // Construir direcciones desde ClienteDireccion
-        const direccionesHTML = cliente.direcciones && cliente.direcciones.length > 0
-            ? cliente.direcciones
-                .map(d => `
-                    ${d.direccion}
-                    ${d.maps ? `<br><a href="${d.maps}" target="_blank">Ver mapa</a>` : ''}
-                `)
-                .join("<hr>")
-            : "Sin direcciones";
+        const direccionesHTML =
+  cliente.direcciones && cliente.direcciones.length > 0
+    ? cliente.direcciones
+        .map(d => {
+          if (d.alias) {
+            return `
+              <strong>${d.alias}</strong><br>
+              ${d.direccion}
+              ${d.maps ? `<br><a href="${d.maps}" target="_blank">Ver mapa</a>` : ''}
+            `;
+          }
+
+          if (d.maps) {
+            return `
+              <em>Ubicación sin alias</em><br>
+              <a href="${d.maps}" target="_blank">Ver en Google Maps</a>
+            `;
+          }
+
+          return d.direccion;
+        })
+        .join('<hr>')
+    : 'Sin direcciones';
+
+
 
         filas += `
             <tr data-id="${cliente.id}">
@@ -1009,6 +1026,9 @@ function agregarDireccion(valor = "") {
     div.classList.add("direccion-item");
 
     div.innerHTML = `
+        <input type="text" name="alias[]" 
+            placeholder="Alias (ej. Sucursal Centro)"
+        >
         <input type="text" name="direccion[]" 
             placeholder="Dirección o link Google Maps" 
             value="${valor}">
@@ -1092,19 +1112,24 @@ document.addEventListener('DOMContentLoaded', function () {
         const email = document.getElementById('edit-email').value || null;
         const telefono = document.getElementById('edit-telefono').value;
 
-        const inputs = [...document.querySelectorAll('#direccionesContainer input[name="direccion[]"]')];
+        const direccionInputs = [...document.querySelectorAll('#direccionesContainer input[name="direccion[]"]')];
+        const aliasInputs = [...document.querySelectorAll('#direccionesContainer input[name="alias[]"]')];
 
         const direcciones = [];
         const maps = [];
+        const alias = [];
 
-        for (const input of inputs) {
-            const valor = input.value.trim();
+        for (let i = 0; i < direccionInputs.length; i++) {
+            const valor = direccionInputs[i].value.trim();
             if (!valor) continue;
 
             const p = await procesarDireccion(valor);
+
             direcciones.push(p.direccion);
             maps.push(p.maps);
+            alias.push(aliasInputs[i]?.value.trim() || null);
         }
+
 
         if (direcciones.length === 0) {
             alert("Ingresa al menos una dirección o un link de Google Maps.");
