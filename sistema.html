@@ -1197,55 +1197,43 @@ function setPersonalActual() {
 }
 
 
-
 async function guardarLevantamiento() {
+  const formData = new FormData();
 
-  const cliente = document.getElementById("lev-clienteSelect").value;
-  const direccion = document.getElementById("lev-direccion").value;
+  formData.append("clienteId", document.getElementById("lev-clienteSelect").value);
+  formData.append("clienteNombre",
+    document.getElementById("lev-clienteSelect").selectedOptions[0]?.text
+  );
+  formData.append("direccion", document.getElementById("lev-direccion").value);
+  formData.append("personal", document.getElementById("lev-personal").value);
+  formData.append("fecha", document.getElementById("lev-fechaHora").value);
 
-  if (!cliente || !direccion) {
-    alert("Selecciona cliente y dirección");
-    return;
+  const necesidades = [];
+  document.querySelectorAll(".nec-item").forEach((div, i) => {
+    const desc = div.querySelector("textarea").value;
+    const fileInput = div.querySelector("input[type=file]");
 
+    necesidades.push({ descripcion: desc });
 
-    console.log("CLICK GUARDAR LEVANTAMIENTO");
-
-  }
-
-
-  const data = {
-    clienteId: document.getElementById("lev-clienteSelect").value,
-    clienteNombre: document.getElementById("lev-clienteSelect").selectedOptions[0]?.text,
-    direccion: document.getElementById("lev-direccion").value,
-    personal: document.getElementById("lev-personal").value,
-    fecha: document.getElementById("lev-fechaHora").value,
-
-    necesidades: obtenerNecesidadesLev(),
-    materiales: levMaterialesList   // 👈 YA EXISTE
-  };
-
-  const method = levantamientoEditando ? "PUT" : "POST";
-  const url = levantamientoEditando
-    ? `${API_BASE_URL}/levantamientos/${levantamientoEditando}`
-    : `${API_BASE_URL}/levantamientos`;
-
-  await fetch(url, {
-    method,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("userToken")}`
-    },
-    body: JSON.stringify(data)
+    if (fileInput?.files[0]) {
+      formData.append("imagenes", fileInput.files[0]);
+    }
   });
 
-  levantamientoEditando = null;
+  formData.append("necesidades", JSON.stringify(necesidades));
+
+  await fetch(`${API_BASE_URL}/levantamientos`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("userToken")}`
+    },
+    body: formData
+  });
+
   closeNuevoLevantamiento();
   cargarTablaLevantamientos();
-
-
-  
-  
 }
+
 
 
 

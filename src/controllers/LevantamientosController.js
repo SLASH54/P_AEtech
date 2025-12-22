@@ -11,9 +11,18 @@ exports.createLevantamiento = async (req, res) => {
       direccion,
       personal,
       fecha,
-      necesidades,
-      materiales
+      necesidades
     } = req.body;
+
+    const necesidadesParseadas = JSON.parse(necesidades || "[]");
+
+    // asociar imágenes
+    req.files?.forEach((file, i) => {
+      if (necesidadesParseadas[i]) {
+        necesidadesParseadas[i].imagen =
+          `/uploads/levantamientos/${file.filename}`;
+      }
+    });
 
     const nuevo = await Levantamiento.create({
       cliente_id: clienteId,
@@ -21,13 +30,12 @@ exports.createLevantamiento = async (req, res) => {
       direccion,
       personal,
       fecha,
-      necesidades,
-      materiales
+      necesidades: necesidadesParseadas
     });
 
     res.status(201).json(nuevo);
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ msg: "Error al crear levantamiento" });
   }
 };

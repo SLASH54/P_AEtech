@@ -7,8 +7,13 @@ const LevantamientoModel = require("./Levantamiento");
 
 const Levantamiento = LevantamientoModel(sequelize, DataTypes);
 
+
+
 module.exports = {
   sequelize,
   Sequelize,
   Levantamiento
 };
+
+
+app.use("/uploads", express.static("uploads"));
