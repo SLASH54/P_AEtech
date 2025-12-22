@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  const Levantamiento = sequelize.define("Levantamiento", {
+  return sequelize.define("Levantamiento", {
     clienteId: {
       type: DataTypes.INTEGER,
       allowNull: false
@@ -21,7 +21,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE
     },
 
-    // 👇 AQUÍ ESTÁ LA CLAVE
     necesidades: {
       type: DataTypes.JSONB,
       allowNull: true
@@ -32,6 +31,4 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true
     }
   });
-
-  return Levantamiento;
 };

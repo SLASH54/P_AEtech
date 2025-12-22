@@ -4,7 +4,9 @@ const ctrl = require("../controllers/LevantamientosController");
 
 router.post("/", ctrl.createLevantamiento);
 router.get("/", ctrl.getLevantamientos);
-router.get("/:id", ctrl.getLevantamientoById);
+router.put("/:id", ctrl.updateLevantamiento);
 router.delete("/:id", ctrl.deleteLevantamiento);
+router.get("/:id", ctrl.getLevantamientoById);
+
 
 module.exports = router;

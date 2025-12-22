@@ -1108,271 +1108,675 @@
 
 
 <script>
-/* ================= VARIABLES ================= */
-let levantamientoEditando = null;
-let levMaterialesList = [];
 
-/* ================= MODAL ================= */
+    let levantamientoEditando = null;
+    let levantamientosCache = [];
+
+
+/* ===== MODAL NUEVO LEVANTAMIENTO (FORZADO) ===== */
+
 function openNuevoLevantamiento() {
-  document.getElementById("modalNuevoLevantamiento").classList.add("active");
-  cargarClientesLev();
-  setPersonalActual();
-  setFechaHoraActual();
+    const modal = document.getElementById("modalNuevoLevantamiento");
+    modal.classList.add("active");
+
+    cargarClientesLev();   // clientes
+    setPersonalActual();   // personal
+    setFechaHoraActual();  // 👈 fecha y hora automática
 }
+
+
 
 function closeNuevoLevantamiento() {
-  document.getElementById("modalNuevoLevantamiento").classList.remove("active");
-  levantamientoEditando = null;
-  limpiarFormularioLev();
+    const modal = document.getElementById("modalNuevoLevantamiento");
+    if (modal) modal.classList.remove("active");
 }
 
-document.getElementById("btnNuevoLevantamiento")
-  ?.addEventListener("click", openNuevoLevantamiento);
 
-/* ================= CLIENTES ================= */
-async function cargarClientesLev() {
+
+/* BOTÓN */
+document.getElementById("btnNuevoLevantamiento")
+    ?.addEventListener("click", openNuevoLevantamiento);
+
+
+
+
+    async function cargarClientesLev() {
   const select = document.getElementById("lev-clienteSelect");
+  if (!select) return;
+
   select.innerHTML = `<option value="">Seleccione cliente</option>`;
 
-  const token = localStorage.getItem("userToken");
-  if (!token) return;
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      console.error("No hay accessToken");
+      return;
+    }
 
-  const res = await fetch(`${API_BASE_URL}/clientes`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+    const res = await fetch(`${API_BASE_URL}/clientes`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
 
-  const clientes = await res.json();
-  clientes.forEach(c => {
-    const opt = document.createElement("option");
-    opt.value = c.id;
-    opt.textContent = c.nombre;
-    select.appendChild(opt);
-  });
+    if (!res.ok) {
+      console.error("Error al cargar clientes", res.status);
+      return;
+    }
+
+    const clientes = await res.json();
+
+    clientes.forEach(c => {
+      const opt = document.createElement("option");
+      opt.value = c.id;
+      opt.textContent = c.nombre;
+      select.appendChild(opt);
+    });
+
+  } catch (e) {
+    console.error("Error cargando clientes:", e);
+  }
 }
 
-/* ================= DIRECCIÓN AUTOMÁTICA ================= */
-document.getElementById("lev-clienteSelect")
-  ?.addEventListener("change", async e => {
 
-  const id = e.target.value;
-  if (!id) return;
 
-  const token = localStorage.getItem("userToken");
-  const res = await fetch(`${API_BASE_URL}/clientes/${id}`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
 
-  const cliente = await res.json();
-  document.getElementById("lev-direccion").value =
-    cliente?.direcciones?.[0]?.direccion || "";
-});
 
-/* ================= PERSONAL / FECHA ================= */
+
+
 function setPersonalActual() {
-  document.getElementById("lev-personal").value =
-    localStorage.getItem("userName") || "Usuario";
+    const input = document.getElementById("lev-personal");
+    if (!input) return;
+
+    input.value =
+        localStorage.getItem("userName") ||
+        localStorage.getItem("usuario") ||
+        localStorage.getItem("nombreUsuario") ||
+        "Usuario";
 }
 
-function setFechaHoraActual() {
-  const now = new Date();
-  document.getElementById("lev-fechaHora").value =
-    now.toISOString().slice(0, 16);
-}
 
-/* ================= NECESIDADES ================= */
-function addNecesidad() {
-  const cont = document.getElementById("lev-necesidadesContainer");
 
-  const div = document.createElement("div");
-  div.className = "nec-item";
-  div.innerHTML = `
-    <textarea placeholder="Describe la necesidad..."></textarea>
-    <img class="img-preview">
-    <button class="btn btn-primary btn-sm">📸 Foto</button>
-    <button class="btn btn-danger btn-sm">Eliminar</button>
-    <hr>
-  `;
+async function guardarLevantamiento() {
 
-  const img = div.querySelector("img");
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = "image/*";
-  input.hidden = true;
-
-  div.querySelector(".btn-primary").onclick = () => input.click();
-  div.querySelector(".btn-danger").onclick = () => div.remove();
-
-  input.onchange = () => {
-    const file = input.files[0];
-    if (!file) return;
-    const r = new FileReader();
-    r.onload = e => {
-      img.src = e.target.result;
-      img.style.display = "block";
-    };
-    r.readAsDataURL(file);
+  const data = {
+    clienteId: document.getElementById("lev-clienteSelect").value,
+    clienteNombre: document.getElementById("lev-clienteSelect").selectedOptions[0].text,
+    direccion: document.getElementById("lev-direccion").value,
+    personal: document.getElementById("lev-personal").value,
+    fecha: document.getElementById("lev-fechaHora").value
   };
 
-  div.appendChild(input);
-  cont.appendChild(div);
-}
-
-document.getElementById("btnAddNecesidad")
-  ?.addEventListener("click", addNecesidad);
-
-function obtenerNecesidadesLev() {
-  return [...document.querySelectorAll(".nec-item")].map(d => ({
-    descripcion: d.querySelector("textarea").value,
-    imagen: d.querySelector("img").src || null
-  })).filter(n => n.descripcion || n.imagen);
-}
-
-/* ================= MATERIALES ================= */
-document.getElementById("levBtnAgregarMaterial")
-  ?.addEventListener("click", () => {
-
-  const insumo = levInsumo.value;
-  const extra = levInsumoExtra.value.trim();
-  const cantidad = levCantidad.value;
-
-  if (!insumo || !cantidad) return alert("Completa material");
-
-  levMaterialesList.push({
-    insumo: extra ? `${insumo} (${extra})` : insumo,
-    cantidad,
-    unidad: "Unidades"
-  });
-
-  renderMateriales();
-  levCantidad.value = "";
-});
-
-function renderMateriales() {
-  const ul = document.getElementById("levListaMateriales");
-  ul.innerHTML = "";
-  levMaterialesList.forEach((m, i) => {
-    const li = document.createElement("li");
-    li.innerHTML = `${m.insumo} – ${m.cantidad} ${m.unidad}
-      <button onclick="levMaterialesList.splice(${i},1);renderMateriales()">❌</button>`;
-    ul.appendChild(li);
-  });
-}
-
-/* ================= GUARDAR ================= */
-async function guardarLevantamiento() {
   const token = localStorage.getItem("userToken");
 
-  const body = {
-    clienteId: levClienteSelect.value,
-    clienteNombre: levClienteSelect.selectedOptions[0].text,
-    direccion: levDireccion.value,
-    personal: levPersonal.value,
-    fecha: levFechaHora.value,
-    necesidades: obtenerNecesidadesLev(),
-    materiales: levMaterialesList
-  };
+  const url = levantamientoEditando
+    ? `${API_BASE_URL}/levantamientos/${levantamientoEditando}`
+    : `${API_BASE_URL}/levantamientos`;
 
-  const res = await fetch(`${API_BASE_URL}/levantamientos`, {
-    method: "POST",
+  const method = levantamientoEditando ? "PUT" : "POST";
+
+  await fetch(url, {
+    method,
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`
     },
-    body: JSON.stringify(body)
+    body: JSON.stringify(data)
   });
 
-  if (!res.ok) return alert("Error al guardar");
-
+  levantamientoEditando = null;
   closeNuevoLevantamiento();
   cargarTablaLevantamientos();
 }
 
-btnGuardarLevantamiento.onclick = guardarLevantamiento;
 
-/* ================= TABLA ================= */
+
+
+
+
+
+
+
+
+
+
+
+// ================= DIRECCIÓN AUTOMÁTICA =================
+async function clienteChangeLev() {
+    const select = document.getElementById("lev-clienteSelect");
+    const inputDir = document.getElementById("lev-direccion");
+
+    if (!select || !inputDir || !select.value) {
+        inputDir.value = "";
+        return;
+    }
+
+    const token = localStorage.getItem("accessToken");
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/clientes/${select.value}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (!res.ok) {
+            console.error("Error al obtener cliente");
+            inputDir.value = "";
+            return;
+        }
+
+        const cliente = await res.json();
+
+        // 👉 toma la primera dirección en texto
+        inputDir.value =
+            cliente?.direcciones?.[0]?.direccion ||
+            cliente?.direccion ||
+            "";
+    } catch (e) {
+        console.error("Error dirección:", e);
+        inputDir.value = "";
+    }
+}
+
+// conectar cambio
+document.getElementById("lev-clienteSelect")
+    ?.addEventListener("change", clienteChangeLev);
+
+
+    // ================= NECESIDADES =================
+function addNecesidad() {
+    const cont = document.getElementById("lev-necesidadesContainer");
+
+    const div = document.createElement("div");
+    div.className = "nec-item";
+
+    // 1️⃣ Estructura HTML
+    div.innerHTML = `
+        <div class="nec-row">
+            <div class="nec-left">
+                <textarea placeholder="Describe la necesidad..." class="form-control"></textarea>
+                <img class="img-preview">
+            </div>
+
+            <div class="nec-right">
+                <button type="button" class="btn btn-primary btn-sm btn-foto">
+                    📸 Tomar / Elegir foto
+                </button>
+
+                <button type="button" class="btn btn-danger btn-sm">
+                    Eliminar
+                </button>
+            </div>
+        </div>
+        <hr>
+    `;
+
+    // 2️⃣ EL CÓDIGO QUE PREGUNTAS VA EXACTO AQUÍ 👇
+    const btnEliminar = div.querySelector(".btn-danger");
+    btnEliminar.onclick = () => div.remove();
+
+    const btnFoto = div.querySelector(".btn-foto");
+
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = "image/*";
+    fileInput.hidden = true;
+    div.appendChild(fileInput);
+
+    const imgPreview = div.querySelector(".img-preview");
+
+    btnFoto.addEventListener("click", () => fileInput.click());
+
+    fileInput.addEventListener("change", () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = e => {
+            imgPreview.src = e.target.result;
+            imgPreview.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // 3️⃣ Agregar al contenedor (AL FINAL)
+    cont.appendChild(div);
+}
+
+
+// botón
+document.getElementById("btnAddNecesidad")
+    ?.addEventListener("click", addNecesidad);
+
+
+
+
+    //materiales 
+function addMaterial() {
+    const input = document.getElementById("lev-materialInput");
+    const list = document.getElementById("lev-materialesLista");
+
+    if (!input.value.trim()) return;
+
+    const li = document.createElement("li");
+    li.innerHTML = `
+        ${input.value}
+        <button type="button" onclick="this.parentElement.remove()">❌</button>
+    `;
+    list.appendChild(li);
+    input.value = "";
+}
+
+
+function setFechaHoraActual() {
+    const input = document.getElementById("lev-fechaHora");
+    if (!input) return;
+
+    const now = new Date();
+
+    // Formato YYYY-MM-DDTHH:MM
+    const fechaHora =
+        now.getFullYear() + "-" +
+        String(now.getMonth() + 1).padStart(2, "0") + "-" +
+        String(now.getDate()).padStart(2, "0") + "T" +
+        String(now.getHours()).padStart(2, "0") + ":" +
+        String(now.getMinutes()).padStart(2, "0");
+
+    input.value = fechaHora;
+}
+
+
+
+//materiales 
+
+/* ================= MATERIALES LEVANTAMIENTOS ================= */
+
+let levMaterialesList = [];
+
+const levCategoriaPorInsumo = {
+    "Transceptor": "Transceptor",
+    "Conector de corriente": "Conectores",
+
+    "12vdc 1A": "Fuentes de poder",
+    "12vdc 1.5A": "Fuentes de poder",
+    "12vdc 2A": "Fuentes de poder",
+    "12vdc 4.1A": "Fuentes de poder",
+    "12vdc 5A": "Fuentes de poder",
+    "Fuente de poder centralizada": "Fuentes de poder",
+
+    "Cable": "Cableado",
+
+    "Caja estanca": "Cajas",
+    "Caja plástica 180x125x57": "Cajas",
+    "Caja plástica 190x290x140": "Cajas",
+
+    "Otro": "Otros"
+};
+
+const levUnidadesPorInsumo = {
+    "Transceptor": "Unidades",
+    "Conector de corriente": "Unidades",
+
+    "12vdc 1A": "Unidades",
+    "12vdc 1.5A": "Unidades",
+    "12vdc 2A": "Unidades",
+    "12vdc 4.1A": "Unidades",
+    "12vdc 5A": "Unidades",
+
+    "Fuente de poder centralizada": "Unidades",
+
+    "Caja estanca": "Unidades",
+    "Caja plástica 180x125x57": "Unidades",
+    "Caja plástica 190x290x140": "Unidades",
+
+    "Cable": "Metros",
+    "Otro": "Unidades"
+};
+
+// ➕ AGREGAR MATERIAL
+document.getElementById("levBtnAgregarMaterial")
+    ?.addEventListener("click", () => {
+
+        const insumoBase = document.getElementById("levInsumo").value;
+        const extra = document.getElementById("levInsumoExtra").value.trim();
+        const cantidad = document.getElementById("levCantidad").value.trim();
+
+        if (!insumoBase || !cantidad) {
+            alert("Completa los campos de material");
+            return;
+        }
+
+        if ((insumoBase === "Fuente de poder centralizada" || insumoBase === "Otro") && !extra) {
+            alert("Especifica el modelo");
+            return;
+        }
+
+        let unidad;
+        if (insumoBase === "Otro") {
+            unidad = document.getElementById("levUnidadOtro").value;
+            if (!unidad) {
+                alert("Selecciona unidad");
+                return;
+            }
+        } else {
+            unidad = levUnidadesPorInsumo[insumoBase] || "Unidades";
+        }
+
+        const insumoFinal = extra ? `${insumoBase} (${extra})` : insumoBase;
+        const categoria = levCategoriaPorInsumo[insumoBase] || "Otros";
+
+        // 🔁 detectar duplicado
+        const existente = levMaterialesList.find(
+            m => m.insumo === insumoFinal && m.unidad === unidad
+        );
+
+        if (existente) {
+            existente.cantidad += parseFloat(cantidad);
+            levRenderMateriales();
+            levLimpiarInputs();
+            return;
+        }
+
+        levMaterialesList.push({
+            insumo: insumoFinal,
+            categoria,
+            cantidad: parseFloat(cantidad),
+            unidad
+        });
+
+        levRenderMateriales();
+        levLimpiarInputs();
+    });
+
+// 🧹 LIMPIAR INPUTS
+function levLimpiarInputs() {
+    document.getElementById("levInsumo").selectedIndex = 0;
+    document.getElementById("levCantidad").value = "";
+    document.getElementById("levInsumoExtra").value = "";
+    document.getElementById("levInsumoExtra").style.display = "none";
+    document.getElementById("levUnidadOtro").value = "";
+    document.getElementById("levUnidadOtro").style.display = "none";
+}
+
+// 🖨️ RENDER MATERIALES
+function levRenderMateriales() {
+    const ul = document.getElementById("levListaMateriales");
+    ul.innerHTML = "";
+
+    const grupos = {};
+
+    levMaterialesList.forEach(mat => {
+        if (!grupos[mat.categoria]) grupos[mat.categoria] = [];
+        grupos[mat.categoria].push(mat);
+    });
+
+    Object.keys(grupos).sort().forEach(cat => {
+
+        const header = document.createElement("li");
+        header.innerHTML = `<strong>${cat}</strong>`;
+        header.style.marginTop = "10px";
+        ul.appendChild(header);
+
+        grupos[cat].forEach(mat => {
+            const li = document.createElement("li");
+            li.innerHTML = `
+                ${mat.insumo} – ${mat.cantidad} ${mat.unidad}
+                <button class="levBtnEliminarMat">❌</button>
+            `;
+
+            li.querySelector(".levBtnEliminarMat").onclick = () => {
+                levMaterialesList = levMaterialesList.filter(
+                    m => !(m.insumo === mat.insumo && m.unidad === mat.unidad)
+                );
+                levRenderMateriales();
+            };
+
+            ul.appendChild(li);
+        });
+    });
+}
+
+// 👁️ MOSTRAR CAMPOS EXTRA
+function levMostrarCampoExtra() {
+    const insumo = document.getElementById("levInsumo").value;
+    const extra = document.getElementById("levInsumoExtra");
+    const unidadOtro = document.getElementById("levUnidadOtro");
+
+    if (insumo === "Fuente de poder centralizada" || insumo === "Otro") {
+        extra.style.display = "block";
+    } else {
+        extra.style.display = "none";
+        extra.value = "";
+    }
+
+    if (insumo === "Otro") {
+        unidadOtro.style.display = "block";
+    } else {
+        unidadOtro.style.display = "none";
+        unidadOtro.value = "";
+    }
+}
+
+
+//cargar tabla 
+
 async function cargarTablaLevantamientos() {
-  const token = localStorage.getItem("userToken");
   const res = await fetch(`${API_BASE_URL}/levantamientos`, {
-    headers: { Authorization: `Bearer ${token}` }
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("userToken")}`
+    }
   });
 
   const data = await res.json();
-  tablaLevantamientos.innerHTML = "";
+  levantamientosCache = data;
+  
+
+  const tbody = document.getElementById("tablaLevantamientos");
+  tbody.innerHTML = "";
 
   data.forEach(l => {
     const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${l.clienteNombre}</td>
-      <td>${l.direccion}</td>
-      <td>${l.personal}</td>
-      <td>${new Date(l.fecha).toLocaleString()}</td>
-      <td>
-        <button onclick="verLevantamiento(${l.id})">👁️</button>
-        <button onclick="eliminarLevantamiento(${l.id})">🗑️</button>
-      </td>`;
-    tablaLevantamientos.appendChild(tr);
+  tr.innerHTML = `
+  <td>${l.cliente_nombre}</td>
+  <td>${l.direccion}</td>
+  <td>${l.personal}</td>
+  <td>${new Date(l.fecha).toLocaleString()}</td>
+  <td class="acciones">
+    <button onclick="editarLevantamiento(${l.id})">Editar</button>
+    <button onclick="eliminarLevantamiento(${l.id})">Eliminar</button>
+    <button onclick="verLevantamiento(${l.id})">Ver</button>
+    <button onclick="pdfLevantamiento(${l.id})">PDF</button>
+  </td>
+`;
+
+
+
+    tbody.appendChild(tr);
   });
 }
 
+
 cargarTablaLevantamientos();
 
-/* ================= VER ================= */
-function verLevantamiento(id) {
+//obtener necesidades 
+
+function obtenerNecesidadesLev() {
+  const items = document.querySelectorAll("#lev-necesidadesContainer .nec-item");
+  const necesidades = [];
+
+  items.forEach(div => {
+    const descripcion = div.querySelector("textarea")?.value || "";
+    const img = div.querySelector(".img-preview");
+    const imagenBase64 = img && img.src ? img.src : null;
+
+    if (descripcion || imagenBase64) {
+      necesidades.push({
+        descripcion,
+        imagen: imagenBase64
+      });
+    }
+  });
+
+  return necesidades;
+}
+
+
+
+
+
+function editarLevantamiento(id) {
+  levantamientoEditando = id;
+  openNuevoLevantamiento();
+
   fetch(`${API_BASE_URL}/levantamientos/${id}`, {
     headers: { Authorization: `Bearer ${localStorage.getItem("userToken")}` }
   })
   .then(r => r.json())
   .then(l => {
-    verCliente.textContent = l.clienteNombre;
-    verDireccion.textContent = l.direccion;
-    verPersonal.textContent = l.personal;
-    verFecha.textContent = new Date(l.fecha).toLocaleString();
-
-    renderNecesidadesVer(l.necesidades || []);
-    renderMaterialesVer(l.materiales || []);
-
-    modalVerLevantamiento.classList.add("active");
+    document.getElementById("lev-clienteSelect").value = l.clienteId;
+    document.getElementById("lev-direccion").value = l.direccion;
+    document.getElementById("lev-personal").value = l.personal;
+    document.getElementById("lev-fechaHora").value = l.fecha.slice(0,16);
   });
+}
+
+
+function eliminarLevantamiento(id) {
+  if (!confirm("¿Eliminar levantamiento?")) return;
+
+  fetch(`${API_BASE_URL}/levantamientos/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("userToken")}`
+    }
+  }).then(() => cargarTablaLevantamientos());
+}
+
+function verLevantamiento(id) {
+  alert("Aquí luego abrimos modal de solo lectura 👀\nID: " + id);
+}
+
+
+function pdfLevantamiento(id) {
+  window.open(`${API_BASE_URL}/levantamientos/${id}/pdf`, "_blank");
+}
+
+
+
+//ver modal de levantamiento 
+
+function verLevantamiento(id) {
+  fetch(`${API_BASE_URL}/levantamientos/${id}`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+    }
+  })
+    .then(r => r.json())
+    .then(l => {
+      document.getElementById("detalleLevantamiento").innerHTML = `
+        <p><b>Cliente:</b> ${l.clienteNombre}</p>
+        <p><b>Dirección:</b> ${l.direccion}</p>
+        <p><b>Personal:</b> ${l.personal}</p>
+        <p><b>Fecha:</b> ${new Date(l.fecha).toLocaleString()}</p>
+      `;
+      document.getElementById("modalVerLevantamiento").classList.add("active");
+    });
 }
 
 function closeVerLevantamiento() {
-  modalVerLevantamiento.classList.remove("active");
+  document.getElementById("modalVerLevantamiento").classList.remove("active");
 }
 
-function renderNecesidadesVer(n) {
-  verNecesidades.innerHTML = "";
-  n.forEach(i => {
-    verNecesidades.innerHTML += `
-      <div class="ver-necesidad">
-        <p>${i.descripcion}</p>
-        ${i.imagen ? `<img src="${i.imagen}">` : ""}
-      </div>`;
-  });
-}
 
-function renderMaterialesVer(m) {
-  verMateriales.innerHTML = "";
-  m.forEach(x => {
-    verMateriales.innerHTML += `<li>${x.insumo} – ${x.cantidad}</li>`;
-  });
-}
 
-/* ================= ELIMINAR ================= */
-function eliminarLevantamiento(id) {
-  if (!confirm("¿Eliminar?")) return;
+
+
+function verLevantamiento(id) {
   fetch(`${API_BASE_URL}/levantamientos/${id}`, {
-    method: "DELETE",
-    headers: { Authorization: `Bearer ${localStorage.getItem("userToken")}` }
-  }).then(cargarTablaLevantamientos);
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("userToken")}`
+    }
+  })
+  .then(r => r.json())
+
+  
+  .then(l => {
+    document.getElementById("verCliente").textContent = l.clienteNombre;
+    document.getElementById("verDireccion").textContent = l.direccion;
+    document.getElementById("verPersonal").textContent = l.personal;
+    document.getElementById("verFecha").textContent =
+      new Date(l.fecha).toLocaleString();
+
+  renderNecesidadesVer(l.necesidades);
+  renderMaterialesVer(l.materiales);
+
+    document.getElementById("modalVerLevantamiento").classList.add("active");
+  })
+
+
+  .catch(err => {
+    console.error(err);
+    alert("Error al abrir levantamiento");
+  });
 }
 
-/* ================= LIMPIAR ================= */
-function limpiarFormularioLev() {
-  levMaterialesList = [];
-  levListaMateriales.innerHTML = "";
- // lev-necesidadesContainer.innerHTML ="";
+
+
+
+
+function renderNecesidadesVer(necesidades = []) {
+  const cont = document.getElementById("verNecesidades");
+  cont.innerHTML = "";
+
+  if (!necesidades.length) {
+    cont.innerHTML = "<p class='muted'>Sin necesidades registradas</p>";
+    return;
+  }
+
+  necesidades.forEach(n => {
+    const div = document.createElement("div");
+    div.className = "ver-necesidad";
+
+    div.innerHTML = `
+      <p>${n.descripcion || ""}</p>
+      ${n.imagen ? `<img src="${n.imagen}" />` : ""}
+    `;
+
+    cont.appendChild(div);
+  });
 }
+
+
+function renderMaterialesVer(materiales = []) {
+  const ul = document.getElementById("verMateriales");
+  ul.innerHTML = "";
+
+  if (!materiales.length) {
+    ul.innerHTML = "<li class='muted'>Sin materiales</li>";
+    return;
+  }
+
+  materiales.forEach(m => {
+    const li = document.createElement("li");
+    li.textContent = `${m.insumo} – ${m.cantidad} ${m.unidad}`;
+    ul.appendChild(li);
+  });
+}
+
+
+
+
+function cerrarVerLevantamiento() {
+    document.getElementById("modalVerLevantamiento")
+        .classList.remove("active");
+}
+
+
+
+
+
+    
 </script>
+
 
 
 

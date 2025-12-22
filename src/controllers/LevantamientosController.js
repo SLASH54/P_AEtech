@@ -1,46 +1,113 @@
 const { Levantamiento } = require("../models");
 
-// CREAR
+// ===============================
+// CREAR LEVANTAMIENTO
+// ===============================
 exports.createLevantamiento = async (req, res) => {
   try {
-    const levantamiento = await Levantamiento.create(req.body);
-    res.status(201).json(levantamiento);
+    const {
+      clienteId,
+      clienteNombre,
+      direccion,
+      personal,
+      fecha
+    } = req.body;
+
+    const nuevo = await Levantamiento.create({
+      cliente_id: clienteId,
+      cliente_nombre: clienteNombre,
+      direccion,
+      personal,
+      fecha
+    });
+
+    res.status(201).json(nuevo);
   } catch (error) {
-    console.error("❌ Error creando levantamiento:", error);
-    res.status(500).json({ error: "Error creando levantamiento" });
+    console.error("ERROR CREATE LEVANTAMIENTO:", error);
+    res.status(500).json({ msg: "Error al crear levantamiento" });
   }
 };
 
-// LISTAR
+// ===============================
+// OBTENER LEVANTAMIENTOS
+// ===============================
 exports.getLevantamientos = async (req, res) => {
   try {
-    const data = await Levantamiento.findAll({
-      order: [["createdAt", "DESC"]]
+    const lista = await Levantamiento.findAll({
+      order: [["id", "DESC"]]
     });
-    res.json(data);
+
+    res.json(lista);
   } catch (error) {
-    console.error("❌ Error obteniendo levantamientos:", error);
-    res.status(500).json({ error: "Error al obtener levantamientos" });
+    console.error("ERROR GET LEVANTAMIENTOS:", error);
+    res.status(500).json({ msg: "Error al obtener levantamientos" });
   }
 };
 
-// OBTENER UNO
-exports.getLevantamientoById = async (req, res) => {
-  try {
-    const item = await Levantamiento.findByPk(req.params.id);
-    if (!item) return res.status(404).json({ msg: "No encontrado" });
-    res.json(item);
-  } catch (error) {
-    res.status(500).json({ error: "Error" });
-  }
-};
 
-// ELIMINAR
+// ===============================
+// ELIMINAR LEVANTAMIENTO
+// ===============================
 exports.deleteLevantamiento = async (req, res) => {
   try {
-    await Levantamiento.destroy({ where: { id: req.params.id } });
+    const { id } = req.params;
+    await Levantamiento.destroy({ where: { id } });
     res.json({ ok: true });
   } catch (error) {
-    res.status(500).json({ error: "Error eliminando" });
+    console.error("ERROR DELETE:", error);
+    res.status(500).json({ msg: "Error al eliminar levantamiento" });
+  }
+};
+
+// ===============================
+// EDITAR LEVANTAMIENTO
+// ===============================
+exports.updateLevantamiento = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { direccion, personal, fecha } = req.body;
+
+    await Levantamiento.update(
+      { direccion, personal, fecha },
+      { where: { id } }
+    );
+
+    res.json({ ok: true });
+  } catch (error) {
+    console.error("ERROR UPDATE:", error);
+    res.status(500).json({ msg: "Error al editar levantamiento" });
+  }
+};
+
+
+
+
+exports.getOne = async (req,res)=>{
+  res.json(await Levantamiento.findByPk(req.params.id));
+};
+
+exports.update = async (req,res)=>{
+  await Levantamiento.update(req.body,{where:{id:req.params.id}});
+  res.json({ok:true});
+};
+
+exports.remove = async (req,res)=>{
+  await Levantamiento.destroy({where:{id:req.params.id}});
+  res.json({ok:true});
+};
+
+
+
+
+exports.getLevantamientoById = async (req, res) => {
+  try {
+    const lev = await Levantamiento.findByPk(req.params.id);
+    if (!lev) {
+      return res.status(404).json({ msg: "Levantamiento no encontrado" });
+    }
+    res.json(lev);
+  } catch (err) {
+    console.error("Error obtener levantamiento:", err);
+    res.status(500).json({ msg: "Error interno" });
   }
 };
