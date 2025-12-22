@@ -907,6 +907,10 @@ function openEditModal(data, type) {
     // Campos comunes
     document.getElementById('edit-nombre').value = data.nombre || '';
     document.getElementById('edit-email').value = data.email || '';
+    document.getElementById("edit-telefono").value = data.telefono || "";
+
+    cargarDireccionesEditar(data);
+
 
     if (type === 'usuario') {
         userFields.style.display = 'block';
@@ -1067,28 +1071,31 @@ async function procesarDireccion(valor) {
     return { direccion: limpio, maps: null };
 }
 
-function cargarDireccionesEnModal(cliente) {
-  const container = document.getElementById('direccionesContainer');
-  container.innerHTML = '';
+function cargarDireccionesEditar(cliente) {
+  const container = document.getElementById("direccionesContainer");
+  container.innerHTML = "";
 
-  if (!cliente.direcciones || !cliente.direcciones.length) return;
+  if (!cliente.direcciones || !cliente.direcciones.length) {
+    agregarDireccion(); // al menos una vacía
+    return;
+  }
 
   cliente.direcciones.forEach(dir => {
-    const div = document.createElement('div');
-    div.className = 'direccion-item';
+    const div = document.createElement("div");
+    div.className = "direccion-item";
 
     div.innerHTML = `
       <input type="text" name="alias[]" 
         placeholder="Alias (ej. Sucursal Centro)"
-        value="${dir.alias || ''}">
+        value="${dir.alias || ""}">
 
       <input type="text" name="direccion[]" 
-        placeholder="Dirección"
-        value="${dir.direccion || ''}">
+        placeholder="Dirección o texto"
+        value="${dir.direccion || ""}">
 
       <input type="url" name="maps[]" 
         placeholder="Link Google Maps"
-        value="${dir.maps || ''}">
+        value="${dir.maps || ""}">
 
       <button type="button" class="btn-remove-dir"
         onclick="this.parentElement.remove()">Eliminar</button>
@@ -1148,20 +1155,20 @@ document.addEventListener('DOMContentLoaded', function () {
         const direccionInputs = [...document.querySelectorAll('#direccionesContainer input[name="direccion[]"]')];
         const mapsInputs = [...document.querySelectorAll('#direccionesContainer input[name="maps[]"]')];
 
+        const alias = [];
         const direcciones = [];
         const maps = [];
-        const alias = [];
 
         for (let i = 0; i < direccionInputs.length; i++) {
-          const direccion = direccionInputs[i].value.trim();
-          const map = mapsInputs[i]?.value.trim() || null;
-          const ali = aliasInputs[i]?.value.trim() || null;
+          const dir = direccionInputs[i].value.trim();
+          const map = mapsInputs[i].value.trim();
+          const ali = aliasInputs[i].value.trim();
 
-          if (!direccion && !map) continue;
+          if (!dir && !map) continue;
 
-          direcciones.push(direccion || 'Ubicación en Google Maps');
-          maps.push(map);
-          alias.push(ali);
+          direcciones.push(dir || "Ubicación en Google Maps");
+          maps.push(map || null);
+          alias.push(ali || null);
         }
 
         if (!direcciones.length) {
@@ -1169,13 +1176,18 @@ document.addEventListener('DOMContentLoaded', function () {
           return;
         }
 
+        const estados = direcciones.map(() => "");
+        const municipios = direcciones.map(() => "");
+
         data = {
           nombre,
           email,
           telefono,
           direccion: direcciones,
           maps,
-          alias
+          alias,
+          estado: estados,
+          municipio: municipios
         };
       }
 
