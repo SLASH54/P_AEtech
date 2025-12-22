@@ -1207,7 +1207,7 @@ async function guardarLevantamiento() {
     alert("Selecciona cliente y dirección");
     return;
 
-    
+
     console.log("CLICK GUARDAR LEVANTAMIENTO");
 
   }
@@ -1806,6 +1806,20 @@ function limpiarFormularioLev() {
   document.getElementById("lev-necesidadesContainer").innerHTML = "";
 }
 
+
+console.log("JS LEVANTAMIENTOS CARGADO");
+
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("btnGuardarLevantamiento");
+  console.log("BOTON GUARDAR:", btn);
+
+  if (btn) {
+    btn.addEventListener("click", () => {
+      console.log("CLICK DETECTADO");
+      guardarLevantamiento();
+    });
+  }
+});
 
 
 
