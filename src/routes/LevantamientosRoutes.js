@@ -8,14 +8,5 @@ router.delete("/:id", ctrl.deleteLevantamiento);
 router.put("/:id", ctrl.updateLevantamiento);
 
 
-const upload = require("../middlewares/upload");
-
-router.post(
-  "/",
-  upload.array("imagenes"),
-  ctrl.createLevantamiento
-);
-
-
 
 module.exports = router;

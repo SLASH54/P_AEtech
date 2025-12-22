@@ -16,4 +16,3 @@ module.exports = {
 };
 
 
-app.use("/uploads", express.static("uploads"));

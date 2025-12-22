@@ -1197,43 +1197,55 @@ function setPersonalActual() {
 }
 
 
+
 async function guardarLevantamiento() {
-  const formData = new FormData();
 
-  formData.append("clienteId", document.getElementById("lev-clienteSelect").value);
-  formData.append("clienteNombre",
-    document.getElementById("lev-clienteSelect").selectedOptions[0]?.text
-  );
-  formData.append("direccion", document.getElementById("lev-direccion").value);
-  formData.append("personal", document.getElementById("lev-personal").value);
-  formData.append("fecha", document.getElementById("lev-fechaHora").value);
+  const cliente = document.getElementById("lev-clienteSelect").value;
+  const direccion = document.getElementById("lev-direccion").value;
 
-  const necesidades = [];
-  document.querySelectorAll(".nec-item").forEach((div, i) => {
-    const desc = div.querySelector("textarea").value;
-    const fileInput = div.querySelector("input[type=file]");
+  if (!cliente || !direccion) {
+    alert("Selecciona cliente y dirección");
+    return;
 
-    necesidades.push({ descripcion: desc });
 
-    if (fileInput?.files[0]) {
-      formData.append("imagenes", fileInput.files[0]);
-    }
-  });
+    console.log("CLICK GUARDAR LEVANTAMIENTO");
 
-  formData.append("necesidades", JSON.stringify(necesidades));
+  }
 
-  await fetch(`${API_BASE_URL}/levantamientos`, {
-    method: "POST",
+
+  const data = {
+    clienteId: document.getElementById("lev-clienteSelect").value,
+    clienteNombre: document.getElementById("lev-clienteSelect").selectedOptions[0]?.text,
+    direccion: document.getElementById("lev-direccion").value,
+    personal: document.getElementById("lev-personal").value,
+    fecha: document.getElementById("lev-fechaHora").value,
+
+    necesidades: obtenerNecesidadesLev(),
+    materiales: levMaterialesList   // 👈 YA EXISTE
+  };
+
+  const method = levantamientoEditando ? "PUT" : "POST";
+  const url = levantamientoEditando
+    ? `${API_BASE_URL}/levantamientos/${levantamientoEditando}`
+    : `${API_BASE_URL}/levantamientos`;
+
+  await fetch(url, {
+    method,
     headers: {
+      "Content-Type": "application/json",
       Authorization: `Bearer ${localStorage.getItem("userToken")}`
     },
-    body: formData
+    body: JSON.stringify(data)
   });
 
+  levantamientoEditando = null;
   closeNuevoLevantamiento();
   cargarTablaLevantamientos();
-}
 
+
+  
+  
+}
 
 
 
@@ -1797,17 +1809,6 @@ function limpiarFormularioLev() {
 
 console.log("JS LEVANTAMIENTOS CARGADO");
 
-document.addEventListener("DOMContentLoaded", () => {
-  const btn = document.getElementById("btnGuardarLevantamiento");
-  console.log("BOTON GUARDAR:", btn);
-
-  if (btn) {
-    btn.addEventListener("click", () => {
-      console.log("CLICK DETECTADO");
-      guardarLevantamiento();
-    });
-  }
-});
 
 
 
