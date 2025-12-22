@@ -1072,55 +1072,53 @@ async function procesarDireccion(valor) {
 }
 
 function cargarDireccionesEditar(data, type) {
-  if (type !== 'cliente') return;
+    if (type !== 'cliente') return;
 
-  const container = document.getElementById('direccionesContainer');
-  container.innerHTML = '';
+    const container = document.getElementById('direccionesContainer');
+    container.innerHTML = '';
 
-  const direcciones = Array.isArray(data.direcciones)
-    ? data.direcciones
-    : [];
+    if (!data.direcciones || !data.direcciones.length) {
+        agregarDireccion(); // crea una vacía si no hay
+        return;
+    }
 
-  if (!direcciones.length) {
-    agregarDireccion(); // crea una vacía
-    return;
-  }
+    data.direcciones.forEach(dir => {
+        const div = document.createElement('div');
+        div.classList.add('direccion-item');
 
-  direcciones.forEach(dir => {
-    const div = document.createElement('div');
-    div.className = 'direccion-item';
+        div.innerHTML = `
+            <input
+                type="text"
+                name="alias[]"
+                placeholder="Alias (ej. Sucursal Centro)"
+                value="${dir.alias || ''}"
+            >
 
-    div.innerHTML = `
-      <input 
-        type="text" 
-        name="alias[]" 
-        placeholder="Alias (ej. Sucursal Centro)"
-        value="${dir.alias || ''}"
-      />
+            <input
+                type="text"
+                name="direccion[]"
+                placeholder="Dirección o texto"
+                value="${dir.direccion || ''}"
+                required
+            >
 
-      <input 
-        type="text" 
-        name="direccion[]" 
-        placeholder="Dirección o texto"
-        value="${dir.direccion || ''}"
-        required
-      />
+            <input
+                type="text"
+                name="maps[]"
+                placeholder="Link Google Maps"
+                value="${dir.maps || ''}"
+            >
 
-      <input 
-        type="url" 
-        name="maps[]" 
-        placeholder="Link Google Maps"
-        value="${dir.maps || ''}"
-      />
+            <button type="button" class="btn-remove-dir"
+                onclick="this.parentElement.remove()">
+                Eliminar
+            </button>
+        `;
 
-      <button type="button" class="btn-remove-dir" onclick="this.parentElement.remove()">
-        Eliminar
-      </button>
-    `;
-
-    container.appendChild(div);
-  });
+        container.appendChild(div);
+    });
 }
+
 
 
 
@@ -1202,40 +1200,36 @@ document.addEventListener('DOMContentLoaded', function () {
         data = { nombre, email, rol };
 
         } else { // CLIENTE
-        const nombre = document.getElementById('edit-nombre').value;
-        const email = document.getElementById('edit-email').value || null;
-        const telefono = document.getElementById('edit-telefono').value;
+    const nombre = document.getElementById('edit-nombre').value;
+    const email = document.getElementById('edit-email').value || null;
+    const telefono = document.getElementById('edit-telefono').value;
 
-        const direccionInputs = [...document.querySelectorAll('#direccionesContainer input[name="direccion[]"]')];
-        const mapsInputs = [...document.querySelectorAll('#direccionesContainer input[name="maps[]"]')];
-        const aliasInputs = [...document.querySelectorAll('#direccionesContainer input[name="alias[]"]')];
+    const dirInputs = [...document.querySelectorAll('#direccionesContainer input[name="direccion[]"]')];
+    const mapInputs = [...document.querySelectorAll('#direccionesContainer input[name="maps[]"]')];
+    const aliasInputs = [...document.querySelectorAll('#direccionesContainer input[name="alias[]"]')];
 
-        const direcciones = [];
-        const maps = [];
-        const alias = [];
+    const direcciones = [];
+    const maps = [];
+    const alias = [];
 
-        for (let i = 0; i < direccionInputs.length; i++) {
-          const dirVal = direccionInputs[i].value.trim();
-          const mapsVal = mapsInputs[i]?.value.trim() || null;
-          const aliasVal = aliasInputs[i]?.value.trim() || null;
+    for (let i = 0; i < dirInputs.length; i++) {
+        const dir = dirInputs[i].value.trim();
+        const map = mapInputs[i]?.value.trim() || null;
+        const al = aliasInputs[i]?.value.trim() || null;
 
-          if (!dirVal && !mapsVal) continue;
+        if (!dir && !map) continue;
 
-          direcciones.push(dirVal || 'Ubicación en Google Maps');
-          maps.push(mapsVal);
-          alias.push(aliasVal);
-        }
+        direcciones.push(dir || 'Ubicación en Google Maps');
+        maps.push(map);
+        alias.push(al);
+    }
 
+    if (!direcciones.length) {
+        alert("Ingresa al menos una dirección.");
+        return;
+    }
 
-        if (!direcciones.length) {
-          alert("Debes ingresar al menos una dirección.");
-          return;
-        }
-
-        const estados = direcciones.map(() => "");
-        const municipios = direcciones.map(() => "");
-
-        data = {
+    data = {
         nombre,
         email,
         telefono,
@@ -1244,8 +1238,9 @@ document.addEventListener('DOMContentLoaded', function () {
         alias,
         estado: direcciones.map(() => ""),
         municipio: direcciones.map(() => "")
-      };
-    }
+    };
+}
+
 
 
     const endpoint = (type === 'usuario') ? `/users/${id}` : `/clientes/${id}`;
