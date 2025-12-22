@@ -1002,7 +1002,8 @@ async function deleteRecord(type, id) {
         if (response.ok) {
             alert(`${type.charAt(0).toUpperCase() + type.slice(1)} eliminado con éxito.`);
             // 🔑 Vuelve a cargar el panel para refrescar AMBAS tablas
-            initAdminPanel(); 
+            initAdminPanel();
+            generarFilasClientes();
         } else if (response.status === 404) {
             alert(`Error: ${type} no encontrado. Es posible que haya sido eliminado previamente.`);
         } else {
