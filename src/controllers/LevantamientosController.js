@@ -1,113 +1,61 @@
-const { Levantamiento } = require("../models");
+const db = require("../models");
+const Levantamiento = db.Levantamiento;
 
-// ===============================
-// CREAR LEVANTAMIENTO
-// ===============================
-exports.createLevantamiento = async (req, res) => {
-  try {
-    const {
-      clienteId,
-      clienteNombre,
-      direccion,
-      personal,
-      fecha
-    } = req.body;
-
-    const nuevo = await Levantamiento.create({
-      cliente_id: clienteId,
-      cliente_nombre: clienteNombre,
-      direccion,
-      personal,
-      fecha
-    });
-
-    res.status(201).json(nuevo);
-  } catch (error) {
-    console.error("ERROR CREATE LEVANTAMIENTO:", error);
-    res.status(500).json({ msg: "Error al crear levantamiento" });
-  }
-};
-
-// ===============================
-// OBTENER LEVANTAMIENTOS
-// ===============================
+// GET ALL
 exports.getLevantamientos = async (req, res) => {
   try {
-    const lista = await Levantamiento.findAll({
-      order: [["id", "DESC"]]
+    const data = await Levantamiento.findAll({
+      order: [["createdAt", "DESC"]]
     });
-
-    res.json(lista);
-  } catch (error) {
-    console.error("ERROR GET LEVANTAMIENTOS:", error);
-    res.status(500).json({ msg: "Error al obtener levantamientos" });
+    res.json(data);
+  } catch (err) {
+    console.error("ERROR GET LEVANTAMIENTOS:", err);
+    res.status(500).json({ error: "Error obteniendo levantamientos" });
   }
 };
 
-
-// ===============================
-// ELIMINAR LEVANTAMIENTO
-// ===============================
-exports.deleteLevantamiento = async (req, res) => {
-  try {
-    const { id } = req.params;
-    await Levantamiento.destroy({ where: { id } });
-    res.json({ ok: true });
-  } catch (error) {
-    console.error("ERROR DELETE:", error);
-    res.status(500).json({ msg: "Error al eliminar levantamiento" });
-  }
-};
-
-// ===============================
-// EDITAR LEVANTAMIENTO
-// ===============================
-exports.updateLevantamiento = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { direccion, personal, fecha } = req.body;
-
-    await Levantamiento.update(
-      { direccion, personal, fecha },
-      { where: { id } }
-    );
-
-    res.json({ ok: true });
-  } catch (error) {
-    console.error("ERROR UPDATE:", error);
-    res.status(500).json({ msg: "Error al editar levantamiento" });
-  }
-};
-
-
-
-
-exports.getOne = async (req,res)=>{
-  res.json(await Levantamiento.findByPk(req.params.id));
-};
-
-exports.update = async (req,res)=>{
-  await Levantamiento.update(req.body,{where:{id:req.params.id}});
-  res.json({ok:true});
-};
-
-exports.remove = async (req,res)=>{
-  await Levantamiento.destroy({where:{id:req.params.id}});
-  res.json({ok:true});
-};
-
-
-
-
+// GET ONE
 exports.getLevantamientoById = async (req, res) => {
   try {
-    const lev = await Levantamiento.findByPk(req.params.id);
-    if (!lev) {
-      return res.status(404).json({ msg: "Levantamiento no encontrado" });
-    }
-    res.json(lev);
+    const data = await Levantamiento.findByPk(req.params.id);
+    if (!data) return res.status(404).json({ msg: "No encontrado" });
+    res.json(data);
   } catch (err) {
-    console.error("Error obtener levantamiento:", err);
-    res.status(500).json({ msg: "Error interno" });
+    res.status(500).json({ error: "Error" });
+  }
+};
+
+// CREATE
+exports.createLevantamiento = async (req, res) => {
+  try {
+    const nuevo = await Levantamiento.create(req.body);
+    res.json(nuevo);
+  } catch (err) {
+    console.error("ERROR CREATE:", err);
+    res.status(500).json({ error: "Error creando levantamiento" });
+  }
+};
+
+// UPDATE
+exports.updateLevantamiento = async (req, res) => {
+  try {
+    await Levantamiento.update(req.body, {
+      where: { id: req.params.id }
+    });
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: "Error actualizando" });
+  }
+};
+
+// DELETE
+exports.deleteLevantamiento = async (req, res) => {
+  try {
+    await Levantamiento.destroy({
+      where: { id: req.params.id }
+    });
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: "Error eliminando" });
   }
 };
