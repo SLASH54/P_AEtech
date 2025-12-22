@@ -1,4 +1,4 @@
-const { Levantamiento } = require("../models/relations");
+const { Levantamiento } = require("../models");
 
 // CREAR
 exports.createLevantamiento = async (req, res) => {
@@ -44,4 +44,3 @@ exports.deleteLevantamiento = async (req, res) => {
     res.status(500).json({ error: "Error eliminando" });
   }
 };
-
