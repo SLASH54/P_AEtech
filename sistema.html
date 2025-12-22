@@ -1198,40 +1198,37 @@ function setPersonalActual() {
 
 
 async function guardarLevantamiento() {
-  const necesidades = [];
-  document.querySelectorAll(".nec-item").forEach(n => {
-    necesidades.push({
-      texto: n.querySelector("textarea")?.value || "",
-      imagen: n.querySelector(".img-preview")?.src || null
-    });
-  });
-
-  const materiales = levMaterialesList;
 
   const data = {
     clienteId: document.getElementById("lev-clienteSelect").value,
     clienteNombre: document.getElementById("lev-clienteSelect").selectedOptions[0].text,
     direccion: document.getElementById("lev-direccion").value,
     personal: document.getElementById("lev-personal").value,
-    fecha: document.getElementById("lev-fechaHora").value,
-    necesidades,
-    materiales
+    fecha: document.getElementById("lev-fechaHora").value
   };
 
-  await fetch(`${API_BASE_URL}/levantamientos`, {
-    method: "POST",
+  const token = localStorage.getItem("userToken");
+
+  const url = levantamientoEditando
+    ? `${API_BASE_URL}/levantamientos/${levantamientoEditando}`
+    : `${API_BASE_URL}/levantamientos`;
+
+  const method = levantamientoEditando ? "PUT" : "POST";
+
+  await fetch(url, {
+    method,
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("userToken")}`
+      Authorization: `Bearer ${token}`
     },
     body: JSON.stringify(data)
   });
 
+  levantamientoEditando = null;
   closeNuevoLevantamiento();
   cargarTablaLevantamientos();
-
-  
 }
+
 
 
 
@@ -1578,6 +1575,7 @@ async function cargarTablaLevantamientos() {
 
   data.forEach(l => {
     const tr = document.createElement("tr");
+    
   tr.innerHTML = `
   <td>${l.cliente_nombre}</td>
   <td>${l.direccion}</td>
@@ -1771,6 +1769,24 @@ function renderMaterialesVer(materiales = []) {
 function cerrarVerLevantamiento() {
     document.getElementById("modalVerLevantamiento")
         .classList.remove("active");
+}
+
+
+function renderLevantamientoFila(l) {
+  return `
+    <tr>
+      <td>${l.clienteNombre}</td>
+      <td>${l.direccion}</td>
+      <td>${l.personal}</td>
+      <td>${new Date(l.fecha).toLocaleString()}</td>
+      <td>
+        <button onclick="editarLevantamiento(${l.id})">✏️</button>
+        <button onclick="eliminarLevantamiento(${l.id})">🗑️</button>
+        <button onclick="verLevantamiento(${l.id})">👁️</button>
+        <button onclick="pdfLevantamiento(${l.id})">📄</button>
+      </td>
+    </tr>
+  `;
 }
 
 
