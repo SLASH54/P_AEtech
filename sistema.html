@@ -1198,24 +1198,16 @@ function setPersonalActual() {
 
 
 async function guardarLevantamiento() {
-
-  // ================= NECESIDADES =================
   const necesidades = [];
-  document.querySelectorAll("#lev-necesidadesContainer .nec-item").forEach(item => {
-    const texto = item.querySelector("textarea")?.value || "";
-    const img = item.querySelector(".img-preview")?.src || null;
-
+  document.querySelectorAll(".nec-item").forEach(n => {
     necesidades.push({
-      descripcion: texto,
-      imagen: img // base64
+      texto: n.querySelector("textarea")?.value || "",
+      imagen: n.querySelector(".img-preview")?.src || null
     });
   });
 
-  // ================= MATERIALES =================
-  const materiales = levMaterialesList; 
-  // 👆 YA lo tienes armado como array
+  const materiales = levMaterialesList;
 
-  // ================= DATA FINAL =================
   const data = {
     clienteId: document.getElementById("lev-clienteSelect").value,
     clienteNombre: document.getElementById("lev-clienteSelect").selectedOptions[0].text,
@@ -1226,13 +1218,11 @@ async function guardarLevantamiento() {
     materiales
   };
 
-  const token = localStorage.getItem("userToken");
-
   await fetch(`${API_BASE_URL}/levantamientos`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${localStorage.getItem("userToken")}`
     },
     body: JSON.stringify(data)
   });
@@ -1240,6 +1230,7 @@ async function guardarLevantamiento() {
   closeNuevoLevantamiento();
   cargarTablaLevantamientos();
 }
+
 
 
 
@@ -1697,15 +1688,13 @@ function closeVerLevantamiento() {
 }
 
 
+
+
 function verLevantamiento(id) {
   fetch(`${API_BASE_URL}/levantamientos/${id}`, {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("userToken")}`
-    }
+    headers: { Authorization: `Bearer ${localStorage.getItem("userToken")}` }
   })
   .then(r => r.json())
-
-  
   .then(l => {
     document.getElementById("verCliente").textContent = l.clienteNombre;
     document.getElementById("verDireccion").textContent = l.direccion;
@@ -1713,18 +1702,31 @@ function verLevantamiento(id) {
     document.getElementById("verFecha").textContent =
       new Date(l.fecha).toLocaleString();
 
-  renderNecesidadesVer(l.necesidades);
-  renderMaterialesVer(l.materiales);
+    const necCont = document.getElementById("verNecesidades");
+    necCont.innerHTML = "";
+    l.necesidades?.forEach(n => {
+      const div = document.createElement("div");
+      div.innerHTML = `
+        <p>${n.texto}</p>
+        ${n.imagen ? `<img src="${n.imagen}" style="max-width:100%;border-radius:12px;">` : ""}
+      `;
+      necCont.appendChild(div);
+    });
+
+    const matUl = document.getElementById("verMateriales");
+    matUl.innerHTML = "";
+    l.materiales?.forEach(m => {
+      const li = document.createElement("li");
+      li.textContent = `${m.insumo} - ${m.cantidad} ${m.unidad}`;
+      matUl.appendChild(li);
+    });
 
     document.getElementById("modalVerLevantamiento").classList.add("active");
-  })
-
-
-  .catch(err => {
-    console.error(err);
-    alert("Error al abrir levantamiento");
   });
 }
+
+
+
 
 
 
