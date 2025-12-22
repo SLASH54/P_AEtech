@@ -1,61 +1,69 @@
-const db = require("../models");
-const Levantamiento = db.Levantamiento;
+const { Levantamiento } = require("../models");
 
-// GET ALL
-exports.getLevantamientos = async (req, res) => {
-  try {
-    const data = await Levantamiento.findAll({
-      order: [["createdAt", "DESC"]]
-    });
-    res.json(data);
-  } catch (err) {
-    console.error("ERROR GET LEVANTAMIENTOS:", err);
-    res.status(500).json({ error: "Error obteniendo levantamientos" });
-  }
-};
-
-// GET ONE
-exports.getLevantamientoById = async (req, res) => {
-  try {
-    const data = await Levantamiento.findByPk(req.params.id);
-    if (!data) return res.status(404).json({ msg: "No encontrado" });
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: "Error" });
-  }
-};
-
-// CREATE
+// ===============================
+// CREAR LEVANTAMIENTO
+// ===============================
 exports.createLevantamiento = async (req, res) => {
   try {
-    const nuevo = await Levantamiento.create(req.body);
-    res.json(nuevo);
-  } catch (err) {
-    console.error("ERROR CREATE:", err);
-    res.status(500).json({ error: "Error creando levantamiento" });
-  }
-};
+    const {
+      clienteId,
+      clienteNombre,
+      direccion,
+      personal,
+      fecha
+    } = req.body;
 
-// UPDATE
-exports.updateLevantamiento = async (req, res) => {
-  try {
-    await Levantamiento.update(req.body, {
-      where: { id: req.params.id }
+    const nuevo = await Levantamiento.create({
+      cliente_id: clienteId,
+      cliente_nombre: clienteNombre,
+      direccion,
+      personal,
+      fecha
     });
-    res.json({ ok: true });
-  } catch (err) {
-    res.status(500).json({ error: "Error actualizando" });
+
+    res.status(201).json(nuevo);
+  } catch (error) {
+    console.error("ERROR CREATE LEVANTAMIENTO:", error);
+    res.status(500).json({ msg: "Error al crear levantamiento" });
   }
 };
 
-// DELETE
+// ===============================
+// OBTENER LEVANTAMIENTOS
+// ===============================
+exports.getLevantamientos = async (req, res) => {
+  try {
+    const lista = await Levantamiento.findAll({
+      order: [["id", "DESC"]]
+    });
+
+    res.json(lista);
+  } catch (error) {
+    console.error("ERROR GET LEVANTAMIENTOS:", error);
+    res.status(500).json({ msg: "Error al obtener levantamientos" });
+  }
+};
+
+
 exports.deleteLevantamiento = async (req, res) => {
   try {
-    await Levantamiento.destroy({
-      where: { id: req.params.id }
-    });
+    const { id } = req.params;
+    await Levantamiento.destroy({ where: { id } });
     res.json({ ok: true });
-  } catch (err) {
-    res.status(500).json({ error: "Error eliminando" });
+  } catch (e) {
+    res.status(500).json({ msg: "Error al eliminar" });
   }
+};
+
+
+exports.updateLevantamiento = async (req, res) => {
+  const { id } = req.params;
+  const { direccion, personal, fecha } = req.body;
+
+  await Levantamiento.update(
+    { direccion, personal, fecha },
+    { where: { id } }
+  );
+
+  res.json({ ok: true });
 };

@@ -1107,20 +1107,15 @@
 
 
 <script>
-/* ================= ESTADO GLOBAL ================= */
 let levantamientoEditando = null;
-let levantamientosCache = [];
-let levMaterialesList = [];
 
-/* ================= MODAL NUEVO ================= */
+/* ================= MODAL ================= */
+
 function openNuevoLevantamiento() {
   document.getElementById("modalNuevoLevantamiento").classList.add("active");
   cargarClientesLev();
   setPersonalActual();
   setFechaHoraActual();
-  levMaterialesList = [];
-  document.getElementById("levListaMateriales").innerHTML = "";
-  document.getElementById("lev-necesidadesContainer").innerHTML = "";
 }
 
 function closeNuevoLevantamiento() {
@@ -1131,29 +1126,54 @@ document.getElementById("btnNuevoLevantamiento")
   ?.addEventListener("click", openNuevoLevantamiento);
 
 /* ================= CLIENTES ================= */
+
 async function cargarClientesLev() {
   const select = document.getElementById("lev-clienteSelect");
+  if (!select) return;
+
   select.innerHTML = `<option value="">Seleccione cliente</option>`;
 
-  const token = localStorage.getItem("accessToken");
+  try {
+    const token = localStorage.getItem("accessToken");const res = await fetch(`${API_BASE_URL}/clientes`, {
+  headers: {
+    Authorization: `Bearer ${token}`
+  }
+});
 
-  const res = await fetch(`${API_BASE_URL}/clientes`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+    if (!token) {
+      console.error("No hay accessToken");
+      return;
+    }
 
-  const clientes = await res.json();
-  clientes.forEach(c => {
-    const opt = document.createElement("option");
-    opt.value = c.id;
-    opt.textContent = c.nombre;
-    select.appendChild(opt);
-  });
+   
+
+    if (!res.ok) {
+      console.error("Error al cargar clientes", res.status);
+      return;
+    }
+
+    const clientes = await res.json();
+
+    clientes.forEach(c => {
+      const opt = document.createElement("option");
+      opt.value = c.id;
+      opt.textContent = c.nombre;
+      select.appendChild(opt);
+    });
+
+  } catch (e) {
+    console.error("Error cargando clientes:", e);
+  }
 }
+
+/* ================= PERSONAL ================= */
 
 function setPersonalActual() {
   document.getElementById("lev-personal").value =
     localStorage.getItem("userName") || "Usuario";
 }
+
+/* ================= FECHA ================= */
 
 function setFechaHoraActual() {
   const now = new Date();
@@ -1161,110 +1181,32 @@ function setFechaHoraActual() {
     now.toISOString().slice(0, 16);
 }
 
-/* ================= NECESIDADES ================= */
-function addNecesidad() {
-  const cont = document.getElementById("lev-necesidadesContainer");
-
-  const div = document.createElement("div");
-  div.className = "nec-item";
-  div.innerHTML = `
-    <textarea placeholder="Describe la necesidad"></textarea>
-    <img class="img-preview" />
-    <button type="button" class="btn btn-primary btn-foto">📸 Foto</button>
-    <button type="button" class="btn btn-danger btn-del">Eliminar</button>
-    <hr>
-  `;
-
-  const file = document.createElement("input");
-  file.type = "file";
-  file.accept = "image/*";
-  file.hidden = true;
-
-  div.querySelector(".btn-foto").onclick = () => file.click();
-  div.querySelector(".btn-del").onclick = () => div.remove();
-
-  file.onchange = e => {
-    const reader = new FileReader();
-    reader.onload = ev => {
-      div.querySelector(".img-preview").src = ev.target.result;
-      div.querySelector(".img-preview").style.display = "block";
-    };
-    reader.readAsDataURL(e.target.files[0]);
-  };
-
-  div.appendChild(file);
-  cont.appendChild(div);
-}
-
-document.getElementById("btnAddNecesidad")
-  ?.addEventListener("click", addNecesidad);
-
-function obtenerNecesidadesLev() {
-  return [...document.querySelectorAll(".nec-item")].map(d => ({
-    descripcion: d.querySelector("textarea").value,
-    imagen: d.querySelector(".img-preview").src || null
-  })).filter(n => n.descripcion || n.imagen);
-}
-
-/* ================= MATERIALES ================= */
-document.getElementById("levBtnAgregarMaterial")
-  ?.addEventListener("click", () => {
-    const insumo = document.getElementById("levInsumo").value;
-    const cantidad = document.getElementById("levCantidad").value;
-
-    if (!insumo || !cantidad) return;
-
-    levMaterialesList.push({
-      insumo,
-      cantidad,
-      unidad: "Unidades"
-    });
-
-    renderMateriales();
-  });
-
-function renderMateriales() {
-  const ul = document.getElementById("levListaMateriales");
-  ul.innerHTML = "";
-
-  levMaterialesList.forEach((m, i) => {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      ${m.insumo} – ${m.cantidad}
-      <button onclick="levMaterialesList.splice(${i},1);renderMateriales()">❌</button>
-    `;
-    ul.appendChild(li);
-  });
-}
-
-
-
-
-
-
 /* ================= GUARDAR ================= */
+
 async function guardarLevantamiento() {
   const data = {
     clienteId: document.getElementById("lev-clienteSelect").value,
     clienteNombre: document.getElementById("lev-clienteSelect").selectedOptions[0].text,
     direccion: document.getElementById("lev-direccion").value,
     personal: document.getElementById("lev-personal").value,
-    fecha: document.getElementById("lev-fechaHora").value,
-    necesidades: obtenerNecesidadesLev(),
-    materiales: levMaterialesList
+    fecha: document.getElementById("lev-fechaHora").value
   };
 
-  const token = localStorage.getItem("userToken");
+  const method = levantamientoEditando ? "PUT" : "POST";
+  const url = levantamientoEditando
+    ? `${API_BASE_URL}/levantamientos/${levantamientoEditando}`
+    : `${API_BASE_URL}/levantamientos`;
 
-  await fetch(`${API_BASE_URL}/levantamientos`, {
-    method: "POST",
+  await fetch(url, {
+    method,
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${localStorage.getItem("userToken")}`
     },
     body: JSON.stringify(data)
   });
 
+  levantamientoEditando = null;
   closeNuevoLevantamiento();
   cargarTablaLevantamientos();
 }
@@ -1273,75 +1215,52 @@ document.getElementById("btnGuardarLevantamiento")
   ?.addEventListener("click", guardarLevantamiento);
 
 /* ================= TABLA ================= */
+
 async function cargarTablaLevantamientos() {
   const res = await fetch(`${API_BASE_URL}/levantamientos`, {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("userToken")}`
-    }
+    headers: { Authorization: `Bearer ${localStorage.getItem("userToken")}` }
   });
 
   const data = await res.json();
-  levantamientosCache = data;
-
   const tbody = document.getElementById("tablaLevantamientos");
+
   tbody.innerHTML = "";
 
   data.forEach(l => {
-    tbody.innerHTML += `
-      <tr>
-        <td>${l.clienteNombre}</td>
-        <td>${l.direccion}</td>
-        <td>${l.personal}</td>
-        <td>${new Date(l.fecha).toLocaleString()}</td>
-        <td class="acciones">
-          <button onclick="verLevantamiento(${l.id})">Ver</button>
-          <button onclick="eliminarLevantamiento(${l.id})">Eliminar</button>
-          <button onclick="pdfLevantamiento(${l.id})">PDF</button>
-        </td>
-      </tr>
-    `;
+    tr.innerHTML = `
+  <td>${l.cliente_nombre}</td>
+  <td>${l.direccion}</td>
+  <td>${l.personal}</td>
+  <td>${new Date(l.fecha).toLocaleString()}</td>
+  <td class="acciones">
+    <button onclick="editarLevantamiento(${l.id})">Editar</button>
+    <button onclick="eliminarLevantamiento(${l.id})">Eliminar</button>
+    <button onclick="verLevantamiento(${l.id})">Ver</button>
+    <button onclick="pdfLevantamiento(${l.id})">PDF</button>
+  </td>
+`;
+
   });
 }
 
 cargarTablaLevantamientos();
 
-/* ================= VER ================= */
-function verLevantamiento(id) {
-  const l = levantamientosCache.find(x => x.id === id);
+/* ================= ACCIONES ================= */
 
-  document.getElementById("verCliente").textContent = l.clienteNombre;
-  document.getElementById("verDireccion").textContent = l.direccion;
-  document.getElementById("verPersonal").textContent = l.personal;
-  document.getElementById("verFecha").textContent =
-    new Date(l.fecha).toLocaleString();
+function editarLevantamiento(id) {
+  levantamientoEditando = id;
+  openNuevoLevantamiento();
 
-  renderNecesidadesVer(l.necesidades);
-  renderMaterialesVer(l.materiales);
-
-  document.getElementById("modalVerLevantamiento").classList.add("active");
-}
-
-function closeVerLevantamiento() {
-  document.getElementById("modalVerLevantamiento").classList.remove("active");
-}
-
-function renderNecesidadesVer(list = []) {
-  const c = document.getElementById("verNecesidades");
-  c.innerHTML = list.length
-    ? list.map(n => `
-        <div class="ver-necesidad">
-          <p>${n.descripcion}</p>
-          ${n.imagen ? `<img src="${n.imagen}" />` : ""}
-        </div>
-      `).join("")
-    : "<p class='muted'>Sin necesidades</p>";
-}
-
-function renderMaterialesVer(list = []) {
-  const ul = document.getElementById("verMateriales");
-  ul.innerHTML = list.length
-    ? list.map(m => `<li>${m.insumo} – ${m.cantidad}</li>`).join("")
-    : "<li class='muted'>Sin materiales</li>";
+  fetch(`${API_BASE_URL}/levantamientos/${id}`, {
+    headers: { Authorization: `Bearer ${localStorage.getItem("userToken")}` }
+  })
+    .then(r => r.json())
+    .then(l => {
+      document.getElementById("lev-clienteSelect").value = l.clienteId;
+      document.getElementById("lev-direccion").value = l.direccion;
+      document.getElementById("lev-personal").value = l.personal;
+      document.getElementById("lev-fechaHora").value = l.fecha.slice(0, 16);
+    });
 }
 
 function eliminarLevantamiento(id) {
@@ -1349,19 +1268,18 @@ function eliminarLevantamiento(id) {
 
   fetch(`${API_BASE_URL}/levantamientos/${id}`, {
     method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("userToken")}`
-    }
+    headers: { Authorization: `Bearer ${localStorage.getItem("userToken")}` }
   }).then(cargarTablaLevantamientos);
+}
+
+function verLevantamiento(id) {
+  alert("Vista detallada pendiente 👀\nID: " + id);
 }
 
 function pdfLevantamiento(id) {
   window.open(`${API_BASE_URL}/levantamientos/${id}/pdf`, "_blank");
 }
 </script>
-
-
-
 
 
 
