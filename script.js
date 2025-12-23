@@ -1181,31 +1181,16 @@ document.addEventListener('DOMContentLoaded', function () {
     const mapInputs = [...document.querySelectorAll('#direccionesContainer input[name="maps[]"]')];
     const aliasInputs = [...document.querySelectorAll('#direccionesContainer input[name="alias[]"]')];
 
-    const direcciones = [];
-    const maps = [];
-    const alias = [];
-
-    for (let i = 0; i < dirInputs.length; i++) {
-        const dir = dirInputs[i].value.trim();
-        const map = mapInputs[i]?.value.trim() || null;
-        const al = aliasInputs[i]?.value.trim() || null;
-
-        if (!dir && !map) continue;
-
-        direcciones.push(dir || 'Ubicación en Google Maps');
-        maps.push(map);
-        alias.push(al);
-    }
-
     const items = document.querySelectorAll("#direccionesContainer .direccion-item");
 
+const direcciones = [];
 
 items.forEach(item => {
   const direccion = item.querySelector(".dir-texto")?.value.trim();
   if (!direccion) return;
 
   direcciones.push({
-    id: item.dataset.id || null,   // existente o nueva
+    id: item.dataset.id ? Number(item.dataset.id) : null,
     alias: item.querySelector(".dir-alias")?.value.trim() || null,
     direccion,
     maps: item.querySelector(".dir-maps")?.value.trim() || null
@@ -1217,19 +1202,13 @@ if (direcciones.length === 0) {
   return;
 }
 
+const payload = {
+  nombre,
+  email,
+  telefono,
+  direcciones
+};
 
-    
-
-    data = {
-        nombre,
-        email,
-        telefono,
-        direccion: direcciones,
-        maps,
-        alias,
-        estado: direcciones.map(() => ""),
-        municipio: direcciones.map(() => "")
-    };
 }
 
 
