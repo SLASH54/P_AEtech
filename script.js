@@ -1553,10 +1553,14 @@ let clienteMapsLink = null;
 let esMapa = false;
 
 if (tarea.ClienteNegocio?.direcciones?.length) {
-    const dir = tarea.ClienteNegocio.direcciones[0]; // primera dirección
+    const dir = tarea.ClienteNegocio.direcciones[0];
 
     if (dir.maps) {
-        textoDireccion = dir.alias || 'Ver ubicación';
+        // 🔑 PRIORIDAD: alias > texto fijo
+        textoDireccion = dir.alias 
+            ? dir.alias 
+            : 'Ubicación en Google Maps';
+
         clienteMapsLink = dir.maps;
         esMapa = true;
     } else {
@@ -1564,7 +1568,6 @@ if (tarea.ClienteNegocio?.direcciones?.length) {
         clienteMapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(textoDireccion)}`;
     }
 }
-
 
 
         // Fila de la tabla
@@ -1745,12 +1748,6 @@ function openTareaModal(tareaIdOrObject, mode) {
     const clienteSelect = document.getElementById('tareaClienteId');
     const direccionSelect = document.getElementById('tareaDireccionCliente');
 
-    const fechaInput = document.getElementById('tareaFechaLimite');
-    if (fechaInput) {
-        const hoy = new Date().toISOString().split('T')[0];
-        fechaInput.value = hoy;
-    }
-
 
     // Asignar evento cada vez que se abre el modal
     clienteSelect.onchange = () => {
@@ -1798,13 +1795,21 @@ function openTareaModal(tareaIdOrObject, mode) {
         }, 250);
 
     } else {
-        // CREAR TAREA
-        title.textContent = "Crear Nueva Tarea";
-        form.reset();
-        document.getElementById("tareaId").value = "";
+    // CREAR TAREA
+    title.textContent = "Crear Nueva Tarea";
+    form.reset();
+    document.getElementById("tareaId").value = "";
 
-        direccionSelect.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
+    // 📅 FECHA POR DEFECTO = HOY
+    const fechaInput = document.getElementById('tareaFechaLimite');
+    if (fechaInput) {
+        const hoy = new Date().toISOString().split('T')[0];
+        fechaInput.value = hoy;
     }
+
+    direccionSelect.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
+}
+
 
     modal.style.display = "flex";
 }
