@@ -1186,14 +1186,24 @@ document.addEventListener('DOMContentLoaded', function () {
 const direcciones = [];
 
 items.forEach(item => {
-  const direccion = item.querySelector(".dir-texto")?.value.trim();
-  if (!direccion) return;
+  const alias = item.querySelector(".dir-alias")?.value.trim() || null;
+  const texto = item.querySelector(".dir-texto")?.value.trim();
+  const maps = item.querySelector(".dir-maps")?.value.trim();
+
+  // 🚫 Si no hay nada, no se envía
+  if (!texto && !maps) return;
+
+  // 🚫 NO permitir ambos
+  if (texto && maps) {
+    alert("Una dirección no puede tener texto y Google Maps al mismo tiempo.");
+    throw new Error("Dirección inválida");
+  }
 
   direcciones.push({
     id: item.dataset.id ? Number(item.dataset.id) : null,
-    alias: item.querySelector(".dir-alias")?.value.trim() || null,
-    direccion,
-    maps: item.querySelector(".dir-maps")?.value.trim() || null
+    alias,
+    direccion: maps ? "Ubicación en Google Maps" : texto,
+    maps: maps || null
   });
 });
 
@@ -1201,6 +1211,7 @@ if (direcciones.length === 0) {
   alert("Ingresa al menos una dirección.");
   return;
 }
+
 
 const payload = {
   nombre,
