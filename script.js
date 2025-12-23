@@ -1024,29 +1024,13 @@ async function deleteRecord(type, id) {
 
 let indexDir = 0;
 
-function agregarDireccion(valor = "") {
-    const cont = document.getElementById("direccionesContainer");
-    cont.appendChild(crearDireccionItem());
+function agregarDireccion() {
+  const cont = document.getElementById("direccionesContainer");
+  if (!cont) return;
 
-    const div = document.createElement("div");
-    div.classList.add("direccion-item");
-
-    div.innerHTML = `
-       <input type="text" name="alias[]" 
-          placeholder="Alias (ej. Sucursal Centro)">
-       <input type="text" name="direccion[]" 
-          placeholder="Dirección o texto">
-       <input type="url" name="maps[]" 
-          placeholder="Link Google Maps">
-       <button type="button" class="btn-remove-dir">
-          Eliminar
-       </button>
-    `;
-  
-
-
-    cont.appendChild(div);
+  cont.appendChild(crearDireccionItem());
 }
+
 
 
 
