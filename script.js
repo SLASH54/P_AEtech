@@ -1,5 +1,3 @@
-const { text } = require("pdfkit");
-
 let aliasWarningShown = false;
 
 
