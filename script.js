@@ -1077,35 +1077,62 @@ async function cargarDireccionesCliente(clienteId) {
 
   const token = localStorage.getItem("accessToken");
 
-  const res = await fetch(
-    `${API_BASE_URL}/clientes-negocio/${clienteId}/direcciones`,
-    {
-      headers: { Authorization: `Bearer ${token}` }
+  try {
+    const res = await fetch(`${API_BASE_URL}/clientes/${clienteId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    if (!res.ok) {
+      console.error("Error al obtener cliente");
+      return;
     }
-  );
 
-  if (!res.ok) {
-    console.error("No se pudieron cargar direcciones");
-    return;
+    const cliente = await res.json();
+
+    console.log("Cliente recibido:", cliente);
+
+    if (!Array.isArray(cliente.direcciones)) {
+      console.warn("Cliente sin direcciones");
+      agregarDireccion(); // deja 1 vacía
+      return;
+    }
+
+    cliente.direcciones.forEach(dir => {
+      const div = document.createElement("div");
+      div.className = "direccion-item";
+
+      div.innerHTML = `
+        <input type="text"
+          class="input-alias"
+          placeholder="Alias (ej. Sucursal Centro)"
+          value="${dir.alias || ""}"
+        >
+
+        <input type="text"
+          placeholder="Dirección o texto"
+          value="${dir.direccion || ""}"
+        >
+
+        <input type="text"
+          placeholder="Link Google Maps"
+          value="${dir.maps || ""}"
+        >
+
+        <button type="button" class="btn-remove-dir">Eliminar</button>
+      `;
+
+      div.querySelector(".btn-remove-dir").onclick = () => div.remove();
+
+      cont.appendChild(div);
+    });
+
+  } catch (err) {
+    console.error("Error cargando direcciones:", err);
   }
-
-  const direcciones = await res.json();
-
-  if (!direcciones.length) {
-    cont.appendChild(crearDireccionItem());
-    return;
-  }
-
-  direcciones.forEach(d => {
-    cont.appendChild(
-      crearDireccionItem(
-        d.alias || "",
-        d.direccion || "",
-        d.link_maps || ""
-      )
-    );
-  });
 }
+
 
 
 
@@ -3380,49 +3407,49 @@ function toggleDescripcion(id) {
 // direcciones muchas xd 
 
 
-function cargarDireccionesCliente(clienteId) {
-    console.log("Ejecutando cargarDireccionesCliente para cliente:", clienteId);
+//function cargarDireccionesCliente(clienteId) {
+//    console.log("Ejecutando cargarDireccionesCliente para cliente:", clienteId);
 
-    const selectDireccion = document.getElementById("tareaDireccionCliente");
-    if (!selectDireccion) {
-        console.error("❌ No se encontró el select tareaDireccionCliente");
-        return;
-    }
+//    const selectDireccion = document.getElementById("tareaDireccionCliente");
+//    if (!selectDireccion) {
+//        console.error("❌ No se encontró el select tareaDireccionCliente");
+//        return;
+//    }
 
-    selectDireccion.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
+//    selectDireccion.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
 
-    if (!clienteId) {
-        return;
-    }
+//    if (!clienteId) {
+//        return;
+//    }
 
-    const cliente = window.clientesData ? window.clientesData[clienteId] : null;
-    console.log("Cliente encontrado en window.clientesData:", cliente);
+//    const cliente = window.clientesData ? window.clientesData[clienteId] : null;
+//    console.log("Cliente encontrado en window.clientesData:", cliente);
 
-    const direcciones = (cliente && Array.isArray(cliente.direcciones))
-        ? cliente.direcciones
-        : [];
+//    const direcciones = (cliente && Array.isArray(cliente.direcciones))
+//        ? cliente.direcciones
+//        : [];
 
-    if (!direcciones.length) {
-        selectDireccion.innerHTML = `<option value="">Sin direcciones registradas</option>`;
-        return;
-    }
+//    if (!direcciones.length) {
+//        selectDireccion.innerHTML = `<option value="">Sin direcciones registradas</option>`;
+//        return;
+//    }
 
-  direcciones.forEach(dir => {
-  const option = document.createElement("option");
-  option.value = dir.direccion;
+//  direcciones.forEach(dir => {
+//  const option = document.createElement("option");
+//  option.value = dir.direccion;
 
-  option.textContent = dir.alias
-    ? `${dir.alias} – ${dir.direccion}`
-    : dir.maps
-      ? "📍 Ubicación sin alias (Google Maps)"
-      : dir.direccion;
+//  option.textContent = dir.alias
+//    ? `${dir.alias} – ${dir.direccion}`
+//    : dir.maps
+//      ? "📍 Ubicación sin alias (Google Maps)"
+//      : dir.direccion;
 
-  option.dataset.maps = dir.maps || "";
-  selectDireccion.appendChild(option);
-});
+//  option.dataset.maps = dir.maps || "";
+//  selectDireccion.appendChild(option);
+//});
 
 
-}
+//}
  
 //fin de muchas direcciones para el Cliente en el Select de asignar Tareas
 //finnde muchas direcciones cliente
