@@ -1159,6 +1159,8 @@ editForm.addEventListener('submit', async function (event) {
   const token = localStorage.getItem('accessToken');
 
   try {
+    let data = {};
+
     if (type === 'usuario') {
       // ================= USUARIO =================
       const nombre = document.getElementById('edit-nombre').value;
@@ -1170,16 +1172,7 @@ editForm.addEventListener('submit', async function (event) {
         return;
       }
 
-      const response = await fetch(`${API_BASE_URL}/users/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ nombre, email, rol })
-      });
-
-      if (!response.ok) throw new Error("Error al actualizar usuario");
+      data = { nombre, email, rol };
 
     } else {
       // ================= CLIENTE =================
@@ -1187,21 +1180,6 @@ editForm.addEventListener('submit', async function (event) {
       const email = document.getElementById('edit-email').value || null;
       const telefono = document.getElementById('edit-telefono').value;
 
-      // 1️⃣ Actualizar cliente (SIN direcciones)
-      const responseCliente = await fetch(`${API_BASE_URL}/clientes/${id}`, {
-        method: "PUT",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ nombre, email, telefono })
-      });
-
-      if (!responseCliente.ok) {
-        throw new Error("Error al actualizar cliente");
-      }
-
-      // 2️⃣ Recolectar direcciones
       const items = document.querySelectorAll("#direccionesContainer .direccion-item");
       const direcciones = [];
 
@@ -1210,8 +1188,10 @@ editForm.addEventListener('submit', async function (event) {
         const texto = item.querySelector(".dir-texto")?.value.trim();
         const maps = item.querySelector(".dir-maps")?.value.trim();
 
+        // si no hay nada, no se envía
         if (!texto && !maps) return;
 
+        // NO permitir ambos
         if (texto && maps) {
           throw new Error("Una dirección no puede tener texto y Google Maps al mismo tiempo.");
         }
@@ -1229,30 +1209,31 @@ editForm.addEventListener('submit', async function (event) {
         return;
       }
 
-      // 3️⃣ Guardar direcciones
-      for (const dir of direcciones) {
-        if (dir.id) {
-          // actualizar
-          await fetch(`${API_BASE_URL}/direcciones/${dir.id}`, {
-            method: "PUT",
-            headers: {
-              "Authorization": `Bearer ${token}`,
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(dir)
-          });
-        } else {
-          // crear
-          await fetch(`${API_BASE_URL}/clientes/${id}/direcciones`, {
-            method: "POST",
-            headers: {
-              "Authorization": `Bearer ${token}`,
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(dir)
-          });
-        }
-      }
+      // 👇 ESTE ES EL FORMATO QUE YA FUNCIONABA
+      data = {
+        nombre,
+        email,
+        telefono,
+        direcciones
+      };
+    }
+
+    const endpoint = type === 'usuario'
+      ? `/users/${id}`
+      : `/clientes/${id}`;
+
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => null);
+      throw new Error(errData?.message || `Error HTTP ${response.status}`);
     }
 
     alert(`${type === 'usuario' ? 'Usuario' : 'Cliente'} actualizado con éxito.`);
@@ -1264,6 +1245,7 @@ editForm.addEventListener('submit', async function (event) {
     alert('Hubo un error al guardar los cambios: ' + error.message);
   }
 });
+
 
 
 
