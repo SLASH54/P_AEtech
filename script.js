@@ -1089,6 +1089,7 @@ function cargarDireccionesEditar(data, type) {
             <input
                 type="text"
                 name="alias[]"
+                id="edit-alias"
                 placeholder="Alias (ej. Sucursal Centro)"
                 value="${data.alias || ''}"
             >
@@ -1096,6 +1097,7 @@ function cargarDireccionesEditar(data, type) {
             <input
                 type="text"
                 name="direccion[]"
+                id="edit-direccion"
                 placeholder="Dirección o texto"
                 value="${data.direccion || ''}"
                 required
@@ -1104,6 +1106,7 @@ function cargarDireccionesEditar(data, type) {
             <input
                 type="text"
                 name="maps[]"
+                id="edit-maps"
                 placeholder="Link Google Maps"
                 value="${data.maps || ''}"
             >
