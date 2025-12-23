@@ -923,8 +923,7 @@ function openEditModal(data, type) {
 
         rolSelect.required = false;
         rolSelect.value = "";
-        cargarDireccionesCliente(data.id);
-        //cargarDireccionesEditar(data, type);
+        cargarDireccionesEditar(data, type);
         //cargarDireccionesEnModal(cliente);
 
         document.getElementById('edit-telefono').value = data.telefono || '';
@@ -932,13 +931,13 @@ function openEditModal(data, type) {
         const cont = document.getElementById("direccionesContainer");
         cont.innerHTML = "";
 
-        //if (data.direcciones && data.direcciones.length > 0) {
-        //    data.direcciones.forEach(dir => {
-        //        agregarDireccion(dir.direccion || "");
-        //    });
-        //} else {
-        //    agregarDireccion("");
-        //}
+        if (data.direcciones && data.direcciones.length > 0) {
+            data.direcciones.forEach(dir => {
+                agregarDireccion(dir.direccion || "");
+            });
+        } else {
+            agregarDireccion("");
+        }
     }
 
     modal.style.display = 'block';
@@ -1024,13 +1023,28 @@ async function deleteRecord(type, id) {
 
 let indexDir = 0;
 
-function agregarDireccion() {
-  const cont = document.getElementById("direccionesContainer");
-  if (!cont) return;
+function agregarDireccion(valor = "") {
+    const cont = document.getElementById("direccionesContainer");
 
-  cont.appendChild(crearDireccionItem());
+    const div = document.createElement("div");
+    div.classList.add("direccion-item");
+
+    div.innerHTML = `
+       <input type="text" name="alias[]" 
+          placeholder="Alias (ej. Sucursal Centro)">
+       <input type="text" name="direccion[]" 
+          placeholder="Dirección o texto">
+       <input type="url" name="maps[]" 
+          placeholder="Link Google Maps">
+       <button type="button" class="btn-remove-dir">
+          Eliminar
+       </button>
+    `;
+  
+
+
+    cont.appendChild(div);
 }
-
 
 
 
@@ -1056,80 +1070,92 @@ async function procesarDireccion(valor) {
     return { direccion: limpio, maps: null };
 }
 
-async function cargarDireccionesCliente(clienteId) {
-  const cont = document.getElementById("direccionesContainer");
-  cont.innerHTML = "";
+function cargarDireccionesEditar(data, type) {
+    if (type !== 'cliente') return;
 
-  const token = localStorage.getItem("accessToken");
+    const container = document.getElementById('direccionesContainer');
+    container.innerHTML = '';
 
-  try {
-    const res = await fetch(`${API_BASE_URL}/clientes/${clienteId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
+    if (!data.direcciones || !data.direcciones.length) {
+        agregarDireccion(); // crea una vacía si no hay
+        return;
+    }
+
+    data.direcciones.forEach(dir => {
+        const div = document.createElement('div');
+        div.classList.add('direccion-item');
+
+        div.innerHTML = `
+            <input
+                type="text"
+                name="alias[]"
+                placeholder="Alias (ej. Sucursal Centro)"
+                value="${dir.alias || ''}"
+            >
+
+            <input
+                type="text"
+                name="direccion[]"
+                placeholder="Dirección o texto"
+                value="${dir.direccion || ''}"
+                required
+            >
+
+            <input
+                type="text"
+                name="maps[]"
+                placeholder="Link Google Maps"
+                value="${dir.maps || ''}"
+            >
+
+            <button type="button" class="btn-remove-dir"
+                onclick="this.parentElement.remove()">
+                Eliminar
+            </button>
+        `;
+
+        container.appendChild(div);
     });
-
-    if (!res.ok) {
-      console.error("Error al obtener cliente");
-      return;
-    }
-
-    const cliente = await res.json();
-
-    console.log("Cliente recibido:", cliente);
-
-    if (!Array.isArray(cliente.direcciones)) {
-      console.warn("Cliente sin direcciones");
-      agregarDireccion(); // deja 1 vacía
-      return;
-    }
-
-    
-
-    cont.innerHTML = "";
-
-cliente.direcciones.forEach(d => {
-  cont.appendChild(
-    crearDireccionItem({
-      id: d.id,
-      alias: d.alias,
-      direccion: d.direccion,
-      maps: d.maps
-    })
-  );
-});
-
-
-  } catch (err) {
-    console.error("Error cargando direcciones:", err);
-  }
 }
 
 
 
 
+function crearDireccionItem({ direccion = "", maps = "", alias = "" } = {}) {
+    const div = document.createElement("div");
+    div.className = "direccion-item";
 
+    div.innerHTML = `
+        <input 
+            type="text"
+            name="alias[]"
+            placeholder="Alias (ej. Sucursal Centro)"
+            value="${alias || ""}"
+        >
 
-function crearDireccionItem({ id = null, alias = "", direccion = "", maps = "" } = {}) {
-  const div = document.createElement("div");
-  div.className = "direccion-item";
-  if (id) div.dataset.id = id;
+        <input 
+            type="text"
+            name="direccion[]"
+            placeholder="Dirección o texto"
+            value="${direccion || ""}"
+            required
+        >
 
-  div.innerHTML = `
-    <input type="text" class="dir-alias" placeholder="Alias (ej. Sucursal Centro)" value="${alias}">
-    <input type="text" class="dir-texto" placeholder="Dirección o texto" value="${direccion}">
-    <input type="text" class="dir-maps" placeholder="Link Google Maps" value="${maps}">
-    <button type="button" class="btn-remove-dir">Eliminar</button>
-  `;
+        <input 
+            type="url"
+            name="maps[]"
+            placeholder="Link Google Maps"
+            value="${maps || ""}"
+        >
 
-  div.querySelector(".btn-remove-dir").addEventListener("click", () => {
-    div.remove();
-  });
+        <button type="button" class="btn-remove-dir"
+            onclick="this.parentElement.remove()">
+            Eliminar
+        </button>
+    `;
 
-  return div;
+    return div;
 }
-
-
 
 
 
@@ -1151,102 +1177,98 @@ document.addEventListener('DOMContentLoaded', function () {
     //
     //
      // 🔑 Conectar el formulario de edición
-editForm.addEventListener('submit', async function (event) {
-  event.preventDefault();
+   editForm.addEventListener('submit', async function(event) {
+    event.preventDefault();
 
-  const id = document.getElementById('edit-id').value;
-  const type = document.getElementById('edit-type').value;
-  const token = localStorage.getItem('accessToken');
+    const id = document.getElementById('edit-id').value;
+    const type = document.getElementById('edit-type').value;
+    const token = localStorage.getItem('accessToken');
 
-  try {
-    let data = {};
+    let data;
 
     if (type === 'usuario') {
-      // ================= USUARIO =================
-      const nombre = document.getElementById('edit-nombre').value;
-      const email = document.getElementById('edit-email').value;
-      const rol = document.getElementById('edit-rol').value;
+        const nombre = document.getElementById('edit-nombre').value;
+        const email = document.getElementById('edit-email').value;
+        const rol = document.getElementById('edit-rol').value;
 
-      if (!rol) {
-        alert("Selecciona un rol.");
-        return;
-      }
-
-      data = { nombre, email, rol };
-
-    } else {
-      // ================= CLIENTE =================
-      const nombre = document.getElementById('edit-nombre').value;
-      const email = document.getElementById('edit-email').value || null;
-      const telefono = document.getElementById('edit-telefono').value;
-
-      const items = document.querySelectorAll("#direccionesContainer .direccion-item");
-      const direcciones = [];
-
-      items.forEach(item => {
-        const alias = item.querySelector(".dir-alias")?.value.trim() || null;
-        const texto = item.querySelector(".dir-texto")?.value.trim();
-        const maps = item.querySelector(".dir-maps")?.value.trim();
-
-        // si no hay nada, no se envía
-        if (!texto && !maps) return;
-
-        // NO permitir ambos
-        if (texto && maps) {
-          throw new Error("Una dirección no puede tener texto y Google Maps al mismo tiempo.");
+        if (!rol) {
+            alert("Selecciona un rol.");
+            return;
         }
 
-        direcciones.push({
-          id: item.dataset.id ? Number(item.dataset.id) : null,
-          alias,
-          direccion: maps ? "Ubicación en Google Maps" : texto,
-          maps: maps || null
-        });
-      });
+        data = { nombre, email, rol };
 
-      if (direcciones.length === 0) {
+        } else { // CLIENTE
+    const nombre = document.getElementById('edit-nombre').value;
+    const email = document.getElementById('edit-email').value || null;
+    const telefono = document.getElementById('edit-telefono').value;
+
+    const dirInputs = [...document.querySelectorAll('#direccionesContainer input[name="direccion[]"]')];
+    const mapInputs = [...document.querySelectorAll('#direccionesContainer input[name="maps[]"]')];
+    const aliasInputs = [...document.querySelectorAll('#direccionesContainer input[name="alias[]"]')];
+
+    const direcciones = [];
+    const maps = [];
+    const alias = [];
+
+    for (let i = 0; i < dirInputs.length; i++) {
+        const dir = dirInputs[i].value.trim();
+        const map = mapInputs[i]?.value.trim() || null;
+        const al = aliasInputs[i]?.value.trim() || null;
+
+        if (!dir && !map) continue;
+
+        direcciones.push(dir || 'Ubicación en Google Maps');
+        maps.push(map);
+        alias.push(al);
+    }
+
+    if (!direcciones.length) {
         alert("Ingresa al menos una dirección.");
         return;
-      }
+    }
 
-      // 👇 ESTE ES EL FORMATO QUE YA FUNCIONABA
-      data = {
+    data = {
         nombre,
         email,
         telefono,
-        direcciones
-      };
+        direccion: direcciones,
+        maps,
+        alias,
+        estado: direcciones.map(() => ""),
+        municipio: direcciones.map(() => "")
+    };
+}
+
+
+
+    const endpoint = (type === 'usuario') ? `/users/${id}` : `/clientes/${id}`;
+
+    try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            const errData = await response.json().catch(() => null);
+            throw new Error(errData?.message || `Error HTTP ${response.status}`);
+        }
+
+        alert(`${type === 'usuario' ? 'Usuario' : 'Cliente'} actualizado con éxito.`);
+        closeModal('editModal');
+        initAdminPanel();
+
+    } catch (error) {
+        console.error('Error al enviar el formulario de edición:', error);
+        alert('Hubo un error al guardar los cambios: ' + error.message);
     }
 
-    const endpoint = type === 'usuario'
-      ? `/users/${id}`
-      : `/clientes/${id}`;
-
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    });
-
-    if (!response.ok) {
-      const errData = await response.json().catch(() => null);
-      throw new Error(errData?.message || `Error HTTP ${response.status}`);
-    }
-
-    alert(`${type === 'usuario' ? 'Usuario' : 'Cliente'} actualizado con éxito.`);
-    closeModal('editModal');
-    initAdminPanel();
-
-  } catch (error) {
-    console.error('Error al enviar el formulario de edición:', error);
-    alert('Hubo un error al guardar los cambios: ' + error.message);
-  }
 });
-
-
 
 
 
@@ -1725,9 +1747,7 @@ function openTareaModal(tareaIdOrObject, mode) {
        ;
 
         // Cargar direcciones
-        cargarDireccionesClienteSelect(tarea.clienteNegocioId)
-
-        //cargarDireccionesCliente(tarea.clienteNegocioId);
+        cargarDireccionesCliente(tarea.clienteNegocioId);
 
         setTimeout(() => {
             direccionSelect.value = tarea.direccionCliente || "";
@@ -3375,7 +3395,7 @@ function toggleDescripcion(id) {
 // direcciones muchas xd 
 
 
-function cargarDireccionesClienteSelect(clienteId) {
+function cargarDireccionesCliente(clienteId) {
     console.log("Ejecutando cargarDireccionesCliente para cliente:", clienteId);
 
     const selectDireccion = document.getElementById("tareaDireccionCliente");
@@ -3415,6 +3435,8 @@ function cargarDireccionesClienteSelect(clienteId) {
   option.dataset.maps = dir.maps || "";
   selectDireccion.appendChild(option);
 });
+
+
 }
  
 //fin de muchas direcciones para el Cliente en el Select de asignar Tareas
