@@ -1151,106 +1151,120 @@ document.addEventListener('DOMContentLoaded', function () {
     //
     //
      // 🔑 Conectar el formulario de edición
-   editForm.addEventListener('submit', async function(event) {
-    event.preventDefault();
+editForm.addEventListener('submit', async function (event) {
+  event.preventDefault();
 
-    const id = document.getElementById('edit-id').value;
-    const type = document.getElementById('edit-type').value;
-    const token = localStorage.getItem('accessToken');
+  const id = document.getElementById('edit-id').value;
+  const type = document.getElementById('edit-type').value;
+  const token = localStorage.getItem('accessToken');
 
-    let data;
-
+  try {
     if (type === 'usuario') {
-        const nombre = document.getElementById('edit-nombre').value;
-        const email = document.getElementById('edit-email').value;
-        const rol = document.getElementById('edit-rol').value;
+      // ================= USUARIO =================
+      const nombre = document.getElementById('edit-nombre').value;
+      const email = document.getElementById('edit-email').value;
+      const rol = document.getElementById('edit-rol').value;
 
-        if (!rol) {
-            alert("Selecciona un rol.");
-            return;
+      if (!rol) {
+        alert("Selecciona un rol.");
+        return;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/users/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ nombre, email, rol })
+      });
+
+      if (!response.ok) throw new Error("Error al actualizar usuario");
+
+    } else {
+      // ================= CLIENTE =================
+      const nombre = document.getElementById('edit-nombre').value;
+      const email = document.getElementById('edit-email').value || null;
+      const telefono = document.getElementById('edit-telefono').value;
+
+      // 1️⃣ Actualizar cliente (SIN direcciones)
+      const responseCliente = await fetch(`${API_BASE_URL}/clientes/${id}`, {
+        method: "PUT",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ nombre, email, telefono })
+      });
+
+      if (!responseCliente.ok) {
+        throw new Error("Error al actualizar cliente");
+      }
+
+      // 2️⃣ Recolectar direcciones
+      const items = document.querySelectorAll("#direccionesContainer .direccion-item");
+      const direcciones = [];
+
+      items.forEach(item => {
+        const alias = item.querySelector(".dir-alias")?.value.trim() || null;
+        const texto = item.querySelector(".dir-texto")?.value.trim();
+        const maps = item.querySelector(".dir-maps")?.value.trim();
+
+        if (!texto && !maps) return;
+
+        if (texto && maps) {
+          throw new Error("Una dirección no puede tener texto y Google Maps al mismo tiempo.");
         }
 
-        data = { nombre, email, rol };
-
-        } else { // CLIENTE
-    const nombre = document.getElementById('edit-nombre').value;
-    const email = document.getElementById('edit-email').value || null;
-    const telefono = document.getElementById('edit-telefono').value;
-
-    const dirInputs = [...document.querySelectorAll('#direccionesContainer input[name="direccion[]"]')];
-    const mapInputs = [...document.querySelectorAll('#direccionesContainer input[name="maps[]"]')];
-    const aliasInputs = [...document.querySelectorAll('#direccionesContainer input[name="alias[]"]')];
-
-    const items = document.querySelectorAll("#direccionesContainer .direccion-item");
-
-const direcciones = [];
-
-items.forEach(item => {
-  const alias = item.querySelector(".dir-alias")?.value.trim() || null;
-  const texto = item.querySelector(".dir-texto")?.value.trim();
-  const maps = item.querySelector(".dir-maps")?.value.trim();
-
-  // 🚫 Si no hay nada, no se envía
-  if (!texto && !maps) return;
-
-  // 🚫 NO permitir ambos
-  if (texto && maps) {
-    alert("Una dirección no puede tener texto y Google Maps al mismo tiempo.");
-    throw new Error("Dirección inválida");
-  }
-
-  direcciones.push({
-    id: item.dataset.id ? Number(item.dataset.id) : null,
-    alias,
-    direccion: maps ? "Ubicación en Google Maps" : texto,
-    maps: maps || null
-  });
-});
-
-if (direcciones.length === 0) {
-  alert("Ingresa al menos una dirección.");
-  return;
-}
-
-
-const payload = {
-  nombre,
-  email,
-  telefono,
-  direcciones
-};
-
-}
-
-
-
-    const endpoint = (type === 'usuario') ? `/users/${id}` : `/clientes/${id}`;
-
-    try {
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-            method: 'PUT',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
+        direcciones.push({
+          id: item.dataset.id ? Number(item.dataset.id) : null,
+          alias,
+          direccion: maps ? "Ubicación en Google Maps" : texto,
+          maps: maps || null
         });
+      });
 
-        if (!response.ok) {
-            const errData = await response.json().catch(() => null);
-            throw new Error(errData?.message || `Error HTTP ${response.status}`);
+      if (direcciones.length === 0) {
+        alert("Ingresa al menos una dirección.");
+        return;
+      }
+
+      // 3️⃣ Guardar direcciones
+      for (const dir of direcciones) {
+        if (dir.id) {
+          // actualizar
+          await fetch(`${API_BASE_URL}/direcciones/${dir.id}`, {
+            method: "PUT",
+            headers: {
+              "Authorization": `Bearer ${token}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(dir)
+          });
+        } else {
+          // crear
+          await fetch(`${API_BASE_URL}/clientes/${id}/direcciones`, {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${token}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(dir)
+          });
         }
-
-        alert(`${type === 'usuario' ? 'Usuario' : 'Cliente'} actualizado con éxito.`);
-        closeModal('editModal');
-        initAdminPanel();
-
-    } catch (error) {
-        console.error('Error al enviar el formulario de edición:', error);
-        alert('Hubo un error al guardar los cambios: ' + error.message);
+      }
     }
 
+    alert(`${type === 'usuario' ? 'Usuario' : 'Cliente'} actualizado con éxito.`);
+    closeModal('editModal');
+    initAdminPanel();
+
+  } catch (error) {
+    console.error('Error al enviar el formulario de edición:', error);
+    alert('Hubo un error al guardar los cambios: ' + error.message);
+  }
 });
+
 
 
 
