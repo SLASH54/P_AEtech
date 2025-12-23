@@ -1589,7 +1589,7 @@ if (tarea.ClienteNegocio?.direcciones?.length) {
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                <a href="${clienteMapsLink}" target="_blank" class="text-blue-600 hover:underline">
-                  ${tex} 📍
+                  ${textoDireccion} 📍
                </a>
 
             </td>
