@@ -909,8 +909,6 @@ function openEditModal(data, type) {
     document.getElementById('edit-email').value = data.email || '';
     document.getElementById("edit-telefono").value = data.telefono || "";
 
-    cargarDireccionesEditar(data, type);
-
 
     if (type === 'usuario') {
         userFields.style.display = 'block';
@@ -925,6 +923,7 @@ function openEditModal(data, type) {
 
         rolSelect.required = false;
         rolSelect.value = "";
+        cargarDireccionesEditar(data, type);
         //cargarDireccionesEnModal(cliente);
 
         document.getElementById('edit-telefono').value = data.telefono || '';
