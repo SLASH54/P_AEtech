@@ -466,6 +466,7 @@ const registerClient = async (e) => {
         if (!res.ok) throw new Error(data.message);
 
         alert("Cliente registrado con éxito");
+        cargarClientesTabla();
         e.target.reset();
 
     } catch (err) {
@@ -1032,6 +1033,7 @@ async function deleteRecord(type, id) {
         if (response.ok) {
             alert(`${type.charAt(0).toUpperCase() + type.slice(1)} eliminado con éxito.`);
             // 🔑 Vuelve a cargar el panel para refrescar AMBAS tablas
+            cargarClientesTabla();
             initAdminPanel();
         } else if (response.status === 404) {
             alert(`Error: ${type} no encontrado. Es posible que haya sido eliminado previamente.`);
@@ -1287,6 +1289,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         alert(`${type === 'usuario' ? 'Usuario' : 'Cliente'} actualizado con éxito.`);
         closeModal('editModal');
+        cargarClientesTabla();
         initAdminPanel();
 
     } catch (error) {
