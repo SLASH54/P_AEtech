@@ -1090,14 +1090,14 @@ function cargarDireccionesEditar(data, type) {
                 type="text"
                 name="alias[]"
                 placeholder="Alias (ej. Sucursal Centro)"
-                value="${dir.alias || ''}"
+                value="${data.alias || ''}"
             >
 
             <input
                 type="text"
                 name="direccion[]"
                 placeholder="Dirección o texto"
-                value="${dir.direccion || ''}"
+                value="${data.direccion || ''}"
                 required
             >
 
@@ -1105,7 +1105,7 @@ function cargarDireccionesEditar(data, type) {
                 type="text"
                 name="maps[]"
                 placeholder="Link Google Maps"
-                value="${dir.maps || ''}"
+                value="${data.maps || ''}"
             >
 
             <button type="button" class="btn-remove-dir"
