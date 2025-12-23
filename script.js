@@ -1046,12 +1046,6 @@ function agregarDireccion(valor = "") {
     cont.appendChild(div);
 }
 
-document.getElementById("btnAgregarDireccion").onclick = () => {
-  document
-    .getElementById("direccionesContainer")
-    .appendChild(crearDireccionItem());
-};
-
 
 
 function eliminarDireccion(btn) {
@@ -1075,21 +1069,6 @@ async function procesarDireccion(valor) {
     // Si es texto → se guarda solo como dirección
     return { direccion: limpio, maps: null };
 }
-
-function cargarDireccionesCliente(cliente) {
-  const cont = document.getElementById("direccionesContainer");
-  cont.innerHTML = ""; // LIMPIAR SIEMPRE
-
-  if (!cliente.direcciones || cliente.direcciones.length === 0) {
-    cont.appendChild(crearDireccionItem());
-    return;
-  }
-
-  cliente.direcciones.forEach(dir => {
-    cont.appendChild(crearDireccionItem(dir));
-  });
-}
-
 
 function cargarDireccionesEditar(data, type) {
     if (type !== 'cliente') return;
@@ -1141,25 +1120,42 @@ function cargarDireccionesEditar(data, type) {
 
 
 
-function crearDireccionItem(data = {}) {
-  const div = document.createElement("div");
-  div.className = "direccion-item";
 
-  div.innerHTML = `
-    <input class="dir-alias" placeholder="Alias"
-      value="${data.alias || ""}">
-    <input class="dir-texto" placeholder="Dirección o texto"
-      value="${data.direccion && !data.maps ? data.direccion : ""}">
-    <input class="dir-maps" placeholder="Link Google Maps"
-      value="${data.maps || ""}">
-    <button type="button" class="btn-eliminar-dir">Eliminar</button>
-  `;
+function crearDireccionItem({ direccion = "", maps = "", alias = "" } = {}) {
+    const div = document.createElement("div");
+    div.className = "direccion-item";
 
-  div.querySelector(".btn-eliminar-dir").onclick = () => div.remove();
+    div.innerHTML = `
+        <input 
+            type="text"
+            name="alias[]"
+            placeholder="Alias (ej. Sucursal Centro)"
+            value="${alias || ""}"
+        >
 
-  return div;
+        <input 
+            type="text"
+            name="direccion[]"
+            placeholder="Dirección o texto"
+            value="${direccion || ""}"
+            required
+        >
+
+        <input 
+            type="url"
+            name="maps[]"
+            placeholder="Link Google Maps"
+            value="${maps || ""}"
+        >
+
+        <button type="button" class="btn-remove-dir"
+            onclick="this.parentElement.remove()">
+            Eliminar
+        </button>
+    `;
+
+    return div;
 }
-
 
 
 
