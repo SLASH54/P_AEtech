@@ -1548,26 +1548,51 @@ function renderTareasTable(tareas) {
         const asignadoNombre = tarea.AsignadoA?.nombre || 'N/A';
       const clienteNombre = tarea.ClienteNegocio?.nombre || 'Sin cliente';
 
-let textoDireccion = 'Sin dirección registrada';
-let clienteMapsLink = null;
-let esMapa = false;
+let clienteDireccion = 'Sin dirección registrada';
+let clienteMaps = null;
 
 if (tarea.ClienteNegocio?.direcciones?.length) {
-    const dir = tarea.ClienteNegocio.direcciones[0];
 
-    if (dir.maps) {
-        // 🔑 PRIORIDAD: alias > texto fijo
-        textoDireccion = dir.alias 
-            ? dir.alias 
-            : 'Ubicación en Google Maps';
+    const dirSeleccionada = tarea.ClienteNegocio.direcciones.find(d =>
+        d.id === tarea.direccionClienteId
+    ) || tarea.ClienteNegocio.direcciones[0]; // fallback seguro
 
-        clienteMapsLink = dir.maps;
-        esMapa = true;
-    } else {
-        textoDireccion = dir.direccion || 'Sin dirección registrada';
-        clienteMapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(textoDireccion)}`;
+    if (dirSeleccionada) {
+        clienteMaps = dirSeleccionada.maps || null;
+
+        if (dirSeleccionada.maps) {
+            clienteDireccion =
+                dirSeleccionada.alias ||
+                tarea.ClienteNegocio.nombre ||
+                'Ubicación en Google Maps';
+        } else {
+            clienteDireccion = dirSeleccionada.direccion;
+        }
     }
 }
+
+const clienteMapsLink = clienteMaps
+    ? clienteMaps
+    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(clienteDireccion)}`;
+
+
+//if (tarea.ClienteNegocio?.direcciones?.length) {
+//    const dir = tarea.ClienteNegocio.direcciones[0];
+//    //const dir = tarea.ClienteNegocio.direcciones.alias;
+
+//    if (dir.maps) {
+//        // 🔑 PRIORIDAD: alias > texto fijo
+//        textoDireccion = dir.alias 
+//            ? dir.alias 
+//            : 'Ubicación en Google Maps';
+
+//        clienteMapsLink = dir.maps;
+//        esMapa = true;
+//    } else {
+//        textoDireccion = dir.direccion || 'Sin dirección registrada';
+//        clienteMapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(textoDireccion)}`;
+//    }
+//}
 
 
         // Fila de la tabla
