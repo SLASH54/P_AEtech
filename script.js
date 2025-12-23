@@ -1235,10 +1235,14 @@ document.addEventListener('DOMContentLoaded', function () {
         alias.push(al);
     }
 
-    if (!direcciones.length) {
-        alert("Ingresa al menos una dirección.");
-        return;
+    const items = document.querySelectorAll("#direccionesContainer .direccion-item");
+
+    if (items.length === 0) {
+      alert("Ingresa al menos una dirección.");
+      return;
     }
+
+    
 
     data = {
         nombre,
