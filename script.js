@@ -932,13 +932,13 @@ function openEditModal(data, type) {
         const cont = document.getElementById("direccionesContainer");
         cont.innerHTML = "";
 
-        if (data.direcciones && data.direcciones.length > 0) {
-            data.direcciones.forEach(dir => {
-                agregarDireccion(dir.direccion || "");
-            });
-        } else {
-            agregarDireccion("");
-        }
+        //if (data.direcciones && data.direcciones.length > 0) {
+        //    data.direcciones.forEach(dir => {
+        //        agregarDireccion(dir.direccion || "");
+        //    });
+        //} else {
+        //    agregarDireccion("");
+        //}
     }
 
     modal.style.display = 'block';
@@ -1759,7 +1759,9 @@ function openTareaModal(tareaIdOrObject, mode) {
        ;
 
         // Cargar direcciones
-        cargarDireccionesCliente(tarea.clienteNegocioId);
+        cargarDireccionesClienteSelect(tarea.clienteNegocioId)
+
+        //cargarDireccionesCliente(tarea.clienteNegocioId);
 
         setTimeout(() => {
             direccionSelect.value = tarea.direccionCliente || "";
@@ -3407,49 +3409,47 @@ function toggleDescripcion(id) {
 // direcciones muchas xd 
 
 
-//function cargarDireccionesCliente(clienteId) {
-//    console.log("Ejecutando cargarDireccionesCliente para cliente:", clienteId);
+function cargarDireccionesClienteSelect(clienteId) {
+    console.log("Ejecutando cargarDireccionesCliente para cliente:", clienteId);
 
-//    const selectDireccion = document.getElementById("tareaDireccionCliente");
-//    if (!selectDireccion) {
-//        console.error("❌ No se encontró el select tareaDireccionCliente");
-//        return;
-//    }
+    const selectDireccion = document.getElementById("tareaDireccionCliente");
+    if (!selectDireccion) {
+        console.error("❌ No se encontró el select tareaDireccionCliente");
+        return;
+    }
 
-//    selectDireccion.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
+    selectDireccion.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
 
-//    if (!clienteId) {
-//        return;
-//    }
+    if (!clienteId) {
+        return;
+    }
 
-//    const cliente = window.clientesData ? window.clientesData[clienteId] : null;
-//    console.log("Cliente encontrado en window.clientesData:", cliente);
+    const cliente = window.clientesData ? window.clientesData[clienteId] : null;
+    console.log("Cliente encontrado en window.clientesData:", cliente);
 
-//    const direcciones = (cliente && Array.isArray(cliente.direcciones))
-//        ? cliente.direcciones
-//        : [];
+    const direcciones = (cliente && Array.isArray(cliente.direcciones))
+        ? cliente.direcciones
+        : [];
 
-//    if (!direcciones.length) {
-//        selectDireccion.innerHTML = `<option value="">Sin direcciones registradas</option>`;
-//        return;
-//    }
+    if (!direcciones.length) {
+        selectDireccion.innerHTML = `<option value="">Sin direcciones registradas</option>`;
+        return;
+    }
 
-//  direcciones.forEach(dir => {
-//  const option = document.createElement("option");
-//  option.value = dir.direccion;
+  direcciones.forEach(dir => {
+  const option = document.createElement("option");
+  option.value = dir.direccion;
 
-//  option.textContent = dir.alias
-//    ? `${dir.alias} – ${dir.direccion}`
-//    : dir.maps
-//      ? "📍 Ubicación sin alias (Google Maps)"
-//      : dir.direccion;
+  option.textContent = dir.alias
+    ? `${dir.alias} – ${dir.direccion}`
+    : dir.maps
+      ? "📍 Ubicación sin alias (Google Maps)"
+      : dir.direccion;
 
-//  option.dataset.maps = dir.maps || "";
-//  selectDireccion.appendChild(option);
-//});
-
-
-//}
+  option.dataset.maps = dir.maps || "";
+  selectDireccion.appendChild(option);
+});
+}
  
 //fin de muchas direcciones para el Cliente en el Select de asignar Tareas
 //finnde muchas direcciones cliente
