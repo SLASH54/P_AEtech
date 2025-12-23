@@ -923,7 +923,8 @@ function openEditModal(data, type) {
 
         rolSelect.required = false;
         rolSelect.value = "";
-        cargarDireccionesEditar(data, type);
+        cargarDireccionesCliente(data.id);
+        //cargarDireccionesEditar(data, type);
         //cargarDireccionesEnModal(cliente);
 
         document.getElementById('edit-telefono').value = data.telefono || '';
@@ -1070,95 +1071,76 @@ async function procesarDireccion(valor) {
     return { direccion: limpio, maps: null };
 }
 
-function cargarDireccionesEditar(data, type) {
-    if (type !== 'cliente') return;
+async function cargarDireccionesCliente(clienteId) {
+  const cont = document.getElementById("direccionesContainer");
+  cont.innerHTML = "";
 
-    const container = document.getElementById('direccionesContainer');
-    container.innerHTML = '';
+  const token = localStorage.getItem("accessToken");
 
-    if (!data.direcciones || !data.direcciones.length) {
-        agregarDireccion(); // crea una vacía si no hay
-        return;
+  const res = await fetch(
+    `${API_BASE_URL}/clientes-negocio/${clienteId}/direcciones`,
+    {
+      headers: { Authorization: `Bearer ${token}` }
     }
+  );
 
-    data.direcciones.forEach(dir => {
-        const div = document.createElement('div');
-        div.classList.add('direccion-item');
+  if (!res.ok) {
+    console.error("No se pudieron cargar direcciones");
+    return;
+  }
 
-        div.innerHTML = `
-            <input
-                type="text"
-                name="alias[]"
-                id="edit-alias"
-                placeholder="Alias (ej. Sucursal Centro)"
-                value="${data.alias || ''}"
-            >
+  const direcciones = await res.json();
 
-            <input
-                type="text"
-                name="direccion[]"
-                id="edit-direccion"
-                placeholder="Dirección o texto"
-                value="${data.direccion || ''}"
-                required
-            >
+  if (!direcciones.length) {
+    cont.appendChild(crearDireccionItem());
+    return;
+  }
 
-            <input
-                type="text"
-                name="maps[]"
-                id="edit-maps"
-                placeholder="Link Google Maps"
-                value="${data.maps || ''}"
-            >
-
-            <button type="button" class="btn-remove-dir"
-                onclick="this.parentElement.remove()">
-                Eliminar
-            </button>
-        `;
-
-        container.appendChild(div);
-    });
+  direcciones.forEach(d => {
+    cont.appendChild(
+      crearDireccionItem(
+        d.alias || "",
+        d.direccion || "",
+        d.link_maps || ""
+      )
+    );
+  });
 }
 
 
 
 
-function crearDireccionItem({ direccion = "", maps = "", alias = "" } = {}) {
-    const div = document.createElement("div");
-    div.className = "direccion-item";
 
-    div.innerHTML = `
-        <input 
-            type="text"
-            name="alias[]"
-            placeholder="Alias (ej. Sucursal Centro)"
-            value="${alias || ""}"
-        >
+function crearDireccionItem(alias = "", direccion = "", link = "") {
+  const div = document.createElement("div");
+  div.className = "direccion-item";
 
-        <input 
-            type="text"
-            name="direccion[]"
-            placeholder="Dirección o texto"
-            value="${direccion || ""}"
-            required
-        >
+  div.innerHTML = `
+    <input type="text"
+      class="input-alias"
+      placeholder="Alias (ej. Sucursal Centro)"
+      value="${alias || ""}"
+    >
 
-        <input 
-            type="url"
-            name="maps[]"
-            placeholder="Link Google Maps"
-            value="${maps || ""}"
-        >
+    <input type="text"
+      placeholder="Dirección o texto"
+      value="${direccion || ""}"
+      required
+    >
 
-        <button type="button" class="btn-remove-dir"
-            onclick="this.parentElement.remove()">
-            Eliminar
-        </button>
-    `;
+    <input type="text"
+      placeholder="Link Google Maps"
+      value="${link || ""}"
+    >
 
-    return div;
+    <button type="button" class="btn-remove-dir">Eliminar</button>
+  `;
+
+  div.querySelector(".btn-remove-dir").onclick = () => div.remove();
+
+  return div;
 }
+
 
 
 
