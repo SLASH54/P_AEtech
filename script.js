@@ -1555,7 +1555,7 @@ function renderTareasTable(tareas) {
 
         const dirSeleccionada =
           tarea.ClienteNegocio.direcciones.find(
-            d => d.id === tarea.direccionClienteId
+            d => Number(d.id) === Number(tarea.direccionClienteId)
           ) || tarea.ClienteNegocio.direcciones[0];
 
         if (dirSeleccionada) {
