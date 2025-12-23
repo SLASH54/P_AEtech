@@ -1747,6 +1747,12 @@ function openTareaModal(tareaIdOrObject, mode) {
     const clienteSelect = document.getElementById('tareaClienteId');
     const direccionSelect = document.getElementById('tareaDireccionCliente');
 
+    const fechaInput = document.getElementById('tareaFechaLimite');
+    if (fechaInput) {
+        const hoy = new Date().toISOString().split('T')[0];
+        fechaInput.value = hoy;
+    }
+
     // Asignar evento cada vez que se abre el modal
     clienteSelect.onchange = () => {
         cargarDireccionesCliente(clienteSelect.value);
