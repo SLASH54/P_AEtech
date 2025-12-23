@@ -1,3 +1,4 @@
+const { text } = require("pdfkit");
 
 let aliasWarningShown = false;
 
@@ -1293,7 +1294,6 @@ document.addEventListener('DOMContentLoaded', function () {
         alert(`${type === 'usuario' ? 'Usuario' : 'Cliente'} actualizado con éxito.`);
         closeModal('editModal');
         cargarClientesTabla();
-        initAdminPanel();
 
     } catch (error) {
         console.error('Error al enviar el formulario de edición:', error);
@@ -1550,18 +1550,24 @@ function renderTareasTable(tareas) {
         const asignadoNombre = tarea.AsignadoA?.nombre || 'N/A';
       const clienteNombre = tarea.ClienteNegocio?.nombre || 'Sin cliente';
 
-let clienteDireccion = 'Sin dirección registrada';
-let clienteMaps = null;
+let textoDireccion = 'Sin dirección registrada';
+let clienteMapsLink = null;
+let esMapa = false;
 
 if (tarea.ClienteNegocio?.direcciones?.length) {
     const dir = tarea.ClienteNegocio.direcciones[0]; // primera dirección
-    clienteDireccion = dir.direccion || 'Sin dirección registrada';
-    clienteMaps = dir.maps || null;
+
+    if (dir.maps) {
+        textoDireccion = dir.alias || 'Ver ubicación';
+        clienteMapsLink = dir.maps;
+        esMapa = true;
+    } else {
+        textoDireccion = dir.direccion || 'Sin dirección registrada';
+        clienteMapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(textoDireccion)}`;
+    }
 }
 
-const clienteMapsLink = clienteMaps
-    ? clienteMaps
-    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(clienteDireccion)}`;
+
 
         // Fila de la tabla
         row.innerHTML = `
@@ -1586,7 +1592,8 @@ const clienteMapsLink = clienteMaps
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                <a href="${clienteMapsLink}" target="_blank" class="text-blue-600 hover:underline">
-                  ${clienteDireccion} 📍
+                  ${textoDireccion} 📍
+                  ${esMapa ? ' 🗺️' : ''}
                </a>
 
             </td>
