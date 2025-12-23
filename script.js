@@ -407,7 +407,10 @@ const registerClient = async (e) => {
     // =========================
     // DIRECCIONES
     // =========================
-    const bloques = document.querySelectorAll('.direccion-item');
+    //const bloques = document.querySelectorAll('.direccion-item');
+    const cont = document.getElementById('direccionesContainerRegistro');
+    const bloques = cont.querySelectorAll('.direccion-item');
+
 
     const direcciones = [];
     const maps = [];
