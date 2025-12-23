@@ -1552,21 +1552,20 @@ function renderTareasTable(tareas) {
 
 let textoDireccion = 'Sin dirección registrada';
 let clienteMapsLink = null;
-let esMapa = false;
 
 if (tarea.ClienteNegocio?.direcciones?.length) {
     const dir = tarea.ClienteNegocio.direcciones[0]; // primera dirección
 
     if (dir.maps) {
+        // Si es Google Maps → mostrar alias
         textoDireccion = dir.alias || 'Ver ubicación';
         clienteMapsLink = dir.maps;
-        esMapa = true;
     } else {
+        // Dirección en texto normal
         textoDireccion = dir.direccion || 'Sin dirección registrada';
         clienteMapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(textoDireccion)}`;
     }
 }
-
 
 
         // Fila de la tabla
@@ -1593,7 +1592,6 @@ if (tarea.ClienteNegocio?.direcciones?.length) {
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                <a href="${clienteMapsLink}" target="_blank" class="text-blue-600 hover:underline">
                   ${textoDireccion} 📍
-                  ${esMapa ? ' 🗺️' : ''}
                </a>
 
             </td>
@@ -1746,12 +1744,6 @@ function openTareaModal(tareaIdOrObject, mode) {
 
     const clienteSelect = document.getElementById('tareaClienteId');
     const direccionSelect = document.getElementById('tareaDireccionCliente');
-
-    const fechaInput = document.getElementById('tareaFechaLimite');
-    if (fechaInput) {
-        const hoy = new Date().toISOString().split('T')[0];
-        fechaInput.value = hoy;
-    }
 
     // Asignar evento cada vez que se abre el modal
     clienteSelect.onchange = () => {
