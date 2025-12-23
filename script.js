@@ -918,27 +918,53 @@ function openEditModal(data, type) {
         rolSelect.value = data.rol || '';
 
     } else { // CLIENTE
-        userFields.style.display = 'none';
-        clientFields.style.display = 'block';
+    userFields.style.display = 'none';
+    clientFields.style.display = 'block';
 
-        rolSelect.required = false;
-        rolSelect.value = "";
-        cargarDireccionesEditar(data, type);
-        //cargarDireccionesEnModal(cliente);
+    rolSelect.required = false;
+    rolSelect.value = "";
 
-        document.getElementById('edit-telefono').value = data.telefono || '';
+    document.getElementById('edit-telefono').value = data.telefono || '';
 
-        const cont = document.getElementById("direccionesContainer");
-        cont.innerHTML = "";
+    const cont = document.getElementById("direccionesContainer");
+    cont.innerHTML = "";
 
-        if (data.direcciones && data.direcciones.length > 0) {
-            data.direcciones.forEach(dir => {
-                agregarDireccion(dir.direccion || "");
-            });
-        } else {
-            agregarDireccion("");
-        }
+    if (Array.isArray(data.direcciones) && data.direcciones.length > 0) {
+        data.direcciones.forEach(dir => {
+            const div = document.createElement("div");
+            div.className = "direccion-item";
+
+            div.innerHTML = `
+                <input type="text"
+                       name="alias[]"
+                       placeholder="Alias (ej. Sucursal Centro)"
+                       value="${dir.alias || ''}">
+
+                <input type="text"
+                       name="direccion[]"
+                       placeholder="Dirección o texto"
+                       value="${dir.maps ? '' : (dir.direccion || '')}">
+
+                <input type="url"
+                       name="maps[]"
+                       placeholder="Link Google Maps"
+                       value="${dir.maps || ''}">
+
+                <button type="button"
+                        class="btn-remove-dir"
+                        onclick="this.parentElement.remove()">
+                    Eliminar
+                </button>
+            `;
+
+            cont.appendChild(div);
+        });
+    } else {
+        // Si no tiene direcciones, crea una vacía
+        agregarDireccion();
     }
+}
+
 
     modal.style.display = 'block';
 }
