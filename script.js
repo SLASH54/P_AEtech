@@ -1026,6 +1026,7 @@ let indexDir = 0;
 
 function agregarDireccion(valor = "") {
     const cont = document.getElementById("direccionesContainer");
+    cont.appendChild(crearDireccionItem());
 
     const div = document.createElement("div");
     div.classList.add("direccion-item");
@@ -1099,34 +1100,21 @@ async function cargarDireccionesCliente(clienteId) {
       return;
     }
 
-    cliente.direcciones.forEach(dir => {
-      const div = document.createElement("div");
-      div.className = "direccion-item";
+    
 
-      div.innerHTML = `
-        <input type="text"
-          class="input-alias"
-          placeholder="Alias (ej. Sucursal Centro)"
-          value="${dir.alias || ""}"
-        >
+    cont.innerHTML = "";
 
-        <input type="text"
-          placeholder="Dirección o texto"
-          value="${dir.direccion || ""}"
-        >
+cliente.direcciones.forEach(d => {
+  cont.appendChild(
+    crearDireccionItem({
+      id: d.id,
+      alias: d.alias,
+      direccion: d.direccion,
+      maps: d.maps
+    })
+  );
+});
 
-        <input type="text"
-          placeholder="Link Google Maps"
-          value="${dir.maps || ""}"
-        >
-
-        <button type="button" class="btn-remove-dir">Eliminar</button>
-      `;
-
-      div.querySelector(".btn-remove-dir").onclick = () => div.remove();
-
-      cont.appendChild(div);
-    });
 
   } catch (err) {
     console.error("Error cargando direcciones:", err);
@@ -1138,35 +1126,25 @@ async function cargarDireccionesCliente(clienteId) {
 
 
 
-function crearDireccionItem(alias = "", direccion = "", link = "") {
+function crearDireccionItem({ id = null, alias = "", direccion = "", maps = "" } = {}) {
   const div = document.createElement("div");
   div.className = "direccion-item";
+  if (id) div.dataset.id = id;
 
   div.innerHTML = `
-    <input type="text"
-      class="input-alias"
-      placeholder="Alias (ej. Sucursal Centro)"
-      value="${alias || ""}"
-    >
-
-    <input type="text"
-      placeholder="Dirección o texto"
-      value="${direccion || ""}"
-      required
-    >
-
-    <input type="text"
-      placeholder="Link Google Maps"
-      value="${link || ""}"
-    >
-
+    <input type="text" class="dir-alias" placeholder="Alias (ej. Sucursal Centro)" value="${alias}">
+    <input type="text" class="dir-texto" placeholder="Dirección o texto" value="${direccion}">
+    <input type="text" class="dir-maps" placeholder="Link Google Maps" value="${maps}">
     <button type="button" class="btn-remove-dir">Eliminar</button>
   `;
 
-  div.querySelector(".btn-remove-dir").onclick = () => div.remove();
+  div.querySelector(".btn-remove-dir").addEventListener("click", () => {
+    div.remove();
+  });
 
   return div;
 }
+
 
 
 
@@ -1237,10 +1215,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const items = document.querySelectorAll("#direccionesContainer .direccion-item");
 
-    if (items.length === 0) {
-      alert("Ingresa al menos una dirección.");
-      return;
-    }
+
+items.forEach(item => {
+  const direccion = item.querySelector(".dir-texto")?.value.trim();
+  if (!direccion) return;
+
+  direcciones.push({
+    id: item.dataset.id || null,   // existente o nueva
+    alias: item.querySelector(".dir-alias")?.value.trim() || null,
+    direccion,
+    maps: item.querySelector(".dir-maps")?.value.trim() || null
+  });
+});
+
+if (direcciones.length === 0) {
+  alert("Ingresa al menos una dirección.");
+  return;
+}
+
 
     
 
