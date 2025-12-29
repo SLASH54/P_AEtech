@@ -1678,17 +1678,67 @@ function obtenerNecesidadesLev() {
   items.forEach(div => {
     const descripcion = div.querySelector("textarea")?.value || "";
     const img = div.querySelector(".img-preview");
-    const imagenBase64 = img && img.src ? img.src : null;
+    
+    // 💡 IMPORTANTE: Tomamos el src que ya tiene la URL arreglada
+    const imagenUrl = img && img.src && img.style.display !== "none" ? img.src : null;
 
-    if (descripcion || imagenBase64) {
+    if (descripcion || imagenUrl) {
       necesidades.push({
-        descripcion,
-        imagen: imagenBase64
+        descripcion: descripcion,
+        imagen: imagenUrl // Aquí se guarda el link https://...
       });
     }
   });
 
   return necesidades;
+}async function guardarLevantamiento() {
+  const clienteId = document.getElementById("lev-clienteSelect").value;
+  const direccion = document.getElementById("lev-direccion").value;
+
+  if (!clienteId || !direccion) {
+    alert("Selecciona cliente y dirección");
+    return;
+  }
+
+  const data = {
+    clienteId: clienteId,
+    clienteNombre: document.getElementById("lev-clienteSelect").selectedOptions[0]?.text,
+    direccion: direccion,
+    personal: document.getElementById("lev-personal").value,
+    fecha: document.getElementById("lev-fechaHora").value,
+    necesidades: obtenerNecesidadesLev(), // <-- Aquí ya van los links
+    materiales: levMaterialesList 
+  };
+
+  const method = levantamientoEditando ? "PUT" : "POST";
+  const url = levantamientoEditando
+    ? `${API_BASE_URL}/levantamientos/${levantamientoEditando}`
+    : `${API_BASE_URL}/levantamientos`;
+
+  try {
+    const res = await fetch(url, {
+      method: method,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem("userToken") || localStorage.getItem("accessToken")}`
+      },
+      body: JSON.stringify(data)
+    });
+
+    if (res.ok) {
+      alert("¡Levantamiento guardado con éxito!");
+      levantamientoEditando = null;
+      closeNuevoLevantamiento();
+      limpiarFormularioLev();
+      cargarTablaLevantamientos();
+    } else {
+      const error = await res.json();
+      alert("Error al guardar: " + (error.message || "Error desconocido"));
+    }
+  } catch (err) {
+    console.error("Error al guardar:", err);
+    alert("No se pudo conectar con el servidor para guardar.");
+  }
 }
 
 
