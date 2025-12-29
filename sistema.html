@@ -1313,7 +1313,26 @@ document.getElementById("lev-clienteSelect")
     ?.addEventListener("change", clienteChangeLev);
 
 
+//SUBIR FOTOS XD 
+    async function subirFotoAlServidor(file) {
+    const formData = new FormData();
+    formData.append("photo", file); 
+
+    const token = localStorage.getItem("userToken") || localStorage.getItem("accessToken");
+
+    const res = await fetch(`${API_BASE_URL}/upload`, { 
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}` },
+        body: formData
+    });
+
+    const data = await res.json();
+    return data.filePath; // Aquí recibimos el link de Cloudinary
+} 
+
+
     // ================= NECESIDADES =================
+
 function addNecesidad() {
     const cont = document.getElementById("lev-necesidadesContainer");
 
@@ -1357,16 +1376,26 @@ function addNecesidad() {
 
     btnFoto.addEventListener("click", () => fileInput.click());
 
-    fileInput.addEventListener("change", () => {
+    
+   fileInput.addEventListener("change", async () => {
         const file = fileInput.files[0];
         if (!file) return;
 
-        const reader = new FileReader();
-        reader.onload = e => {
-            imgPreview.src = e.target.result;
+        // Feedback visual
+        btnFoto.innerText = "⏳ Subiendo...";
+        btnFoto.disabled = true;
+
+        const urlCloudinary = await subirFotoAlServidor(file);
+
+        if (urlCloudinary) {
+            imgPreview.src = urlCloudinary; 
             imgPreview.style.display = "block";
-        };
-        reader.readAsDataURL(file);
+            btnFoto.innerText = "✅ Foto Lista";
+        } else {
+            alert("Error al subir la imagen");
+            btnFoto.innerText = "📸 Reintentar";
+        }
+        btnFoto.disabled = false;
     });
 
     // 3️⃣ Agregar al contenedor (AL FINAL)
@@ -1769,6 +1798,7 @@ function verLevantamiento(id) {
 
 
 //NECESIDADES REGISTRADAS 
+
 function renderNecesidadesVer(necesidades = []) {
   const cont = document.getElementById("verNecesidades");
   cont.innerHTML = "";
