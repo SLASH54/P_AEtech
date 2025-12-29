@@ -1318,7 +1318,7 @@ document.getElementById("lev-clienteSelect")
     const formData = new FormData();
     formData.append("photo", file); 
 
-    const token = localStorage.getItem("userToken") 
+    const token = localStorage.getItem("accessToken");
 
     try {
         // IMPORTANTE: Asegúrate que esta ruta /upload exista en tu index.js o app.js del backend
@@ -1393,7 +1393,7 @@ function addNecesidad() {
         btnFoto.innerText = "⏳ Subiendo...";
         btnFoto.disabled = true;
 
-
+        
         const urlCloudinary = await subirFotoAlServidor(file);
 
         if (urlCloudinary) {
