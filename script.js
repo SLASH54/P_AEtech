@@ -1564,7 +1564,7 @@ function renderTareasTable(tareas) {
           clienteDireccion =
             dirSeleccionada.alias ||       // 🥇 PRIORIDAD 1
             dirSeleccionada.direccion ||   // 🥈 PRIORIDAD 2
-            'Ubicación en Google Maps';     // 🥉 fallback
+            dirSeleccionada.alias;
         }
       }
 
