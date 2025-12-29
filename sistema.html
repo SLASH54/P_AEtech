@@ -1385,27 +1385,30 @@ function addNecesidad() {
     btnFoto.addEventListener("click", () => fileInput.click());
 
     
-   fileInput.addEventListener("change", async () => {
-        const file = fileInput.files[0];
-        if (!file) return;
+  fileInput.addEventListener("change", async () => {
+    const file = fileInput.files[0];
+    if (!file) return;
 
-        // Feedback visual
-        btnFoto.innerText = "⏳ Subiendo...";
-        btnFoto.disabled = true;
+    btnFoto.innerText = "⏳ Subiendo...";
+    btnFoto.disabled = true;
 
+    const pathRelativo = await subirFotoAlServidor(file);
+
+    if (pathRelativo) {
+        // 💡 AQUÍ ESTÁ EL TRUCO: 
+        // Si pathRelativo es 'uploads/foto.jpg', le pegamos la URL del Render antes.
+        // Usamos API_BASE_URL y le quitamos el '/api' para que quede la raíz del servidor.
+        const urlServidor = API_BASE_URL.replace('/api', ''); 
+        imgPreview.src = `${urlServidor}/${pathRelativo}`; 
         
-        const urlCloudinary = await subirFotoAlServidor(file);
-
-        if (urlCloudinary) {
-            imgPreview.src = urlCloudinary; 
-            imgPreview.style.display = "block";
-            btnFoto.innerText = "✅ Foto Lista";
-        } else {
-            alert("Error al subir la imagen");
-            btnFoto.innerText = "📸 Reintentar";
-        }
-        btnFoto.disabled = false;
-    });
+        imgPreview.style.display = "block";
+        btnFoto.innerText = "✅ Foto Lista";
+    } else {
+        alert("Error al subir la imagen");
+        btnFoto.innerText = "📸 Reintentar";
+    }
+    btnFoto.disabled = false;
+});
 
     // 3️⃣ Agregar al contenedor (AL FINAL)
     cont.appendChild(div);
@@ -1807,7 +1810,6 @@ function verLevantamiento(id) {
 
 
 //NECESIDADES REGISTRADAS 
-
 function renderNecesidadesVer(necesidades = []) {
   const cont = document.getElementById("verNecesidades");
   cont.innerHTML = "";
@@ -1817,13 +1819,20 @@ function renderNecesidadesVer(necesidades = []) {
     return;
   }
 
+  const urlServidor = API_BASE_URL.replace('/api', '');
+
   necesidades.forEach(n => {
     const div = document.createElement("div");
     div.className = "ver-necesidad";
 
+    // Si la imagen no tiene http (es ruta relativa), le ponemos la del render
+    const srcFinal = n.imagen && !n.imagen.startsWith('http') 
+                     ? `${urlServidor}/${n.imagen}` 
+                     : n.imagen;
+
     div.innerHTML = `
       <p>${n.descripcion || ""}</p>
-      ${n.imagen ? `<img src="${n.imagen}" />` : ""}
+      ${srcFinal ? `<img src="${srcFinal}" style="max-width:100%; border-radius:8px;" />` : ""}
     `;
 
     cont.appendChild(div);
