@@ -1397,7 +1397,7 @@ function addMaterial() {
     input.value = "";
 }
 
-
+//HORA AUTMATICA
 function setFechaHoraActual() {
     const input = document.getElementById("lev-fechaHora");
     if (!input) return;
@@ -1768,7 +1768,7 @@ function verLevantamiento(id) {
 }
 
 
-
+//NECESIDADES REGISTRADAS 
 function renderNecesidadesVer(necesidades = []) {
   const cont = document.getElementById("verNecesidades");
   cont.innerHTML = "";
@@ -1792,6 +1792,10 @@ function renderNecesidadesVer(necesidades = []) {
 }
 
 
+
+
+
+//MATERIALES 
 function renderMaterialesVer(materiales = []) {
   const ul = document.getElementById("verMateriales");
   ul.innerHTML = "";
@@ -1809,7 +1813,7 @@ function renderMaterialesVer(materiales = []) {
 }
 
 
-
+//CERRAR EL LEVANTAMIENTO 
 
 function cerrarVerLevantamiento() {
     document.getElementById("modalVerLevantamiento")
