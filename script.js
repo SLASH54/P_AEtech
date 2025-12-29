@@ -1564,7 +1564,7 @@ function renderTareasTable(tareas) {
           clienteDireccion =
             dirSeleccionada.alias ||       // 🥇 PRIORIDAD 1
             dirSeleccionada.direccion ||   // 🥈 PRIORIDAD 2
-            dirSeleccionada.alias;
+            'Ubicación en Google Maps';    // 🥉 fallback
         }
       }
 
@@ -1596,7 +1596,7 @@ const clienteMapsLink = clienteMaps
                 ${asignadoNombre}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-               <a href="${clienteDireccion}" target="_blank" class="text-blue-600 hover:underline">
+               <a href="${clienteMapsLink}" target="_blank" class="text-blue-600 hover:underline">
                   ${clienteDireccion} 📍
                   
                </a>
