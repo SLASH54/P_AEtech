@@ -2,36 +2,26 @@
 const uploadMiddleware = require('../config/multerConfig');
 const path = require('path');
 
-const cloudinary = require('cloudinary').v2;
-const fs = require('fs');
+// Middleware para la subida de un solo archivo. 
+// 'photo' DEBE coincidir con el nombre del campo del archivo que envía el cliente (ej. en Postman).
+exports.uploadSinglePhoto = uploadMiddleware.single('photo');
 
-// Configuración (Usa tus datos del .env)
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
-});
+/**
+ * Controlador que se ejecuta DESPUÉS de que multer ha subido el archivo.
+ * Devuelve la ruta relativa que se guardará en la base de datos.
+ */
+exports.handlePhotoUpload = (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ message: 'No se subió ningún archivo o el tipo de archivo no es válido.' });
+    }
 
-// Esta es la función que ya tienes, pero mejorada
-exports.handlePhotoUpload = async (req, res) => {
-  try {
-    if (!req.file) return res.status(400).json({ msg: 'No hay archivo' });
-
-    // 1. Subir a Cloudinary desde la carpeta temporal
-    const result = await cloudinary.uploader.upload(req.file.path, {
-      folder: 'levantamientos'
-    });
-
-    // 2. Borrar el archivo temporal de tu servidor (para no llenar espacio)
-    fs.unlinkSync(req.file.path);
-
-    // 3. Devolvemos la URL segura de Cloudinary al frontend
+    // La URL que guardaremos en la base de datos
+    // path.join('uploads', req.file.filename) resultará en algo como: uploads/photo-123456789.jpg
+    const fileUrl = path.join('uploads', req.file.filename); 
+    
+    // NOTA: Esta es la URL que el frontend deberá guardar en el campo 'datos_recopilados' de la Evidencia.
     res.json({
-      message: 'Foto subida con éxito.',
-      filePath: result.secure_url 
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ msg: 'Error al subir a Cloudinary' });
-  }
+        message: 'Foto subida con éxito.',
+        filePath: fileUrl
+    });
 };
