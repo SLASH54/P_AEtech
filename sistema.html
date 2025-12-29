@@ -1197,31 +1197,30 @@ function setPersonalActual() {
 }
 
 
+// GUARDAR LEVANTAMIENTO 
 
 async function guardarLevantamiento() {
-
-  const cliente = document.getElementById("lev-clienteSelect").value;
+  const clienteId = document.getElementById("lev-clienteSelect").value;
   const direccion = document.getElementById("lev-direccion").value;
 
-  if (!cliente || !direccion) {
+  if (!clienteId || !direccion) {
     alert("Selecciona cliente y dirección");
     return;
-
-
-    console.log("CLICK GUARDAR LEVANTAMIENTO");
-
   }
 
-
+  // ARMAMOS EL OBJETO QUE SE VA A LA BASE DE DATOS
   const data = {
-    clienteId: document.getElementById("lev-clienteSelect").value,
+    clienteId: clienteId,
     clienteNombre: document.getElementById("lev-clienteSelect").selectedOptions[0]?.text,
-    direccion: document.getElementById("lev-direccion").value,
+    direccion: direccion,
     personal: document.getElementById("lev-personal").value,
     fecha: document.getElementById("lev-fechaHora").value,
-
-    necesidades: obtenerNecesidadesLev(),
-    materiales: levMaterialesList   // 👈 YA EXISTE
+    
+    // AQUÍ SE GUARDAN LAS FOTOS Y DESCRIPCIONES (JSON)
+    necesidades: obtenerNecesidadesLev(), 
+    
+    // AQUÍ SE GUARDAN LOS MATERIALES (JSON)
+    materiales: levMaterialesList 
   };
 
   const method = levantamientoEditando ? "PUT" : "POST";
@@ -1229,26 +1228,43 @@ async function guardarLevantamiento() {
     ? `${API_BASE_URL}/levantamientos/${levantamientoEditando}`
     : `${API_BASE_URL}/levantamientos`;
 
-  await fetch(url, {
-    method,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("userToken")}`
-    },
-    body: JSON.stringify(data)
-  });
+  try {
+    const res = await fetch(url, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        // Usa el token que tengas guardado (userToken o accessToken)
+        Authorization: `Bearer ${localStorage.getItem("userToken") || localStorage.getItem("accessToken")}`
+      },
+      body: JSON.stringify(data)
+    });
 
-  levantamientoEditando = null;
-  closeNuevoLevantamiento();
-  cargarTablaLevantamientos();
-
-
-  
-  
+    if (res.ok) {
+      alert("¡Levantamiento y fotos guardados en la base de datos!");
+      levantamientoEditando = null;
+      closeNuevoLevantamiento();
+      limpiarFormularioLev();
+      cargarTablaLevantamientos();
+    } else {
+      alert("Error al guardar en la base de datos");
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
 }
 
-
-
+//LIMPIAR FORMULARIO 
+function limpiarFormularioLev() {
+    // Limpiar el array global de materiales
+    levMaterialesList = []; 
+    // Limpiar el HTML de materiales
+    document.getElementById("levListaMateriales").innerHTML = "";
+    // Limpiar el HTML de necesidades/fotos
+    document.getElementById("lev-necesidadesContainer").innerHTML = "";
+    // Resetear el select de cliente
+    document.getElementById("lev-clienteSelect").value = "";
+    document.getElementById("lev-direccion").value = "";
+}
 
 
 
@@ -1652,6 +1668,9 @@ function editarLevantamiento(id) {
   .then(r => r.json())
   .then(l => {
 
+
+
+
     // CAMPOS BÁSICOS
     document.getElementById("lev-clienteSelect").value = l.cliente_id;
     document.getElementById("lev-direccion").value = l.direccion;
@@ -1697,6 +1716,8 @@ function editarLevantamiento(id) {
 }
 
 
+
+//ELIMINAR LEANTAMIENTO 
 function eliminarLevantamiento(id) {
   if (!confirm("¿Eliminar levantamiento?")) return;
 
