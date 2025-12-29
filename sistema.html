@@ -1204,105 +1204,40 @@ async function guardarLevantamiento() {
   const direccion = document.getElementById("lev-direccion").value;
 
   if (!clienteId || !direccion) {
-    alert("Selecciona cliente y dirección");
+    alert("Faltan datos: Cliente o Dirección");
     return;
   }
 
-  // ARMAMOS EL OBJETO QUE SE VA A LA BASE DE DATOS
   const data = {
-    clienteId: clienteId,
-    clienteNombre: document.getElementById("lev-clienteSelect").selectedOptions[0]?.text,
+    cliente_id: clienteId, // Revisa si tu DB usa clienteId o cliente_id
     direccion: direccion,
-    personal: document.getElementById("lev-personal").value,
-    fecha: document.getElementById("lev-fechaHora").value,
-    
-    // AQUÍ SE GUARDAN LAS FOTOS Y DESCRIPCIONES (JSON)
-    necesidades: obtenerNecesidadesLev(), 
-    
-    // AQUÍ SE GUARDAN LOS MATERIALES (JSON)
+    necesidades: obtenerNecesidadesLev(), // <-- Aquí van las rutas limpias
     materiales: levMaterialesList 
   };
 
-  const method = levantamientoEditando ? "PUT" : "POST";
-  const url = levantamientoEditando
-    ? `${API_BASE_URL}/levantamientos/${levantamientoEditando}`
-    : `${API_BASE_URL}/levantamientos`;
-
   try {
-    const res = await fetch(url, {
-      method,
+    const res = await fetch(`${API_BASE_URL}/levantamientos`, {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
-        // Usa el token que tengas guardado (userToken o accessToken)
-        Authorization: `Bearer ${localStorage.getItem("userToken") || localStorage.getItem("accessToken")}`
+        "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
       },
       body: JSON.stringify(data)
     });
 
     if (res.ok) {
-      alert("¡Levantamiento y fotos guardados en la base de datos!");
-      levantamientoEditando = null;
-      closeNuevoLevantamiento();
-      limpiarFormularioLev();
-      cargarTablaLevantamientos();
+      alert("¡Guardado con éxito!");
+      location.reload(); // Recargamos para ver los cambios
     } else {
-      alert("Error al guardar en la base de datos");
+      const errData = await res.json();
+      console.error("Error del servidor:", errData);
+      alert("El servidor rechazó el guardado: " + (errData.message || "Error 400"));
     }
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Error de conexión:", error);
+    alert("No hay conexión con el servidor");
   }
 }
-async function guardarLevantamiento() {
-  const clienteId = document.getElementById("lev-clienteSelect").value;
-  const direccion = document.getElementById("lev-direccion").value;
-
-  if (!clienteId || !direccion) {
-    alert("Selecciona cliente y dirección");
-    return;
-  }
-
-  const data = {
-    clienteId: clienteId,
-    clienteNombre: document.getElementById("lev-clienteSelect").selectedOptions[0]?.text,
-    direccion: direccion,
-    personal: document.getElementById("lev-personal").value,
-    fecha: document.getElementById("lev-fechaHora").value,
-    necesidades: obtenerNecesidadesLev(), // <-- Aquí ya van los links
-    materiales: levMaterialesList 
-  };
-
-  const method = levantamientoEditando ? "PUT" : "POST";
-  const url = levantamientoEditando
-    ? `${API_BASE_URL}/levantamientos/${levantamientoEditando}`
-    : `${API_BASE_URL}/levantamientos`;
-
-  try {
-    const res = await fetch(url, {
-      method: method,
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem("userToken") || localStorage.getItem("accessToken")}`
-      },
-      body: JSON.stringify(data)
-    });
-
-    if (res.ok) {
-      alert("¡Levantamiento guardado con éxito!");
-      levantamientoEditando = null;
-      closeNuevoLevantamiento();
-      limpiarFormularioLev();
-      cargarTablaLevantamientos();
-    } else {
-      const error = await res.json();
-      alert("Error al guardar: " + (error.message || "Error desconocido"));
-    }
-  } catch (err) {
-    console.error("Error al guardar:", err);
-    alert("No se pudo conectar con el servidor para guardar.");
-  }
-}
-
-
 //LIMPIAR FORMULARIO 
 function limpiarFormularioLev() {
     // Limpiar el array global de materiales
@@ -1731,19 +1666,24 @@ function obtenerNecesidadesLev() {
     const descripcion = div.querySelector("textarea")?.value || "";
     const img = div.querySelector(".img-preview");
     
-    // 💡 IMPORTANTE: Tomamos el src que ya tiene la URL arreglada
-    const imagenUrl = img && img.src && img.style.display !== "none" ? img.src : null;
+    let imagenPath = null;
+    if (img && img.src && img.style.display !== "none") {
+      // 💡 ESTO ES LO IMPORTANTE:
+      // Quitamos la URL de Render para que a la base de datos solo llegue el nombre del archivo
+      const urlServidor = API_BASE_URL.replace('/api', ''); 
+      imagenPath = img.src.replace(urlServidor + "/", ""); 
+    }
 
-    if (descripcion || imagenUrl) {
+    if (descripcion.trim() !== "" || imagenPath) {
       necesidades.push({
         descripcion: descripcion,
-        imagen: imagenUrl // Aquí se guarda el link https://...
+        imagen: imagenPath 
       });
     }
   });
-
   return necesidades;
 }
+
 
 
 //editar el levantamiento
