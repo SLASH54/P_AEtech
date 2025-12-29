@@ -3643,6 +3643,7 @@ function addMaterial() {
 
 /* ---------- GUARDAR ---------- */
 async function guardarLevantamiento() {
+  console.log("viva pepe el grillo ")
     const clienteId = document.getElementById("lev-clienteSelect")?.value;
     const direccion = document.getElementById("lev-direccion")?.value;
     const fecha = document.getElementById("lev-fechaHora")?.value;
