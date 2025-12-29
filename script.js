@@ -3723,7 +3723,8 @@ document.addEventListener("DOMContentLoaded", () => {
         ?.addEventListener("click", addMaterial);
 
     document.getElementById("btnGuardarLevantamiento")
-        ?.addEventListener("click", guardarLevantamiento);
+        ?.addEventListener("click", guardarLevantamiento)
+        console.log("boton funcionando correctamente");
 
     document.getElementById("lev-clienteSelect")
         ?.addEventListener("change", onClienteChange);
