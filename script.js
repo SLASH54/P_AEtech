@@ -3641,50 +3641,7 @@ function addMaterial() {
     inp.value = "";
 }
 
-/* ---------- GUARDAR ---------- */
-async function guardarLevantamiento() {
-  console.log("viva pepe el grillo ")
-    const clienteId = document.getElementById("lev-clienteSelect")?.value;
-    const direccion = document.getElementById("lev-direccion")?.value;
-    const fecha = document.getElementById("lev-fechaHora")?.value;
-    const personal = document.getElementById("lev-personal")?.value;
 
-    if (!clienteId || !direccion || !fecha) {
-        alert("Completa los campos obligatorios");
-        return;
-    }
-
-    const materiales = [...document.querySelectorAll("#lev-materialesLista li")]
-        .map(li => li.textContent.replace("❌", "").trim());
-
-    const necesidades = [...document.querySelectorAll(".nec-item textarea")]
-        .map(t => t.value.trim()).filter(Boolean);
-
-    const token = localStorage.getItem("accessToken");
-    const res = await fetch(`${API_BASE_URL}/levantamientos`, {
-        method: "POST",
-        headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            clienteNegocioId: clienteId,
-            direccion,
-            fecha,
-            personalNombre: personal,
-            materiales,
-            necesidades
-        })
-    });
-
-    if (!res.ok) {
-        alert("Error al guardar");
-        return;
-    }
-
-    closeNuevoLevantamiento();
-    cargarLevantamientosTabla();
-}
 
 /* ---------- TABLA ---------- */
 async function cargarLevantamientosTabla() {
