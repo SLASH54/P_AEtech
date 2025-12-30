@@ -1641,32 +1641,31 @@ async function cargarTablaLevantamientos() {
 
   const data = await res.json();
   levantamientosCache = data;
-  
 
   const tbody = document.getElementById("tablaLevantamientos");
   tbody.innerHTML = "";
 
   data.forEach(l => {
+    // 💡 PostgreSQL a veces usa 'id', asegúrate que el campo existe
+    const idReal = l.id || l.id_levantamiento; 
+
     const tr = document.createElement("tr");
-  tr.innerHTML = `
-  <td>${l.cliente_nombre}</td>
-  <td>${l.direccion}</td>
-  <td>${l.personal}</td>
-  <td>${new Date(l.fecha).toLocaleString()}</td>
-  <td class="acciones">
-    <button onclick="editarLevantamiento(${l.id})">Editar</button>
-    <button onclick="eliminarLevantamiento(${l.id})">Eliminar</button>
-    <button onclick="verLevantamiento(${l.id})">Ver</button>
-    <button onclick="pdfLevantamiento(${l.id})">PDF</button>
-  </td>
-`;
-
-
-
+    tr.innerHTML = `
+      <td>${l.cliente_nombre || 'Sin nombre'}</td>
+      <td>${l.direccion}</td>
+      <td>${l.personal}</td>
+      <td>${new Date(l.fecha).toLocaleString()}</td>
+      
+      <td class="acciones">
+        <button onclick="editarLevantamiento('${idReal}')">Editar</button>
+        <button onclick="eliminarLevantamiento('${idReal}')">Eliminar</button>
+        <button onclick="verLevantamiento('${idReal}')">Ver</button>
+        <button onclick="pdfLevantamiento('${idReal}')">PDF</button>
+      </td>
+    `;
     tbody.appendChild(tr);
   });
 }
-
 
 cargarTablaLevantamientos();
 
@@ -1781,43 +1780,41 @@ function eliminarLevantamiento(id) {
 //ver levantamiento
 
 async function verLevantamiento(id) {
+  // 1. Usamos el token correcto (userToken)
+  const token = localStorage.getItem("userToken"); 
+  
   console.log("ID solicitado a Postgres:", id);
+  
   try {
     const res = await fetch(`${API_BASE_URL}/levantamientos/${id}`, {
-      headers: { "Authorization": `Bearer ${localStorage.getItem("accessToken")}` }
+      headers: { "Authorization": `Bearer ${token}` } // 👈 Token unificado
     });
 
     if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.message || "Error al obtener datos del servidor");
+        throw new Error(errorData.message || "Error al obtener datos");
     }
 
     const lev = await res.json();
-    console.log("Datos recibidos de Postgres:", lev);
+    console.log("Datos recibidos:", lev);
 
-    // Llenamos el modal (usando los campos que Postgres suele devolver)
-    // Probamos con ambos estilos de nombre por si acaso
-    document.getElementById("verCliente").textContent = lev.clienteNombre || lev.cliente_nombre || "Sin nombre";
+    // Llenar modal
+    document.getElementById("verCliente").textContent = lev.cliente_nombre || lev.clienteNombre || "Sin nombre";
     document.getElementById("verDireccion").textContent = lev.direccion || "Sin dirección";
     document.getElementById("verPersonal").textContent = lev.personal || "N/A";
-    document.getElementById("verFecha").textContent = lev.fecha || "N/A";
+    document.getElementById("verFecha").textContent = new Date(lev.fecha).toLocaleString() || "N/A";
 
-    // Fotos y Materiales
     renderNecesidadesVer(lev.necesidades || []);
     renderMaterialesVer(lev.materiales || []);
 
-    // Abrimos el modal
     const modal = document.getElementById("modalVerLevantamiento");
     if (modal) modal.classList.add("active");
 
   } catch (err) {
-    console.error("Error detallado:", err);
+    console.error("Error:", err);
     alert("Error al ver levantamiento: " + err.message);
   }
 }
-
-
-
 
 
 function pdfLevantamiento(id) {
