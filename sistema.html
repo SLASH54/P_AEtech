@@ -1786,55 +1786,44 @@ async function verLevantamiento(id) {
   try {
     const res = await fetch(`${API_BASE_URL}/levantamientos/${id}`, {
       headers: { 
-        "Authorization": `Bearer ${localStorage.getItem("userToken")}` // 💡 Unificado
+        "Authorization": `Bearer ${localStorage.getItem("userToken")}` 
       }
     });
 
-    if (!res.ok) throw new Error("Servidor no responde con datos.");
+    if (!res.ok) throw new Error("No se encontró el levantamiento");
 
     const lev = await res.json();
 
-    // Llenar datos básicos
-    document.getElementById("verCliente").textContent = lev.cliente_nombre || "Sin nombre";
+    // Llenar datos principales (probando ambos formatos de nombre)
+    document.getElementById("verCliente").textContent = lev.cliente_nombre || lev.clienteNombre || "Sin nombre";
     document.getElementById("verDireccion").textContent = lev.direccion || "Sin dirección";
     document.getElementById("verPersonal").textContent = lev.personal || "N/A";
     document.getElementById("verFecha").textContent = new Date(lev.fecha).toLocaleString();
 
-    // Dibujar Necesidades (Descripción + Fotos)
+    // Dibujar Necesidades e Imágenes
     const necCont = document.getElementById("verNecesidades");
     necCont.innerHTML = "";
     if (lev.necesidades && lev.necesidades.length > 0) {
         lev.necesidades.forEach(n => {
             const div = document.createElement("div");
-            div.style.borderBottom = "1px solid #eee";
-            div.style.padding = "10px 0";
+            div.style.marginBottom = "15px";
             div.innerHTML = `
                 <p><strong>Descripción:</strong> ${n.descripcion}</p>
-                ${n.imagen ? `<img src="${n.imagen}" style="width:100%; border-radius:10px; margin-top:5px;">` : ""}
+                ${n.imagen ? `<img src="${n.imagen}" style="width:100%; max-width:300px; border-radius:8px;">` : ""}
             `;
             necCont.appendChild(div);
         });
     }
 
     // Dibujar Materiales
-    const matCont = document.getElementById("verMateriales");
-    matCont.innerHTML = "";
-    if (lev.materiales && lev.materiales.length > 0) {
-        lev.materiales.forEach(m => {
-            const p = document.createElement("p");
-            p.textContent = `• ${m.cantidad} ${m.unidad} - ${m.nombre}`;
-            matCont.appendChild(p);
-        });
-    }
+    renderMaterialesVer(lev.materiales || []);
 
     document.getElementById("modalVerLevantamiento").classList.add("active");
   } catch (err) {
     console.error(err);
-    alert("Amiko, no se pudo cargar la info. Revisa que el backend esté actualizado.");
+    alert("Error al cargar el detalle amiko.");
   }
 }
-
-
 
 
 
