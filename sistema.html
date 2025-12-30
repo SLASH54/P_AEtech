@@ -1778,10 +1778,8 @@ function eliminarLevantamiento(id) {
 
 
 
+//ver levantamiento
 
-function verLevantamiento(id) {
-  alert("Aquí luego abrimos modal de solo lectura 👀\nID: " + id);
-}
 async function verLevantamiento(id) {
   try {
     const res = await fetch(`${API_BASE_URL}/levantamientos/${id}`, {
@@ -1820,32 +1818,6 @@ function pdfLevantamiento(id) {
 
 
 
-//ver modal de levantamiento 
-
-function verLevantamiento(id) {
-  fetch(`${API_BASE_URL}/levantamientos/${id}`, {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("userToken")}`
-    }
-  })
-  .then(r => r.json())
-  .then(l => {
-    document.getElementById("verCliente").textContent = l.cliente_nombre;
-    document.getElementById("verDireccion").textContent = l.direccion;
-    document.getElementById("verPersonal").textContent = l.personal;
-    document.getElementById("verFecha").textContent =
-      new Date(l.fecha).toLocaleString();
-
-    renderNecesidadesVer(l.necesidades || []);
-    renderMaterialesVer(l.materiales || []);
-
-    document.getElementById("modalVerLevantamiento").classList.add("active");
-  })
-  .catch(err => {
-    console.error(err);
-    alert("Error al abrir levantamiento");
-  });
-}
 
 
 //NECESIDADES REGISTRADAS 
