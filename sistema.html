@@ -1204,47 +1204,57 @@ function setPersonalActual() {
         console.log("boton funcionando correctamente");
 
 async function guardarLevantamiento() {
+  // 1. Capturamos los elementos primero
   const clienteSelect = document.getElementById("lev-clienteSelect");
   const cliente_id = clienteSelect.value;
   const cliente_nombre = clienteSelect.options[clienteSelect.selectedIndex]?.text || "";
-  const direccion = document.getElementById("lev-direccion").value; // 💡 Declaración correcta
+  const direccion = document.getElementById("lev-direccion").value; // 💡 Aquí se define 'direccion'
 
+  // 2. Validación básica
   if (!cliente_id || !direccion) {
     alert("Amiko, selecciona cliente y dirección.");
     return;
   }
 
+  // 3. Armamos el paquete exactamente como lo pide LevantamientosController.js
   const data = {
     cliente_id: cliente_id,
     cliente_nombre: cliente_nombre,
     direccion: direccion,
     personal: document.getElementById("lev-personal").value,
     fecha: document.getElementById("lev-fechaHora").value,
-    necesidades: obtenerNecesidadesLev(),
+    necesidades: obtenerNecesidadesLev(), // Asegúrate que esta función devuelva el array
     materiales: levMaterialesList 
   };
+
+  console.log("Datos a enviar:", data);
 
   try {
     const res = await fetch(`${API_BASE_URL}/levantamientos`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem("userToken")}` // 💡 Usa userToken como en tu login
+        "Authorization": `Bearer ${localStorage.getItem("userToken")}` // 💡 Unificado a userToken
       },
       body: JSON.stringify(data)
     });
 
     if (res.ok) {
-      alert("✅ Guardado con éxito");
-      location.reload();
+      alert("✅ ¡Levantamiento guardado con éxito!");
+      location.reload(); 
     } else {
-      const err = await res.json();
-      alert("Error 400: " + (err.message || "Revisa los campos"));
+      const errorData = await res.json();
+      console.error("Error del servidor:", errorData);
+      alert("Error al guardar: " + (errorData.message || "Error 400/500"));
     }
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error("Error de conexión:", err);
+    alert("No hay conexión con el servidor de Render.");
   }
 }
+
+
+
 
 
 
