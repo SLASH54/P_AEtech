@@ -1204,22 +1204,25 @@ function setPersonalActual() {
         console.log("boton funcionando correctamente");
 
 async function guardarLevantamiento() {
- const clienteSelect = document.getElementById("lev-clienteSelect");
-  const clienteId = clienteSelect.value;
+  const selectCliente = document.getElementById("lev-clienteSelect");
+  const clienteId = selectCliente.value;
   
-  // 💡 ESTA ES LA LÍNEA QUE TE FALTA:
-  // Sacamos el nombre del cliente que está escrito en la opción seleccionada
-  const clienteNombre = clienteSelect.options[clienteSelect.selectedIndex]?.text || "";
+  // 💡 Sacamos el nombre con seguridad
+  const clienteNombre = selectCliente.options[selectCliente.selectedIndex]?.text || "";
+  const direccion = document.getElementById("lev-direccion").value;
 
   if (!clienteId || !direccion) {
     alert("Amiko, selecciona cliente y dirección.");
     return;
   }
 
+  // REVISA AQUÍ: He puesto tanto 'clienteNombre' como 'cliente_nombre' 
+  // para que, sin importar cómo lo espere tu servidor, le llegue bien.
   const data = {
     clienteId: clienteId,
-    clienteNombre: clienteNombre, // 👈 ¡Ahora sí lo mandamos!
-    direccion: document.getElementById("lev-direccion").value,
+    clienteNombre: clienteNombre, 
+    cliente_nombre: clienteNombre, // Por si tu base usa guion bajo
+    direccion: direccion,
     personal: document.getElementById("lev-personal").value,
     fecha: document.getElementById("lev-fechaHora").value,
     necesidades: obtenerNecesidadesLev(), 
@@ -1241,16 +1244,13 @@ async function guardarLevantamiento() {
       location.reload(); 
     } else {
       const errorData = await res.json();
-      console.error("Error del servidor:", errorData);
-      alert("❌ Error al guardar: " + (errorData.msg || errorData.message || "Error en los datos"));
+      alert("❌ Error: " + (errorData.message || "No se pudo guardar"));
     }
   } catch (err) {
-    console.error("Error de conexión:", err);
-    alert("📡 No se pudo conectar con el servidor de Render.");
+    console.error("Error crítico:", err);
+    alert("Hubo un fallo en la conexión.");
   }
 }
-
-
 
 //LIMPIAR FORMULARIO 
 function limpiarFormularioLev() {
