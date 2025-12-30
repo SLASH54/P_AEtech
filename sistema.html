@@ -1702,67 +1702,65 @@ function obtenerNecesidadesLev() {
 
 //editar el levantamiento
 
-function editarLevantamiento(id) {
-  levantamientoEditando = id;
-  limpiarFormularioLev();
-  openNuevoLevantamiento();
+async function editarLevantamiento(id) {
+  try {
+    const res = await fetch(`${API_BASE_URL}/levantamientos/${id}`, {
+      headers: { "Authorization": `Bearer ${localStorage.getItem("accessToken")}` }
+    });
+    const lev = await res.json();
 
-  fetch(`${API_BASE_URL}/levantamientos/${id}`, {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("userToken")}`
-    }
-  })
-  .then(r => r.json())
-  .then(l => {
+    // 1. Guardamos el ID que estamos editando
+    levantamientoEditando = id; 
 
+    // 2. Llenamos el formulario principal
+    document.getElementById("lev-clienteSelect").value = lev.clienteId;
+    document.getElementById("lev-direccion").value = lev.direccion;
+    document.getElementById("lev-personal").value = lev.personal;
+    document.getElementById("lev-fechaHora").value = lev.fecha;
 
-
-
-    // CAMPOS BÁSICOS
-    document.getElementById("lev-clienteSelect").value = l.cliente_id;
-    document.getElementById("lev-direccion").value = l.direccion;
-    document.getElementById("lev-personal").value = l.personal;
-    document.getElementById("lev-fechaHora").value = l.fecha.slice(0,16);
-
-    // NECESIDADES
-    if (Array.isArray(l.necesidades)) {
-      l.necesidades.forEach(n => {
-        const cont = document.getElementById("lev-necesidadesContainer");
-        const div = document.createElement("div");
-        div.className = "nec-item";
-
-        div.innerHTML = `
-          <div class="nec-row">
-            <div class="nec-left">
-              <textarea class="form-control">${n.descripcion || ""}</textarea>
-              ${n.imagen ? `<img class="img-preview" src="${n.imagen}" style="display:block;">` : `<img class="img-preview">`}
-            </div>
-            <div class="nec-right">
-              <button type="button" class="btn btn-danger btn-sm">Eliminar</button>
-            </div>
-          </div>
-          <hr>
-        `;
-
-        div.querySelector(".btn-danger").onclick = () => div.remove();
-        cont.appendChild(div);
+    // 3. Cargamos las necesidades (con sus fotos)
+    const cont = document.getElementById("lev-necesidadesContainer");
+    cont.innerHTML = ""; // Limpiamos primero
+    
+    if (lev.necesidades) {
+      lev.necesidades.forEach(n => {
+        // Reutilizamos tu lógica de agregar fila, pero pasando los datos
+        addNecesidadConDatos(n.descripcion, n.imagen);
       });
     }
 
-    // MATERIALES
-    if (Array.isArray(l.materiales)) {
-      levMaterialesList = l.materiales;
-      levRenderMateriales();
-    }
+    // 4. Cargamos los materiales
+    levMaterialesList = lev.materiales || [];
+    renderMaterialesLev();
 
-  })
-  .catch(err => {
-    console.error(err);
-    alert("Error al cargar levantamiento");
-  });
+    // 5. Abrimos el modal de "Nuevo Levantamiento" pero dirá "Editar"
+    openNuevoLevantamiento();
+    document.querySelector("#modalNuevoLevantamiento h2").innerText = "Editar Levantamiento";
+    
+  } catch (err) {
+    console.error("Error al cargar para editar:", err);
+  }
 }
 
 
+
+
+//ver texto y fotos viejas del levantamieno al editar 
+
+function addNecesidadConDatos(descripcion, urlFoto) {
+    addNecesidad(); // Llama a tu función normal para crear la fila
+    const filas = document.querySelectorAll("#lev-necesidadesContainer .nec-item");
+    const ultimaFila = filas[filas.length - 1];
+    
+    // Rellenamos con lo que ya existía
+    ultimaFila.querySelector("textarea").value = descripcion;
+    if (urlFoto) {
+        const img = ultimaFila.querySelector(".img-preview");
+        img.src = urlFoto;
+        img.style.display = "block";
+        ultimaFila.querySelector(".btn-foto").innerText = "✅ Foto Cargada";
+    }
+}
 
 //ELIMINAR LEANTAMIENTO 
 function eliminarLevantamiento(id) {
@@ -1776,9 +1774,44 @@ function eliminarLevantamiento(id) {
   }).then(() => cargarTablaLevantamientos());
 }
 
+
+
+
+
+
 function verLevantamiento(id) {
   alert("Aquí luego abrimos modal de solo lectura 👀\nID: " + id);
 }
+async function verLevantamiento(id) {
+  try {
+    const res = await fetch(`${API_BASE_URL}/levantamientos/${id}`, {
+      headers: { "Authorization": `Bearer ${localStorage.getItem("accessToken")}` }
+    });
+    const lev = await res.json();
+
+    // Llenamos los datos básicos en el modal
+    document.getElementById("verCliente").textContent = lev.clienteNombre || "Sin nombre";
+    document.getElementById("verDireccion").textContent = lev.direccion || "Sin dirección";
+    document.getElementById("verPersonal").textContent = lev.personal || "";
+    document.getElementById("verFecha").textContent = lev.fecha || "";
+
+    // Renderizamos necesidades (fotos) y materiales
+    renderNecesidadesVer(lev.necesidades || []);
+    renderMaterialesVer(lev.materiales || []);
+
+    // Mostramos el modal (asegúrate que el ID coincida con tu HTML)
+    document.getElementById("modalVerLevantamiento").classList.add("active");
+  } catch (err) {
+    console.error("Error al ver:", err);
+    alert("No se pudo cargar el detalle.");
+  }
+}
+
+
+
+
+
+
 
 
 function pdfLevantamiento(id) {
