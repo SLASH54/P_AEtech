@@ -1204,23 +1204,28 @@ function setPersonalActual() {
         console.log("boton funcionando correctamente");
 
 async function guardarLevantamiento() {
-
-  const clienteSelect = document.getElementById("lev-clienteSelect");
+ const clienteSelect = document.getElementById("lev-clienteSelect");
   const clienteId = clienteSelect.value;
   
-  // 💡 EL TRUCO: Sacamos el texto del nombre con cuidado
-  const clienteNombre = clienteSelect.options[clienteSelect.selectedIndex]?.text || "Cliente sin nombre";
+  // 💡 ESTA ES LA LÍNEA QUE TE FALTA:
+  // Sacamos el nombre del cliente que está escrito en la opción seleccionada
+  const clienteNombre = clienteSelect.options[clienteSelect.selectedIndex]?.text || "";
+
+  if (!clienteId || !direccion) {
+    alert("Amiko, selecciona cliente y dirección.");
+    return;
+  }
 
   const data = {
-    cliente_id: clienteId,    // Asegúrate de que tu DB use cliente_id o clienteId
-    cliente_nombre: clienteNombre, 
+    clienteId: clienteId,
+    clienteNombre: clienteNombre, // 👈 ¡Ahora sí lo mandamos!
     direccion: document.getElementById("lev-direccion").value,
     personal: document.getElementById("lev-personal").value,
     fecha: document.getElementById("lev-fechaHora").value,
-    necesidades: obtenerNecesidadesLev(), // Aquí ya van los links de Cloudinary
+    necesidades: obtenerNecesidadesLev(), 
     materiales: levMaterialesList 
   };
-  
+
   try {
     const res = await fetch(`${API_BASE_URL}/levantamientos`, {
       method: "POST",
