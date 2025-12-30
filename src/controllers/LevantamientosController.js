@@ -122,3 +122,19 @@ exports.getLevantamientoById = async (req, res) => {
     res.status(500).json({ msg: "Error interno" });
   }
 };
+
+
+
+exports.getLevantamientoById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query('SELECT * FROM levantamientos WHERE id = $1', [id]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "No encontrado" });
+    }
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error en servidor" });
+  }
+};

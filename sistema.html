@@ -1204,28 +1204,23 @@ function setPersonalActual() {
         console.log("boton funcionando correctamente");
 
 async function guardarLevantamiento() {
-  const selectCliente = document.getElementById("lev-clienteSelect");
-  const clienteId = selectCliente.value;
-  
-  // 💡 Sacamos el nombre con seguridad
-  const clienteNombre = selectCliente.options[selectCliente.selectedIndex]?.text || "";
-  const direccion = document.getElementById("lev-direccion").value;
+  const clienteSelect = document.getElementById("lev-clienteSelect");
+  const cliente_id = clienteSelect.value;
+  const cliente_nombre = clienteSelect.options[clienteSelect.selectedIndex]?.text || "";
+  const direccion = document.getElementById("lev-direccion").value; // 💡 Declaración correcta
 
-  if (!clienteId || !direccion) {
+  if (!cliente_id || !direccion) {
     alert("Amiko, selecciona cliente y dirección.");
     return;
   }
 
-  // REVISA AQUÍ: He puesto tanto 'clienteNombre' como 'cliente_nombre' 
-  // para que, sin importar cómo lo espere tu servidor, le llegue bien.
   const data = {
-    clienteId: clienteId,
-    clienteNombre: clienteNombre, 
-    cliente_nombre: clienteNombre, // Por si tu base usa guion bajo
+    cliente_id: cliente_id,
+    cliente_nombre: cliente_nombre,
     direccion: direccion,
     personal: document.getElementById("lev-personal").value,
     fecha: document.getElementById("lev-fechaHora").value,
-    necesidades: obtenerNecesidadesLev(), 
+    necesidades: obtenerNecesidadesLev(),
     materiales: levMaterialesList 
   };
 
@@ -1234,23 +1229,24 @@ async function guardarLevantamiento() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
+        "Authorization": `Bearer ${localStorage.getItem("userToken")}` // 💡 Usa userToken como en tu login
       },
       body: JSON.stringify(data)
     });
 
     if (res.ok) {
-      alert("✅ ¡Levantamiento guardado con éxito!");
-      location.reload(); 
+      alert("✅ Guardado con éxito");
+      location.reload();
     } else {
-      const errorData = await res.json();
-      alert("❌ Error: " + (errorData.message || "No se pudo guardar"));
+      const err = await res.json();
+      alert("Error 400: " + (err.message || "Revisa los campos"));
     }
-  } catch (err) {
-    console.error("Error crítico:", err);
-    alert("Hubo un fallo en la conexión.");
+  } catch (error) {
+    console.error(error);
   }
 }
+
+
 
 //LIMPIAR FORMULARIO 
 function limpiarFormularioLev() {
