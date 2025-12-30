@@ -1204,55 +1204,47 @@ function setPersonalActual() {
         console.log("boton funcionando correctamente");
 
 async function guardarLevantamiento() {
-  // 1. Capturamos los elementos primero
-  const clienteSelect = document.getElementById("lev-clienteSelect");
-  const cliente_id = clienteSelect.value;
-  const cliente_nombre = clienteSelect.options[clienteSelect.selectedIndex]?.text || "";
-  const direccion = document.getElementById("lev-direccion").value; // 💡 Aquí se define 'direccion'
+  const select = document.getElementById("lev-clienteSelect");
+  const cliente_id = select.value;
+  const cliente_nombre = select.options[select.selectedIndex]?.text || "";
+  const direccion = document.getElementById("lev-direccion").value; // 💡 Captura correcta
 
-  // 2. Validación básica
   if (!cliente_id || !direccion) {
-    alert("Amiko, selecciona cliente y dirección.");
+    alert("Amiko, faltan datos: selecciona cliente y dirección.");
     return;
   }
 
-  // 3. Armamos el paquete exactamente como lo pide LevantamientosController.js
   const data = {
-    cliente_id: cliente_id,
-    cliente_nombre: cliente_nombre,
-    direccion: direccion,
+    cliente_id, // 💡 Coincide con tu controlador en el backend
+    cliente_nombre,
+    direccion,
     personal: document.getElementById("lev-personal").value,
     fecha: document.getElementById("lev-fechaHora").value,
-    necesidades: obtenerNecesidadesLev(), // Asegúrate que esta función devuelva el array
+    necesidades: obtenerNecesidadesLev(),
     materiales: levMaterialesList 
   };
-
-  console.log("Datos a enviar:", data);
 
   try {
     const res = await fetch(`${API_BASE_URL}/levantamientos`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem("userToken")}` // 💡 Unificado a userToken
+        "Authorization": `Bearer ${localStorage.getItem("userToken")}` // 💡 Asegúrate que sea userToken
       },
       body: JSON.stringify(data)
     });
 
     if (res.ok) {
-      alert("✅ ¡Levantamiento guardado con éxito!");
-      location.reload(); 
+      alert("✅ ¡Guardado con éxito!");
+      location.reload();
     } else {
-      const errorData = await res.json();
-      console.error("Error del servidor:", errorData);
-      alert("Error al guardar: " + (errorData.message || "Error 400/500"));
+      const err = await res.json();
+      alert("Error: " + (err.message || "No se pudo guardar"));
     }
-  } catch (err) {
-    console.error("Error de conexión:", err);
-    alert("No hay conexión con el servidor de Render.");
+  } catch (error) {
+    console.error("Error de conexión:", error);
   }
 }
-
 
 
 
