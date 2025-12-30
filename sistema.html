@@ -1786,36 +1786,37 @@ async function verLevantamiento(id) {
   try {
     const res = await fetch(`${API_BASE_URL}/levantamientos/${id}`, {
       headers: { 
-        "Authorization": `Bearer ${localStorage.getItem("userToken")}` 
+        "Authorization": `Bearer ${localStorage.getItem("userToken")}` // 💡 Unificado
       }
     });
 
-    if (!res.ok) throw new Error("No se encontró el levantamiento en el servidor");
+    if (!res.ok) throw new Error("Servidor no responde con datos.");
 
     const lev = await res.json();
 
-    // 1. Datos principales
+    // Llenar datos básicos
     document.getElementById("verCliente").textContent = lev.cliente_nombre || "Sin nombre";
     document.getElementById("verDireccion").textContent = lev.direccion || "Sin dirección";
     document.getElementById("verPersonal").textContent = lev.personal || "N/A";
     document.getElementById("verFecha").textContent = new Date(lev.fecha).toLocaleString();
 
-    // 2. Necesidades (Fotos y descripción)
+    // Dibujar Necesidades (Descripción + Fotos)
     const necCont = document.getElementById("verNecesidades");
     necCont.innerHTML = "";
     if (lev.necesidades && lev.necesidades.length > 0) {
         lev.necesidades.forEach(n => {
             const div = document.createElement("div");
-            div.style.marginBottom = "20px";
+            div.style.borderBottom = "1px solid #eee";
+            div.style.padding = "10px 0";
             div.innerHTML = `
                 <p><strong>Descripción:</strong> ${n.descripcion}</p>
-                ${n.imagen ? `<img src="${n.imagen}" style="width:100%; border-radius:8px;">` : ""}
+                ${n.imagen ? `<img src="${n.imagen}" style="width:100%; border-radius:10px; margin-top:5px;">` : ""}
             `;
             necCont.appendChild(div);
         });
     }
 
-    // 3. Materiales
+    // Dibujar Materiales
     const matCont = document.getElementById("verMateriales");
     matCont.innerHTML = "";
     if (lev.materiales && lev.materiales.length > 0) {
@@ -1829,9 +1830,16 @@ async function verLevantamiento(id) {
     document.getElementById("modalVerLevantamiento").classList.add("active");
   } catch (err) {
     console.error(err);
-    alert("Error al cargar los datos amiko.");
+    alert("Amiko, no se pudo cargar la info. Revisa que el backend esté actualizado.");
   }
 }
+
+
+
+
+
+
+
 
 
 
