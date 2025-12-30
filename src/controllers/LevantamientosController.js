@@ -1,19 +1,34 @@
 const { Levantamiento } = require("../models");
+const cloudinary = require('cloudinary').v2;
+
+// ☁️ Configuración de Cloudinary (Usa tus variables de .env)
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 // ===============================
-// CREAR LEVANTAMIENTO
+// 1. CREAR LEVANTAMIENTO (CON CLOUDINARY)
 // ===============================
 exports.createLevantamiento = async (req, res) => {
   try {
-    const {
-      clienteId,
-      clienteNombre,
-      direccion,
-      personal,
-      fecha,
-      necesidades,
-      materiales
-    } = req.body;
+    const { clienteId, clienteNombre, direccion, personal, fecha, necesidades, materiales } = req.body;
+    const necesidadesProcesadas = [];
+
+    if (necesidades && necesidades.length > 0) {
+      for (const nec of necesidades) {
+        let finalUrl = nec.imagen;
+        if (nec.imagen && nec.imagen.startsWith('data:image')) {
+          const result = await cloudinary.uploader.upload(nec.imagen, {
+            folder: 'aetech_levantamientos',
+            resource_type: 'auto'
+          });
+          finalUrl = result.secure_url; // Link permanente
+        }
+        necesidadesProcesadas.push({ descripcion: nec.descripcion, imagen: finalUrl });
+      }
+    }
 
     const nuevo = await Levantamiento.create({
       cliente_id: clienteId,
@@ -21,123 +36,84 @@ exports.createLevantamiento = async (req, res) => {
       direccion,
       personal,
       fecha,
-      necesidades,
+      necesidades: necesidadesProcesadas,
       materiales
     });
-
     res.status(201).json(nuevo);
   } catch (error) {
-    console.error(error);
+    console.error("Error al crear:", error);
     res.status(500).json({ msg: "Error al crear levantamiento" });
   }
 };
 
-
 // ===============================
-// OBTENER LEVANTAMIENTOS
+// 2. OBTENER TODOS LOS LEVANTAMIENTOS
 // ===============================
 exports.getLevantamientos = async (req, res) => {
   try {
-    const lista = await Levantamiento.findAll({
-      order: [["id", "DESC"]]
-    });
-
+    const lista = await Levantamiento.findAll({ order: [["id", "DESC"]] });
     res.json(lista);
   } catch (error) {
-    console.error("ERROR GET LEVANTAMIENTOS:", error);
     res.status(500).json({ msg: "Error al obtener levantamientos" });
   }
 };
 
-
 // ===============================
-// ELIMINAR LEVANTAMIENTO
+// 3. OBTENER UNO POR ID (💡 ESTO ARREGLA TU ERROR 404)
 // ===============================
-exports.deleteLevantamiento = async (req, res) => {
+exports.getLevantamientoById = async (req, res) => {
   try {
     const { id } = req.params;
-    await Levantamiento.destroy({ where: { id } });
-    res.json({ ok: true });
+    const lev = await Levantamiento.findByPk(id);
+    if (!lev) return res.status(404).json({ msg: "No se encontró el levantamiento" });
+    res.json(lev);
   } catch (error) {
-    console.error("ERROR DELETE:", error);
-    res.status(500).json({ msg: "Error al eliminar levantamiento" });
+    res.status(500).json({ msg: "Error interno del servidor" });
   }
 };
 
 // ===============================
-// EDITAR LEVANTAMIENTO
+// 4. ACTUALIZAR (CON CLOUDINARY)
 // ===============================
 exports.updateLevantamiento = async (req, res) => {
   try {
     const { id } = req.params;
-    const {
-      direccion,
-      personal,
-      fecha,
-      necesidades,
-      materiales
-    } = req.body;
+    const { direccion, personal, fecha, necesidades, materiales } = req.body;
+    const necesidadesProcesadas = [];
+
+    if (necesidades) {
+      for (const nec of necesidades) {
+        let finalUrl = nec.imagen;
+        // Solo subir si es una imagen nueva en Base64
+        if (nec.imagen && nec.imagen.startsWith('data:image')) {
+          const result = await cloudinary.uploader.upload(nec.imagen, {
+            folder: 'aetech_levantamientos'
+          });
+          finalUrl = result.secure_url;
+        }
+        necesidadesProcesadas.push({ descripcion: nec.descripcion, imagen: finalUrl });
+      }
+    }
 
     await Levantamiento.update(
-      { direccion, personal, fecha, necesidades, materiales },
+      { direccion, personal, fecha, necesidades: necesidadesProcesadas, materiales },
       { where: { id } }
     );
-
-    res.json({ ok: true });
+    res.json({ ok: true, msg: "Actualizado en Cloudinary ☁️" });
   } catch (error) {
-    console.error(error);
+    console.error("Error al editar:", error);
     res.status(500).json({ msg: "Error al editar levantamiento" });
   }
 };
 
-
-
-
-exports.getOne = async (req,res)=>{
-  res.json(await Levantamiento.findByPk(req.params.id));
-};
-
-exports.update = async (req,res)=>{
-  await Levantamiento.update(req.body,{where:{id:req.params.id}});
-  res.json({ok:true});
-};
-
-exports.remove = async (req,res)=>{
-  await Levantamiento.destroy({where:{id:req.params.id}});
-  res.json({ok:true});
-};
-
-
-
-
-exports.getLevantamientoById = async (req, res) => {
+// ===============================
+// 5. ELIMINAR
+// ===============================
+exports.deleteLevantamiento = async (req, res) => {
   try {
-    const lev = await Levantamiento.findByPk(req.params.id);
-    if (!lev) {
-      return res.status(404).json({ msg: "Levantamiento no encontrado" });
-    }
-    res.json(lev);
-  } catch (err) {
-    console.error("Error obtener levantamiento:", err);
-    res.status(500).json({ msg: "Error interno" });
+    await Levantamiento.destroy({ where: { id: req.params.id } });
+    res.json({ ok: true });
+  } catch (error) {
+    res.status(500).json({ msg: "Error al eliminar" });
   }
-};
-
-
-exports.getLevantamientoById = async (req, res) => {
-    const { id } = req.params;
-    try {
-        // Buscamos en la tabla de Postgres por el ID
-        const result = await pool.query('SELECT * FROM levantamientos WHERE id = $1', [id]);
-        
-        if (result.rows.length === 0) {
-            return res.status(404).json({ message: "Levantamiento no encontrado" });
-        }
-        
-        // Enviamos el objeto completo (cliente_nombre, direccion, necesidades, materiales)
-        res.json(result.rows[0]);
-    } catch (error) {
-        console.error("Error al obtener ID:", error);
-        res.status(500).json({ message: "Error interno del servidor" });
-    }
 };
