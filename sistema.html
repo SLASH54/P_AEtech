@@ -1199,6 +1199,11 @@ function setPersonalActual() {
 
 // GUARDAR LEVANTAMIENTO 
 
+ document.getElementById("btnGuardarLevantamiento")
+        ?.addEventListener("click", guardarLevantamiento)
+        console.log("boton funcionando correctamente");
+
+
 async function guardarLevantamiento() {
   const clienteId = document.getElementById("lev-clienteSelect").value;
   const direccion = document.getElementById("lev-direccion").value;
