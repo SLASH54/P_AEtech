@@ -1675,32 +1675,24 @@ cargarTablaLevantamientos();
 //obtener necesidades 
 
 function obtenerNecesidadesLev() {
-  const items = document.querySelectorAll("#lev-necesidadesContainer .nec-item");
   const necesidades = [];
+  const filas = document.querySelectorAll("#lev-necesidadesContainer .nec-item");
 
-  items.forEach(div => {
-    const descripcion = div.querySelector("textarea")?.value || "";
-    const img = div.querySelector(".img-preview");
-    
-    let imagenPath = null;
-    if (img && img.src && img.style.display !== "none") {
-      // 💡 ESTA ES LA CLAVE: 
-      // Si el src es "https://tu-render.com/uploads/foto.jpg"
-      // lo convertimos a "uploads/foto.jpg" antes de guardar
-      const urlBase = API_BASE_URL.replace('/api', '');
-      imagenPath = img.src.replace(urlBase + "/", ""); 
-    }
+  filas.forEach(f => {
+    const desc = f.querySelector("textarea").value;
+    const img = f.querySelector(".img-preview").src;
 
-    if (descripcion.trim() !== "" || imagenPath) {
+    // Solo guardamos si hay algo. 
+    // Evitamos guardar el placeholder o imágenes vacías
+    if (desc || (img && img.startsWith("http"))) {
       necesidades.push({
-        descripcion: descripcion,
-        imagen: imagenPath 
+        descripcion: desc,
+        imagen: img // 👈 Aquí se va la URL de Cloudinary
       });
     }
   });
   return necesidades;
 }
-
 
 //editar el levantamiento
 
@@ -1844,10 +1836,31 @@ if (lev.necesidades && lev.necesidades.length > 0) {
 }
 
 
+//subir foto no se jsjsjsjs
+async function manejarSeleccionImagen(input) {
+  const file = input.files[0];
+  if (!file) return;
 
+  const btn = input.parentElement.querySelector(".btn-foto");
+  btn.innerText = "⏳ Subiendo...";
 
+  // 💡 AQUÍ USAMOS TU FUNCIÓN
+  const urlCloudinary = await subirImagenCloudinary(file);
 
-
+  if (urlCloudinary) {
+    const container = input.closest(".nec-item");
+    const imgPrev = container.querySelector(".img-preview");
+    
+    // Guardamos la URL de internet en el SRC para que luego el botón de guardar la encuentre
+    imgPrev.src = urlCloudinary; 
+    imgPrev.style.display = "block";
+    btn.innerText = "✅ Foto en la nube";
+    btn.style.backgroundColor = "#28a745";
+  } else {
+    btn.innerText = "❌ Error al subir";
+    alert("No se pudo subir a Cloudinary. Revisa tu Cloud Name y Preset.");
+  }
+}
 
 
 function pdfLevantamiento(id) {
@@ -1946,6 +1959,27 @@ function addNecesidadConDatos(descripcion, urlFoto) {
     }
 }
 
+
+
+//se suben las imagenes al cloudinary 
+async function subirImagenCloudinary(file) {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", "tu_preset_aqui"); // Asegúrate de tener tu preset
+
+  try {
+    const res = await fetch("https://api.cloudinary.com/v1_1/tu_cloud_name/image/upload", {
+      method: "POST",
+      body: formData
+    });
+    const data = await res.json();
+    console.log("URL de Cloudinary generada:", data.secure_url);
+    return data.secure_url; // 💡 Esto es lo que debemos guardar
+  } catch (err) {
+    console.error("Error al subir a Cloudinary:", err);
+    return null;
+  }
+}
     
 </script>
 
