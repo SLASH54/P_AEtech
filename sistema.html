@@ -1203,11 +1203,13 @@ function setPersonalActual() {
         ?.addEventListener("click", guardarLevantamiento)
         console.log("boton funcionando correctamente");
 
+// 💡 IMPORTANTE: Asegúrate de tener esta variable declarada al inicio de tus scripts
+   let editandoId = null; 
+
 async function guardarLevantamiento() {
   const selectCliente = document.getElementById("lev-clienteSelect");
   const clienteId = selectCliente.value;
   
-  // 💡 Sacamos el nombre con seguridad
   const clienteNombre = selectCliente.options[selectCliente.selectedIndex]?.text || "";
   const direccion = document.getElementById("lev-direccion").value;
 
@@ -1216,12 +1218,10 @@ async function guardarLevantamiento() {
     return;
   }
 
-  // REVISA AQUÍ: He puesto tanto 'clienteNombre' como 'cliente_nombre' 
-  // para que, sin importar cómo lo espere tu servidor, le llegue bien.
   const data = {
     clienteId: clienteId,
     clienteNombre: clienteNombre, 
-    cliente_nombre: clienteNombre, // Por si tu base usa guion bajo
+    cliente_nombre: clienteNombre, 
     direccion: direccion,
     personal: document.getElementById("lev-personal").value,
     fecha: document.getElementById("lev-fechaHora").value,
@@ -1229,9 +1229,16 @@ async function guardarLevantamiento() {
     materiales: levMaterialesList 
   };
 
+  // 💡 LÓGICA DE EDICIÓN: Definimos URL y MÉTODO según si editandoId existe
+  const url = editandoId 
+    ? `${API_BASE_URL}/levantamientos/${editandoId}` 
+    : `${API_BASE_URL}/levantamientos`;
+
+  const metodo = editandoId ? "PUT" : "POST";
+
   try {
-    const res = await fetch(`${API_BASE_URL}/levantamientos`, {
-      method: "POST",
+    const res = await fetch(url, {
+      method: metodo, // 👈 Aquí usa PUT o POST dinámicamente
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
@@ -1240,19 +1247,20 @@ async function guardarLevantamiento() {
     });
 
     if (res.ok) {
-      alert("✅ ¡Levantamiento guardado con éxito!");
+      alert(editandoId ? "✅ ¡Levantamiento actualizado!" : "✅ ¡Levantamiento guardado!");
+      
+      // 💡 Limpiamos la variable para el siguiente
+      editandoId = null; 
       location.reload(); 
     } else {
       const errorData = await res.json();
-      alert("❌ Error: " + (errorData.message || "No se pudo guardar"));
+      alert("❌ Error: " + (errorData.message || "No se pudo procesar"));
     }
   } catch (err) {
     console.error("Error crítico:", err);
     alert("Hubo un fallo en la conexión.");
   }
 }
-
-
 
 
 //LIMPIAR FORMULARIO 
@@ -1695,47 +1703,47 @@ function obtenerNecesidadesLev() {
 }
 
 //editar el levantamiento
-
 async function editarLevantamiento(id) {
-  try {
-    const res = await fetch(`${API_BASE_URL}/levantamientos/${id}`, {
-      headers: { "Authorization": `Bearer ${localStorage.getItem("accessToken")}` }
-    });
-    const lev = await res.json();
+    try {
+        const res = await fetch(`${API_BASE_URL}/levantamientos/${id}`, {
+            headers: { "Authorization": `Bearer ${localStorage.getItem("accessToken")}` }
+        });
+        const lev = await res.json();
 
-    // 1. Guardamos el ID que estamos editando
-    levantamientoEditando = id; 
+        // Guardamos el ID en la variable global
+        editandoId = id;
 
-    // 2. Llenamos el formulario principal
-    document.getElementById("lev-clienteSelect").value = lev.clienteId;
-    document.getElementById("lev-direccion").value = lev.direccion;
-    document.getElementById("lev-personal").value = lev.personal;
-    document.getElementById("lev-fechaHora").value = lev.fecha;
+        // Llenamos el formulario
+        document.getElementById("lev-clienteSelect").value = lev.cliente_id || lev.clienteId;
+        document.getElementById("lev-direccion").value = lev.direccion;
+        document.getElementById("lev-personal").value = lev.personal;
+        document.getElementById("lev-fechaHora").value = lev.fecha;
 
-    // 3. Cargamos las necesidades (con sus fotos)
-    const cont = document.getElementById("lev-necesidadesContainer");
-    cont.innerHTML = ""; // Limpiamos primero
-    
-    if (lev.necesidades) {
-      lev.necesidades.forEach(n => {
-        // Reutilizamos tu lógica de agregar fila, pero pasando los datos
-        addNecesidadConDatos(n.descripcion, n.imagen);
-      });
+        // Limpiar y cargar necesidades (asumiendo que tienes addNecesidad)
+        const container = document.getElementById("lev-necesidadesContainer");
+        container.innerHTML = "";
+        if (lev.necesidades) {
+            lev.necesidades.forEach(n => {
+                // Aquí deberías llamar a la función que crea la fila de necesidad
+                // y pasarle n.descripcion y n.imagen
+                if(typeof agregarFilaNecesidad === 'function') {
+                    agregarFilaNecesidad(n.descripcion, n.imagen);
+                }
+            });
+        }
+
+        // Cargar materiales
+        levMaterialesList = lev.materiales || [];
+        renderMaterialesLev();
+
+        // Cambiar texto del botón y título para que el usuario sepa que está editando
+        document.querySelector("#modalNuevoLevantamiento h2").innerText = "✏️ Editar Levantamiento";
+        document.getElementById("modalNuevoLevantamiento").classList.add("active");
+
+    } catch (err) {
+        alert("Error al cargar datos para editar amiko");
     }
-
-    // 4. Cargamos los materiales
-    levMaterialesList = lev.materiales || [];
-    renderMaterialesLev();
-
-    // 5. Abrimos el modal de "Nuevo Levantamiento" pero dirá "Editar"
-    openNuevoLevantamiento();
-    document.querySelector("#modalNuevoLevantamiento h2").innerText = "Editar Levantamiento";
-    
-  } catch (err) {
-    console.error("Error al cargar para editar:", err);
-  }
 }
-
 
 
 
@@ -1979,6 +1987,22 @@ async function subirImagenCloudinary(file) {
     console.error("Error al subir a Cloudinary:", err);
     return null;
   }
+}
+
+
+//limpia xd 
+function cerrarNuevoLevantamiento() {
+    document.getElementById("modalNuevoLevantamiento").classList.remove("active");
+    
+    // Resetear todo
+    editandoId = null; 
+    document.querySelector("#modalNuevoLevantamiento h2").innerText = "📋 Nuevo Levantamiento";
+    
+    // Limpiar campos
+    document.getElementById("lev-direccion").value = "";
+    document.getElementById("lev-necesidadesContainer").innerHTML = "";
+    levMaterialesList = [];
+    renderMaterialesLev();
 }
     
 </script>
