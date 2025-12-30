@@ -1781,7 +1781,6 @@ function eliminarLevantamiento(id) {
 
 
 //ver levantamiento
-
 async function verLevantamiento(id) {
   try {
     const res = await fetch(`${API_BASE_URL}/levantamientos/${id}`, {
@@ -1790,41 +1789,43 @@ async function verLevantamiento(id) {
       }
     });
 
-    if (!res.ok) throw new Error("No se encontró el levantamiento");
+    if (!res.ok) throw new Error("No se encontró el registro");
 
     const lev = await res.json();
 
-    // Llenar datos principales (probando ambos formatos de nombre)
-    document.getElementById("verCliente").textContent = lev.cliente_nombre || lev.clienteNombre || "Sin nombre";
+    // 1. Datos básicos
+    document.getElementById("verCliente").textContent = lev.cliente_nombre || "Sin nombre";
     document.getElementById("verDireccion").textContent = lev.direccion || "Sin dirección";
     document.getElementById("verPersonal").textContent = lev.personal || "N/A";
     document.getElementById("verFecha").textContent = new Date(lev.fecha).toLocaleString();
 
-    // Dibujar Necesidades e Imágenes
+    // 2. Necesidades (Descripción + Imagen de Cloudinary)
     const necCont = document.getElementById("verNecesidades");
     necCont.innerHTML = "";
     if (lev.necesidades && lev.necesidades.length > 0) {
-        lev.necesidades.forEach(n => {
-            const div = document.createElement("div");
-            div.style.marginBottom = "15px";
-            div.innerHTML = `
-                <p><strong>Descripción:</strong> ${n.descripcion}</p>
-                ${n.imagen ? `<img src="${n.imagen}" style="width:100%; max-width:300px; border-radius:8px;">` : ""}
-            `;
-            necCont.appendChild(div);
-        });
+      lev.necesidades.forEach(n => {
+        const div = document.createElement("div");
+        div.style.padding = "10px";
+        div.style.borderBottom = "1px solid #ddd";
+        div.innerHTML = `
+          <p><strong>Descripción:</strong> ${n.descripcion}</p>
+          ${n.imagen ? `<img src="${n.imagen}" style="width:100%; max-width:400px; border-radius:10px;">` : ""}
+        `;
+        necCont.appendChild(div);
+      });
     }
 
-    // Dibujar Materiales
+    // 3. Materiales
     renderMaterialesVer(lev.materiales || []);
 
+    // 4. Mostrar el modal
     document.getElementById("modalVerLevantamiento").classList.add("active");
+
   } catch (err) {
     console.error(err);
-    alert("Error al cargar el detalle amiko.");
+    alert("Amiko, error al cargar el detalle: " + err.message);
   }
 }
-
 
 
 
