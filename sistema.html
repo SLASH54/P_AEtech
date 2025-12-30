@@ -1204,23 +1204,28 @@ function setPersonalActual() {
         console.log("boton funcionando correctamente");
 
 async function guardarLevantamiento() {
-  const select = document.getElementById("lev-clienteSelect");
-  const cliente_id = select.value;
-  const cliente_nombre = select.options[select.selectedIndex]?.text || "";
-  const direccion = document.getElementById("lev-direccion").value; // 💡 Captura correcta
+  const selectCliente = document.getElementById("lev-clienteSelect");
+  const clienteId = selectCliente.value;
+  
+  // 💡 Sacamos el nombre con seguridad
+  const clienteNombre = selectCliente.options[selectCliente.selectedIndex]?.text || "";
+  const direccion = document.getElementById("lev-direccion").value;
 
-  if (!cliente_id || !direccion) {
-    alert("Amiko, faltan datos: selecciona cliente y dirección.");
+  if (!clienteId || !direccion) {
+    alert("Amiko, selecciona cliente y dirección.");
     return;
   }
 
+  // REVISA AQUÍ: He puesto tanto 'clienteNombre' como 'cliente_nombre' 
+  // para que, sin importar cómo lo espere tu servidor, le llegue bien.
   const data = {
-    cliente_id, // 💡 Coincide con tu controlador en el backend
-    cliente_nombre,
-    direccion,
+    clienteId: clienteId,
+    clienteNombre: clienteNombre, 
+    cliente_nombre: clienteNombre, // Por si tu base usa guion bajo
+    direccion: direccion,
     personal: document.getElementById("lev-personal").value,
     fecha: document.getElementById("lev-fechaHora").value,
-    necesidades: obtenerNecesidadesLev(),
+    necesidades: obtenerNecesidadesLev(), 
     materiales: levMaterialesList 
   };
 
@@ -1229,23 +1234,23 @@ async function guardarLevantamiento() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem("userToken")}` // 💡 Asegúrate que sea userToken
+        "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
       },
       body: JSON.stringify(data)
     });
 
     if (res.ok) {
-      alert("✅ ¡Guardado con éxito!");
-      location.reload();
+      alert("✅ ¡Levantamiento guardado con éxito!");
+      location.reload(); 
     } else {
-      const err = await res.json();
-      alert("Error: " + (err.message || "No se pudo guardar"));
+      const errorData = await res.json();
+      alert("❌ Error: " + (errorData.message || "No se pudo guardar"));
     }
-  } catch (error) {
-    console.error("Error de conexión:", error);
+  } catch (err) {
+    console.error("Error crítico:", err);
+    alert("Hubo un fallo en la conexión.");
   }
 }
-
 
 
 
