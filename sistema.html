@@ -1781,31 +1781,40 @@ function eliminarLevantamiento(id) {
 //ver levantamiento
 
 async function verLevantamiento(id) {
+  console.log("Intentando ver el levantamiento con ID:", id);
   try {
     const res = await fetch(`${API_BASE_URL}/levantamientos/${id}`, {
       headers: { "Authorization": `Bearer ${localStorage.getItem("accessToken")}` }
     });
+
+    if (!res.ok) throw new Error("No se pudo obtener el levantamiento del servidor");
+
     const lev = await res.json();
+    console.log("Datos recibidos:", lev);
 
-    // Llenamos los datos básicos en el modal
-    document.getElementById("verCliente").textContent = lev.clienteNombre || "Sin nombre";
+    // Llenamos los textos del modal
+    document.getElementById("verCliente").textContent = lev.cliente_nombre || lev.clienteNombre || "Sin nombre";
     document.getElementById("verDireccion").textContent = lev.direccion || "Sin dirección";
-    document.getElementById("verPersonal").textContent = lev.personal || "";
-    document.getElementById("verFecha").textContent = lev.fecha || "";
+    document.getElementById("verPersonal").textContent = lev.personal || "N/A";
+    document.getElementById("verFecha").textContent = lev.fecha || "N/A";
 
-    // Renderizamos necesidades (fotos) y materiales
+    // Mandamos las necesidades y materiales a sus funciones de dibujado
     renderNecesidadesVer(lev.necesidades || []);
     renderMaterialesVer(lev.materiales || []);
 
-    // Mostramos el modal (asegúrate que el ID coincida con tu HTML)
-    document.getElementById("modalVerLevantamiento").classList.add("active");
+    // 💡 IMPORTANTE: Abrir el modal
+    const modal = document.getElementById("modalVerLevantamiento");
+    if (modal) {
+        modal.classList.add("active");
+    } else {
+        console.error("No se encontró el modal con ID 'modalVerLevantamiento'");
+    }
+
   } catch (err) {
-    console.error("Error al ver:", err);
-    alert("No se pudo cargar el detalle.");
+    console.error("Error al ver levantamiento:", err);
+    alert("Error: " + err.message);
   }
 }
-
-
 
 
 
@@ -1825,27 +1834,27 @@ function renderNecesidadesVer(necesidades = []) {
   const cont = document.getElementById("verNecesidades");
   cont.innerHTML = "";
 
-  if (!necesidades.length) {
-    cont.innerHTML = "<p class='muted'>Sin necesidades registradas</p>";
+  if (necesidades.length === 0) {
+    cont.innerHTML = "<p>No hay fotos o necesidades registradas.</p>";
     return;
   }
-
-  const urlServidor = API_BASE_URL.replace('/api', '');
 
   necesidades.forEach(n => {
     const div = document.createElement("div");
     div.className = "ver-necesidad";
 
-    // Si la imagen no tiene http (es ruta relativa), le ponemos la del render
-    const srcFinal = n.imagen && !n.imagen.startsWith('http') 
-                     ? `${urlServidor}/${n.imagen}` 
-                     : n.imagen;
+    // Si la imagen es un link de Cloudinary, se usa directo
+    // Si es ruta relativa, le pegamos la URL del Render
+    let srcImagen = n.imagen;
+    if (srcImagen && !srcImagen.startsWith('http')) {
+        const urlServidor = API_BASE_URL.replace('/api', '');
+        srcImagen = `${urlServidor}/${srcImagen}`;
+    }
 
     div.innerHTML = `
-      <p>${n.descripcion || ""}</p>
-      ${srcFinal ? `<img src="${srcFinal}" style="max-width:100%; border-radius:8px;" />` : ""}
+      <p><strong>Descripción:</strong> ${n.descripcion || "Sin descripción"}</p>
+      ${srcImagen ? `<img src="${srcImagen}" style="width:100%; max-width:400px; border-radius:8px; margin-bottom:15px;">` : ""}
     `;
-
     cont.appendChild(div);
   });
 }
