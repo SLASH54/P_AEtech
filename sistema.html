@@ -1800,20 +1800,36 @@ async function verLevantamiento(id) {
     document.getElementById("verFecha").textContent = new Date(lev.fecha).toLocaleString();
 
     // 2. Necesidades (Descripción + Imagen de Cloudinary)
-    const necCont = document.getElementById("verNecesidades");
-    necCont.innerHTML = "";
-    if (lev.necesidades && lev.necesidades.length > 0) {
-      lev.necesidades.forEach(n => {
-        const div = document.createElement("div");
-        div.style.padding = "10px";
-        div.style.borderBottom = "1px solid #ddd";
-        div.innerHTML = `
-          <p><strong>Descripción:</strong> ${n.descripcion}</p>
-          ${n.imagen ? `<img src="${n.imagen}" style="width:100%; max-width:400px; border-radius:10px;">` : ""}
-        `;
-        necCont.appendChild(div);
-      });
+
+    // Dentro de verLevantamiento(id), en la parte de Necesidades:
+const necCont = document.getElementById("verNecesidades");
+necCont.innerHTML = "";
+
+if (lev.necesidades && lev.necesidades.length > 0) {
+  lev.necesidades.forEach(n => {
+    const div = document.createElement("div");
+    div.className = "necesidad-detalle";
+    div.style.marginBottom = "20px";
+
+    // 💡 Lógica para la imagen:
+    let rutaImagen = "";
+    if (n.imagen) {
+      // Si la imagen ya es una URL completa (http...), úsala tal cual
+      if (n.imagen.startsWith('http')) {
+        rutaImagen = n.imagen;
+      } else {
+        // Si es una ruta relativa (/uploads...), búscala en RENDER, no en Netlify
+        rutaImagen = `${API_BASE_URL.replace('/api', '')}${n.imagen}`;
+      }
     }
+
+    div.innerHTML = `
+      <p><strong>Descripción:</strong> ${n.descripcion}</p>
+      ${rutaImagen ? `<img src="${rutaImagen}" style="width:100%; border-radius:8px; margin-top:10px;" alt="Foto de necesidad">` : '<p><i>Sin imagen disponible</i></p>'}
+    `;
+    necCont.appendChild(div);
+  });
+}
 
     // 3. Materiales
     renderMaterialesVer(lev.materiales || []);
@@ -1823,7 +1839,7 @@ async function verLevantamiento(id) {
 
   } catch (err) {
     console.error(err);
-    alert("Amiko, error al cargar el detalle: " + err.message);
+    alert("error al cargar el detalle: " + err.message);
   }
 }
 
