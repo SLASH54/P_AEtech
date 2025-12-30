@@ -1203,20 +1203,21 @@ function setPersonalActual() {
         ?.addEventListener("click", guardarLevantamiento)
         console.log("boton funcionando correctamente");
 
-
 async function guardarLevantamiento() {
   const clienteId = document.getElementById("lev-clienteSelect").value;
   const direccion = document.getElementById("lev-direccion").value;
 
   if (!clienteId || !direccion) {
-    alert("Faltan datos: Cliente o Dirección");
+    alert("Amiko, selecciona cliente y dirección.");
     return;
   }
 
   const data = {
-    cliente_id: clienteId, // Revisa si tu DB usa clienteId o cliente_id
+    clienteId: clienteId,
     direccion: direccion,
-    necesidades: obtenerNecesidadesLev(), // <-- Aquí van las rutas limpias
+    personal: document.getElementById("lev-personal").value,
+    fecha: document.getElementById("lev-fechaHora").value,
+    necesidades: obtenerNecesidadesLev(), // Ya va limpio aquí
     materiales: levMaterialesList 
   };
 
@@ -1231,18 +1232,21 @@ async function guardarLevantamiento() {
     });
 
     if (res.ok) {
-      alert("¡Guardado con éxito!");
-      location.reload(); // Recargamos para ver los cambios
+      alert("✅ ¡Levantamiento guardado con éxito!");
+      location.reload(); 
     } else {
-      const errData = await res.json();
-      console.error("Error del servidor:", errData);
-      alert("El servidor rechazó el guardado: " + (errData.message || "Error 400"));
+      const errorData = await res.json();
+      console.error("Error del servidor:", errorData);
+      alert("❌ Error al guardar: " + (errorData.msg || errorData.message || "Error en los datos"));
     }
-  } catch (error) {
-    console.error("Error de conexión:", error);
-    alert("No hay conexión con el servidor");
+  } catch (err) {
+    console.error("Error de conexión:", err);
+    alert("📡 No se pudo conectar con el servidor de Render.");
   }
 }
+
+
+
 //LIMPIAR FORMULARIO 
 function limpiarFormularioLev() {
     // Limpiar el array global de materiales
@@ -1673,10 +1677,11 @@ function obtenerNecesidadesLev() {
     
     let imagenPath = null;
     if (img && img.src && img.style.display !== "none") {
-      // 💡 ESTO ES LO IMPORTANTE:
-      // Quitamos la URL de Render para que a la base de datos solo llegue el nombre del archivo
-      const urlServidor = API_BASE_URL.replace('/api', ''); 
-      imagenPath = img.src.replace(urlServidor + "/", ""); 
+      // 💡 ESTA ES LA CLAVE: 
+      // Si el src es "https://tu-render.com/uploads/foto.jpg"
+      // lo convertimos a "uploads/foto.jpg" antes de guardar
+      const urlBase = API_BASE_URL.replace('/api', '');
+      imagenPath = img.src.replace(urlBase + "/", ""); 
     }
 
     if (descripcion.trim() !== "" || imagenPath) {
@@ -1688,7 +1693,6 @@ function obtenerNecesidadesLev() {
   });
   return necesidades;
 }
-
 
 
 //editar el levantamiento
