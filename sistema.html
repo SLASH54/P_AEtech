@@ -1781,41 +1781,40 @@ function eliminarLevantamiento(id) {
 //ver levantamiento
 
 async function verLevantamiento(id) {
-  console.log("Intentando ver el levantamiento con ID:", id);
+  console.log("ID solicitado a Postgres:", id);
   try {
     const res = await fetch(`${API_BASE_URL}/levantamientos/${id}`, {
       headers: { "Authorization": `Bearer ${localStorage.getItem("accessToken")}` }
     });
 
-    if (!res.ok) throw new Error("No se pudo obtener el levantamiento del servidor");
+    if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Error al obtener datos del servidor");
+    }
 
     const lev = await res.json();
-    console.log("Datos recibidos:", lev);
+    console.log("Datos recibidos de Postgres:", lev);
 
-    // Llenamos los textos del modal
-    document.getElementById("verCliente").textContent = lev.cliente_nombre || lev.clienteNombre || "Sin nombre";
+    // Llenamos el modal (usando los campos que Postgres suele devolver)
+    // Probamos con ambos estilos de nombre por si acaso
+    document.getElementById("verCliente").textContent = lev.clienteNombre || lev.cliente_nombre || "Sin nombre";
     document.getElementById("verDireccion").textContent = lev.direccion || "Sin dirección";
     document.getElementById("verPersonal").textContent = lev.personal || "N/A";
     document.getElementById("verFecha").textContent = lev.fecha || "N/A";
 
-    // Mandamos las necesidades y materiales a sus funciones de dibujado
+    // Fotos y Materiales
     renderNecesidadesVer(lev.necesidades || []);
     renderMaterialesVer(lev.materiales || []);
 
-    // 💡 IMPORTANTE: Abrir el modal
+    // Abrimos el modal
     const modal = document.getElementById("modalVerLevantamiento");
-    if (modal) {
-        modal.classList.add("active");
-    } else {
-        console.error("No se encontró el modal con ID 'modalVerLevantamiento'");
-    }
+    if (modal) modal.classList.add("active");
 
   } catch (err) {
-    console.error("Error al ver levantamiento:", err);
-    alert("Error: " + err.message);
+    console.error("Error detallado:", err);
+    alert("Error al ver levantamiento: " + err.message);
   }
 }
-
 
 
 
@@ -1901,7 +1900,21 @@ function limpiarFormularioLev() {
 console.log("JS LEVANTAMIENTOS CARGADO");
 
 
-
+function addNecesidadConDatos(descripcion, urlFoto) {
+    addNecesidad(); // Crea la fila vacía
+    const filas = document.querySelectorAll("#lev-necesidadesContainer .nec-item");
+    const ultimaFila = filas[filas.length - 1];
+    
+    if (ultimaFila) {
+        ultimaFila.querySelector("textarea").value = descripcion || "";
+        if (urlFoto) {
+            const img = ultimaFila.querySelector(".img-preview");
+            img.src = urlFoto;
+            img.style.display = "block";
+            ultimaFila.querySelector(".btn-foto").innerText = "✅ Foto Cargada";
+        }
+    }
+}
 
     
 </script>
