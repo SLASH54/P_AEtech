@@ -1207,38 +1207,65 @@ function setPersonalActual() {
    let editandoId = null; 
 
 async function guardarLevantamiento() {
-  // ... (tus validaciones de cliente y dirección) ...
-  
-  // 💡 Mostramos el cargando
-  document.getElementById("loader").style.display = "flex";
+    const selectCliente = document.getElementById("lev-clienteSelect");
+    const clienteId = selectCliente.value;
+    const clienteNombre = selectCliente.options[selectCliente.selectedIndex]?.text || "";
+    const direccion = document.getElementById("lev-direccion").value;
 
-  const data = {
-    // ... (tus datos de siempre) ...
-    necesidades: obtenerNecesidadesLev(), 
-    materiales: levMaterialesList 
-  };
-
-  try {
-    const res = await fetch(url, {
-      method: metodo,
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
-      },
-      body: JSON.stringify(data)
-    });
-
-    if (res.ok) {
-      alert("✅ ¡Éxito!");
-      location.reload(); 
+    if (!clienteId || !direccion) {
+        alert("Amiko, selecciona cliente y dirección.");
+        return;
     }
-  } catch (err) {
-    alert("❌ Error de conexión");
-  } finally {
-    // 💡 Quitamos el cargando
-    document.getElementById("loader").style.display = "none";
-  }
+
+    // Mostramos el loader porque subir a Cloudinary toma tiempo
+    document.getElementById("loader").style.display = "flex";
+
+    const data = {
+        clienteId,
+        clienteNombre,
+        cliente_nombre: clienteNombre,
+        direccion,
+        personal: document.getElementById("lev-personal").value,
+        fecha: document.getElementById("lev-fechaHora").value,
+        necesidades: obtenerNecesidadesLev(), // Aquí van los Base64
+        materiales: levMaterialesList 
+    };
+
+    const url = editandoId 
+        ? `${API_BASE_URL}/levantamientos/${editandoId}` 
+        : `${API_BASE_URL}/levantamientos`;
+
+    const metodo = editandoId ? "PUT" : "POST";
+
+    try {
+        const res = await fetch(url, {
+            method: metodo,
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
+            },
+            body: JSON.stringify(data)
+        });
+
+        const resData = await res.json();
+
+        if (res.ok) {
+            alert("✅ Levantamiento procesado correctamente");
+            editandoId = null;
+            location.reload();
+        } else {
+            // 💡 Aquí nos dirá el error real (ej: "File too large")
+            alert("❌ Error del servidor: " + (resData.msg || resData.message || "Error desconocido"));
+        }
+    } catch (err) {
+        console.error("Error crítico:", err);
+        alert("❌ Error de conexión. Revisa que el servidor esté encendido.");
+    } finally {
+        document.getElementById("loader").style.display = "none";
+    }
 }
+
+
 
 //LIMPIAR FORMULARIO 
 function limpiarFormularioLev() {
