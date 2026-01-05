@@ -1207,38 +1207,20 @@ function setPersonalActual() {
    let editandoId = null; 
 
 async function guardarLevantamiento() {
-  const selectCliente = document.getElementById("lev-clienteSelect");
-  const clienteId = selectCliente.value;
+  // ... (tus validaciones de cliente y dirección) ...
   
-  const clienteNombre = selectCliente.options[selectCliente.selectedIndex]?.text || "";
-  const direccion = document.getElementById("lev-direccion").value;
-
-  if (!clienteId || !direccion) {
-    alert("Amiko, selecciona cliente y dirección.");
-    return;
-  }
+  // 💡 Mostramos el cargando
+  document.getElementById("loader").style.display = "flex";
 
   const data = {
-    clienteId: clienteId,
-    clienteNombre: clienteNombre, 
-    cliente_nombre: clienteNombre, 
-    direccion: direccion,
-    personal: document.getElementById("lev-personal").value,
-    fecha: document.getElementById("lev-fechaHora").value,
+    // ... (tus datos de siempre) ...
     necesidades: obtenerNecesidadesLev(), 
     materiales: levMaterialesList 
   };
 
-  // 💡 LÓGICA DE EDICIÓN: Definimos URL y MÉTODO según si editandoId existe
-  const url = editandoId 
-    ? `${API_BASE_URL}/levantamientos/${editandoId}` 
-    : `${API_BASE_URL}/levantamientos`;
-
-  const metodo = editandoId ? "PUT" : "POST";
-
   try {
     const res = await fetch(url, {
-      method: metodo, // 👈 Aquí usa PUT o POST dinámicamente
+      method: metodo,
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
@@ -1247,21 +1229,16 @@ async function guardarLevantamiento() {
     });
 
     if (res.ok) {
-      alert(editandoId ? "✅ ¡Levantamiento actualizado!" : "✅ ¡Levantamiento guardado!");
-      
-      // 💡 Limpiamos la variable para el siguiente
-      editandoId = null; 
+      alert("✅ ¡Éxito!");
       location.reload(); 
-    } else {
-      const errorData = await res.json();
-      alert("❌ Error: " + (errorData.message || "No se pudo procesar"));
     }
   } catch (err) {
-    console.error("Error crítico:", err);
-    alert("Hubo un fallo en la conexión.");
+    alert("❌ Error de conexión");
+  } finally {
+    // 💡 Quitamos el cargando
+    document.getElementById("loader").style.display = "none";
   }
 }
-
 
 //LIMPIAR FORMULARIO 
 function limpiarFormularioLev() {
@@ -1323,106 +1300,51 @@ document.getElementById("lev-clienteSelect")
     ?.addEventListener("change", clienteChangeLev);
 
 
-//SUBIR FOTOS XD 
-    async function subirFotoAlServidor(file) {
-    const formData = new FormData();
-    formData.append("photo", file); 
 
-    const token = localStorage.getItem("accessToken");
-
-    try {
-        // IMPORTANTE: Asegúrate que esta ruta /upload exista en tu index.js o app.js del backend
-        const res = await fetch(`${API_BASE_URL}/upload`, { 
-            method: "POST",
-            headers: { "Authorization": `Bearer ${token}` },
-            body: formData
-        });
-
-        if (!res.ok) throw new Error("Error en el servidor");
-
-        const data = await res.json();
-        return data.filePath; 
-    } catch (err) {
-        console.error("Error detallado:", err);
-        return null;
-    }
-}
 
 
     // ================= NECESIDADES =================
-
 function addNecesidad() {
     const cont = document.getElementById("lev-necesidadesContainer");
-
     const div = document.createElement("div");
     div.className = "nec-item";
 
-    // 1️⃣ Estructura HTML
     div.innerHTML = `
         <div class="nec-row">
             <div class="nec-left">
                 <textarea placeholder="Describe la necesidad..." class="form-control"></textarea>
-                <img class="img-preview">
+                <img class="img-preview" style="display:none; width:100%; max-width:150px; margin-top:10px; border-radius:5px;">
             </div>
-
             <div class="nec-right">
-                <button type="button" class="btn btn-primary btn-sm btn-foto">
-                    📸 Tomar / Elegir foto
-                </button>
-
-                <button type="button" class="btn btn-danger btn-sm">
-                    Eliminar
-                </button>
+                <button type="button" class="btn btn-primary btn-sm btn-foto">📸 Foto</button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('.nec-item').remove()">Eliminar</button>
+                <input type="file" accept="image/*" style="display:none" class="file-input-nec">
             </div>
         </div>
         <hr>
     `;
 
-    // 2️⃣ EL CÓDIGO QUE PREGUNTAS VA EXACTO AQUÍ 👇
-    const btnEliminar = div.querySelector(".btn-danger");
-    btnEliminar.onclick = () => div.remove();
-
     const btnFoto = div.querySelector(".btn-foto");
-
-    const fileInput = document.createElement("input");
-    fileInput.type = "file";
-    fileInput.accept = "image/*";
-    fileInput.hidden = true;
-    div.appendChild(fileInput);
-
+    const fileInput = div.querySelector(".file-input-nec");
     const imgPreview = div.querySelector(".img-preview");
 
-    btnFoto.addEventListener("click", () => fileInput.click());
+    btnFoto.onclick = () => fileInput.click();
 
-    
-  fileInput.addEventListener("change", async () => {
-    const file = fileInput.files[0];
-    if (!file) return;
+    // 💡 Convertimos a Base64 para que el controlador lo detecte
+    fileInput.onchange = () => {
+        const file = fileInput.files[0];
+        if (!file) return;
 
-    btnFoto.innerText = "⏳ Subiendo...";
-    btnFoto.disabled = true;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            imgPreview.src = e.target.result; // Aquí queda el Base64
+            imgPreview.style.display = "block";
+            btnFoto.innerText = "✅ Foto Cargada";
+            btnFoto.style.backgroundColor = "#28a745";
+        };
+        reader.readAsDataURL(file);
+    };
 
-    const pathRelativo = await subirFotoAlServidor(file);
-
-    if (pathRelativo) {
-        // 💡 AQUÍ ESTÁ EL TRUCO: 
-        // Si pathRelativo es 'uploads/foto.jpg', le pegamos la URL del Render antes.
-        // Usamos API_BASE_URL y le quitamos el '/api' para que quede la raíz del servidor.
-        const urlServidor = API_BASE_URL.replace('/api', ''); 
-        imgPreview.src = `${urlServidor}/${pathRelativo}`; 
-        
-        imgPreview.style.display = "block";
-        btnFoto.innerText = "✅ Foto Lista";
-    } else {
-        alert("Error al subir la imagen");
-        btnFoto.innerText = "📸 Reintentar";
-    }
-    btnFoto.disabled = false;
-});
-
-
-
-    // 3️⃣ Agregar al contenedor (AL FINAL)
     cont.appendChild(div);
 }
 
@@ -1690,17 +1612,17 @@ function obtenerNecesidadesLev() {
     const desc = f.querySelector("textarea").value;
     const img = f.querySelector(".img-preview").src;
 
-    // Solo guardamos si hay algo. 
-    // Evitamos guardar el placeholder o imágenes vacías
-    if (desc || (img && img.startsWith("http"))) {
+    // Solo enviamos si tiene texto o si tiene una imagen (Base64 o URL existente)
+    if (desc.trim() !== "" || (img && img.startsWith("data:image")) || (img && img.startsWith("http"))) {
       necesidades.push({
         descripcion: desc,
-        imagen: img // 👈 Aquí se va la URL de Cloudinary
+        imagen: img 
       });
     }
   });
   return necesidades;
 }
+
 
 //editar el levantamiento
 async function editarLevantamiento(id) {
@@ -1844,31 +1766,7 @@ if (lev.necesidades && lev.necesidades.length > 0) {
 }
 
 
-//subir foto no se jsjsjsjs
-async function manejarSeleccionImagen(input) {
-  const file = input.files[0];
-  if (!file) return;
 
-  const btn = input.parentElement.querySelector(".btn-foto");
-  btn.innerText = "⏳ Subiendo...";
-
-  // 💡 AQUÍ USAMOS TU FUNCIÓN
-  const urlCloudinary = await subirImagenCloudinary(file);
-
-  if (urlCloudinary) {
-    const container = input.closest(".nec-item");
-    const imgPrev = container.querySelector(".img-preview");
-    
-    // Guardamos la URL de internet en el SRC para que luego el botón de guardar la encuentre
-    imgPrev.src = urlCloudinary; 
-    imgPrev.style.display = "block";
-    btn.innerText = "✅ Foto en la nube";
-    btn.style.backgroundColor = "#28a745";
-  } else {
-    btn.innerText = "❌ Error al subir";
-    alert("No se pudo subir a Cloudinary. Revisa tu Cloud Name y Preset.");
-  }
-}
 
 
 function pdfLevantamiento(id) {
