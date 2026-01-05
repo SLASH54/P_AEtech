@@ -1227,7 +1227,7 @@ async function guardarLevantamiento() {
         materiales: levMaterialesList 
     };
 
-    const url = editandoId 
+   const url = editandoId 
         ? `${API_BASE_URL}/levantamientos/${editandoId}` 
         : `${API_BASE_URL}/levantamientos`;
 
@@ -1244,6 +1244,8 @@ const res = await fetch(url, {
     body: JSON.stringify(data) // data ya contiene las necesidades con Base64
 });
 
+
+ 
         const resData = await res.json();
 
         if (res.ok) {
@@ -1645,54 +1647,32 @@ function obtenerNecesidadesLev() {
 
 //editar el levantamiento
 async function editarLevantamiento(id) {
+    console.log("Editando levantamiento ID:", id);
+    editandoId = id; // 👈 ¡ESTA LÍNEA ES VITAL! Asigna el ID a la variable global
+
     try {
-        document.getElementById("loader").style.display = "flex";
-        
-        // 1. Obtener los datos del levantamiento
         const res = await fetch(`${API_BASE_URL}/levantamientos/${id}`, {
             headers: { "Authorization": `Bearer ${localStorage.getItem("accessToken")}` }
         });
         const lev = await res.json();
 
-        editandoId = id;
+        if (!res.ok) throw new Error("No se pudo obtener el levantamiento");
 
-        // 2. Cargar clientes primero y esperar a que termine
-        await cargarClientesLev(); 
-
-        // 3. Seleccionar el cliente y la dirección
-        const selectCliente = document.getElementById("lev-clienteSelect");
-        selectCliente.value = lev.cliente_id || lev.clienteId;
-        
-        // Forzamos el valor de la dirección (por si el cliente tiene varias, que salga la que se guardó)
+        // Llenar los campos del modal
+        document.getElementById("lev-clienteSelect").value = lev.cliente_id;
         document.getElementById("lev-direccion").value = lev.direccion;
-        
-        // 4. Otros datos básicos
         document.getElementById("lev-personal").value = lev.personal;
         document.getElementById("lev-fechaHora").value = lev.fecha;
 
-        // 5. Limpiar y cargar necesidades con sus fotos
-        const container = document.getElementById("lev-necesidadesContainer");
-        container.innerHTML = ""; 
-        
-        if (lev.necesidades) {
-            lev.necesidades.forEach(n => {
-                addNecesidadConDatos(n.descripcion, n.imagen);
-            });
-        }
+        // ... (el resto de tu lógica para cargar necesidades y materiales)
 
-        // 6. Cargar materiales
-        levMaterialesList = lev.materiales || [];
-        levRenderMateriales();
-
-        // 7. Cambiar UI
+        // Cambiar título del modal para saber que estamos editando
         document.querySelector("#modalNuevoLevantamiento h2").innerText = "✏️ Editar Levantamiento";
         document.getElementById("modalNuevoLevantamiento").classList.add("active");
 
     } catch (err) {
-        console.error("Error al editar:", err);
-        alert("Error al cargar datos del cliente amiko");
-    } finally {
-        document.getElementById("loader").style.display = "none";
+        console.error(err);
+        alert("Error al cargar datos para editar.");
     }
 }
 
