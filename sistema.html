@@ -1266,19 +1266,14 @@ const res = await fetch(url, {
 
 //LIMPIAR FORMULARIO 
 function limpiarFormularioLev() {
-    // Limpiar el array global de materiales
-    levMaterialesList = []; 
-    // Limpiar el HTML de materiales
-    document.getElementById("levListaMateriales").innerHTML = "";
-    // Limpiar el HTML de necesidades/fotos
-    document.getElementById("lev-necesidadesContainer").innerHTML = "";
-    // Resetear el select de cliente
-    document.getElementById("lev-clienteSelect").value = "";
     document.getElementById("lev-direccion").value = "";
+    document.getElementById("lev-personal").value = "";
+    document.getElementById("lev-fechaHora").value = "";
+    document.getElementById("lev-clienteSelect").value = "";
+    
+    // Muy importante vaciar el contenedor de fotos/necesidades
+    document.getElementById("lev-necesidadesContainer").innerHTML = "";
 }
-
-
-
 
 
 
@@ -1929,14 +1924,74 @@ async function subirImagenCloudinary(file) {
 
 //limpia xd 
 function cerrarNuevoLevantamiento() {
+    // 1. Quitamos la clase para ocultar el modal
     document.getElementById("modalNuevoLevantamiento").classList.remove("active");
-    // 💡 Muy importante resetear esto:
+    
+    // 2. 🚨 CRUCIAL: Resetear el ID de edición a null
     editandoId = null; 
+    
+    // 3. 🚨 CRUCIAL: Regresar el título a "Nuevo"
     document.querySelector("#modalNuevoLevantamiento h2").innerText = "📋 Nuevo Levantamiento";
-    limpiarFormularioLev(); // Tu función que borra los inputs
+    
+    // 4. Limpiar todos los campos (input, select, textareas)
+    limpiarFormularioLev(); 
 }
 
 
+function abrirNuevoLevantamiento() {
+    // 1. Resetear el estado de edición
+    editandoId = null; 
+    
+    // 2. Limpiar todos los campos de texto y selects
+    limpiarFormularioLev(); 
+    
+    // 3. Resetear la tabla de materiales (si usas materiales)
+    levMaterialesList = [];
+    levRenderMateriales();
+
+    // 4. Cambiar el título para que no diga "Editar"
+    document.querySelector("#modalNuevoLevantamiento h2").innerText = "📋 Nuevo Levantamiento";
+    
+    // 5. Mostrar el modal
+    document.getElementById("modalNuevoLevantamiento").classList.add("active");
+}
+
+//DESCARGAR PDF
+async function pdfLevantamiento(id) {
+  try {
+    document.getElementById("loader").style.display = "flex";
+
+    const res = await fetch(`${API_BASE_URL}/levantamientos/pdf/${id}`, {
+      method: 'GET',
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
+      }
+    });
+
+    if (!res.ok) throw new Error("Error al generar PDF");
+
+    // 💡 Convertimos la respuesta a un archivo (Blob)
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    
+    // Creamos un link invisible para forzar la descarga
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Levantamiento_${id}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    
+    // Limpiamos
+    a.remove();
+    window.URL.revokeObjectURL(url);
+
+  } catch (err) {
+    console.error(err);
+    alert("Amiko, no se pudo descargar el PDF. Revisa la consola.");
+  } finally {
+    document.getElementById("loader").style.display = "none";
+  }
+}
 </script>
 
 

@@ -69,3 +69,8 @@ connectDB()
   .catch(err => {
     console.error('❌ No se pudo iniciar el servidor:', err);
   });
+
+
+  // En tu archivo de rutas de levantamientos
+const reporteLev = require('../controllers/levantamientoReporteController');
+router.get('/pdf/:id', protect, reporteLev.generateLevantamientoPDF);

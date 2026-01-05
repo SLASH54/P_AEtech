@@ -116,3 +116,64 @@ exports.deleteLevantamiento = async (req, res) => {
     res.status(500).json({ msg: "Error al eliminar" });
   }
 };
+
+
+
+// ===============================
+// 6. PDF
+// ===============================
+const PDFDocument = require("pdfkit");
+const axios = require("axios");
+
+exports.generateLevantamientoPDF = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const lev = await Levantamiento.findByPk(id);
+
+    if (!lev) return res.status(404).json({ msg: "Levantamiento no encontrado" });
+
+    const doc = new PDFDocument({ margin: 50 });
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename=Levantamiento_${id}.pdf`);
+    doc.pipe(res);
+
+    // --- Encabezado ---
+    doc.fontSize(20).fillColor("#004b85").text("REPORTE DE LEVANTAMIENTO", { align: "center" });
+    doc.moveDown();
+    doc.fontSize(12).fillColor("black")
+       .text(`Cliente: ${lev.cliente_nombre}`)
+       .text(`Dirección: ${lev.direccion}`)
+       .text(`Fecha: ${lev.fecha}`)
+       .text(`Personal: ${lev.personal}`);
+    doc.moveDown();
+    doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke("#ccc");
+    doc.moveDown();
+
+    // --- Necesidades y Fotos ---
+    doc.fontSize(16).fillColor("#00938f").text("NECESIDADES Y EVIDENCIAS");
+    doc.moveDown();
+
+    if (lev.necesidades) {
+      for (const nec of lev.necesidades) {
+        doc.fontSize(12).fillColor("black").text(`• ${nec.descripcion}`, { indent: 20 });
+        
+        if (nec.imagen && nec.imagen.startsWith("http")) {
+          try {
+            // Descargamos la imagen de Cloudinary para meterla al PDF
+            const response = await axios.get(nec.imagen, { responseType: "arraybuffer" });
+            doc.image(response.data, { width: 250, align: 'center' });
+            doc.moveDown();
+          } catch (e) {
+            doc.fontSize(10).fillColor("red").text("(No se pudo cargar la imagen)");
+          }
+        }
+        doc.moveDown();
+      }
+    }
+
+    doc.end();
+  } catch (error) {
+    console.error("Error PDF:", error);
+    res.status(500).send("Error al generar el PDF");
+  }
+};
