@@ -1980,25 +1980,31 @@ async function pdfLevantamiento(id) {
       }
     });
 
-    if (!res.ok) throw new Error("No se pudo generar el PDF");
+    if (!res.ok) throw new Error("Error al generar PDF");
 
+    // 💡 Convertimos la respuesta a un archivo (Blob)
     const blob = await res.blob();
     const url = window.URL.createObjectURL(blob);
+    
+    // Creamos un link invisible para forzar la descarga
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Reporte_Levantamiento_${id}.pdf`;
+    a.download = `Levantamiento_${id}.pdf`;
     document.body.appendChild(a);
     a.click();
+    
+    // Limpiamos
     a.remove();
     window.URL.revokeObjectURL(url);
 
   } catch (err) {
     console.error(err);
-    alert("Amiko, hubo un error al bajar el PDF. Revisa si instalaste pdfkit y axios.");
+    alert("Amiko, no se pudo descargar el PDF. Revisa la consola.");
   } finally {
     document.getElementById("loader").style.display = "none";
   }
 }
+
 
 
 
