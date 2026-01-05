@@ -11,5 +11,5 @@ router.get("/:id", ctrl.getLevantamientoById); // 👈 Esta debe existir para qu
 router.put("/:id", ctrl.updateLevantamiento);
 router.delete("/:id", ctrl.deleteLevantamiento);
 
-router.get('/pdf/:id', protect, levantamientoController.generateLevantamientoPDF);
+router.get('/pdf/:id', protect, LevantamientosController.generateLevantamientoPDF);
 module.exports = router;
