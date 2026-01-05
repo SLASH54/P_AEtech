@@ -1587,7 +1587,7 @@ async function cargarTablaLevantamientos() {
       Authorization: `Bearer ${localStorage.getItem("userToken")}`
     }
   });
-
+//
   const data = await res.json();
   levantamientosCache = data;
 
