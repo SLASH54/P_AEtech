@@ -171,11 +171,7 @@ exports.generateLevantamientoPDF = async (req, res) => {
       }
     }
 
-    doc.end();
-  } catch (error) {
-    console.error("Error PDF:", error);
-    res.status(500).send("Error al generar el PDF");
-  }
+   
 
   // Agrega esto a tu generateLevantamientoPDF en LevantamientosController.js
 if (lev.materiales && lev.materiales.length > 0) {
@@ -191,4 +187,9 @@ if (lev.materiales && lev.materiales.length > 0) {
     });
 }
 
-};
+doc.end();
+  } catch (error) {
+    console.error("Error PDF:", error);
+    res.status(500).send("Error al generar el PDF");
+  }
+}; // 👈 Asegúrate de que esta llave cierre bien la función generateLevantamientoPDF
