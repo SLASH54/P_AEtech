@@ -1580,42 +1580,29 @@ function levMostrarCampoExtra() {
 
 
 //cargar tabla 
-
 async function cargarTablaLevantamientos() {
-  const res = await fetch(`${API_BASE_URL}/levantamientos`, {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("userToken")}`
+    try {
+        const res = await fetch(`${API_BASE_URL}/levantamientos`, {
+            headers: { "Authorization": `Bearer ${localStorage.getItem("accessToken")}` }
+        });
+        const data = await res.json();
+
+        // 💡 VALIDACIÓN: Si 'data' no es un Array, mostramos el error y paramos
+        if (!Array.isArray(data)) {
+            console.error("Error del servidor:", data.msg || "Respuesta inválida");
+            return;
+        }
+
+        const tbody = document.getElementById("lev-tablaBody");
+        tbody.innerHTML = "";
+
+        data.forEach(lev => {
+            // ... (tu código para crear las filas de la tabla)
+        });
+    } catch (err) {
+        console.error("Error al cargar tabla:", err);
     }
-  });
-
-  const data = await res.json();
-  levantamientosCache = data;
-
-  const tbody = document.getElementById("tablaLevantamientos");
-  tbody.innerHTML = "";
-
-  data.forEach(l => {
-    // 💡 PostgreSQL a veces usa 'id', asegúrate que el campo existe
-    const idReal = l.id || l.id_levantamiento; 
-
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${l.cliente_nombre || 'Sin nombre'}</td>
-      <td>${l.direccion}</td>
-      <td>${l.personal}</td>
-      <td>${new Date(l.fecha).toLocaleString()}</td>
-      
-      <td class="acciones">
-        <button onclick="editarLevantamiento('${idReal}')">Editar</button>
-        <button onclick="eliminarLevantamiento('${idReal}')">Eliminar</button>
-        <button onclick="verLevantamiento('${idReal}')">Ver</button>
-        <button onclick="pdfLevantamiento('${idReal}')">PDF</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
 }
-
 cargarTablaLevantamientos();
 
 //obtener necesidades 
