@@ -72,5 +72,5 @@ connectDB()
 
 
   // En tu archivo de rutas de levantamientos
-const reporteLev = require('../controllers/levantamientoReporteController');
+const reporteLev = require('../controllers/LevantamientosController');
 router.get('/pdf/:id', protect, reporteLev.generateLevantamientoPDF);
