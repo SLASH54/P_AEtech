@@ -132,43 +132,58 @@ exports.generateLevantamientoPDF = async (req, res) => {
 
     if (!lev) return res.status(404).json({ msg: "Levantamiento no encontrado" });
 
-    const doc = new PDFDocument({ margin: 50 });
+    const doc = new PDFDocument({ margin: 40 });
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename=Levantamiento_${id}.pdf`);
     doc.pipe(res);
 
-    // --- Encabezado ---
-    doc.fontSize(20).fillColor("#004b85").text("REPORTE DE LEVANTAMIENTO", { align: "center" });
+    // --- ENCABEZADO ---
+    doc.rect(0, 0, 612, 100).fill("#004b85");
+    doc.fillColor("#ffffff").fontSize(22).text("REPORTE DE LEVANTAMIENTO", 50, 40);
+    doc.moveDown(2);
+
+    // --- DATOS GENERALES ---
+    doc.fillColor("#000000").fontSize(12);
+    doc.text(`Cliente: ${lev.cliente_nombre}`, 50, 120);
+    doc.text(`Dirección: ${lev.direccion}`);
+    doc.text(`Personal: ${lev.personal}`);
+    doc.text(`Fecha: ${new Date(lev.fecha).toLocaleString()}`);
     doc.moveDown();
-    doc.fontSize(12).fillColor("black")
-       .text(`Cliente: ${lev.cliente_nombre}`)
-       .text(`Dirección: ${lev.direccion}`)
-       .text(`Fecha: ${lev.fecha}`)
-       .text(`Personal: ${lev.personal}`);
-    doc.moveDown();
-    doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke("#ccc");
+    doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke("#004b85");
     doc.moveDown();
 
-    // --- Necesidades y Fotos ---
+    // --- NECESIDADES Y FOTOS ---
     doc.fontSize(16).fillColor("#00938f").text("NECESIDADES Y EVIDENCIAS");
     doc.moveDown();
 
-    if (lev.necesidades) {
+    if (lev.necesidades && lev.necesidades.length > 0) {
       for (const nec of lev.necesidades) {
-        doc.fontSize(12).fillColor("black").text(`• ${nec.descripcion}`, { indent: 20 });
+        doc.fillColor("#000000").fontSize(12).text(`• ${nec.descripcion}`, { indent: 15 });
         
         if (nec.imagen && nec.imagen.startsWith("http")) {
           try {
-            // Descargamos la imagen de Cloudinary para meterla al PDF
             const response = await axios.get(nec.imagen, { responseType: "arraybuffer" });
-            doc.image(response.data, { width: 250, align: 'center' });
+            doc.image(response.data, { width: 300, align: 'center' });
             doc.moveDown();
           } catch (e) {
-            doc.fontSize(10).fillColor("red").text("(No se pudo cargar la imagen)");
+            doc.fillColor("red").fontSize(10).text("[Error al cargar imagen]");
           }
         }
         doc.moveDown();
       }
+    }
+
+    // --- TABLA DE MATERIALES ---
+    if (lev.materiales && lev.materiales.length > 0) {
+      doc.addPage();
+      doc.fontSize(18).fillColor("#004b85").text("🧱 MATERIALES REQUERIDOS", { underline: true });
+      doc.moveDown();
+
+      lev.materiales.forEach(m => {
+        doc.fontSize(12).fillColor("#333")
+           .text(`${m.insumo} — ${m.cantidad} ${m.unidad}`, { indent: 20 });
+        doc.moveDown(0.5);
+      });
     }
 
     doc.end();
@@ -176,19 +191,4 @@ exports.generateLevantamientoPDF = async (req, res) => {
     console.error("Error PDF:", error);
     res.status(500).send("Error al generar el PDF");
   }
-
-  // Agrega esto a tu generateLevantamientoPDF en LevantamientosController.js
-if (lev.materiales && lev.materiales.length > 0) {
-    doc.addPage();
-    doc.fontSize(18).fillColor("#00938f").text("🧱 MATERIALES REQUERIDOS", { underline: true });
-    doc.moveDown();
-
-    // Dibujamos una tablita simple
-    lev.materiales.forEach(m => {
-        doc.fontSize(12).fillColor("black")
-           .text(`${m.insumo} — Cantidad: ${m.cantidad} ${m.unidad}`, { indent: 20 });
-        doc.moveDown(0.5);
-    });
-}
-
 };
