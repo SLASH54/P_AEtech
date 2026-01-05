@@ -7,6 +7,63 @@ const { ClienteDireccion } = require('../models/relations');
 
 
 // ===============================
+// TAREA EXPRESS
+// ===============================
+// 1. El usuario crea la tarea con estado restringido
+exports.solicitarTareaExpress = async (req, res) => {
+    try {
+        const { nombre, descripcion, actividadId, sucursalId, clienteNegocioId } = req.body;
+
+        const nuevaTarea = await Tarea.create({
+            nombre,
+            descripcion,
+            actividadId,
+            sucursalId,
+            clienteNegocioId,
+            usuarioAsignadoId: req.user.id, // Se asigna a sí mismo automáticamente
+            estado: 'Pendiente de Autorización', // Forzamos este estado
+            prioridad: 'Normal'
+        });
+
+        // LÓGICA DE NOTIFICACIÓN PUSH AL ADMIN
+        // Buscamos a los admins para enviarles la notificación
+        const admins = await Usuario.findAll({ where: { rol: 'Admin' } });
+        
+        admins.forEach(adminUser => {
+            if (adminUser.pushToken) {
+                sendPushToUser(adminUser.pushToken, {
+                    title: "Nueva Solicitud de Tarea",
+                    body: `${req.user.nombre} solicita crear la tarea: ${nombre}`,
+                    data: { tareaId: nuevaTarea.id.toString(), type: "AUTH_REQUIRED" }
+                });
+            }
+        });
+
+        res.status(201).json({ message: 'Solicitud enviada al administrador.', tarea: nuevaTarea });
+    } catch (error) {
+        res.status(500).json({ message: 'Error al solicitar tarea express.' });
+    }
+};
+
+// 2. El Admin cambia el estado para "activar" la tarea
+exports.autorizarTarea = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const tarea = await Tarea.findByPk(id);
+
+        if (!tarea) return res.status(404).json({ message: 'Tarea no encontrada.' });
+
+        tarea.estado = 'Pendiente'; // Al pasar a Pendiente, ya aparece en el flujo normal
+        await tarea.save();
+
+        res.json({ message: 'Tarea autorizada correctamente.', tarea });
+    } catch (error) {
+        res.status(500).json({ message: 'Error al autorizar tarea.' });
+    }
+};
+
+
+// ===============================
 // CONFIGURACIÓN DE INCLUSIÓN
 // ===============================
 const includeConfig = [

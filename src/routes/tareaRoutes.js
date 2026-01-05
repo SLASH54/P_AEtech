@@ -7,6 +7,16 @@ const router = express.Router();
 
 const rolesGestion = ['Admin', 'Ingeniero'];
 
+
+// TAREA EXPRESS
+// Ruta para que el usuario solicite (Cualquier rol logueado)
+router.post('/express', protect, tareaController.solicitarTareaExpress);
+
+// Ruta para que el admin autorice (Solo Admin)
+router.put('/autorizar/:id', protect, rol(['Admin']), tareaController.autorizarTarea);
+
+
+
 // Rutas Generales de Asignación y Consulta
 router.route('/')
     // POST: Crear Tarea (Asignar) - Solo Admin/Ingeniero

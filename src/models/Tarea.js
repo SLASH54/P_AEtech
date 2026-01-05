@@ -2,6 +2,7 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/database');
 
+
 const Tarea = sequelize.define('Tarea', {
     id: {
         type: DataTypes.INTEGER,
@@ -49,7 +50,7 @@ const Tarea = sequelize.define('Tarea', {
         comment: 'Fecha máxima para completar la tarea.',
     },
     estado: {
-        type: DataTypes.ENUM('Pendiente', 'En Progreso', 'Completada', 'Cancelada', 'Bloqueada'),
+        type: DataTypes.ENUM('Pendiente de Autorización', 'Pendiente', 'En Progreso', 'Completada', 'Cancelada', 'Bloqueada'),
         defaultValue: 'Pendiente',
         allowNull: false,
         comment: 'Estado actual de la tarea.',

@@ -1978,6 +1978,71 @@ function filtrarTareas() {
 }
 
 
+// 1. Función para abrir el modal y llenar datos automáticos
+function abrirExpressModal() {
+    const modal = document.getElementById('tareaExpressModal');
+    
+    // Obtener datos del usuario logueado (asumiendo que los guardas al iniciar sesión)
+    const nombreUsuario = localStorage.getItem('usuarioNombre') || "Usuario Actual";
+    const fechaActual = new Date().toLocaleDateString();
+
+    document.getElementById('expUsuarioAuto').value = nombreUsuario;
+    document.getElementById('expFechaAuto').value = fechaActual;
+
+    // Abrir modal con Tailwind
+    modal.classList.remove('opacity-0', 'pointer-events-none');
+}
+
+function cerrarExpressModal() {
+    document.getElementById('tareaExpressModal').classList.add('opacity-0', 'pointer-events-none');
+}
+
+// 2. Manejar el envío del formulario
+document.getElementById('tareaExpressForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const data = {
+        nombre: document.getElementById('expTitulo').value,
+        descripcion: document.getElementById('expDescripcion').value,
+        clienteNegocioId: document.getElementById('expClienteId').value,
+        actividadId: document.getElementById('expActividadId').value,
+        // El backend usará el ID del token para el usuarioAsignadoId
+    };
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/tareas/express`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            alert("✅ Solicitud enviada. El admin recibirá una notificación push.");
+            cerrarExpressModal();
+        } else {
+            alert("❌ Error: " + result.message);
+        }
+    } catch (error) {
+        console.error("Error al enviar tarea express:", error);
+    }
+});
+
+async function autorizarTarea(tareaId) {
+    const res = await fetch(`${API_BASE_URL}/tareas/autorizar/${tareaId}`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
+    });
+    
+    if(res.ok) {
+        alert("Tarea autorizada. Ahora es visible en el panel general.");
+        location.reload(); // Recargar para ver la nueva tarea en 'Pendiente'
+    }
+}
 
 // BOTÓN LIMPIAR
 //document.getElementById('btnLimpiarFiltros').addEventListener('click', () => {

@@ -365,6 +365,69 @@
             </form>
         </div>
     </div>
+
+
+    <div id="tareaExpressModal"
+    class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6">
+        <h3 class="text-2xl font-semibold mb-4 border-b pb-2">Solicitar Tarea Express</h3>
+        <form id="tareaExpressForm">
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Título</label>
+                <input type="text" id="expTitulo" required
+                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Descripción</label>
+                <textarea id="expDescripcion" required rows="2"
+                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"></textarea>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-400">Solicitante (Automático)</label>
+                    <input type="text" id="expUsuarioAuto" readonly
+                        class="mt-1 block w-full bg-gray-100 border border-gray-200 rounded-md p-2 text-gray-500 cursor-not-allowed">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-400">Fecha</label>
+                    <input type="text" id="expFechaAuto" readonly
+                        class="mt-1 block w-full bg-gray-100 border border-gray-200 rounded-md p-2 text-gray-500 cursor-not-allowed">
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Cliente</label>
+                <div class="flex space-x-2">
+                    <select id="expClienteId" required class="flex-1 border border-gray-300 rounded-md p-2">
+                        <option value="">-- Seleccione Cliente --</option>
+                    </select>
+                    <button type="button" onclick="abrirModalNuevoCliente()" class="bg-blue-500 text-white px-3 rounded-md hover:bg-blue-600">+</button>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Tipo de Actividad</label>
+                <select id="expActividadId" required class="w-full border border-gray-300 rounded-md p-2">
+                    <option value="">-- Seleccione Actividad --</option>
+                </select>
+            </div>
+
+            <div class="flex justify-end space-x-3 mt-6">
+                <button type="button" onclick="cerrarExpressModal()"
+                    class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-lg">
+                    Cancelar
+                </button>
+                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg">
+                    🚀 Enviar Solicitud al Admin
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 </section>
 
             
