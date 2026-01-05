@@ -1141,7 +1141,7 @@ document.getElementById("btnNuevoLevantamiento")
 
 
 
-    async function cargarClientesLev() {
+   async function cargarClientesLev() {
   const select = document.getElementById("lev-clienteSelect");
   if (!select) return;
 
@@ -1149,21 +1149,13 @@ document.getElementById("btnNuevoLevantamiento")
 
   try {
     const token = localStorage.getItem("accessToken");
-    if (!token) {
-      console.error("No hay accessToken");
-      return;
-    }
+    if (!token) return;
 
     const res = await fetch(`${API_BASE_URL}/clientes`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
+      headers: { Authorization: `Bearer ${token}` }
     });
 
-    if (!res.ok) {
-      console.error("Error al cargar clientes", res.status);
-      return;
-    }
+    if (!res.ok) return;
 
     const clientes = await res.json();
 
@@ -1174,8 +1166,12 @@ document.getElementById("btnNuevoLevantamiento")
       select.appendChild(opt);
     });
 
+    // 💡 IMPORTANTE: Agregamos esto para que 'await cargarClientesLev()' funcione
+    return true; 
+
   } catch (e) {
     console.error("Error cargando clientes:", e);
+    return false;
   }
 }
 
@@ -1655,49 +1651,57 @@ function obtenerNecesidadesLev() {
 //editar el levantamiento
 async function editarLevantamiento(id) {
     try {
-        // 1. Mostrar loader mientras descarga los datos
         document.getElementById("loader").style.display = "flex";
         
+        // 1. Obtener los datos del levantamiento
         const res = await fetch(`${API_BASE_URL}/levantamientos/${id}`, {
             headers: { "Authorization": `Bearer ${localStorage.getItem("accessToken")}` }
         });
         const lev = await res.json();
 
-        // 2. Guardar el ID que estamos editando
         editandoId = id;
 
-        // 3. Llenar campos básicos
-        document.getElementById("lev-clienteSelect").value = lev.cliente_id;
+        // 2. Cargar clientes primero y esperar a que termine
+        await cargarClientesLev(); 
+
+        // 3. Seleccionar el cliente y la dirección
+        const selectCliente = document.getElementById("lev-clienteSelect");
+        selectCliente.value = lev.cliente_id || lev.clienteId;
+        
+        // Forzamos el valor de la dirección (por si el cliente tiene varias, que salga la que se guardó)
         document.getElementById("lev-direccion").value = lev.direccion;
+        
+        // 4. Otros datos básicos
         document.getElementById("lev-personal").value = lev.personal;
         document.getElementById("lev-fechaHora").value = lev.fecha;
 
-        // 4. Limpiar y cargar necesidades/fotos
+        // 5. Limpiar y cargar necesidades con sus fotos
         const container = document.getElementById("lev-necesidadesContainer");
-        container.innerHTML = ""; // Borrar lo que haya
+        container.innerHTML = ""; 
         
-        if (lev.necesidades && lev.necesidades.length > 0) {
+        if (lev.necesidades) {
             lev.necesidades.forEach(n => {
-                // Usamos la función que ya tenemos para agregar filas pero con datos
                 addNecesidadConDatos(n.descripcion, n.imagen);
             });
         }
 
-        // 5. Cargar materiales
+        // 6. Cargar materiales
         levMaterialesList = lev.materiales || [];
-        levRenderMateriales(); // Refrescar la lista visual
+        levRenderMateriales();
 
-        // 6. Cambiar interfaz a modo edición
+        // 7. Cambiar UI
         document.querySelector("#modalNuevoLevantamiento h2").innerText = "✏️ Editar Levantamiento";
         document.getElementById("modalNuevoLevantamiento").classList.add("active");
 
     } catch (err) {
-        console.error(err);
-        alert("Error al cargar datos para editar amiko");
+        console.error("Error al editar:", err);
+        alert("Error al cargar datos del cliente amiko");
     } finally {
         document.getElementById("loader").style.display = "none";
     }
 }
+
+
 
 
 //ver texto y fotos viejas del levantamieno al editar 
