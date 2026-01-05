@@ -1213,6 +1213,7 @@ async function guardarLevantamiento() {
         return;
     }
 
+    // Mostramos el loader porque subir a Cloudinary toma tiempo
     document.getElementById("loader").style.display = "flex";
 
     const data = {
@@ -1222,11 +1223,10 @@ async function guardarLevantamiento() {
         direccion,
         personal: document.getElementById("lev-personal").value,
         fecha: document.getElementById("lev-fechaHora").value,
-        necesidades: obtenerNecesidadesLev(), 
+        necesidades: obtenerNecesidadesLev(), // Aquí van los Base64
         materiales: levMaterialesList 
     };
 
-    // 💡 Aquí determinamos si es crear o editar
     const url = editandoId 
         ? `${API_BASE_URL}/levantamientos/${editandoId}` 
         : `${API_BASE_URL}/levantamientos`;
@@ -1234,31 +1234,34 @@ async function guardarLevantamiento() {
     const metodo = editandoId ? "PUT" : "POST";
 
     try {
-        const res = await fetch(url, {
-            method: metodo, // ✅ CAMBIADO: Ahora usa PUT o POST según corresponda
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
-            },
-            body: JSON.stringify(data)
-        });
+    // En tu sistema.html, dentro de guardarLevantamiento:
+const res = await fetch(url, {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json", // 💡 Esto indica que mandamos JSON pesado
+        "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
+    },
+    body: JSON.stringify(data) // data ya contiene las necesidades con Base64
+});
 
         const resData = await res.json();
 
         if (res.ok) {
             alert("✅ Levantamiento procesado correctamente");
-            editandoId = null; // Limpiamos el ID después de guardar
+            editandoId = null;
             location.reload();
         } else {
+            // 💡 Aquí nos dirá el error real (ej: "File too large")
             alert("❌ Error del servidor: " + (resData.msg || resData.message || "Error desconocido"));
         }
     } catch (err) {
         console.error("Error crítico:", err);
-        alert("❌ Error de conexión.");
+        alert("❌ Error de conexión. Revisa que el servidor esté encendido.");
     } finally {
         document.getElementById("loader").style.display = "none";
     }
 }
+
 
 
 //LIMPIAR FORMULARIO 
@@ -1587,7 +1590,7 @@ async function cargarTablaLevantamientos() {
       Authorization: `Bearer ${localStorage.getItem("userToken")}`
     }
   });
-//
+
   const data = await res.json();
   levantamientosCache = data;
 
@@ -2004,10 +2007,6 @@ async function pdfLevantamiento(id) {
     document.getElementById("loader").style.display = "none";
   }
 }
-
-
-
-
 </script>
 
 
