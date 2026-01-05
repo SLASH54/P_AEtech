@@ -71,7 +71,3 @@ connectDB()
   });
 
 
-  // En tu archivo de rutas de levantamientos
-// Ojo con las mayúsculas y minúsculas
-const levantamientoController = require("../controllers/LevantamientosController");
-router.get('/pdf/:id', protect, reporteLev.generateLevantamientoPDF);
