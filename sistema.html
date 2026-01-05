@@ -1238,14 +1238,15 @@ async function guardarLevantamiento() {
     const metodo = editandoId ? "PUT" : "POST";
 
     try {
-        const res = await fetch(url, {
-            method: metodo,
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
-            },
-            body: JSON.stringify(data)
-        });
+    // En tu sistema.html, dentro de guardarLevantamiento:
+const res = await fetch(url, {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json", // 💡 Esto indica que mandamos JSON pesado
+        "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
+    },
+    body: JSON.stringify(data) // data ya contiene las necesidades con Base64
+});
 
         const resData = await res.json();
 
