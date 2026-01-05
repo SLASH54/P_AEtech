@@ -1655,62 +1655,69 @@ function obtenerNecesidadesLev() {
 //editar el levantamiento
 async function editarLevantamiento(id) {
     try {
+        // 1. Mostrar loader mientras descarga los datos
+        document.getElementById("loader").style.display = "flex";
+        
         const res = await fetch(`${API_BASE_URL}/levantamientos/${id}`, {
             headers: { "Authorization": `Bearer ${localStorage.getItem("accessToken")}` }
         });
         const lev = await res.json();
 
-        // Guardamos el ID en la variable global
+        // 2. Guardar el ID que estamos editando
         editandoId = id;
 
-        // Llenamos el formulario
-        document.getElementById("lev-clienteSelect").value = lev.cliente_id || lev.clienteId;
+        // 3. Llenar campos básicos
+        document.getElementById("lev-clienteSelect").value = lev.cliente_id;
         document.getElementById("lev-direccion").value = lev.direccion;
         document.getElementById("lev-personal").value = lev.personal;
         document.getElementById("lev-fechaHora").value = lev.fecha;
 
-        // Limpiar y cargar necesidades (asumiendo que tienes addNecesidad)
+        // 4. Limpiar y cargar necesidades/fotos
         const container = document.getElementById("lev-necesidadesContainer");
-        container.innerHTML = "";
-        if (lev.necesidades) {
+        container.innerHTML = ""; // Borrar lo que haya
+        
+        if (lev.necesidades && lev.necesidades.length > 0) {
             lev.necesidades.forEach(n => {
-                // Aquí deberías llamar a la función que crea la fila de necesidad
-                // y pasarle n.descripcion y n.imagen
-                if(typeof agregarFilaNecesidad === 'function') {
-                    agregarFilaNecesidad(n.descripcion, n.imagen);
-                }
+                // Usamos la función que ya tenemos para agregar filas pero con datos
+                addNecesidadConDatos(n.descripcion, n.imagen);
             });
         }
 
-        // Cargar materiales
+        // 5. Cargar materiales
         levMaterialesList = lev.materiales || [];
-        renderMaterialesLev();
+        levRenderMateriales(); // Refrescar la lista visual
 
-        // Cambiar texto del botón y título para que el usuario sepa que está editando
+        // 6. Cambiar interfaz a modo edición
         document.querySelector("#modalNuevoLevantamiento h2").innerText = "✏️ Editar Levantamiento";
         document.getElementById("modalNuevoLevantamiento").classList.add("active");
 
     } catch (err) {
+        console.error(err);
         alert("Error al cargar datos para editar amiko");
+    } finally {
+        document.getElementById("loader").style.display = "none";
     }
 }
 
 
-
 //ver texto y fotos viejas del levantamieno al editar 
-
 function addNecesidadConDatos(descripcion, urlFoto) {
-    addNecesidad(); // Llama a tu función normal para crear la fila
+    addNecesidad(); // Crea la fila vacía con toda su lógica de botones
     const filas = document.querySelectorAll("#lev-necesidadesContainer .nec-item");
     const ultimaFila = filas[filas.length - 1];
     
-    // Rellenamos con lo que ya existía
-    ultimaFila.querySelector("textarea").value = descripcion;
-    if (urlFoto) {
-        const img = ultimaFila.querySelector(".img-preview");
-        img.src = urlFoto;
-        img.style.display = "block";
-        ultimaFila.querySelector(".btn-foto").innerText = "✅ Foto Cargada";
+    if (ultimaFila) {
+        // Ponemos el texto
+        ultimaFila.querySelector("textarea").value = descripcion || "";
+        
+        // Ponemos la foto si existe
+        if (urlFoto) {
+            const img = ultimaFila.querySelector(".img-preview");
+            img.src = urlFoto; // El src puede ser el link de Cloudinary
+            img.style.display = "block";
+            ultimaFila.querySelector(".btn-foto").innerText = "✅ Foto Actual";
+            ultimaFila.querySelector(".btn-foto").classList.replace("btn-primary", "btn-success");
+        }
     }
 }
 
@@ -1919,18 +1926,13 @@ async function subirImagenCloudinary(file) {
 //limpia xd 
 function cerrarNuevoLevantamiento() {
     document.getElementById("modalNuevoLevantamiento").classList.remove("active");
-    
-    // Resetear todo
+    // 💡 Muy importante resetear esto:
     editandoId = null; 
     document.querySelector("#modalNuevoLevantamiento h2").innerText = "📋 Nuevo Levantamiento";
-    
-    // Limpiar campos
-    document.getElementById("lev-direccion").value = "";
-    document.getElementById("lev-necesidadesContainer").innerHTML = "";
-    levMaterialesList = [];
-    renderMaterialesLev();
+    limpiarFormularioLev(); // Tu función que borra los inputs
 }
-    
+
+
 </script>
 
 
