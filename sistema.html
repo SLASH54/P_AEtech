@@ -1650,7 +1650,6 @@ async function editarLevantamiento(id) {
         
         // 1. Obtener los datos del levantamiento
         const res = await fetch(`${API_BASE_URL}/levantamientos/${id}`, {
-            method: "PUT",
             headers: { "Authorization": `Bearer ${localStorage.getItem("accessToken")}` }
         });
         const lev = await res.json();

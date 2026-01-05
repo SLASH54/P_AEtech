@@ -84,24 +84,36 @@ exports.updateLevantamiento = async (req, res) => {
     if (necesidades) {
       for (const nec of necesidades) {
         let finalUrl = nec.imagen;
+        // Si la imagen es nueva (Base64), se sube a Cloudinary
         if (nec.imagen && nec.imagen.startsWith('data:image')) {
           const result = await cloudinary.uploader.upload(nec.imagen, {
             folder: 'aetech_levantamientos'
           });
           finalUrl = result.secure_url;
         }
-        necesidadesProcesadas.push({ descripcion: nec.descripcion, imagen: finalUrl });
+        necesidadesProcesadas.push({ 
+          descripcion: nec.descripcion, 
+          imagen: finalUrl 
+        });
       }
     }
 
+    // 💡 IMPORTANTE: Asegúrate de que los nombres coincidan con tu Modelo
     await Levantamiento.update(
-      { direccion, personal, fecha, necesidades: necesidadesProcesadas, materiales },
+      { 
+        direccion, 
+        personal, 
+        fecha, 
+        necesidades: necesidadesProcesadas, // ✅ Aquí se guardan las fotos nuevas/viejas
+        materiales 
+      },
       { where: { id } }
     );
-    res.json({ ok: true });
+
+    res.json({ ok: true, msg: "Actualizado correctamente" });
   } catch (error) {
     console.error("Error al editar:", error);
-    res.status(500).json({ msg: "Error al editar" });
+    res.status(500).json({ msg: "Error al editar en el servidor" });
   }
 };
 
