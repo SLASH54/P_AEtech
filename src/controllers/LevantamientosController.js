@@ -176,4 +176,19 @@ exports.generateLevantamientoPDF = async (req, res) => {
     console.error("Error PDF:", error);
     res.status(500).send("Error al generar el PDF");
   }
+
+  // Agrega esto a tu generateLevantamientoPDF en LevantamientosController.js
+if (lev.materiales && lev.materiales.length > 0) {
+    doc.addPage();
+    doc.fontSize(18).fillColor("#00938f").text("🧱 MATERIALES REQUERIDOS", { underline: true });
+    doc.moveDown();
+
+    // Dibujamos una tablita simple
+    lev.materiales.forEach(m => {
+        doc.fontSize(12).fillColor("black")
+           .text(`${m.insumo} — Cantidad: ${m.cantidad} ${m.unidad}`, { indent: 20 });
+        doc.moveDown(0.5);
+    });
+}
+
 };
