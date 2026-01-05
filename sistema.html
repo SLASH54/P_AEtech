@@ -1135,9 +1135,9 @@ function closeNuevoLevantamiento() {
 
 
 /* BOTÓN */
+/* BUSCA ESTA PARTE Y DÉJALA ASÍ */
 document.getElementById("btnNuevoLevantamiento")
-    ?.addEventListener("click", openNuevoLevantamiento);
-
+    ?.addEventListener("click", abrirNuevoLevantamiento); // 👈 Asegúrate que diga abrirNuevoLevantamiento
 
 
 
@@ -1213,7 +1213,6 @@ async function guardarLevantamiento() {
         return;
     }
 
-    // Mostramos el loader porque subir a Cloudinary toma tiempo
     document.getElementById("loader").style.display = "flex";
 
     const data = {
@@ -1223,10 +1222,11 @@ async function guardarLevantamiento() {
         direccion,
         personal: document.getElementById("lev-personal").value,
         fecha: document.getElementById("lev-fechaHora").value,
-        necesidades: obtenerNecesidadesLev(), // Aquí van los Base64
+        necesidades: obtenerNecesidadesLev(), 
         materiales: levMaterialesList 
     };
 
+    // 💡 Aquí determinamos si es crear o editar
     const url = editandoId 
         ? `${API_BASE_URL}/levantamientos/${editandoId}` 
         : `${API_BASE_URL}/levantamientos`;
@@ -1234,34 +1234,31 @@ async function guardarLevantamiento() {
     const metodo = editandoId ? "PUT" : "POST";
 
     try {
-    // En tu sistema.html, dentro de guardarLevantamiento:
-const res = await fetch(url, {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json", // 💡 Esto indica que mandamos JSON pesado
-        "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
-    },
-    body: JSON.stringify(data) // data ya contiene las necesidades con Base64
-});
+        const res = await fetch(url, {
+            method: metodo, // ✅ CAMBIADO: Ahora usa PUT o POST según corresponda
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
+            },
+            body: JSON.stringify(data)
+        });
 
         const resData = await res.json();
 
         if (res.ok) {
             alert("✅ Levantamiento procesado correctamente");
-            editandoId = null;
+            editandoId = null; // Limpiamos el ID después de guardar
             location.reload();
         } else {
-            // 💡 Aquí nos dirá el error real (ej: "File too large")
             alert("❌ Error del servidor: " + (resData.msg || resData.message || "Error desconocido"));
         }
     } catch (err) {
         console.error("Error crítico:", err);
-        alert("❌ Error de conexión. Revisa que el servidor esté encendido.");
+        alert("❌ Error de conexión.");
     } finally {
         document.getElementById("loader").style.display = "none";
     }
 }
-
 
 
 //LIMPIAR FORMULARIO 
@@ -1938,23 +1935,38 @@ function cerrarNuevoLevantamiento() {
 }
 
 
-function abrirNuevoLevantamiento() {
+/* ===== FUNCIÓN UNIFICADA PARA NUEVO LEVANTAMIENTO ===== */
+async function abrirNuevoLevantamiento() {
     // 1. Resetear el estado de edición
     editandoId = null; 
     
-    // 2. Limpiar todos los campos de texto y selects
-    limpiarFormularioLev(); 
-    
-    // 3. Resetear la tabla de materiales (si usas materiales)
+    // 2. Limpiar campos de texto manualmente por ID
+    const campos = ["lev-direccion", "lev-personal", "lev-fechaHora"];
+    campos.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = "";
+    });
+
+    // 3. Resetear el selector de cliente
+    const selectCliente = document.getElementById("lev-clienteSelect");
+    if (selectCliente) selectCliente.selectedIndex = 0;
+
+    // 4. Limpiar contenedores dinámicos
+    document.getElementById("lev-necesidadesContainer").innerHTML = "";
     levMaterialesList = [];
     levRenderMateriales();
 
-    // 4. Cambiar el título para que no diga "Editar"
-    document.querySelector("#modalNuevoLevantamiento h2").innerText = "📋 Nuevo Levantamiento";
+    // 5. Cargar datos automáticos (Fecha y Personal)
+    setPersonalActual();
+    setFechaHoraActual();
+
+    // 6. Cambiar el título y mostrar
+    const titulo = document.querySelector("#modalNuevoLevantamiento h2");
+    if (titulo) titulo.innerText = "📋 Nuevo Levantamiento";
     
-    // 5. Mostrar el modal
     document.getElementById("modalNuevoLevantamiento").classList.add("active");
 }
+
 
 //DESCARGAR PDF
 async function pdfLevantamiento(id) {
