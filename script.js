@@ -2038,6 +2038,59 @@ async function llenarSelectoresExpress() {
     }
 }
 
+async function guardarTareaExpress() {
+    const token = localStorage.getItem("accessToken");
+    
+    // 1. Capturar valores
+    const nombre = document.getElementById('expTitulo').value;
+    const descripcion = document.getElementById('expDescripcion').value;
+    const clienteId = document.getElementById('expClienteId').value;
+    const sucursalId = document.getElementById('expDireccionCliente').value;
+    const actividadId = document.getElementById('expActividadId').value;
+
+    // 2. Validar que no estén vacíos
+    if (!nombre || !clienteId || !sucursalId || !actividadId) {
+        alert("⚠️ Por favor, completa todos los campos obligatorios.");
+        return;
+    }
+
+    // 3. Construir el objeto con los nombres EXACTOS del controlador
+    // Y convirtiendo a números con parseInt
+    const data = {
+        nombre: nombre,
+        descripcion: descripcion,
+        clienteNegocioId: parseInt(clienteId),
+        sucursalId: parseInt(sucursalId),
+        actividadId: parseInt(actividadId)
+    };
+
+    console.log("Enviando datos:", data); // Para que revises en consola antes de fallar
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/tareas/express`, { // <-- Asegúrate que sea /express
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+
+        if (res.ok) {
+            alert("✅ Tarea enviada a revisión");
+            cerrarExpressModal();
+        } else {
+            console.error("Error del servidor:", result);
+            alert("❌ Error: " + (result.message || "No se pudo crear la tarea"));
+        }
+    } catch (err) {
+        console.error("Error de conexión:", err);
+        alert("🚫 Error de conexión con el servidor.");
+    }
+}
+
 // 4. Manejar el envío del formulario al backend (Sequelize)
 document.getElementById('tareaExpressForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
