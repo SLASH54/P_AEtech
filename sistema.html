@@ -367,55 +367,48 @@
     </div>
 
 
-    <div id="tareaExpressModal" class="modal-overlay flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6">
-        <div class="flex justify-between items-center mb-4 border-b pb-2">
-            <h3 class="text-2xl font-bold text-gray-800">🚀 Tarea Express</h3>
-            <button type="button" onclick="cerrarExpressModal()" class="text-gray-400 hover:text-red-500 text-2xl">&times;</button>
+    <div id="tareaExpressModal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 500px;"> <div class="modal-header">
+            <h2 style="margin: 0; color: #333;">🚀 Tarea Express</h2>
+            <button type="button" onclick="cerrarExpressModal()" class="close-btn" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
         </div>
 
-        <form id="tareaExpressForm">
-            <div class="mb-4">
-                <label class="block text-sm font-semibold text-gray-700">Título</label>
-                <input type="text" id="expTitulo" required class="w-full border border-gray-300 rounded-lg p-2 mt-1">
+        <form id="tareaExpressForm" style="padding: 20px;">
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="display: block; font-weight: bold; margin-bottom: 5px;">Título de la Tarea</label>
+                <input type="text" id="expTitulo" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px;">
             </div>
 
-            <div class="mb-4">
-                <label class="block text-sm font-semibold text-gray-700">Descripción</label>
-                <textarea id="expDescripcion" required rows="2" class="w-full border border-gray-300 rounded-lg p-2 mt-1"></textarea>
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="display: block; font-weight: bold; margin-bottom: 5px;">Descripción</label>
+                <textarea id="expDescripcion" rows="2" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px;"></textarea>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 mb-4">
-                <div class="bg-gray-100 p-2 rounded-lg border">
-                    <label class="block text-xs font-bold text-gray-500 uppercase">Solicitante</label>
-                    <input type="text" id="expUsuarioAuto" readonly class="w-full bg-transparent border-none p-0 text-sm font-medium outline-none">
+            <div style="display: flex; gap: 10px; margin-bottom: 15px; background: #f9f9f9; padding: 10px; border-radius: 8px;">
+                <div style="flex: 1;">
+                    <label style="font-size: 11px; color: #666; font-weight: bold; text-transform: uppercase;">Solicitante</label>
+                    <input type="text" id="expUsuarioAuto" readonly style="width: 100%; border: none; background: transparent; font-weight: 600;">
                 </div>
-                <div class="bg-gray-100 p-2 rounded-lg border">
-                    <label class="block text-xs font-bold text-gray-500 uppercase">Fecha</label>
-                    <input type="text" id="expFechaAuto" readonly class="w-full bg-transparent border-none p-0 text-sm font-medium outline-none">
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 gap-4 mb-6">
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700">Cliente</label>
-                    <select id="expClienteId" required class="w-full border border-gray-300 rounded-lg p-2 mt-1">
-                        <option value="">-- Seleccione Cliente --</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700">Actividad</label>
-                    <select id="expActividadId" required class="w-full border border-gray-300 rounded-lg p-2 mt-1">
-                        <option value="">-- Seleccione Actividad --</option>
-                    </select>
+                <div style="flex: 1;">
+                    <label style="font-size: 11px; color: #666; font-weight: bold; text-transform: uppercase;">Fecha</label>
+                    <input type="text" id="expFechaAuto" readonly style="width: 100%; border: none; background: transparent; font-weight: 600;">
                 </div>
             </div>
 
-            <div class="flex justify-end gap-3">
-                <button type="button" onclick="cerrarExpressModal()" class="px-4 py-2 text-gray-600 font-semibold hover:bg-gray-200 rounded-lg transition">Cancelar</button>
-                <button type="submit" class="px-6 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 shadow-lg">
-                    Enviar Solicitud
-                </button>
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <div style="flex: 1;">
+                    <label style="display: block; font-weight: bold; margin-bottom: 5px;">Cliente</label>
+                    <select id="expClienteId" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px;"></select>
+                </div>
+                <div style="flex: 1;">
+                    <label style="display: block; font-weight: bold; margin-bottom: 5px;">Actividad</label>
+                    <select id="expActividadId" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px;"></select>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" onclick="cerrarExpressModal()" class="btn-secondary" style="padding: 10px 20px; border-radius: 8px; cursor: pointer;">Cancelar</button>
+                <button type="submit" class="btn-primary" style="padding: 10px 20px; border-radius: 8px; cursor: pointer; background: #4f46e5; color: white; border: none; font-weight: bold;">Enviar a Admin</button>
             </div>
         </form>
     </div>
