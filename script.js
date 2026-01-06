@@ -2066,6 +2066,12 @@ document.getElementById('tareaExpressForm')?.addEventListener('submit', async (e
             body: JSON.stringify(data)
         });
 
+const result = await response.json();
+
+if (!response.ok) {
+    console.error("DETALLE DEL ERROR 500:", result); // <-- ESTO ES CLAVE
+    alert("Error " + response.status + ": " + (result.message || "Error en el servidor"));
+}
         if (response.ok) {
             alert("🚀 Solicitud enviada con éxito. Esperando aprobación del Admin.");
             cerrarExpressModal();
