@@ -1986,9 +1986,6 @@ function filtrarTareas() {
 // Función para abrir el modal
 async function abrirExpressModal() {
     const modal = document.getElementById('tareaExpressModal');
-
-    // Resetear formulario
-    document.getElementById('tareaExpressForm').reset();
     
     // 1. Llenar datos automáticos
     const user = JSON.parse(localStorage.getItem('usuario')) || { nombre: "Usuario" };
