@@ -1393,7 +1393,7 @@ async function initTareas() {
   llenarSelectActividades(tareas);
 
   llenarSelectoresExpress()
-  cargarDireccionesClienteExp()
+  cargarDireccionesExpress()
 
   document.getElementById('filterCliente')?.addEventListener('change', filtrarTareas);
 document.getElementById('filterActividad')?.addEventListener('change', filtrarTareas);
@@ -1986,6 +1986,10 @@ function filtrarTareas() {
 // Función para abrir el modal
 async function abrirExpressModal() {
     const modal = document.getElementById('tareaExpressModal');
+
+    // Resetear formulario
+    document.getElementById('tareaExpressForm').reset();
+    document.getElementById('expSucursalId').innerHTML = '<option value="">-- Seleccione Cliente primero --</option>';
     
     // 1. Llenar datos automáticos
     const user = JSON.parse(localStorage.getItem('usuario')) || { nombre: "Usuario" };
@@ -2074,6 +2078,7 @@ document.getElementById('tareaExpressForm')?.addEventListener('submit', async (e
 });
 
 
+
 // Vincula el botón de tu interfaz (el que dice Tarea Express)
 document.getElementById('openAddExpressTaskModal')?.addEventListener('click', abrirExpressModal);
 
@@ -2092,49 +2097,38 @@ async function autorizarTarea(tareaId) {
 }
 
 
-function cargarDireccionesClienteExp(clienteId) {
-    console.log("Ejecutando cargarDireccionesCliente para cliente:", clienteId);
-
-    const selectDireccion = document.getElementById("expDireccionCliente");
-    if (!selectDireccion) {
-        console.error("❌ No se encontró el select expDireccionCliente");
-        return;
-    }
-
-    selectDireccion.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
-
+// 1. Función para cargar direcciones cuando cambia el cliente
+async function cargarDireccionesExpress(clienteId) {
+    const selectSucursal = document.getElementById('expSucursalId');
     if (!clienteId) {
+        selectSucursal.innerHTML = '<option value="">-- Seleccione Cliente primero --</option>';
         return;
     }
 
-    const cliente = window.clientesData ? window.clientesData[clienteId] : null;
-    console.log("Cliente encontrado en window.clientesData:", cliente);
+    const token = localStorage.getItem("accessToken");
+    try {
+        // Usamos la ruta que ya tienes para obtener detalles del cliente incluyendo direcciones
+        const res = await fetch(`${API_BASE_URL}/clientes-negocio/${clienteId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        const cliente = await res.json();
 
-    const direcciones = (cliente && Array.isArray(cliente.direcciones))
-        ? cliente.direcciones
-        : [];
-
-    if (!direcciones.length) {
-        selectDireccion.innerHTML = `<option value="">Sin direcciones registradas</option>`;
-        return;
+        selectSucursal.innerHTML = '<option value="">-- Seleccione Dirección --</option>';
+        
+        // Asumiendo que tu API devuelve las direcciones en 'direcciones' o 'Sucursales'
+        // Según tu includeConfig del controlador, el alias es "direcciones"
+        if (cliente.direcciones && cliente.direcciones.length > 0) {
+            cliente.direcciones.forEach(dir => {
+                selectSucursal.innerHTML += `<option value="${dir.id}">${dir.direccion} (${dir.municipio})</option>`;
+            });
+        } else {
+            selectSucursal.innerHTML = '<option value="">Sin direcciones registradas</option>';
+        }
+    } catch (err) {
+        console.error("Error al cargar direcciones:", err);
     }
-
-  direcciones.forEach(dir => {
-  const option = document.createElement("option");
-  //option.value = dir.direccion;
-  option.value = dir.id; // 👈 CLAVE
-
-
-  option.textContent = dir.alias
-    ? `${dir.alias} – ${dir.direccion}`
-    : dir.maps
-      ? "📍 Ubicación sin alias (Google Maps)"
-      : dir.direccion;
-
-  option.dataset.maps = dir.maps || "";
-  selectDireccion.appendChild(option);
-});
 }
+
 // BOTÓN LIMPIAR
 //document.getElementById('btnLimpiarFiltros').addEventListener('click', () => {
 //    document.getElementById('filterEstado').value = "";
