@@ -1988,8 +1988,11 @@ async function abrirExpressModal() {
     
     // 1. Llenar datos automáticos
     const user = JSON.parse(localStorage.getItem('usuario')) || { nombre: "Usuario" };
-    document.getElementById('expUsuarioAuto').value = user.nombre;
+    //document.getElementById('expUsuarioAuto').value = localStorage.getItem("UserName");
     document.getElementById('expFechaAuto').value = new Date().toLocaleDateString();
+
+    const p = document.getElementById("expUsuarioAuto");
+    if (p) p.value = localStorage.getItem("userName") || "";
 
     // 2. Cargar los selects (Reutiliza tus funciones que ya funcionan)
     if (typeof cargarClientesSelect === 'function') await cargarClientesSelect('expClienteId');
