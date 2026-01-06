@@ -30,24 +30,24 @@ exports.solicitarTareaExpress = async (req, res) => {
         const admins = await Usuario.findAll({ where: { rol: 'Admin' } });
         
         // Dentro de solicitarTareaExpress en tareaController.js
-        admins.forEach(async (adminUser) => {
+        //admins.forEach(async (adminUser) => {
             // 1. Enviar Push (ya lo tienes)
-            if (adminUser.pushToken) { 
-                sendPushToUser(adminUser.pushToken, {
-                    title: "Nueva Solicitud de Tarea",
-                    body: `${req.user.nombre} solicita crear la tarea: ${nombre}`,
-                    data: { tareaId: nuevaTarea.id.toString(), type: "AUTH_REQUIRED" }
-                }); 
-            }
+        //    if (adminUser.pushToken) { 
+        //        sendPushToUser(adminUser.pushToken, {
+        //            title: "Nueva Solicitud de Tarea",
+        //            body: `${req.user.nombre} solicita crear la tarea: ${nombre}`,
+        //            data: { tareaId: nuevaTarea.id.toString(), type: "AUTH_REQUIRED" }
+        //        }); 
+        //    }
             
             // 2. AGREGAR ESTO: Guardar en la tabla Notificacions para que aparezca en la campana
-            await Notificacion.create({
-                usuarioId: adminUser.id,
-                tareaId: nuevaTarea.id,
-                mensaje: `Nueva tarea express de ${req.user.nombre}: ${nombre}`,
-                leida: false
-            });
-        });
+        //    await Notificacion.create({
+        //        usuarioId: adminUser.id,
+        //        tareaId: nuevaTarea.id,
+        //        mensaje: `Nueva tarea express de ${req.user.nombre}: ${nombre}`,
+        //        leida: false
+        //    });
+        //});
 
         res.status(201).json({ message: 'Solicitud enviada al administrador.', tarea: nuevaTarea });
     } catch (error) {
