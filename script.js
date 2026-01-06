@@ -2095,7 +2095,7 @@ async function autorizarTarea(tareaId) {
 
 // 1. Función para cargar direcciones cuando cambia el cliente
 async function cargarDireccionesExpress(clienteId) {
-    const selectSucursal = document.getElementById('expSucursalId');
+    const selectSucursal = document.getElementById('expDireccionCliente');
     if (!clienteId) {
         selectSucursal.innerHTML = '<option value="">-- Seleccione Cliente primero --</option>';
         return;
