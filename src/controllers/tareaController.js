@@ -9,34 +9,67 @@ const { ClienteDireccion } = require('../models/relations');
 // ===============================
 // TAREA EXPRESS
 // ===============================
-// 1. El usuario crea la tarea con estado restringido
 exports.solicitarTareaExpress = async (req, res) => {
     try {
-        console.log("DATOS RECIBIDOS:", req.body);
         const { nombre, descripcion, actividadId, sucursalId, clienteNegocioId } = req.body;
 
-        // ESTO NOS DIRÁ SI EL ERROR ES DE RELACIÓN
+        // Aseguramos que el ID del usuario sea un número
+        // Si req.user.id es "admin", esto fallará, por eso usamos Number()
+        const userId = parseInt(req.user.id);
+
+        if (isNaN(userId)) {
+            return res.status(400).json({ message: "Sesión inválida: El ID de usuario no es numérico." });
+        }
+
         const nuevaTarea = await Tarea.create({
-            nombre: nombre || "Test Express",
-            descripcion: descripcion || "Sin descripción",
+            nombre: nombre,
+            descripcion: descripcion,
             actividadId: parseInt(actividadId),
             sucursalId: parseInt(sucursalId),
             clienteNegocioId: parseInt(clienteNegocioId),
-            usuarioAsignadoId: req.user.id, 
-            estado: 'Pendiente', // Usamos el valor más seguro
+            usuarioAsignadoId: userId, 
+            // USAREMOS 'Pendiente' por ahora para evitar el error de ENUM en la DB
+            estado: 'Pendiente', 
             prioridad: 'Normal'
         });
 
-        return res.status(201).json({ message: "¡LOGRADO!", data: nuevaTarea });
+        // LÓGICA DE NOTIFICACIÓN PUSH AL ADMIN
+        // Buscamos a los admins para enviarles la notificación
+        const admins = await Usuario.findAll({ where: { rol: 'Admin' } });
+        
+        // Dentro de solicitarTareaExpress en tareaController.js
+        admins.forEach(async (adminUser) => {
+            // 1. Enviar Push (ya lo tienes)
+            if (adminUser.pushToken) { 
+                sendPushToUser(adminUser.pushToken, {
+                    title: "Nueva Solicitud de Tarea",
+                    body: `${req.user.nombre} solicita crear la tarea: ${nombre}`,
+                    data: { tareaId: nuevaTarea.id.toString(), type: "AUTH_REQUIRED" }
+                }); 
+            }
+            
+            // 2. AGREGAR ESTO: Guardar en la tabla Notificacions para que aparezca en la campana
+            await Notificacion.create({
+                usuarioId: adminUser.id,
+                tareaId: nuevaTarea.id,
+                mensaje: `Nueva tarea express de ${req.user.nombre}: ${nombre}`,
+                leida: false
+            });
+        });
+
+        // Una vez creada la tarea, podemos intentar enviar las notificaciones
+        // (Te recomiendo descomentarlas una por una para ver cuál falla)
+        
+        return res.status(201).json({ 
+            message: "Tarea express creada correctamente", 
+            tareaId: nuevaTarea.id 
+        });
 
     } catch (error) {
-        // ESTO ENVIARÁ EL ERROR REAL AL FRONTEND PARA QUE LO VEAS
-        console.error("ERROR REAL:", error);
+        console.error("Error en solicitarTareaExpress:", error);
         return res.status(500).json({ 
-            message: "Error detectado", 
-            detalle: error.message,
-            name: error.name,
-            parent: error.parent ? error.parent.detail : "No hay detalle extra"
+            message: "Error al crear la tarea", 
+            detalle: error.message 
         });
     }
 };
