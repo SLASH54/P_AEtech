@@ -2104,7 +2104,7 @@ async function cargarDireccionesExpress(clienteId) {
     const token = localStorage.getItem("accessToken");
     try {
         // Usamos la ruta que ya tienes para obtener detalles del cliente incluyendo direcciones
-        const res = await fetch(`${API_BASE_URL}/clientes-negocio/${clienteId}`, {
+        const res = await fetch(`${API_BASE_URL}/clientes/${clienteId}`, {
             headers: { Authorization: `Bearer ${token}` }
         });
         const cliente = await res.json();
