@@ -1393,6 +1393,7 @@ async function initTareas() {
   llenarSelectActividades(tareas);
 
   llenarSelectoresExpress()
+  cargarDireccionesClienteExp()
 
   document.getElementById('filterCliente')?.addEventListener('change', filtrarTareas);
 document.getElementById('filterActividad')?.addEventListener('change', filtrarTareas);
@@ -2039,8 +2040,14 @@ document.getElementById('tareaExpressForm')?.addEventListener('submit', async (e
     const data = {
         nombre: document.getElementById('expTitulo').value,
         descripcion: document.getElementById('expDescripcion').value,
+        usuarioAsignadoId: document.getElementById('expUsuarioAuto').value,
+        fechaLimite: document.getElementById('expFechaAuto').value,
         clienteNegocioId: document.getElementById('expClienteId').value,
         actividadId: document.getElementById('expActividadId').value,
+        sucursalId: '1',
+        prioridad : 'Normal',
+        direccionCliente: document.getElementById('expDireccionCliente').value,
+        estado: 'Pendiente de Autorización',
         // El estado se manejará en el backend como 'Pendiente de Autorización'
     };
 
@@ -2084,6 +2091,50 @@ async function autorizarTarea(tareaId) {
     }
 }
 
+
+function cargarDireccionesClienteExp(clienteId) {
+    console.log("Ejecutando cargarDireccionesCliente para cliente:", clienteId);
+
+    const selectDireccion = document.getElementById("expDireccionCliente");
+    if (!selectDireccion) {
+        console.error("❌ No se encontró el select expDireccionCliente");
+        return;
+    }
+
+    selectDireccion.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
+
+    if (!clienteId) {
+        return;
+    }
+
+    const cliente = window.clientesData ? window.clientesData[clienteId] : null;
+    console.log("Cliente encontrado en window.clientesData:", cliente);
+
+    const direcciones = (cliente && Array.isArray(cliente.direcciones))
+        ? cliente.direcciones
+        : [];
+
+    if (!direcciones.length) {
+        selectDireccion.innerHTML = `<option value="">Sin direcciones registradas</option>`;
+        return;
+    }
+
+  direcciones.forEach(dir => {
+  const option = document.createElement("option");
+  //option.value = dir.direccion;
+  option.value = dir.id; // 👈 CLAVE
+
+
+  option.textContent = dir.alias
+    ? `${dir.alias} – ${dir.direccion}`
+    : dir.maps
+      ? "📍 Ubicación sin alias (Google Maps)"
+      : dir.direccion;
+
+  option.dataset.maps = dir.maps || "";
+  selectDireccion.appendChild(option);
+});
+}
 // BOTÓN LIMPIAR
 //document.getElementById('btnLimpiarFiltros').addEventListener('click', () => {
 //    document.getElementById('filterEstado').value = "";
@@ -3595,8 +3646,6 @@ function cargarDireccionesCliente(clienteId) {
   option.dataset.maps = dir.maps || "";
   selectDireccion.appendChild(option);
 });
-
-
 }
  
 //fin de muchas direcciones para el Cliente en el Select de asignar Tareas
