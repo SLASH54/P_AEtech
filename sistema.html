@@ -222,9 +222,6 @@
             <button id="openAddExpressTaskModal" onclick="abrirExpressModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 transform hover:scale-105">
                 + Tarea Express
             </button>
-            <button onclick="abrirExpressModal()" class="bg-indigo-600 text-white p-2 rounded-lg">
-   + Tarea Express
-</button>
         </div>
 
         <!-- Aquí se moverá el contenedor de la tabla -->
@@ -370,60 +367,53 @@
     </div>
 
 
-    <div id="tareaExpressModal"
-    class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 z-[100] hidden opacity-0 transition-opacity duration-300">
-    
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6 transform scale-95 transition-transform duration-300">
+    <div id="tareaExpressModal" class="modal-overlay flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6">
         <div class="flex justify-between items-center mb-4 border-b pb-2">
-            <h3 class="text-2xl font-semibold text-gray-800">🚀 Nueva Tarea Express</h3>
-            <button type="button" onclick="cerrarExpressModal()" class="text-gray-400 hover:text-red-500">
-                <i class="fas fa-times text-xl"></i>
-            </button>
+            <h3 class="text-2xl font-bold text-gray-800">🚀 Tarea Express</h3>
+            <button type="button" onclick="cerrarExpressModal()" class="text-gray-400 hover:text-red-500 text-2xl">&times;</button>
         </div>
 
         <form id="tareaExpressForm">
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700">Título</label>
-                <input type="text" id="expTitulo" required
-                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                <label class="block text-sm font-semibold text-gray-700">Título</label>
+                <input type="text" id="expTitulo" required class="w-full border border-gray-300 rounded-lg p-2 mt-1">
             </div>
 
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700">Descripción</label>
-                <textarea id="expDescripcion" required rows="2"
-                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                <label class="block text-sm font-semibold text-gray-700">Descripción</label>
+                <textarea id="expDescripcion" required rows="2" class="w-full border border-gray-300 rounded-lg p-2 mt-1"></textarea>
             </div>
 
             <div class="grid grid-cols-2 gap-4 mb-4">
-                <div class="bg-gray-50 p-2 rounded-md border">
-                    <label class="block text-xs font-bold text-gray-400 uppercase">Personal</label>
-                    <input type="text" id="expUsuarioAuto" readonly class="w-full bg-transparent border-none p-0 text-sm text-gray-600 outline-none">
+                <div class="bg-gray-100 p-2 rounded-lg border">
+                    <label class="block text-xs font-bold text-gray-500 uppercase">Solicitante</label>
+                    <input type="text" id="expUsuarioAuto" readonly class="w-full bg-transparent border-none p-0 text-sm font-medium outline-none">
                 </div>
-                <div class="bg-gray-50 p-2 rounded-md border">
-                    <label class="block text-xs font-bold text-gray-400 uppercase">Fecha</label>
-                    <input type="text" id="expFechaAuto" readonly class="w-full bg-transparent border-none p-0 text-sm text-gray-600 outline-none">
-                </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Cliente</label>
-                    <select id="expClienteId" required class="mt-1 block w-full border border-gray-300 rounded-md p-2">
-                        </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Actividad</label>
-                    <select id="expActividadId" required class="mt-1 block w-full border border-gray-300 rounded-md p-2">
-                        </select>
+                <div class="bg-gray-100 p-2 rounded-lg border">
+                    <label class="block text-xs font-bold text-gray-500 uppercase">Fecha</label>
+                    <input type="text" id="expFechaAuto" readonly class="w-full bg-transparent border-none p-0 text-sm font-medium outline-none">
                 </div>
             </div>
 
-            <div class="flex justify-end space-x-3 mt-6">
-                <button type="button" onclick="cerrarExpressModal()"
-                    class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg transition">
-                    Cancelar
-                </button>
-                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition">
+            <div class="grid grid-cols-1 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700">Cliente</label>
+                    <select id="expClienteId" required class="w-full border border-gray-300 rounded-lg p-2 mt-1">
+                        <option value="">-- Seleccione Cliente --</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700">Actividad</label>
+                    <select id="expActividadId" required class="w-full border border-gray-300 rounded-lg p-2 mt-1">
+                        <option value="">-- Seleccione Actividad --</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3">
+                <button type="button" onclick="cerrarExpressModal()" class="px-4 py-2 text-gray-600 font-semibold hover:bg-gray-200 rounded-lg transition">Cancelar</button>
+                <button type="submit" class="px-6 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 shadow-lg">
                     Enviar Solicitud
                 </button>
             </div>

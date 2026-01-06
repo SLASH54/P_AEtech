@@ -1979,54 +1979,62 @@ function filtrarTareas() {
 
 
 // 1. Función para abrir el modal y llenar datos automáticos
-// Función para abrir el modal Express
-function abrirExpressModal() {
+// 1. Función para abrir el modal y cargar los datos
+async function abrirExpressModal() {
     const modal = document.getElementById('tareaExpressModal');
     
-    // 1. Llenar datos automáticos (Usuario y Fecha)
+    // Llenar datos automáticos del usuario logueado
     const user = JSON.parse(localStorage.getItem('usuario'));
     document.getElementById('expUsuarioAuto').value = user ? user.nombre : "Usuario";
     document.getElementById('expFechaAuto').value = new Date().toLocaleDateString();
 
-    // 2. Cargar selects (podemos reutilizar las funciones que ya tienes para los otros modales)
-    if (typeof cargarClientesSelect === 'function') cargarClientesSelect('expClienteId');
-    if (typeof cargarActividadesSelect === 'function') cargarActividadesSelect('expActividadId');
+    // Cargar los selectores (reutilizando tus datos de la API)
+    await llenarSelectoresExpress();
 
-    // 3. Mostrar modal
-    modal.classList.remove('hidden');
-    setTimeout(() => {
-        modal.classList.remove('opacity-0');
-        modal.querySelector('div').classList.remove('scale-95');
-    }, 10);
+    // Mostrar el modal usando la clase .active (propia de tu CSS)
+    modal.classList.add('active');
 }
 
-// Función para cerrar
+// 2. Función para cerrar
 function cerrarExpressModal() {
-    const modal = document.getElementById('tareaExpressModal');
-    modal.classList.add('opacity-0');
-    modal.querySelector('div').classList.add('scale-95');
-    setTimeout(() => {
-        modal.classList.add('hidden');
-    }, 300);
+    document.getElementById('tareaExpressModal').classList.remove('active');
 }
 
-// Asegúrate de que el botón que creaste tenga: onclick="abrirExpressModal()"
+// 3. Función auxiliar para llenar Clientes y Actividades
+async function llenarSelectoresExpress() {
+    const token = localStorage.getItem("accessToken");
+    try {
+        const [resC, resA] = await Promise.all([
+            fetch(`${API_BASE_URL}/clientes-negocio`, { headers: { Authorization: `Bearer ${token}` } }),
+            fetch(`${API_BASE_URL}/actividades`, { headers: { Authorization: `Bearer ${token}` } })
+        ]);
 
+        const clientes = await resC.json();
+        const actividades = await resA.json();
 
-// Vincula el botón de tu interfaz (el que dice Tarea Express)
-document.getElementById('openAddExpressTaskModal')?.addEventListener('click', abrirExpressModal);
+        const selectC = document.getElementById('expClienteId');
+        const selectA = document.getElementById('expActividadId');
 
+        selectC.innerHTML = '<option value="">-- Seleccione Cliente --</option>';
+        clientes.forEach(c => selectC.innerHTML += `<option value="${c.id}">${c.nombre}</option>`);
 
-// 2. Manejar el envío del formulario
+        selectA.innerHTML = '<option value="">-- Seleccione Actividad --</option>';
+        actividades.forEach(a => selectA.innerHTML += `<option value="${a.id}">${a.nombre}</option>`);
+    } catch (err) {
+        console.error("Error al cargar datos express:", err);
+    }
+}
+
+// 4. Manejar el envío del formulario al backend (Sequelize)
 document.getElementById('tareaExpressForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
-
+    
     const data = {
         nombre: document.getElementById('expTitulo').value,
         descripcion: document.getElementById('expDescripcion').value,
         clienteNegocioId: document.getElementById('expClienteId').value,
         actividadId: document.getElementById('expActividadId').value,
-        // El backend usará el ID del token para el usuarioAsignadoId
+        // El estado se manejará en el backend como 'Pendiente de Autorización'
     };
 
     try {
@@ -2039,18 +2047,23 @@ document.getElementById('tareaExpressForm')?.addEventListener('submit', async (e
             body: JSON.stringify(data)
         });
 
-        const result = await response.json();
-
         if (response.ok) {
-            alert("✅ Solicitud enviada. El admin recibirá una notificación push.");
+            alert("🚀 Solicitud enviada con éxito. Esperando aprobación del Admin.");
             cerrarExpressModal();
         } else {
-            alert("❌ Error: " + result.message);
+            const err = await response.json();
+            alert("Error: " + err.message);
         }
     } catch (error) {
-        console.error("Error al enviar tarea express:", error);
+        alert("Ocurrió un error al conectar con el servidor.");
     }
 });
+
+
+// Vincula el botón de tu interfaz (el que dice Tarea Express)
+document.getElementById('openAddExpressTaskModal')?.addEventListener('click', abrirExpressModal);
+
+
 
 async function autorizarTarea(tareaId) {
     const res = await fetch(`${API_BASE_URL}/tareas/autorizar/${tareaId}`, {
@@ -2062,25 +2075,6 @@ async function autorizarTarea(tareaId) {
         alert("Tarea autorizada. Ahora es visible en el panel general.");
         location.reload(); // Recargar para ver la nueva tarea en 'Pendiente'
     }
-}
-
-// Ejemplo rápido si no tienes la función genérica:
-async function cargarDatosExpress() {
-    const token = localStorage.getItem("accessToken");
-    
-    // Cargar Clientes
-    const resC = await fetch(`${API_BASE_URL}/clientes-negocio`, { headers: { Authorization: `Bearer ${token}` } });
-    const clientes = await resC.json();
-    const selectC = document.getElementById('expClienteId');
-    selectC.innerHTML = '<option value="">-- Seleccione Cliente --</option>';
-    clientes.forEach(c => selectC.innerHTML += `<option value="${c.id}">${c.nombre}</option>`);
-
-    // Cargar Actividades
-    const resA = await fetch(`${API_BASE_URL}/actividades`, { headers: { Authorization: `Bearer ${token}` } });
-    const actividades = await resA.json();
-    const selectA = document.getElementById('expActividadId');
-    selectA.innerHTML = '<option value="">-- Seleccione Actividad --</option>';
-    actividades.forEach(a => selectA.innerHTML += `<option value="${a.id}">${a.nombre}</option>`);
 }
 
 // BOTÓN LIMPIAR
