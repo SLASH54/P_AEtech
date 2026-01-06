@@ -2001,7 +2001,7 @@ async function abrirExpressModal() {
     if (typeof cargarActividadesSelect === 'function') await cargarActividadesSelect('expActividadId');
 
      ExpClienteSelect.onchange = () => {
-        cargarDireccionesCliente(ExpClienteSelect.value);
+        cargarDireccionesExpress(ExpClienteSelect.value);
     };
 
     // 3. LA CLAVE: Aplicar display flex para que flote encima
@@ -2100,34 +2100,47 @@ async function autorizarTarea(tareaId) {
 
 // 1. Función para cargar direcciones cuando cambia el cliente
 async function cargarDireccionesExpress(clienteId) {
-    const selectSucursal = document.getElementById('expDireccionCliente');
-    if (!clienteId) {
-        selectSucursal.innerHTML = '<option value="">-- Seleccione Cliente primero --</option>';
+     console.log("Ejecutando cargarDireccionesCliente para cliente:", clienteId);
+
+    const selectDireccion = document.getElementById("expClienteId");
+    if (!selectDireccion) {
+        console.error("❌ No se encontró el select expClienteId");
         return;
     }
 
-    const token = localStorage.getItem("accessToken");
-    try {
-        // Usamos la ruta que ya tienes para obtener detalles del cliente incluyendo direcciones
-        const res = await fetch(`${API_BASE_URL}/clientes/${clienteId}`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        const cliente = await res.json();
+    selectDireccion.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
 
-        selectSucursal.innerHTML = '<option value="">-- Seleccione Dirección --</option>';
-        
-        // Asumiendo que tu API devuelve las direcciones en 'direcciones' o 'Sucursales'
-        // Según tu includeConfig del controlador, el alias es "direcciones"
-        if (cliente.direcciones && cliente.direcciones.length > 0) {
-            cliente.direcciones.forEach(dir => {
-                selectSucursal.innerHTML += `<option value="${dir.id}">${dir.direccion} (${dir.municipio})</option>`;
-            });
-        } else {
-            selectSucursal.innerHTML = '<option value="">Sin direcciones registradas</option>';
-        }
-    } catch (err) {
-        console.error("Error al cargar direcciones:", err);
+    if (!clienteId) {
+        return;
     }
+
+    const cliente = window.clientesData ? window.clientesData[clienteId] : null;
+    console.log("Cliente encontrado en window.clientesData:", cliente);
+
+    const direcciones = (cliente && Array.isArray(cliente.direcciones))
+        ? cliente.direcciones
+        : [];
+
+    if (!direcciones.length) {
+        selectDireccion.innerHTML = `<option value="">Sin direcciones registradas</option>`;
+        return;
+    }
+
+  direcciones.forEach(dir => {
+  const option = document.createElement("option");
+  //option.value = dir.direccion;
+  option.value = dir.id; // 👈 CLAVE
+
+
+  option.textContent = dir.alias
+    ? `${dir.alias} – ${dir.direccion}`
+    : dir.maps
+      ? "📍 Ubicación sin alias (Google Maps)"
+      : dir.direccion;
+
+  option.dataset.maps = dir.maps || "";
+  selectDireccion.appendChild(option);
+});
 }
 
 // BOTÓN LIMPIAR
