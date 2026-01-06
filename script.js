@@ -1979,21 +1979,24 @@ function filtrarTareas() {
 
 
 // 1. Función para abrir el modal y llenar datos automáticos
-// Función para mostrar el modal
+// Función para abrir el modal Express
 function abrirExpressModal() {
     const modal = document.getElementById('tareaExpressModal');
-    const content = document.getElementById('expressContent');
     
-    // 1. Obtener datos de sesión (ajusta según cómo guardes tu usuario)
-    const user = JSON.parse(localStorage.getItem("usuario")) || { nombre: "Usuario" };
-    document.getElementById('expUsuarioAuto').value = user.nombre;
+    // 1. Llenar datos automáticos (Usuario y Fecha)
+    const user = JSON.parse(localStorage.getItem('usuario'));
+    document.getElementById('expUsuarioAuto').value = user ? user.nombre : "Usuario";
     document.getElementById('expFechaAuto').value = new Date().toLocaleDateString();
 
-    // 2. Mostrar con animación
+    // 2. Cargar selects (podemos reutilizar las funciones que ya tienes para los otros modales)
+    if (typeof cargarClientesSelect === 'function') cargarClientesSelect('expClienteId');
+    if (typeof cargarActividadesSelect === 'function') cargarActividadesSelect('expActividadId');
+
+    // 3. Mostrar modal
     modal.classList.remove('hidden');
     setTimeout(() => {
         modal.classList.remove('opacity-0');
-        content.classList.remove('scale-95');
+        modal.querySelector('div').classList.remove('scale-95');
     }, 10);
 }
 
@@ -2001,10 +2004,14 @@ function abrirExpressModal() {
 function cerrarExpressModal() {
     const modal = document.getElementById('tareaExpressModal');
     modal.classList.add('opacity-0');
+    modal.querySelector('div').classList.add('scale-95');
     setTimeout(() => {
         modal.classList.add('hidden');
     }, 300);
 }
+
+// Asegúrate de que el botón que creaste tenga: onclick="abrirExpressModal()"
+
 
 // Vincula el botón de tu interfaz (el que dice Tarea Express)
 document.getElementById('openAddExpressTaskModal')?.addEventListener('click', abrirExpressModal);
@@ -2055,6 +2062,25 @@ async function autorizarTarea(tareaId) {
         alert("Tarea autorizada. Ahora es visible en el panel general.");
         location.reload(); // Recargar para ver la nueva tarea en 'Pendiente'
     }
+}
+
+// Ejemplo rápido si no tienes la función genérica:
+async function cargarDatosExpress() {
+    const token = localStorage.getItem("accessToken");
+    
+    // Cargar Clientes
+    const resC = await fetch(`${API_BASE_URL}/clientes-negocio`, { headers: { Authorization: `Bearer ${token}` } });
+    const clientes = await resC.json();
+    const selectC = document.getElementById('expClienteId');
+    selectC.innerHTML = '<option value="">-- Seleccione Cliente --</option>';
+    clientes.forEach(c => selectC.innerHTML += `<option value="${c.id}">${c.nombre}</option>`);
+
+    // Cargar Actividades
+    const resA = await fetch(`${API_BASE_URL}/actividades`, { headers: { Authorization: `Bearer ${token}` } });
+    const actividades = await resA.json();
+    const selectA = document.getElementById('expActividadId');
+    selectA.innerHTML = '<option value="">-- Seleccione Actividad --</option>';
+    actividades.forEach(a => selectA.innerHTML += `<option value="${a.id}">${a.nombre}</option>`);
 }
 
 // BOTÓN LIMPIAR
