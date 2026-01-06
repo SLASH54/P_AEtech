@@ -1981,29 +1981,26 @@ function filtrarTareas() {
 // 1. Función para abrir el modal y llenar datos automáticos
 // 1. Función para abrir el modal y cargar los datos
 // Función para abrir el modal Express
+// Función para abrir el modal
 async function abrirExpressModal() {
     const modal = document.getElementById('tareaExpressModal');
     
-    // 1. Datos automáticos
+    // 1. Llenar datos automáticos
     const user = JSON.parse(localStorage.getItem('usuario')) || { nombre: "Usuario" };
     document.getElementById('expUsuarioAuto').value = user.nombre;
     document.getElementById('expFechaAuto').value = new Date().toLocaleDateString();
 
-    // 2. Cargar selects (Reutilizando tus funciones existentes de carga)
-    // Asegúrate de que estas funciones llenen 'expClienteId' y 'expActividadId'
-    if (typeof cargarClientesSelect === 'function') {
-        await cargarClientesSelect('expClienteId');
-    }
-    if (typeof cargarActividadesSelect === 'function') {
-        await cargarActividadesSelect('expActividadId');
-    }
+    // 2. Cargar los selects (Reutiliza tus funciones que ya funcionan)
+    if (typeof cargarClientesSelect === 'function') await cargarClientesSelect('expClienteId');
+    if (typeof cargarActividadesSelect === 'function') await cargarActividadesSelect('expActividadId');
 
-    // 3. LA CLAVE: Usar la clase .active que ya tienes en login.css
-    modal.classList.add('active');
+    // 3. LA CLAVE: Aplicar display flex para que flote encima
+    modal.style.display = 'flex';
 }
 
+// Función para cerrar
 function cerrarExpressModal() {
-    document.getElementById('tareaExpressModal').classList.remove('active');
+    document.getElementById('tareaExpressModal').style.display = 'none';
 }
 
 // 3. Función auxiliar para llenar Clientes y Actividades
