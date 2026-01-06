@@ -2102,9 +2102,9 @@ async function autorizarTarea(tareaId) {
 async function cargarDireccionesExpress(clienteId) {
      console.log("Ejecutando cargarDireccionesCliente para cliente:", clienteId);
 
-    const selectDireccion = document.getElementById("expClienteId");
+    const selectDireccion = document.getElementById("expDireccionCliente");
     if (!selectDireccion) {
-        console.error("❌ No se encontró el select expClienteId");
+        console.error("❌ No se encontró el select expDireccionCliente");
         return;
     }
 
