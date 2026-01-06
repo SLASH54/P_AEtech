@@ -2038,58 +2038,7 @@ async function llenarSelectoresExpress() {
     }
 }
 
-async function guardarTareaExpress() {
-    const token = localStorage.getItem("accessToken");
-    
-    // 1. Capturar valores
-    const nombre = document.getElementById('expTitulo').value;
-    const descripcion = document.getElementById('expDescripcion').value;
-    const clienteId = document.getElementById('expClienteId').value;
-    const sucursalId = document.getElementById('expDireccionCliente').value;
-    const actividadId = document.getElementById('expActividadId').value;
 
-    // 2. Validar que no estén vacíos
-    if (!nombre || !clienteId || !sucursalId || !actividadId) {
-        alert("⚠️ Por favor, completa todos los campos obligatorios.");
-        return;
-    }
-
-    // 3. Construir el objeto con los nombres EXACTOS del controlador
-    // Y convirtiendo a números con parseInt
-    const data = {
-        nombre: nombre,
-        descripcion: descripcion,
-        clienteNegocioId: parseInt(clienteId),
-        sucursalId: parseInt(sucursalId),
-        actividadId: parseInt(actividadId)
-    };
-
-    console.log("Enviando datos:", data); // Para que revises en consola antes de fallar
-
-    try {
-        const res = await fetch(`${API_BASE_URL}/tareas/express`, { // <-- Asegúrate que sea /express
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(data)
-        });
-
-        const result = await res.json();
-
-        if (res.ok) {
-            alert("✅ Tarea enviada a revisión");
-            cerrarExpressModal();
-        } else {
-            console.error("Error del servidor:", result);
-            alert("❌ Error: " + (result.message || "No se pudo crear la tarea"));
-        }
-    } catch (err) {
-        console.error("Error de conexión:", err);
-        alert("🚫 Error de conexión con el servidor.");
-    }
-}
 
 // 4. Manejar el envío del formulario al backend (Sequelize)
 document.getElementById('tareaExpressForm')?.addEventListener('submit', async (e) => {
@@ -2098,7 +2047,8 @@ document.getElementById('tareaExpressForm')?.addEventListener('submit', async (e
     const data = {
         nombre: document.getElementById('expTitulo').value,
         descripcion: document.getElementById('expDescripcion').value,
-        usuarioAsignadoId: document.getElementById('expUsuarioAuto').value,
+        //usuarioAsignadoId: document.getElementById('expUsuarioAuto').value,
+        usuarioAsignadoId: '1',
         fechaLimite: document.getElementById('expFechaAuto').value,
         clienteNegocioId: document.getElementById('expClienteId').value,
         actividadId: document.getElementById('expActividadId').value,
@@ -2145,14 +2095,27 @@ document.getElementById('openAddExpressTaskModal')?.addEventListener('click', ab
 
 
 async function autorizarTarea(tareaId) {
-    const res = await fetch(`${API_BASE_URL}/tareas/autorizar/${tareaId}`, {
-        method: 'PUT',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
-    });
-    
-    if(res.ok) {
-        alert("Tarea autorizada. Ahora es visible en el panel general.");
-        location.reload(); // Recargar para ver la nueva tarea en 'Pendiente'
+    const confirmacion = confirm("¿Deseas autorizar esta tarea para que el técnico comience?");
+    if (!confirmacion) return;
+
+    const token = localStorage.getItem("accessToken");
+    try {
+        const res = await fetch(`${API_BASE_URL}/tareas/autorizar/${tareaId}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (res.ok) {
+            alert("✅ Tarea autorizada. El técnico ya puede verla como 'Pendiente'.");
+            cargarTodasLasTareas(); // Recargar la tabla del admin
+        } else {
+            alert("Error al autorizar");
+        }
+    } catch (err) {
+        console.error(err);
     }
 }
 
