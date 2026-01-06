@@ -1989,7 +1989,6 @@ async function abrirExpressModal() {
 
     // Resetear formulario
     document.getElementById('tareaExpressForm').reset();
-    document.getElementById('expSucursalId').innerHTML = '<option value="">-- Seleccione Cliente primero --</option>';
     
     // 1. Llenar datos automáticos
     const user = JSON.parse(localStorage.getItem('usuario')) || { nombre: "Usuario" };
