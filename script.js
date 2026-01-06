@@ -2055,7 +2055,7 @@ document.getElementById('tareaExpressForm')?.addEventListener('submit', async (e
         sucursalId: '1',
         prioridad : 'Normal',
         direccionCliente: document.getElementById('expDireccionCliente').value,
-        estado: 'Pendiente de Autorización',
+        estado: 'Pendiente',
         // El estado se manejará en el backend como 'Pendiente de Autorización'
     };
 
