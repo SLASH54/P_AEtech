@@ -1986,6 +1986,7 @@ function filtrarTareas() {
 // Función para abrir el modal
 async function abrirExpressModal() {
     const modal = document.getElementById('tareaExpressModal');
+    const ExpClienteSelect = document.getElementById('expClienteId');
     
     // 1. Llenar datos automáticos
     const user = JSON.parse(localStorage.getItem('usuario')) || { nombre: "Usuario" };
@@ -1998,6 +1999,10 @@ async function abrirExpressModal() {
     // 2. Cargar los selects (Reutiliza tus funciones que ya funcionan)
     if (typeof cargarClientesSelect === 'function') await cargarClientesSelect('expClienteId');
     if (typeof cargarActividadesSelect === 'function') await cargarActividadesSelect('expActividadId');
+
+     ExpClienteSelect.onchange = () => {
+        cargarDireccionesCliente(ExpClienteSelect.value);
+    };
 
     // 3. LA CLAVE: Aplicar display flex para que flote encima
     modal.style.display = 'flex';
