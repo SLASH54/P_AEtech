@@ -1979,23 +1979,36 @@ function filtrarTareas() {
 
 
 // 1. Función para abrir el modal y llenar datos automáticos
+// Función para mostrar el modal
 function abrirExpressModal() {
     const modal = document.getElementById('tareaExpressModal');
+    const content = document.getElementById('expressContent');
     
-    // Obtener datos del usuario logueado (asumiendo que los guardas al iniciar sesión)
-    const nombreUsuario = localStorage.getItem('usuarioNombre') || "Usuario Actual";
-    const fechaActual = new Date().toLocaleDateString();
+    // 1. Obtener datos de sesión (ajusta según cómo guardes tu usuario)
+    const user = JSON.parse(localStorage.getItem("usuario")) || { nombre: "Usuario" };
+    document.getElementById('expUsuarioAuto').value = user.nombre;
+    document.getElementById('expFechaAuto').value = new Date().toLocaleDateString();
 
-    document.getElementById('expUsuarioAuto').value = nombreUsuario;
-    document.getElementById('expFechaAuto').value = fechaActual;
-
-    // Abrir modal con Tailwind
-    modal.classList.remove('opacity-0', 'pointer-events-none');
+    // 2. Mostrar con animación
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        content.classList.remove('scale-95');
+    }, 10);
 }
 
+// Función para cerrar
 function cerrarExpressModal() {
-    document.getElementById('tareaExpressModal').classList.add('opacity-0', 'pointer-events-none');
+    const modal = document.getElementById('tareaExpressModal');
+    modal.classList.add('opacity-0');
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 300);
 }
+
+// Vincula el botón de tu interfaz (el que dice Tarea Express)
+document.getElementById('openAddExpressTaskModal')?.addEventListener('click', abrirExpressModal);
+
 
 // 2. Manejar el envío del formulario
 document.getElementById('tareaExpressForm')?.addEventListener('submit', async (e) => {
