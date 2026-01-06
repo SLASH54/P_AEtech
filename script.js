@@ -1392,6 +1392,7 @@ async function initTareas() {
   llenarSelectClientes(tareas);
   llenarSelectActividades(tareas);
 
+  llenarSelectoresExpress()
 
   document.getElementById('filterCliente')?.addEventListener('change', filtrarTareas);
 document.getElementById('filterActividad')?.addEventListener('change', filtrarTareas);
@@ -2008,7 +2009,7 @@ async function llenarSelectoresExpress() {
     const token = localStorage.getItem("accessToken");
     try {
         const [resC, resA] = await Promise.all([
-            fetch(`${API_BASE_URL}/clientes-negocio`, { headers: { Authorization: `Bearer ${token}` } }),
+            fetch(`${API_BASE_URL}/clientes`, { headers: { Authorization: `Bearer ${token}` } }),
             fetch(`${API_BASE_URL}/actividades`, { headers: { Authorization: `Bearer ${token}` } })
         ]);
 
