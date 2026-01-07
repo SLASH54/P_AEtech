@@ -1994,21 +1994,23 @@ function cerrarNuevoLevantamiento() {
 }
 
 
-/* ===== FUNCIÓN UNIFICADA PARA NUEVO LEVANTAMIENTO ===== */
+
+
+
+/* ===== FUNCIÓN UNIFICADA PARA NUEVO LEVANTAMIENTO CORREGIDA ===== */
 async function abrirNuevoLevantamiento() {
     // 1. Resetear el estado de edición
     editandoId = null; 
     
-    // 2. Limpiar campos de texto manualmente por ID
+    // 2. Limpiar campos
     const campos = ["lev-direccion", "lev-personal", "lev-fechaHora"];
     campos.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = "";
     });
 
-    // 3. Resetear el selector de cliente
-    const selectCliente = document.getElementById("lev-clienteSelect");
-    if (selectCliente) selectCliente.selectedIndex = 0;
+    // 3. 🚨 CARGAR CLIENTES (Esto es lo que faltaba amiko)
+    await cargarClientesLev(); 
 
     // 4. Limpiar contenedores dinámicos
     document.getElementById("lev-necesidadesContainer").innerHTML = "";
@@ -2025,6 +2027,8 @@ async function abrirNuevoLevantamiento() {
     
     document.getElementById("modalNuevoLevantamiento").classList.add("active");
 }
+
+
 
 
 //DESCARGAR PDF
