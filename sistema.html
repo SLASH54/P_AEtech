@@ -1204,41 +1204,31 @@ document.getElementById("btnNuevoLevantamiento")
     ?.addEventListener("click", abrirNuevoLevantamiento); // 👈 Asegúrate que diga abrirNuevoLevantamiento
 
 
-
-   async function cargarClientesLev() {
+async function cargarClientesLev() {
   const select = document.getElementById("lev-clienteSelect");
   if (!select) return;
-
   select.innerHTML = `<option value="">Seleccione cliente</option>`;
 
   try {
     const token = localStorage.getItem("accessToken");
-    if (!token) return;
-
     const res = await fetch(`${API_BASE_URL}/clientes`, {
       headers: { Authorization: `Bearer ${token}` }
     });
-
-    if (!res.ok) return;
-
     const clientes = await res.json();
 
+    // 🚨 ESTA ES LA LÍNEA CLAVE: Guardar los datos para las direcciones
+    window.clientesData = {}; 
+
     clientes.forEach(c => {
+      window.clientesData[c.id] = c; // Guardamos el objeto cliente con sus direcciones
       const opt = document.createElement("option");
       opt.value = c.id;
       opt.textContent = c.nombre;
       select.appendChild(opt);
     });
-
-    // 💡 IMPORTANTE: Agregamos esto para que 'await cargarClientesLev()' funcione
     return true; 
-
-  } catch (e) {
-    console.error("Error cargando clientes:", e);
-    return false;
-  }
+  } catch (e) { console.error(e); return false; }
 }
-
 
 
 
@@ -1318,28 +1308,31 @@ async function guardarLevantamiento() {
     const selectCliente = document.getElementById("lev-clienteSelect");
     const clienteId = selectCliente.value;
     const clienteNombre = selectCliente.options[selectCliente.selectedIndex]?.text || "";
-   // multiples direcciones 
-const direccion = document.getElementById("lev-direccionSelect").value;
 
+    // 🚨 CORRECCIÓN 1: El ID debe coincidir con el de tu función cargarDireccionesLevantamiento
+    // Cambié 'lev-direccionSelect' por 'lev-direccionesLevantamientos'
+    const selectDireccion = document.getElementById("lev-direccionesLevantamientos");
+    const direccionSeleccionada = selectDireccion ? selectDireccion.value : "";
 
-    if (!clienteId || !direccion) {
+    if (!clienteId || !direccionSeleccionada) {
         alert("Amigo, selecciona cliente y dirección.");
         return;
     }
 
     document.getElementById("loader").style.display = "flex";
 
- const data = {
-        cliente_id: clienteId,    // ✅ CAMBIADO: Debe ser cliente_id para que el server lo vea
+    const data = {
+        cliente_id: clienteId,
         cliente_nombre: clienteNombre,
-        direccion: document.getElementById("lev-direccion").value,
+        // 🚨 CORRECCIÓN 2: Aquí tenías document.getElementById("lev-direccion").value
+        // Debes usar la variable 'direccionSeleccionada' que sacamos del SELECT arriba
+        direccion: direccionSeleccionada, 
         personal: document.getElementById("lev-personal").value,
         fecha: document.getElementById("lev-fechaHora").value,
         necesidades: obtenerNecesidadesLev(), 
         materiales: levMaterialesList 
     };
 
-    // 💡 Aquí determinamos si es crear o editar
     const url = editandoId 
         ? `${API_BASE_URL}/levantamientos/${editandoId}` 
         : `${API_BASE_URL}/levantamientos`;
@@ -1348,7 +1341,7 @@ const direccion = document.getElementById("lev-direccionSelect").value;
 
     try {
         const res = await fetch(url, {
-            method: metodo, // ✅ CAMBIADO: Ahora usa PUT o POST según corresponda
+            method: metodo,
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
@@ -1360,7 +1353,7 @@ const direccion = document.getElementById("lev-direccionSelect").value;
 
         if (res.ok) {
             alert("✅ Levantamiento procesado correctamente");
-            editandoId = null; // Limpiamos el ID después de guardar
+            editandoId = null; 
             location.reload();
         } else {
             alert("❌ Error del servidor: " + (resData.msg || resData.message || "Error desconocido"));
@@ -1372,6 +1365,7 @@ const direccion = document.getElementById("lev-direccionSelect").value;
         document.getElementById("loader").style.display = "none";
     }
 }
+
 
 
 //LIMPIAR FORMULARIO 
@@ -1430,10 +1424,11 @@ async function clienteChangeLev() {
 }
 
 
-// conectar cambio
+// CONECTA LA FUNCIÓN NUEVA:
 document.getElementById("lev-clienteSelect")
-    ?.addEventListener("change", clienteChangeLev);
-
+    ?.addEventListener("change", (e) => {
+        cargarDireccionesLevantamiento(e.target.value);
+    });
 
 
 
