@@ -1309,12 +1309,12 @@ async function guardarLevantamiento() {
     const clienteId = selectCliente.value;
     const clienteNombre = selectCliente.options[selectCliente.selectedIndex]?.text || "";
 
-    // 🚨 CORRECCIÓN 1: El ID debe coincidir con el de tu función cargarDireccionesLevantamiento
-    // Cambié 'lev-direccionSelect' por 'lev-direccionesLevantamientos'
     const selectDireccion = document.getElementById("lev-direccionesLevantamientos");
-    const direccionSeleccionada = selectDireccion ? selectDireccion.value : "";
+    
+    // 🚨 CAMBIO AQUÍ: Obtenemos el TEXTO (la dirección real) y no el ID numérico
+    const direccionTexto = selectDireccion.options[selectDireccion.selectedIndex]?.text || "";
 
-    if (!clienteId || !direccionSeleccionada) {
+    if (!clienteId || !direccionTexto || direccionTexto.includes("-- Seleccione")) {
         alert("Amigo, selecciona cliente y dirección.");
         return;
     }
@@ -1324,14 +1324,14 @@ async function guardarLevantamiento() {
     const data = {
         cliente_id: clienteId,
         cliente_nombre: clienteNombre,
-        // 🚨 CORRECCIÓN 2: Aquí tenías document.getElementById("lev-direccion").value
-        // Debes usar la variable 'direccionSeleccionada' que sacamos del SELECT arriba
-        direccion: direccionSeleccionada, 
+        direccion: direccionTexto, // 👈 Ahora enviamos "Calle Falsa 123" en lugar de un ID
         personal: document.getElementById("lev-personal").value,
         fecha: document.getElementById("lev-fechaHora").value,
         necesidades: obtenerNecesidadesLev(), 
         materiales: levMaterialesList 
     };
+
+    // ... (el resto de tu fetch queda igual)
 
     const url = editandoId 
         ? `${API_BASE_URL}/levantamientos/${editandoId}` 
@@ -1765,52 +1765,55 @@ async function editarLevantamiento(id) {
         });
         const lev = await res.json();
 
-        editandoId = id; // Guardamos el ID para que el Guardar sepa que es PUT
+        editandoId = id; 
 
+        // 1. Cargamos los clientes primero
         await cargarClientesLev(); 
 
-        // 1. Cargamos el Cliente
         const selectCliente = document.getElementById("lev-clienteSelect");
-        // Usamos el campo con guion bajo que viene de la BD
-        selectCliente.value = lev.cliente_id; 
+        if (selectCliente) {
+            selectCliente.value = lev.cliente_id; 
+        }
 
-        //cargar direcciones
-
+        // 2. Cargamos las direcciones de ESE cliente
         await cargarDireccionesLevantamiento(lev.cliente_id);
 
-// Ahora sí, ponemos la dirección que ya estaba guardada
-document.getElementById("lev-direccionSelect").value = lev.direccion;
-        
-selectDireccion.value = lev.direccion;
+        // 🚨 CORRECCIÓN CLAVE: Usar el ID correcto del select de direcciones
+        const selectDirReal = document.getElementById("lev-direccionesLevantamientos");
+        if (selectDirReal) {
+            // Intentamos seleccionar la dirección que ya tenía guardada
+            // Nota: Esto funcionará si el 'value' de tus options es igual a lev.direccion
+            selectDirReal.value = lev.direccion;
+        }
 
+        // 3. Llenar el resto de campos
+        const inputPersonal = document.getElementById("lev-personal");
+        if (inputPersonal) inputPersonal.value = lev.personal;
 
-
-        document.getElementById("lev-direccion").value = lev.direccion;
-        document.getElementById("lev-personal").value = lev.personal;
-
-        // 2. CORRECCIÓN DE FECHA 📅
+        // 4. CORRECCIÓN DE FECHA 📅
         if (lev.fecha) {
-            // Convertimos la fecha a formato ISO y cortamos para que sea YYYY-MM-DDTHH:MM
             const fechaFormateada = new Date(lev.fecha).toISOString().slice(0, 16);
             document.getElementById("lev-fechaHora").value = fechaFormateada;
         }
 
-        // 3. Limpiar y cargar necesidades
+        // 5. Limpiar y cargar necesidades
         const container = document.getElementById("lev-necesidadesContainer");
         container.innerHTML = ""; 
         
-        if (lev.necesidades) {
+        if (lev.necesidades && Array.isArray(lev.necesidades)) {
             lev.necesidades.forEach(n => {
                 addNecesidadConDatos(n.descripcion, n.imagen);
             });
         }
 
-        // 4. Cargar materiales
-        levMaterialesList = lev.materiales || [];
+        // 6. Cargar materiales
+        levMaterialesList = Array.isArray(lev.materiales) ? lev.materiales : [];
         levRenderMateriales();
 
         // UI
-        document.querySelector("#modalNuevoLevantamiento h2").innerText = "✏️ Editar Levantamiento";
+        const tituloModal = document.querySelector("#modalNuevoLevantamiento h2");
+        if (tituloModal) tituloModal.innerText = "✏️ Editar Levantamiento";
+        
         document.getElementById("modalNuevoLevantamiento").classList.add("active");
 
     } catch (err) {
@@ -1820,7 +1823,6 @@ selectDireccion.value = lev.direccion;
         document.getElementById("loader").style.display = "none";
     }
 }
-
 
 //ver texto y fotos viejas del levantamieno al editar 
 function addNecesidadConDatos(descripcion, urlFoto) {
