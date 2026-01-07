@@ -1288,44 +1288,61 @@ async function cargarDireccionesCliente() {
 
 //multiples direcciones para levantamientos 
 async function cargarDireccionesLevantamiento(clienteId) {
-    const selectDir = document.getElementById("lev-direccionSelect");
-    if (!selectDir) return;
+    console.log("🔍 Buscando direcciones para el cliente ID:", clienteId);
 
-    selectDir.innerHTML = `<option value="">Cargando sucursales...</option>`;
+    const selectDireccion = document.getElementById("lev-direccionSelect");
+    if (!selectDireccion) return;
+
+    selectDireccion.innerHTML = `<option value="">⌛ Cargando sucursales...</option>`;
 
     if (!clienteId) {
-        selectDir.innerHTML = `<option value="">Seleccione un cliente primero</option>`;
+        selectDireccion.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
         return;
     }
 
     try {
+        const token = localStorage.getItem("accessToken");
         const res = await fetch(`${API_BASE_URL}/clientes/${clienteId}`, {
-            headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }
+            headers: { Authorization: `Bearer ${token}` }
         });
+        
+        if (!res.ok) throw new Error("Error en la respuesta del servidor");
+        
         const cliente = await res.json();
+        console.log("📦 Datos del cliente recibidos:", cliente);
 
-        selectDir.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
+        selectDireccion.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
 
-        // Si tiene el array de direcciones (como en tareas)
-        if (cliente.direcciones && cliente.direcciones.length > 0) {
-            cliente.direcciones.forEach(dir => {
+        // 1. Intentar sacar direcciones del array 'direcciones' (Como en Tareas)
+        let direccionesArray = [];
+        if (cliente.direcciones && Array.isArray(cliente.direcciones)) {
+            direccionesArray = cliente.direcciones;
+        } 
+
+        if (direccionesArray.length > 0) {
+            direccionesArray.forEach(dir => {
                 const opt = document.createElement("option");
-                opt.value = dir.direccion; // Guardamos la calle/texto
+                // Importante: Guardamos la dirección como valor
+                opt.value = dir.direccion; 
                 opt.textContent = dir.alias ? `${dir.alias} - ${dir.direccion}` : dir.direccion;
-                selectDir.appendChild(opt);
+                selectDireccion.appendChild(opt);
             });
-        } else {
-            // Si solo tiene una dirección principal
+        } 
+        // 2. Si no hay array, pero el cliente tiene una dirección principal
+        else if (cliente.direccion) {
             const opt = document.createElement("option");
-            opt.value = cliente.direccion || "";
-            opt.textContent = cliente.direccion || "Sin dirección registrada";
-            selectDir.appendChild(opt);
+            opt.value = cliente.direccion;
+            opt.textContent = "Principal: " + cliente.direccion;
+            selectDireccion.appendChild(opt);
+        } else {
+            selectDireccion.innerHTML = `<option value="">⚠️ Sin direcciones registradas</option>`;
         }
+
     } catch (err) {
-        selectDir.innerHTML = `<option value="">Error al cargar</option>`;
+        console.error("❌ Error al cargar direcciones:", err);
+        selectDireccion.innerHTML = `<option value="">❌ Error al cargar</option>`;
     }
 }
-
 
 function setPersonalActual() {
     const input = document.getElementById("lev-personal");
