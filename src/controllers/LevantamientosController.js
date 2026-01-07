@@ -78,32 +78,31 @@ exports.getLevantamientoById = async (req, res) => {
 exports.updateLevantamiento = async (req, res) => {
   try {
     const { id } = req.params;
-    const { direccion, personal, fecha, necesidades, materiales } = req.body;
-    const necesidadesProcesadas = [];
+    const { cliente_id, cliente_nombre, direccion, personal, fecha, necesidades, materiales } = req.body;
 
-    if (necesidades) {
-      for (const nec of necesidades) {
-        let finalUrl = nec.imagen;
-        if (nec.imagen && nec.imagen.startsWith('data:image')) {
-          const result = await cloudinary.uploader.upload(nec.imagen, {
-            folder: 'aetech_levantamientos'
-          });
-          finalUrl = result.secure_url;
-        }
-        necesidadesProcesadas.push({ descripcion: nec.descripcion, imagen: finalUrl });
-      }
-    }
+    // Buscar el registro
+    const lev = await Levantamiento.findByPk(id);
+    if (!lev) return res.status(404).json({ msg: "No encontrado" });
 
-    await Levantamiento.update(
-      { direccion, personal, fecha, necesidades: necesidadesProcesadas, materiales },
-      { where: { id } }
-    );
-    res.json({ ok: true });
+    // Actualizar campos
+    await lev.update({
+      cliente_id: cliente_id || lev.cliente_id, // 👈 Asegúrate que use cliente_id
+      cliente_nombre: cliente_nombre || lev.cliente_nombre,
+      direccion: direccion || lev.direccion,
+      personal: personal || lev.personal,
+      fecha: fecha || lev.fecha,
+      necesidades: necesidades || lev.necesidades, // Aquí deberías procesar fotos si hay nuevas
+      materiales: materiales || lev.materiales
+    });
+
+    res.json({ msg: "Actualizado correctamente", lev });
   } catch (error) {
-    console.error("Error al editar:", error);
-    res.status(500).json({ msg: "Error al editar" });
+    console.error(error);
+    res.status(500).json({ msg: "Error al actualizar" });
   }
 };
+
+
 
 // ===============================
 // 5. ELIMINAR

@@ -1257,6 +1257,7 @@ function setPersonalActual() {
 
 // 💡 IMPORTANTE: Asegúrate de tener esta variable declarada al inicio de tus scripts
    let editandoId = null; 
+
 async function guardarLevantamiento() {
     const selectCliente = document.getElementById("lev-clienteSelect");
     const clienteId = selectCliente.value;
@@ -1270,11 +1271,10 @@ async function guardarLevantamiento() {
 
     document.getElementById("loader").style.display = "flex";
 
-    const data = {
-        clienteId,
-        clienteNombre,
+ const data = {
+        cliente_id: clienteId,    // ✅ CAMBIADO: Debe ser cliente_id para que el server lo vea
         cliente_nombre: clienteNombre,
-        direccion,
+        direccion: document.getElementById("lev-direccion").value,
         personal: document.getElementById("lev-personal").value,
         fecha: document.getElementById("lev-fechaHora").value,
         necesidades: obtenerNecesidadesLev(), 
@@ -1314,6 +1314,7 @@ async function guardarLevantamiento() {
         document.getElementById("loader").style.display = "none";
     }
 }
+
 
 //LIMPIAR FORMULARIO 
 function limpiarFormularioLev() {
