@@ -1270,16 +1270,17 @@ async function guardarLevantamiento() {
 
     document.getElementById("loader").style.display = "flex";
 
-    const data = {
-        clienteId,
-        clienteNombre,
-        cliente_nombre: clienteNombre,
-        direccion,
-        personal: document.getElementById("lev-personal").value,
-        fecha: document.getElementById("lev-fechaHora").value,
-        necesidades: obtenerNecesidadesLev(), 
-        materiales: levMaterialesList 
-    };
+    // Dentro de async function guardarLevantamiento()
+const data = {
+    cliente_id: clienteId, // 👈 Cambia clienteId por cliente_id para que Sequelize lo vea
+    cliente_nombre: clienteNombre,
+    direccion,
+    personal: document.getElementById("lev-personal").value,
+    fecha: document.getElementById("lev-fechaHora").value,
+    necesidades: obtenerNecesidadesLev(), 
+    materiales: levMaterialesList 
+};
+
 
     // 💡 Aquí determinamos si es crear o editar
     const url = editandoId 
@@ -1700,33 +1701,36 @@ function obtenerNecesidadesLev() {
 
 
 //editar el levantamiento
+
 async function editarLevantamiento(id) {
     try {
         document.getElementById("loader").style.display = "flex";
         
-        // 1. Obtener los datos del levantamiento
         const res = await fetch(`${API_BASE_URL}/levantamientos/${id}`, {
             headers: { "Authorization": `Bearer ${localStorage.getItem("accessToken")}` }
         });
         const lev = await res.json();
 
-        editandoId = id;
+        editandoId = id; // Guardamos el ID para que el Guardar sepa que es PUT
 
-        // 2. Cargar clientes primero y esperar a que termine
         await cargarClientesLev(); 
 
-        // 3. Seleccionar el cliente y la dirección
+        // 1. Cargamos el Cliente
         const selectCliente = document.getElementById("lev-clienteSelect");
-        selectCliente.value = lev.cliente_id || lev.clienteId;
+        // Usamos el campo con guion bajo que viene de la BD
+        selectCliente.value = lev.cliente_id; 
         
-        // Forzamos el valor de la dirección (por si el cliente tiene varias, que salga la que se guardó)
         document.getElementById("lev-direccion").value = lev.direccion;
-        
-        // 4. Otros datos básicos
         document.getElementById("lev-personal").value = lev.personal;
-        document.getElementById("lev-fechaHora").value = lev.fecha;
 
-        // 5. Limpiar y cargar necesidades con sus fotos
+        // 2. CORRECCIÓN DE FECHA 📅
+        if (lev.fecha) {
+            // Convertimos la fecha a formato ISO y cortamos para que sea YYYY-MM-DDTHH:MM
+            const fechaFormateada = new Date(lev.fecha).toISOString().slice(0, 16);
+            document.getElementById("lev-fechaHora").value = fechaFormateada;
+        }
+
+        // 3. Limpiar y cargar necesidades
         const container = document.getElementById("lev-necesidadesContainer");
         container.innerHTML = ""; 
         
@@ -1736,23 +1740,21 @@ async function editarLevantamiento(id) {
             });
         }
 
-        // 6. Cargar materiales
+        // 4. Cargar materiales
         levMaterialesList = lev.materiales || [];
         levRenderMateriales();
 
-        // 7. Cambiar UI
+        // UI
         document.querySelector("#modalNuevoLevantamiento h2").innerText = "✏️ Editar Levantamiento";
         document.getElementById("modalNuevoLevantamiento").classList.add("active");
 
     } catch (err) {
         console.error("Error al editar:", err);
-        alert("Error al cargar datos del cliente amiko");
+        alert("Error al cargar datos del levantamiento amiko");
     } finally {
         document.getElementById("loader").style.display = "none";
     }
 }
-
-
 
 
 //ver texto y fotos viejas del levantamieno al editar 
