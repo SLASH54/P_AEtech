@@ -1270,17 +1270,16 @@ async function guardarLevantamiento() {
 
     document.getElementById("loader").style.display = "flex";
 
-    // Dentro de async function guardarLevantamiento()
-const data = {
-    cliente_id: clienteId, // 👈 Cambia clienteId por cliente_id para que Sequelize lo vea
-    cliente_nombre: clienteNombre,
-    direccion,
-    personal: document.getElementById("lev-personal").value,
-    fecha: document.getElementById("lev-fechaHora").value,
-    necesidades: obtenerNecesidadesLev(), 
-    materiales: levMaterialesList 
-};
-
+    const data = {
+        clienteId,
+        clienteNombre,
+        cliente_nombre: clienteNombre,
+        direccion,
+        personal: document.getElementById("lev-personal").value,
+        fecha: document.getElementById("lev-fechaHora").value,
+        necesidades: obtenerNecesidadesLev(), 
+        materiales: levMaterialesList 
+    };
 
     // 💡 Aquí determinamos si es crear o editar
     const url = editandoId 
