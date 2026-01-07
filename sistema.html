@@ -1312,28 +1312,30 @@ async function guardarLevantamiento() {
     const selectCliente = document.getElementById("lev-clienteSelect");
     const clienteId = selectCliente.value;
     const clienteNombre = selectCliente.options[selectCliente.selectedIndex]?.text || "";
-   // multiples direcciones 
-const direccion = document.getElementById("lev-direccionSelect").value;
+    
+    // 1. Obtenemos la dirección del SELECT correcto (lev-direccionesLevantamientos)
+    // Asegúrate de que este ID sea exactamente el mismo que pusiste en tu HTML
+    const selectDir = document.getElementById("lev-direccionesLevantamientos");
+    const direccionSeleccionada = selectDir ? selectDir.value : "";
 
-
-    if (!clienteId || !direccion) {
+    if (!clienteId || !direccionSeleccionada) {
         alert("Amigo, selecciona cliente y dirección.");
         return;
     }
 
     document.getElementById("loader").style.display = "flex";
 
- const data = {
-        cliente_id: clienteId,    // ✅ CAMBIADO: Debe ser cliente_id para que el server lo vea
+    const data = {
+        cliente_id: clienteId,
         cliente_nombre: clienteNombre,
-        direccion: document.getElementById("lev-direccion").value,
+        // 2. 🚨 AQUÍ ESTABA EL ERROR: Usamos la variable direccionSeleccionada
+        direccion: direccionSeleccionada, 
         personal: document.getElementById("lev-personal").value,
         fecha: document.getElementById("lev-fechaHora").value,
         necesidades: obtenerNecesidadesLev(), 
         materiales: levMaterialesList 
     };
 
-    // 💡 Aquí determinamos si es crear o editar
     const url = editandoId 
         ? `${API_BASE_URL}/levantamientos/${editandoId}` 
         : `${API_BASE_URL}/levantamientos`;
@@ -1342,7 +1344,7 @@ const direccion = document.getElementById("lev-direccionSelect").value;
 
     try {
         const res = await fetch(url, {
-            method: metodo, // ✅ CAMBIADO: Ahora usa PUT o POST según corresponda
+            method: metodo,
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
@@ -1354,7 +1356,7 @@ const direccion = document.getElementById("lev-direccionSelect").value;
 
         if (res.ok) {
             alert("✅ Levantamiento procesado correctamente");
-            editandoId = null; // Limpiamos el ID después de guardar
+            editandoId = null;
             location.reload();
         } else {
             alert("❌ Error del servidor: " + (resData.msg || resData.message || "Error desconocido"));
@@ -1366,6 +1368,8 @@ const direccion = document.getElementById("lev-direccionSelect").value;
         document.getElementById("loader").style.display = "none";
     }
 }
+
+
 
 
 //LIMPIAR FORMULARIO 
