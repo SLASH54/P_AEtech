@@ -1024,8 +1024,10 @@
     </div>
 
     <div class="lev-field">
-        <label>Dirección</label>
-        <input id="lev-direccion" type="text">
+        <label>Dirección:</label>
+    <select id="lev-direccionSelect" class="form-control">
+        <option value="">Seleccione una dirección</option>
+    </select>
     </div>
 
     <div class="lev-field">
@@ -1234,7 +1236,95 @@ document.getElementById("btnNuevoLevantamiento")
 
 
 
+async function cargarDireccionesCliente() {
+    const clienteId = document.getElementById("lev-clienteSelect").value;
+    const selectDir = document.getElementById("lev-direccionSelect");
+    
+    // Limpiamos y ponemos estado de carga
+    selectDir.innerHTML = '<option value="">Cargando direcciones...</option>';
 
+    if (!clienteId) {
+        selectDir.innerHTML = '<option value="">Seleccione primero un cliente</option>';
+        return;
+    }
+
+    try {
+        const token = localStorage.getItem("accessToken");
+        const res = await fetch(`${API_BASE_URL}/clientes/${clienteId}`, {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+        
+        if (!res.ok) throw new Error("Error al obtener cliente");
+        
+        const cliente = await res.json();
+        selectDir.innerHTML = '<option value="">Seleccione una sucursal</option>';
+
+        // 💡 1. Intentar cargar del array de direcciones (si tienes el modelo sucursales)
+        if (cliente.direcciones && cliente.direcciones.length > 0) {
+            cliente.direcciones.forEach(dir => {
+                const opt = document.createElement("option");
+                opt.value = dir.direccion; 
+                opt.textContent = dir.nombre_sucursal 
+                    ? `${dir.nombre_sucursal} (${dir.direccion})` 
+                    : dir.direccion;
+                selectDir.appendChild(opt);
+            });
+        } 
+        // 💡 2. Si no hay array, pero hay una dirección principal en el cliente
+        else if (cliente.direccion) {
+            const opt = document.createElement("option");
+            opt.value = cliente.direccion;
+            opt.textContent = "Principal: " + cliente.direccion;
+            selectDir.appendChild(opt);
+        } else {
+            selectDir.innerHTML = '<option value="">Sin direcciones registradas</option>';
+        }
+    } catch (err) {
+        console.error("Error cargando direcciones:", err);
+        selectDir.innerHTML = '<option value="">Error al cargar sucursales</option>';
+    }
+}
+
+
+//multiples direcciones para levantamientos 
+async function cargarDireccionesLevantamiento(clienteId) {
+    const selectDir = document.getElementById("lev-direccionSelect");
+    if (!selectDir) return;
+
+    selectDir.innerHTML = `<option value="">Cargando sucursales...</option>`;
+
+    if (!clienteId) {
+        selectDir.innerHTML = `<option value="">Seleccione un cliente primero</option>`;
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/clientes/${clienteId}`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }
+        });
+        const cliente = await res.json();
+
+        selectDir.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
+
+        // Si tiene el array de direcciones (como en tareas)
+        if (cliente.direcciones && cliente.direcciones.length > 0) {
+            cliente.direcciones.forEach(dir => {
+                const opt = document.createElement("option");
+                opt.value = dir.direccion; // Guardamos la calle/texto
+                opt.textContent = dir.alias ? `${dir.alias} - ${dir.direccion}` : dir.direccion;
+                selectDir.appendChild(opt);
+            });
+        } else {
+            // Si solo tiene una dirección principal
+            const opt = document.createElement("option");
+            opt.value = cliente.direccion || "";
+            opt.textContent = cliente.direccion || "Sin dirección registrada";
+            selectDir.appendChild(opt);
+        }
+    } catch (err) {
+        selectDir.innerHTML = `<option value="">Error al cargar</option>`;
+    }
+}
 
 
 function setPersonalActual() {
@@ -1262,10 +1352,12 @@ async function guardarLevantamiento() {
     const selectCliente = document.getElementById("lev-clienteSelect");
     const clienteId = selectCliente.value;
     const clienteNombre = selectCliente.options[selectCliente.selectedIndex]?.text || "";
-    const direccion = document.getElementById("lev-direccion").value;
+   // multiples direcciones 
+const direccion = document.getElementById("lev-direccionSelect").value;
+
 
     if (!clienteId || !direccion) {
-        alert("Amiko, selecciona cliente y dirección.");
+        alert("Amigo, selecciona cliente y dirección.");
         return;
     }
 
@@ -1719,7 +1811,18 @@ async function editarLevantamiento(id) {
         const selectCliente = document.getElementById("lev-clienteSelect");
         // Usamos el campo con guion bajo que viene de la BD
         selectCliente.value = lev.cliente_id; 
+
+        //cargar direcciones
+
+        await cargarDireccionesLevantamiento(lev.cliente_id);
+
+// Ahora sí, ponemos la dirección que ya estaba guardada
+document.getElementById("lev-direccionSelect").value = lev.direccion;
         
+selectDireccion.value = lev.direccion;
+
+
+
         document.getElementById("lev-direccion").value = lev.direccion;
         document.getElementById("lev-personal").value = lev.personal;
 

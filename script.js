@@ -3678,6 +3678,7 @@ function cargarDireccionesCliente(clienteId) {
 });
 }
  
+
 //fin de muchas direcciones para el Cliente en el Select de asignar Tareas
 //finnde muchas direcciones cliente
 
