@@ -1394,40 +1394,7 @@ function limpiarFormularioLev() {
 
 
 // ================= DIRECCIÓN AUTOMÁTICA =================
-async function clienteChangeLev() {
-    const select = document.getElementById("lev-clienteSelect");
-    const inputDir = document.getElementById("lev-direccion");
 
-    if (!select || !inputDir || !select.value) {
-        inputDir.value = "";
-        return;
-    }
-
-    const token = localStorage.getItem("accessToken");
-
-    try {
-        const res = await fetch(`${API_BASE_URL}/clientes/${select.value}`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-
-        if (!res.ok) {
-            console.error("Error al obtener cliente");
-            inputDir.value = "";
-            return;
-        }
-
-        const cliente = await res.json();
-
-        // 👉 toma la primera dirección en texto
-        inputDir.value =
-            cliente?.direcciones?.[0]?.direccion ||
-            cliente?.direccion ||
-            "";
-    } catch (e) {
-        console.error("Error dirección:", e);
-        inputDir.value = "";
-    }
-}
 
 // conectar cambio
 document.getElementById("lev-clienteSelect")
