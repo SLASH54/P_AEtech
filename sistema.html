@@ -1316,11 +1316,11 @@ function setPersonalActual() {
 
 async function guardarLevantamiento() {
     const selectCliente = document.getElementById("lev-clienteSelect");
-    const selectDir = document.getElementById("lev-direccionesLevantamientos"); // 👈 ID CORRECTO
-    
     const clienteId = selectCliente.value;
     const clienteNombre = selectCliente.options[selectCliente.selectedIndex]?.text || "";
-    const direccion = selectDir ? selectDir.value : "";
+   // multiples direcciones 
+const direccion = document.getElementById("lev-direccionSelect").value;
+
 
     if (!clienteId || !direccion) {
         alert("Amigo, selecciona cliente y dirección.");
@@ -1329,22 +1329,26 @@ async function guardarLevantamiento() {
 
     document.getElementById("loader").style.display = "flex";
 
-    const data = {
-        cliente_id: clienteId,
+ const data = {
+        cliente_id: clienteId,    // ✅ CAMBIADO: Debe ser cliente_id para que el server lo vea
         cliente_nombre: clienteNombre,
-        direccion: direccion, // 👈 Ahora sí toma el valor del Select
+        direccion: document.getElementById("lev-direccion").value,
         personal: document.getElementById("lev-personal").value,
         fecha: document.getElementById("lev-fechaHora").value,
         necesidades: obtenerNecesidadesLev(), 
         materiales: levMaterialesList 
     };
 
-    const url = editandoId ? `${API_BASE_URL}/levantamientos/${editandoId}` : `${API_BASE_URL}/levantamientos`;
+    // 💡 Aquí determinamos si es crear o editar
+    const url = editandoId 
+        ? `${API_BASE_URL}/levantamientos/${editandoId}` 
+        : `${API_BASE_URL}/levantamientos`;
+
     const metodo = editandoId ? "PUT" : "POST";
 
     try {
         const res = await fetch(url, {
-            method: metodo,
+            method: metodo, // ✅ CAMBIADO: Ahora usa PUT o POST según corresponda
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
@@ -1352,20 +1356,22 @@ async function guardarLevantamiento() {
             body: JSON.stringify(data)
         });
 
+        const resData = await res.json();
+
         if (res.ok) {
             alert("✅ Levantamiento procesado correctamente");
+            editandoId = null; // Limpiamos el ID después de guardar
             location.reload();
         } else {
-            const resData = await res.json();
-            alert("❌ Error: " + (resData.msg || "Error desconocido"));
+            alert("❌ Error del servidor: " + (resData.msg || resData.message || "Error desconocido"));
         }
     } catch (err) {
+        console.error("Error crítico:", err);
         alert("❌ Error de conexión.");
     } finally {
         document.getElementById("loader").style.display = "none";
     }
 }
-
 
 
 //LIMPIAR FORMULARIO 
@@ -1695,41 +1701,38 @@ function levMostrarCampoExtra() {
 //cargar tabla 
 
 async function cargarTablaLevantamientos() {
-  try {
-    const res = await fetch(`${API_BASE_URL}/levantamientos`, {
-      headers: {
-        // 🚨 Corregido a accessToken
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}` 
-      }
-    });
+  const res = await fetch(`${API_BASE_URL}/levantamientos`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("userToken")}`
+    }
+  });
 
-    const data = await res.json();
-    levantamientosCache = data;
+  const data = await res.json();
+  levantamientosCache = data;
 
-    const tbody = document.getElementById("tablaLevantamientos");
-    if(!tbody) return;
-    tbody.innerHTML = "";
+  const tbody = document.getElementById("tablaLevantamientos");
+  tbody.innerHTML = "";
 
-    data.forEach(l => {
-      const idReal = l.id || l.id_levantamiento; 
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${l.cliente_nombre || 'Sin nombre'}</td>
-        <td>${l.direccion || 'Sin dirección'}</td>
-        <td>${l.personal || 'N/A'}</td>
-        <td>${l.fecha ? new Date(l.fecha).toLocaleString() : 'S/F'}</td>
-        <td class="acciones">
-          <button onclick="editarLevantamiento('${idReal}')">Editar</button>
-          <button onclick="eliminarLevantamiento('${idReal}')">Eliminar</button>
-          <button onclick="verLevantamiento('${idReal}')">Ver</button>
-          <button onclick="pdfLevantamiento('${idReal}')">PDF</button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-  } catch(err) {
-      console.error("Error al cargar tabla:", err);
-  }
+  data.forEach(l => {
+    // 💡 PostgreSQL a veces usa 'id', asegúrate que el campo existe
+    const idReal = l.id || l.id_levantamiento; 
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${l.cliente_nombre || 'Sin nombre'}</td>
+      <td>${l.direccion}</td>
+      <td>${l.personal}</td>
+      <td>${new Date(l.fecha).toLocaleString()}</td>
+      
+      <td class="acciones">
+        <button onclick="editarLevantamiento('${idReal}')">Editar</button>
+        <button onclick="eliminarLevantamiento('${idReal}')">Eliminar</button>
+        <button onclick="verLevantamiento('${idReal}')">Ver</button>
+        <button onclick="pdfLevantamiento('${idReal}')">PDF</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
 }
 
 cargarTablaLevantamientos();
