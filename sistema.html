@@ -1025,7 +1025,7 @@
 
     <div class="lev-field">
         <label>Dirección:</label>
-    <select id="lev-direccionSelect" class="form-control">
+    <select id="lev-direccionesLevantamientos" class="form-control">
         <option value="">Seleccione una dirección</option>
     </select>
     </div>
@@ -1236,9 +1236,9 @@ document.getElementById("btnNuevoLevantamiento")
 
 
 
-async function cargarDireccionesCliente() {
+async function cargarDireccionesLevantamiento() {
     const clienteId = document.getElementById("lev-clienteSelect").value;
-    const selectDir = document.getElementById("lev-direccionSelect");
+    const selectDir = document.getElementById("lev-direccionesLevantamientos");
     
     // Limpiamos y ponemos estado de carga
     selectDir.innerHTML = '<option value="">Cargando direcciones...</option>';
@@ -1257,7 +1257,7 @@ async function cargarDireccionesCliente() {
         if (!res.ok) throw new Error("Error al obtener cliente");
         
         const cliente = await res.json();
-        selectDir.innerHTML = '<option value="">Seleccione una sucursal</option>';
+        selectDir.innerHTML = '<option value="">Seleccione una direccion</option>';
 
         // 💡 1. Intentar cargar del array de direcciones (si tienes el modelo sucursales)
         if (cliente.direcciones && cliente.direcciones.length > 0) {
@@ -1286,63 +1286,10 @@ async function cargarDireccionesCliente() {
 }
 
 
-//multiples direcciones para levantamientos 
-async function cargarDireccionesLevantamiento(clienteId) {
-    console.log("🔍 Buscando direcciones para el cliente ID:", clienteId);
 
-    const selectDireccion = document.getElementById("lev-direccionSelect");
-    if (!selectDireccion) return;
 
-    selectDireccion.innerHTML = `<option value="">⌛ Cargando sucursales...</option>`;
 
-    if (!clienteId) {
-        selectDireccion.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
-        return;
-    }
 
-    try {
-        const token = localStorage.getItem("accessToken");
-        const res = await fetch(`${API_BASE_URL}/clientes/${clienteId}`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        
-        if (!res.ok) throw new Error("Error en la respuesta del servidor");
-        
-        const cliente = await res.json();
-        console.log("📦 Datos del cliente recibidos:", cliente);
-
-        selectDireccion.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
-
-        // 1. Intentar sacar direcciones del array 'direcciones' (Como en Tareas)
-        let direccionesArray = [];
-        if (cliente.direcciones && Array.isArray(cliente.direcciones)) {
-            direccionesArray = cliente.direcciones;
-        } 
-
-        if (direccionesArray.length > 0) {
-            direccionesArray.forEach(dir => {
-                const opt = document.createElement("option");
-                // Importante: Guardamos la dirección como valor
-                opt.value = dir.direccion; 
-                opt.textContent = dir.alias ? `${dir.alias} - ${dir.direccion}` : dir.direccion;
-                selectDireccion.appendChild(opt);
-            });
-        } 
-        // 2. Si no hay array, pero el cliente tiene una dirección principal
-        else if (cliente.direccion) {
-            const opt = document.createElement("option");
-            opt.value = cliente.direccion;
-            opt.textContent = "Principal: " + cliente.direccion;
-            selectDireccion.appendChild(opt);
-        } else {
-            selectDireccion.innerHTML = `<option value="">⚠️ Sin direcciones registradas</option>`;
-        }
-
-    } catch (err) {
-        console.error("❌ Error al cargar direcciones:", err);
-        selectDireccion.innerHTML = `<option value="">❌ Error al cargar</option>`;
-    }
-}
 
 function setPersonalActual() {
     const input = document.getElementById("lev-personal");
