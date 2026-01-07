@@ -13,7 +13,9 @@ cloudinary.config({
 // ===============================
 exports.createLevantamiento = async (req, res) => {
   try {
-    const { clienteId, clienteNombre, direccion, personal, fecha, necesidades, materiales } = req.body;
+    // 🚨 CAMBIO AQUÍ: Usamos cliente_id y cliente_nombre (con guion bajo)
+    const { cliente_id, cliente_nombre, direccion, personal, fecha, necesidades, materiales } = req.body;
+    
     const necesidadesProcesadas = [];
 
     if (necesidades && necesidades.length > 0) {
@@ -31,8 +33,8 @@ exports.createLevantamiento = async (req, res) => {
     }
 
     const nuevo = await Levantamiento.create({
-      cliente_id: clienteId,
-      cliente_nombre: clienteNombre,
+      cliente_id,     // 👈 Ahora sí coincide
+      cliente_nombre, // 👈 Ahora sí coincide
       direccion,
       personal,
       fecha,
@@ -45,7 +47,6 @@ exports.createLevantamiento = async (req, res) => {
     res.status(500).json({ msg: "Error al crear levantamiento" });
   }
 };
-
 // ===============================
 // 2. OBTENER TODOS
 // ===============================
