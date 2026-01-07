@@ -2048,7 +2048,7 @@ document.getElementById('tareaExpressForm')?.addEventListener('submit', async (e
         nombre: document.getElementById('expTitulo').value,
         descripcion: document.getElementById('expDescripcion').value,
         //usuarioAsignadoId: document.getElementById('expUsuarioAuto').value,
-        usuarioAsignadoId: '1',
+        //usuarioAsignadoId: '1',
         fechaLimite: document.getElementById('expFechaAuto').value,
         clienteNegocioId: document.getElementById('expClienteId').value,
         actividadId: document.getElementById('expActividadId').value,
