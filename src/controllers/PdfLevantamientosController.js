@@ -1,28 +1,23 @@
 // ===============================================================
-//   LEVANTAMIENTOS CONTROLLER – VERSIÓN PRO (CON PLANTILLA Y CALIDAD)
+//   LEVANTAMIENTOS PDF – VERSIÓN FIJADA (IGUAL A REPORTES)
 // ===============================================================
-const { Levantamiento } = require("../models");
-const PDFDocument = require("pdfkit");
-const axios = require("axios");
-const sharp = require("sharp"); // Para mejorar la calidad
-const cloudinary = require('cloudinary').v2;
+const sharp = require("sharp"); // Asegúrate de tener sharp instalado amiko
 
-// Funciones de ayuda (Copiadas de tu reporteController para mantener calidad)
-async function procesarImagen(url, maxW, maxH) {
+// Reutilizamos tus funciones de alta calidad
+async function procesarImagenLev(url, maxW, maxH) {
   try {
     const res = await axios.get(url, { responseType: "arraybuffer" });
     return await sharp(res.data)
-      .rotate() // Respeta la orientación del celular
+      .rotate() // Para que no salgan de lado
       .jpeg({ quality: 90 })
       .resize({ width: maxW, height: maxH, fit: "inside" })
       .toBuffer();
   } catch (err) {
-    console.log("⚠ Error procesando imagen:", url, err.message);
     return null;
   }
 }
 
-async function cargarImagen(url) {
+async function cargarImagenSimple(url) {
   try {
     const res = await axios.get(url, { responseType: "arraybuffer" });
     return res.data;
@@ -30,7 +25,8 @@ async function cargarImagen(url) {
 }
 
 exports.generateLevantamientoPDF = async (req, res) => {
-  const MARGIN_TOP = 180;
+  // Ajustamos los márgenes para que el texto caiga en el hueco blanco de tu plantilla
+  const MARGIN_TOP = 180; 
   const MARGIN_LEFT = 50;
 
   try {
@@ -38,60 +34,58 @@ exports.generateLevantamientoPDF = async (req, res) => {
     const lev = await Levantamiento.findByPk(id);
     if (!lev) return res.status(404).json({ msg: "No encontrado" });
 
-    // URLs de tus recursos oficiales
-    const logoURL = "https://p-aetech.onrender.com/public/logo.png";
+    // URLs oficiales
     const plantillaURL = "https://p-aetech.onrender.com/public/plantillas/plantilla_reporte.jpg";
-
-    const logoBuf = await cargarImagen(logoURL);
-    const plantillaBuf = await cargarImagen(plantillaURL);
+    const plantillaBuf = await cargarImagenSimple(plantillaURL);
 
     const doc = new PDFDocument({ margin: 40 });
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename=Levantamiento_${id}.pdf`);
     doc.pipe(res);
 
-    // --- Función para aplicar fondo ---
-    const aplicarFondo = () => {
-      if (plantillaBuf) doc.image(plantillaBuf, 0, 0, { width: doc.page.width, height: doc.page.height });
-      if (logoBuf) doc.image(logoBuf, 40, 20, { width: 110 });
-      doc.y = MARGIN_TOP;
+    // Función para poner el fondo y resetear la posición del texto
+    const aplicarPlantilla = () => {
+      if (plantillaBuf) {
+        doc.image(plantillaBuf, 0, 0, { width: doc.page.width, height: doc.page.height });
+      }
+      doc.y = MARGIN_TOP; // Esto hace que el texto empiece abajo del encabezado
     };
 
-    aplicarFondo();
+    // --- PÁGINA 1 ---
+    aplicarPlantilla();
 
-    // --- Encabezado Limpio (Sin Folio feo) ---
-    doc.fontSize(22).fillColor("#004b85").text("REPORTE DE LEVANTAMIENTO", 170, 40);
-    doc.fontSize(11).fillColor("#444").text("AE TECH · Ingeniería y Soluciones", 170, 65);
+    // Título Principal
+    doc.fontSize(22).fillColor("#00938f").text("INFORMACIÓN DEL LEVANTAMIENTO", MARGIN_LEFT);
+    doc.moveDown(1);
+
+    // Datos del Cliente y Sucursal (Sin Folio amiko)
+    doc.fontSize(14).fillColor("black");
+    doc.text(`Cliente: `, { continued: true }).font('Helvetica-Bold').text(lev.cliente_nombre);
+    doc.font('Helvetica').text(`Sucursal/Dirección: `, { continued: true }).font('Helvetica-Bold').text(lev.direccion);
+    doc.font('Helvetica').text(`Fecha: `, { continued: true }).font('Helvetica-Bold').text(new Date(lev.fecha).toLocaleDateString());
+    doc.font('Helvetica').text(`Atendido por: `, { continued: true }).font('Helvetica-Bold').text(lev.personal);
     
-    // --- Información General ---
-    doc.y = MARGIN_TOP;
-    doc.fontSize(18).fillColor("#00938f").text("DETALLES DEL SERVICIO", MARGIN_LEFT);
-    doc.moveDown(0.5);
-
-    doc.fontSize(12).fillColor("black");
-    doc.text(`Cliente: ${lev.cliente_nombre}`);
-    doc.text(`Dirección: ${lev.direccion}`); // Aquí ya incluimos la sucursal/dirección
-    doc.text(`Fecha: ${new Date(lev.fecha).toLocaleDateString()}`); // Fecha limpia
-    doc.text(`Personal Técnico: ${lev.personal}`);
     doc.moveDown(2);
 
-    // --- Necesidades y Fotos de Alta Calidad ---
+    // --- EVIDENCIAS ---
     doc.fontSize(18).fillColor("#00938f").text("EVIDENCIAS Y NECESIDADES");
     doc.moveDown();
 
     if (lev.necesidades) {
       for (const nec of lev.necesidades) {
-        // Verificar si cabe el texto y la imagen, si no, nueva página
+        // Si nos estamos quedando sin espacio abajo, nueva página
         if (doc.y > 600) {
           doc.addPage();
-          aplicarFondo();
+          aplicarPlantilla();
         }
 
-        doc.fontSize(12).fillColor("#333").text(`• ${nec.descripcion}`, { indent: 20 });
+        doc.fontSize(12).fillColor("#333").font('Helvetica-Bold').text(`• Descripción:`, { continued: true });
+        doc.font('Helvetica').text(` ${nec.descripcion}`, { indent: 10 });
         doc.moveDown(0.5);
         
         if (nec.imagen) {
-          const imgBuffer = await procesarImagen(nec.imagen, 400, 300);
+          // Procesamos con Sharp para máxima calidad
+          const imgBuffer = await procesarImagenLev(nec.imagen, 450, 300);
           if (imgBuffer) {
             doc.image(imgBuffer, { width: 350, align: 'center' });
             doc.moveDown(1.5);
@@ -100,10 +94,10 @@ exports.generateLevantamientoPDF = async (req, res) => {
       }
     }
 
-    // --- Materiales en página nueva ---
+    // --- MATERIALES (En página nueva si hay muchos) ---
     if (lev.materiales && lev.materiales.length > 0) {
       doc.addPage();
-      aplicarFondo();
+      aplicarPlantilla();
       doc.fontSize(18).fillColor("#00938f").text("🧱 MATERIALES REQUERIDOS");
       doc.moveDown();
 
