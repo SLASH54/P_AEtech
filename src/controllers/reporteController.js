@@ -144,10 +144,17 @@ const MARGIN_BOTTOM = 120;
   const { tareaId } = req.params;
 
   try {
-    const tarea = await Tarea.findOne({
-      where: { id: tareaId },
-      include: [ Actividad, Sucursal, ClienteNegocio, { model: Usuario, as: "AsignadoA" }, Evidencia ]
-    });
+    const tarea = await Tarea.findByPk(tareaId, {
+  include: [
+    { 
+      model: ClienteNegocio, 
+      include: [{ model: ClienteDireccion, as: 'direcciones' }] // 👈 IMPORTANTE
+    },
+    Sucursal,
+    Actividad,
+    { model: Usuario, as: "AsignadoA" }
+  ]
+});
 
     if (!tarea) return res.status(404).json({ error: "Tarea no encontrada" });
 
@@ -169,6 +176,31 @@ doc.pipe(res);
 
 // Área útil
 const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
+// --- LÓGICA QUE ME PASASTE APLICADA AL PDF ---
+let clienteDireccion = "No especificada";
+
+if (tarea.ClienteNegocio?.direcciones?.length) {
+    // Buscamos la dirección que coincida con el ID guardado en la tarea
+    const dirSeleccionada = tarea.ClienteNegocio.direcciones.find(
+        d => Number(d.id) === Number(tarea.direccionClienteId)
+    ) || tarea.ClienteNegocio.direcciones[0]; // Si no coincide, usamos la primera
+
+    if (dirSeleccionada) {
+        clienteDireccion = 
+            dirSeleccionada.alias || 
+            dirSeleccionada.direccion || 
+            'Ubicación en Google Maps';
+    }
+}
+
+// --- IMPRESIÓN EN EL PDF ---
+doc.fontSize(14).fillColor("#000");
+doc.font('Helvetica-Bold').text(`Cliente: `, { continued: true }).font('Helvetica').text(tarea.ClienteNegocio?.nombre || 'N/A');
+
+// Aquí imprimimos la variable que acabamos de calcular
+doc.font('Helvetica-Bold').text(`Dirección Cliente: `, { continued: true }).font('Helvetica').text(clienteDireccion);
+
+doc.font('Helvetica-Bold').text(`Sucursal: `, { continued: true }).font('Helvetica').text(tarea.Sucursal?.nombre || 'N/A');
 
 
     // Primera página
@@ -186,7 +218,7 @@ const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
     doc.fontSize(16).fillColor("#000");
 
     doc.text(`Cliente: ${tarea.ClienteNegocio.nombre}`, MARGIN_LEFT);
-    doc.text(`Dirección del Cliente: ${tarea.ClienteNegocio.direccion}`, MARGIN_LEFT, doc.y);
+    doc.text(`Dirección del Cliente: ${tarea.ClienteDireccion}`, MARGIN_LEFT, doc.y);
     doc.text(`Sucursal: ${tarea.Sucursal.nombre}`, MARGIN_LEFT);
     doc.text(`Dirección de Sucursal: ${tarea.Sucursal.direccion}`, MARGIN_LEFT);
     doc.text(`Actividad: ${tarea.Actividad.nombre}`, MARGIN_LEFT);
