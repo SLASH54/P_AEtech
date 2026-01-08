@@ -156,11 +156,11 @@ exports.createTarea = async (req, res) => {
         const tareaCreada = await Tarea.findByPk(tarea.id, { include: includeConfig });
 
         //✅ Crear notificación automática para el usuario asignado
-      //await crearNotificacion(
-  //usuarioAsignadoId,
-  //tareaCreada.id,
-  //`Se te ha asignado una nueva tarea: "${nombre}".`
-//);
+      await crearNotificacion(
+  usuarioAsignadoId,
+  tareaCreada.id,
+  `Se te ha asignado una nueva tarea: "${nombre}".`
+);
 
         
 

@@ -1767,7 +1767,7 @@ async function editarLevantamiento(id) {
 
         editandoId = id; 
 
-        // 1. Cargamos los clientes primero
+        // 1. Cargamos los clientes
         await cargarClientesLev(); 
 
         const selectCliente = document.getElementById("lev-clienteSelect");
@@ -1775,31 +1775,38 @@ async function editarLevantamiento(id) {
             selectCliente.value = lev.cliente_id; 
         }
 
-        // 2. Cargamos las direcciones de ESE cliente
+        // 2. Cargamos las direcciones de ese cliente
         await cargarDireccionesLevantamiento(lev.cliente_id);
 
-        // 🚨 CORRECCIÓN CLAVE: Usar el ID correcto del select de direcciones
+        // 🚨 CORRECCIÓN PARA LA DIRECCIÓN VIEJA
         const selectDirReal = document.getElementById("lev-direccionesLevantamientos");
         if (selectDirReal) {
-            // Intentamos seleccionar la dirección que ya tenía guardada
-            // Nota: Esto funcionará si el 'value' de tus options es igual a lev.direccion
-            selectDirReal.value = lev.direccion;
+            // Buscamos entre las opciones cuál coincide con el texto guardado
+            let encontrada = false;
+            for (let i = 0; i < selectDirReal.options.length; i++) {
+                // Comparamos el texto de la opción con la dirección guardada
+                if (selectDirReal.options[i].textContent.includes(lev.direccion) || 
+                    selectDirReal.options[i].value == lev.direccion) {
+                    selectDirReal.selectedIndex = i;
+                    encontrada = true;
+                    break;
+                }
+            }
         }
 
-        // 3. Llenar el resto de campos
+        // 3. Llenar personal
         const inputPersonal = document.getElementById("lev-personal");
         if (inputPersonal) inputPersonal.value = lev.personal;
 
-        // 4. CORRECCIÓN DE FECHA 📅
+        // 4. Formatear Fecha
         if (lev.fecha) {
             const fechaFormateada = new Date(lev.fecha).toISOString().slice(0, 16);
             document.getElementById("lev-fechaHora").value = fechaFormateada;
         }
 
-        // 5. Limpiar y cargar necesidades
+        // 5. Cargar necesidades
         const container = document.getElementById("lev-necesidadesContainer");
         container.innerHTML = ""; 
-        
         if (lev.necesidades && Array.isArray(lev.necesidades)) {
             lev.necesidades.forEach(n => {
                 addNecesidadConDatos(n.descripcion, n.imagen);
@@ -1813,7 +1820,6 @@ async function editarLevantamiento(id) {
         // UI
         const tituloModal = document.querySelector("#modalNuevoLevantamiento h2");
         if (tituloModal) tituloModal.innerText = "✏️ Editar Levantamiento";
-        
         document.getElementById("modalNuevoLevantamiento").classList.add("active");
 
     } catch (err) {
@@ -1823,6 +1829,7 @@ async function editarLevantamiento(id) {
         document.getElementById("loader").style.display = "none";
     }
 }
+
 
 //ver texto y fotos viejas del levantamieno al editar 
 function addNecesidadConDatos(descripcion, urlFoto) {
