@@ -100,7 +100,7 @@ exports.generateLevantamientoPDF = async (req, res) => {
         if (lev.materiales && lev.materiales.length > 0) {
             doc.addPage();
             nuevaPaginaConFondo();
-            doc.fontSize(16).fillColor("#00938f").text("🧱 MATERIALES REQUERIDOS");
+            doc.fontSize(16).fillColor("#00938f").text(" MATERIALES REQUERIDOS");
             doc.moveDown();
 
             lev.materiales.forEach(m => {
