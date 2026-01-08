@@ -2119,6 +2119,35 @@ async function autorizarTarea(tareaId) {
     }
 }
 
+async function ejecutarAutorizacionDesdeNotificacion(tareaId, notificacionId) {
+    if (!confirm("¿Confirmas la autorización de esta tarea express?")) return;
+
+    const jwt = localStorage.getItem('accessToken');
+
+    try {
+        // 1. Autorizar la tarea en el backend
+        const resTarea = await fetch(`${API_BASE_URL}/tareas/autorizar/${tareaId}`, {
+            method: 'PUT',
+            headers: { Authorization: `Bearer ${jwt}` }
+        });
+
+        if (resTarea.ok) {
+            // 2. Marcar notificación como leída (usando tu ruta :id/leida)
+            await fetch(`${API_BASE_URL}/notificaciones/${notificacionId}/leida`, {
+                method: 'PUT',
+                headers: { Authorization: `Bearer ${jwt}` }
+            });
+
+            alert("🚀 Tarea autorizada. El técnico ya puede trabajar en ella.");
+            cargarNotificaciones(); // Refrescar la campana
+            if (typeof cargarTareasTabla === 'function') cargarTareasTabla(); // Refrescar tabla si está a la vista
+        } else {
+            alert("Hubo un error al intentar autorizar la tarea.");
+        }
+    } catch (err) {
+        console.error("Error:", err);
+    }
+}
 
 // 1. Función para cargar direcciones cuando cambia el cliente
 async function cargarDireccionesExpress(clienteId) {
@@ -3311,19 +3340,44 @@ async function cargarNotificaciones() {
     const num = document.getElementById('numNotificaciones');
     const lista = document.getElementById('listaNotificaciones');
 
-    // Filtrar solo las notificaciones activas
     const activas = data.filter(n => !n.leida);
     num.textContent = activas.length;
     lista.innerHTML = '';
 
     activas.forEach(n => {
       const li = document.createElement('li');
-      li.textContent = n.mensaje;
-      li.style.fontWeight = 'bold';
+      li.style.padding = '10px';
+      li.style.borderBottom = '1px solid #eee';
+      li.style.display = 'flex';
+      li.style.flexDirection = 'column';
+
+      const texto = document.createElement('span');
+      texto.textContent = n.mensaje;
+      texto.style.fontWeight = 'bold';
+      li.appendChild(texto);
+
+      // Si la notificación es una solicitud de tarea express
+      if (n.mensaje.toLowerCase().includes('solicita') || n.mensaje.toLowerCase().includes('express')) {
+        const btnAutorizar = document.createElement('button');
+        btnAutorizar.textContent = '✅ Autorizar Tarea';
+        btnAutorizar.style.marginTop = '8px';
+        btnAutorizar.style.backgroundColor = '#28a745';
+        btnAutorizar.style.color = 'white';
+        btnAutorizar.style.border = 'none';
+        btnAutorizar.style.padding = '5px 10px';
+        btnAutorizar.style.borderRadius = '4px';
+        btnAutorizar.style.cursor = 'pointer';
+
+        // Al hacer clic, autoriza la tarea y marca la notificación como leída
+        btnAutorizar.onclick = () => ejecutarAutorizacionDesdeNotificacion(n.tareaId, n.id);
+        
+        li.appendChild(btnAutorizar);
+      }
+
       lista.appendChild(li);
     });
 
-    // 🔄 Limpieza periódica (cada carga)
+    // Limpieza de huérfanos
     await fetch(`${API_BASE_URL}/notificaciones/clean-orphans`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${jwt}` }
