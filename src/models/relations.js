@@ -22,16 +22,6 @@ ClienteDireccion.belongsTo(ClienteNegocio, {
   as: "cliente"
 });
 
-// Relación Tarea → ClienteDireccion
-Tarea.belongsTo(ClienteDireccion, { 
-  foreignKey: 'direccionClienteId', 
-  as: 'DireccionEspecifica' 
-});
-
-ClienteDireccion.hasMany(Tarea, { 
-  foreignKey: 'direccionClienteId' 
-});
-
 // Tarea → Usuario
 Tarea.belongsTo(Usuario, { foreignKey: 'usuarioAsignadoId', as: 'AsignadoA' });
 Usuario.hasMany(Tarea, { foreignKey: 'usuarioAsignadoId', as: 'TareasAsignadas' });
