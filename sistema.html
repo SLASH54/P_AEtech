@@ -1026,7 +1026,7 @@
                 id="btnLinkARegistro" 
                 title="Registrar nuevo cliente"
                 style="padding: 5px 12px; cursor: pointer; border-radius: 8px; border: none; background: rgba(255,255,255,0.2); color: white; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.3);">
-            <span style="font-weight: bold;">+</span>
+                + <span style="font-weight: bold;">+</span>
         </button>
         
     </div>
@@ -2147,41 +2147,40 @@ async function abrirNuevoLevantamiento() {
 
 
 //DESCARGAR PDF
+
 async function pdfLevantamiento(id) {
-  try {
-    document.getElementById("loader").style.display = "flex";
+    try {
+        document.getElementById("loader").style.display = "flex";
 
-    const res = await fetch(`${API_BASE_URL}/levantamientos/pdf/${id}`, {
-      method: 'GET',
-      headers: {
-        "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
-      }
-    });
+        // 👇 Fíjate en el orden: /id/pdf (Igual que en tu archivo de rutas)
+        const res = await fetch(`${API_BASE_URL}/levantamientos/${id}/pdf`, {
+            method: 'GET',
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
+            }
+        });
 
-    if (!res.ok) throw new Error("Error al generar PDF");
+        if (!res.ok) throw new Error("Error al generar PDF");
 
-    // 💡 Convertimos la respuesta a un archivo (Blob)
-    const blob = await res.blob();
-    const url = window.URL.createObjectURL(blob);
-    
-    // Creamos un link invisible para forzar la descarga
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Levantamiento_${id}.pdf`;
-    document.body.appendChild(a);
-    a.click();
-    
-    // Limpiamos
-    a.remove();
-    window.URL.revokeObjectURL(url);
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Levantamiento_${id}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
 
-  } catch (err) {
-    console.error(err);
-    alert("Amiko, no se pudo descargar el PDF. Revisa la consola.");
-  } finally {
-    document.getElementById("loader").style.display = "none";
-  }
+    } catch (err) {
+        console.error(err);
+        alert("Amiko, no se pudo descargar el PDF.");
+    } finally {
+        document.getElementById("loader").style.display = "none";
+    }
 }
+
+
 </script>
 
 
