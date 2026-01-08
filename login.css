@@ -4425,3 +4425,48 @@ div#tareaExpressModal {
     transform: scale(1.05);
     transition: 0.2s;
 }
+
+
+
+.actions-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: start; /* O center, según prefieras */
+}
+
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 4px;
+    height: 32px; /* Altura uniforme */
+    min-width: 80px; /* Ancho mínimo */
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+    color: white;
+    white-space: nowrap; /* Evita que el texto se parta en dos líneas */
+}
+
+/* Colores específicos que pediste */
+.btn-edit { background-color: #4f46e5; }     /* Indigo */
+.btn-delete { background-color: #ef4444; }   /* Rojo */
+.btn-evidence { background-color: #22c55e; } /* Verde */
+.btn-pdf { background-color: #f59e0b; }      /* Ámbar/Naranja (Cambié el verde de tu PDF por naranja para que resalte) */
+.btn-view { background-color: #a855f7; }     /* Púrpura */
+
+/* Estilo para los botones Deshabilitados (disabled) */
+.btn-action:disabled {
+    background-color: #d1d5db !important;
+    color: #6b7280 !important;
+    cursor: not-allowed !important;
+    opacity: 0.8;
+}
+
+.btn-action:hover:not(:disabled) {
+    filter: brightness(0.9);
+}
