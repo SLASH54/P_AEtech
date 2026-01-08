@@ -2078,6 +2078,7 @@ if (!response.ok) {
         if (response.ok) {
             alert("🚀 Solicitud enviada con éxito. Esperando aprobación del Admin.");
             cerrarExpressModal();
+            initTareas();
         } else {
             const err = await response.json();
             alert("Error: " + err.message);
@@ -2140,6 +2141,7 @@ async function ejecutarAutorizacionDesdeNotificacion(tareaId, notificacionId) {
 
             alert("🚀 Tarea autorizada. El técnico ya puede trabajar en ella.");
             cargarNotificaciones(); // Refrescar la campana
+            initTareas();
             if (typeof cargarTareasTabla === 'function') cargarTareasTabla(); // Refrescar tabla si está a la vista
         } else {
             alert("Hubo un error al intentar autorizar la tarea.");
@@ -2170,6 +2172,7 @@ async function ejecutarRechazoDesdeNotificacion(tareaId, notificacionId) {
 
             alert("🗑️ Solicitud rechazada y eliminada.");
             cargarNotificaciones();
+            initTareas();
         } else {
             alert("No se pudo eliminar la tarea solicitada.");
         }
