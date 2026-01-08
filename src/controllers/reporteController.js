@@ -201,9 +201,9 @@ if (tarea.ClienteNegocio && tarea.ClienteNegocio.direcciones) {
     doc.fontSize(16).fillColor("#000");
 
     doc.text(`Cliente: ${tarea.ClienteNegocio.nombre}`, MARGIN_LEFT);
-    doc.text(`Dirección del Cliente: ${tarea.ClienteNegocio.ClienteDireccion}`, MARGIN_LEFT, doc.y);
+    doc.text(`Dirección del Cliente: ${textoDireccion}`, MARGIN_LEFT, doc.y);
     doc.text(`Sucursal: ${tarea.Sucursal.nombre}`, MARGIN_LEFT);
-    doc.text(`Dirección de Sucursal: ${textoDireccion}`, MARGIN_LEFT);
+    doc.text(`Dirección de Sucursal: ${tarea.Sucursal.direccion}`, MARGIN_LEFT);
     doc.text(`Actividad: ${tarea.Actividad.nombre}`, MARGIN_LEFT);
     doc.text(`Asignado a: ${tarea.AsignadoA.nombre}`, MARGIN_LEFT);
     doc.text(`Fecha límite: ${tarea.fechaLimite}`, MARGIN_LEFT);
