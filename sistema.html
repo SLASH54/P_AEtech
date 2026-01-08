@@ -1181,59 +1181,34 @@
 
 
 
-    /* ===== CONFIGURACIÓN DE BOTONES (Al cargar la página) ===== */
+ document.getElementById("btnLinkARegistro")?.addEventListener("click", () => {
+    // 1. Cerrar el modal para que no bloquee la vista
+    closeNuevoLevantamiento(); 
 
-// Este código debe ir afuera de las funciones, en la parte principal de tu <script>
-document.addEventListener("DOMContentLoaded", () => {
+    // 2. CAMBIO DE SECCIÓN:
+    // Ocultamos todas las secciones principales
+    document.querySelectorAll(".main-content").forEach(sec => sec.classList.remove("show"));
     
-    // Botón para abrir el modal (el que ya tienes)
-    document.getElementById("btnNuevoLevantamiento")
-        ?.addEventListener("click", abrirNuevoLevantamiento);
-
-    // 👇 AQUÍ AGREGAS EL BOTÓN DE IR A REGISTRO DE CLIENTE
-    document.getElementById("btnLinkARegistro")?.addEventListener("click", () => {
-        // 1. Cerramos el modal de levantamiento (tu función ya existente)
-        closeNuevoLevantamiento(); 
-
-        // 2. Buscamos el formulario de clientes
-        const form = document.getElementById("registroClienteForm");
+    // Mostramos la sección de Clientes
+    const seccionClientes = document.getElementById("Clientes");
+    if (seccionClientes) {
+        seccionClientes.classList.add("show");
         
-        if (form) {
-            // 3. Scroll suave hasta el formulario
-            form.scrollIntoView({ behavior: "smooth" });
-            
-            // 4. Efecto visual para que el usuario sepa dónde llegó
-            form.style.boxShadow = "0 0 20px #00938f";
-            setTimeout(() => form.style.boxShadow = "", 2000);
-        } else {
-            console.warn("Amiko, no se encontró el elemento registroClienteForm en el HTML");
-        }
-    });
+        // 3. SCROLL AL FORMULARIO:
+        // Esperamos un poquito a que la sección aparezca para hacer el scroll
+        setTimeout(() => {
+            const form = document.getElementById("registroClienteForm");
+            if (form) {
+                form.scrollIntoView({ behavior: "smooth" });
+                // Efecto visual para resaltar el formulario
+                form.style.boxShadow = "0 0 20px #00938f";
+                setTimeout(() => form.style.boxShadow = "", 2000);
+            }
+        }, 100);
+    }
 });
 
-/* ===== TUS FUNCIONES EXISTENTES ===== */
 
-function openNuevoLevantamiento() {
-    const LevClienteSelect = document.getElementById('lev-clienteSelect');
-    const modal = document.getElementById("modalNuevoLevantamiento");
-    modal.classList.add("active");
-
-    cargarClientesLev();   
-    setPersonalActual();   
-    setFechaHoraActual();  
-    cargarDireccionesLevantamiento();
-
-    LevClienteSelect.onchange = () => {
-        cargarDireccionesLevantamiento(LevClienteSelect.value);
-    };
-}
-
-function closeNuevoLevantamiento() {
-    const modal = document.getElementById("modalNuevoLevantamiento");
-    if (modal) modal.classList.remove("active");
-    // Resetear el estado de edición si es necesario
-    editandoId = null; 
-}
 
 
 /* ===== MODAL NUEVO LEVANTAMIENTO (FORZADO) ===== */
