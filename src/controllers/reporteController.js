@@ -147,7 +147,7 @@ const MARGIN_BOTTOM = 120;
   try {
     const tarea = await Tarea.findOne({
       where: { id: tareaId },
-      include: [ Actividad, Sucursal, ClienteNegocio, ClienteDireccion, { model: Usuario, as: "AsignadoA" }, Evidencia ]
+      include: [ Actividad, Sucursal, ClienteNegocio, { model: ClienteDireccion, as: 'DireccionEspecifica' }, { model: Usuario, as: "AsignadoA" }, Evidencia ]
     });
 
     if (!tarea) return res.status(404).json({ error: "Tarea no encontrada" });
