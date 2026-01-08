@@ -1621,9 +1621,17 @@ const clienteMapsLink = clienteMaps
                 <button onclick="deleteTarea('${tarea.id}')" class="text-red-600 hover:text-red-900">
                     Eliminar
                 </button>
-                <button onclick="agregarEvidencia('${tarea.id}')" class="text-green-600 hover:text-green-900">
-                    Agregar Evidencias
-                </button>
+                <!-- Botón Agregar Evidencias (solo activo si la tarea está Autorizada y marcada como pendiente) -->
+                ${tarea.estado === 'Pendiente'
+                  ?`<button onclick="agregarEvidencia('${tarea.id}')" class="text-green-600 hover:text-green-900">
+                        Agregar Evidencias
+                    </button>`
+                  :`<button disabled title="Solo disponible cuando la tarea este Autorizada y marcada como Pendiente" 
+                        class="inline-block px-3 py-1 text-sm rounded bg-gray-300 text-gray-600 cursor-not-allowed ml-2">
+                        Agregar Evidencias
+                    </button>`
+                }
+                
                 <!-- Botón PDF (solo activo si la tarea está completada) -->
                 ${tarea.estado === 'Completada'
                 ? `<button onclick="descargarReportePDF(${tarea.id})" 
@@ -1633,11 +1641,20 @@ const clienteMapsLink = clienteMaps
                 : `<button disabled title="Solo disponible cuando la tarea esté completada" 
                         class="inline-block px-3 py-1 text-sm rounded bg-gray-300 text-gray-600 cursor-not-allowed ml-2">
                         📄 PDF
-                    </button>`}
-                <button onclick="verEvidencias(${tarea.id})"
-                    class="text-purple-600 hover:text-purple-900 ml-2">
-                    👁 Ver Evidencias
-                </button>
+                    </button>`
+                  }
+                <!-- Botón Ver Evidencias (solo activo si la tarea está completada) -->
+                ${tarea.estado === 'Completada'
+                  ? `<button onclick="verEvidencias(${tarea.id})"
+                          class="text-purple-600 hover:text-purple-900 ml-2">
+                          👁 Ver Evidencias
+                      </button>`
+                  :`<button disabled title="Solo disponible cuando la tarea esté completada"
+                          class="inline-block px-3 py-1 text-sm rounded bg-gray-300 text-gray-600 cursor-not-allowed ml-2">
+                          👁 Ver Evidencias
+                      </button>`
+                  }
+                
 
 
             </td>
@@ -2077,6 +2094,12 @@ if (!response.ok) {
 }
         if (response.ok) {
             alert("🚀 Solicitud enviada con éxito. Esperando aprobación del Admin.");
+            // 1. Limpiar los campos manualmente
+            document.getElementById('expTitulo').value = "";
+            document.getElementById('expDescripcion').value = "";
+            document.getElementById('expClienteId').selectedIndex = 0;
+            document.getElementById('expDireccionCliente').innerHTML = '<option value="">Seleccione Dirección</option>';
+            document.getElementById('expActividadId').selectedIndex = 0;
             cerrarExpressModal();
             initTareas();
         } else {
