@@ -4391,3 +4391,13 @@ div#tareaExpressModal {
     /* Indigo-700 */
     transform: scale(1.05);
 }
+
+
+
+
+
+.lev-field div button:hover {
+    background-color: #e0e0e0;
+    transform: scale(1.05);
+    transition: 0.2s;
+}
