@@ -171,6 +171,20 @@ doc.pipe(res);
 // Área útil
 const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
 
+// 1. Buscamos la dirección en los datos traídos
+let textoDireccion = "No especificada";
+
+if (tarea.ClienteNegocio && tarea.ClienteNegocio.direcciones) {
+    // Buscamos la que coincida con el ID de la tarea
+    const encontrada = tarea.ClienteNegocio.direcciones.find(
+        d => Number(d.id) === Number(tarea.direccionClienteId)
+    ) || tarea.ClienteNegocio.direcciones[0]; // Si no hay match, la primera
+
+    if (encontrada) {
+        textoDireccion = encontrada.alias || encontrada.direccion;
+    }
+}
+
 
     // Primera página
     // Primera página con plantilla
@@ -189,7 +203,7 @@ const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
     doc.text(`Cliente: ${tarea.ClienteNegocio.nombre}`, MARGIN_LEFT);
     doc.text(`Dirección del Cliente: ${tarea.ClienteNegocio.ClienteDireccion}`, MARGIN_LEFT, doc.y);
     doc.text(`Sucursal: ${tarea.Sucursal.nombre}`, MARGIN_LEFT);
-    doc.text(`Dirección de Sucursal: ${tarea.Sucursal.direccion}`, MARGIN_LEFT);
+    doc.text(`Dirección de Sucursal: ${textoDireccion}`, MARGIN_LEFT);
     doc.text(`Actividad: ${tarea.Actividad.nombre}`, MARGIN_LEFT);
     doc.text(`Asignado a: ${tarea.AsignadoA.nombre}`, MARGIN_LEFT);
     doc.text(`Fecha límite: ${tarea.fechaLimite}`, MARGIN_LEFT);
