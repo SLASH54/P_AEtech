@@ -2149,6 +2149,35 @@ async function ejecutarAutorizacionDesdeNotificacion(tareaId, notificacionId) {
     }
 }
 
+async function ejecutarRechazoDesdeNotificacion(tareaId, notificacionId) {
+    if (!confirm("¿Seguro que quieres rechazar y eliminar esta solicitud?")) return;
+
+    const jwt = localStorage.getItem('accessToken');
+
+    try {
+        // 1. Eliminar la tarea del sistema (Ya tienes la ruta DELETE /tareas/:id)
+        const resTarea = await fetch(`${API_BASE_URL}/tareas/${tareaId}`, {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${jwt}` }
+        });
+
+        if (resTarea.ok) {
+            // 2. Marcar notificación como leída
+            await fetch(`${API_BASE_URL}/notificaciones/${notificacionId}/leida`, {
+                method: 'PUT',
+                headers: { Authorization: `Bearer ${jwt}` }
+            });
+
+            alert("🗑️ Solicitud rechazada y eliminada.");
+            cargarNotificaciones();
+        } else {
+            alert("No se pudo eliminar la tarea solicitada.");
+        }
+    } catch (err) {
+        console.error("Error al rechazar:", err);
+    }
+}
+
 // 1. Función para cargar direcciones cuando cambia el cliente
 async function cargarDireccionesExpress(clienteId) {
      console.log("Ejecutando cargarDireccionesCliente para cliente:", clienteId);
@@ -3357,21 +3386,38 @@ async function cargarNotificaciones() {
       li.appendChild(texto);
 
       // Si la notificación es una solicitud de tarea express
+      // Dentro del activas.forEach en cargarNotificaciones
       if (n.mensaje.toLowerCase().includes('solicita') || n.mensaje.toLowerCase().includes('express')) {
-        const btnAutorizar = document.createElement('button');
-        btnAutorizar.textContent = '✅ Autorizar Tarea';
-        btnAutorizar.style.marginTop = '8px';
-        btnAutorizar.style.backgroundColor = '#28a745';
-        btnAutorizar.style.color = 'white';
-        btnAutorizar.style.border = 'none';
-        btnAutorizar.style.padding = '5px 10px';
-        btnAutorizar.style.borderRadius = '4px';
-        btnAutorizar.style.cursor = 'pointer';
+          const contenedorBotones = document.createElement('div');
+          contenedorBotones.style.display = 'flex';
+          contenedorBotones.style.gap = '8px';
+          contenedorBotones.style.marginTop = '8px';
 
-        // Al hacer clic, autoriza la tarea y marca la notificación como leída
-        btnAutorizar.onclick = () => ejecutarAutorizacionDesdeNotificacion(n.tareaId, n.id);
-        
-        li.appendChild(btnAutorizar);
+          // Botón Autorizar
+          const btnAutorizar = document.createElement('button');
+          btnAutorizar.textContent = '✅ Autorizar';
+          btnAutorizar.style.backgroundColor = '#28a745';
+          btnAutorizar.style.color = 'white';
+          btnAutorizar.style.border = 'none';
+          btnAutorizar.style.padding = '5px 10px';
+          btnAutorizar.style.borderRadius = '4px';
+          btnAutorizar.style.cursor = 'pointer';
+          btnAutorizar.onclick = () => ejecutarAutorizacionDesdeNotificacion(n.tareaId, n.id);
+
+          // Botón Rechazar
+          const btnRechazar = document.createElement('button');
+          btnRechazar.textContent = '❌ Rechazar';
+          btnRechazar.style.backgroundColor = '#dc3545';
+          btnRechazar.style.color = 'white';
+          btnRechazar.style.border = 'none';
+          btnRechazar.style.padding = '5px 10px';
+          btnRechazar.style.borderRadius = '4px';
+          btnRechazar.style.cursor = 'pointer';
+          btnRechazar.onclick = () => ejecutarRechazoDesdeNotificacion(n.tareaId, n.id);
+
+          contenedorBotones.appendChild(btnAutorizar);
+          contenedorBotones.appendChild(btnRechazar);
+          li.appendChild(contenedorBotones);
       }
 
       lista.appendChild(li);
