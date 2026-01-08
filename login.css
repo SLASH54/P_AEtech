@@ -2502,6 +2502,30 @@ button:disabled {
     transition: all 0.3s ease;
 }
 
+#btnopenTareaModal{
+     background: #4caf50;
+  color: #fff;
+}
+
+#btndeleteTarea{
+     background: #e53935;
+  color: #fff;
+
+}
+
+
+#btnagregarEvidencia{
+      background: #42a5f5;
+  color: #fff;
+
+}
+
+#btndescargarReportePDF{
+    background: #7e57c2;
+  color: #fff;
+
+}
+
 #tareaForm button[type="submit"]:hover {
     transform: scale(1.05);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);

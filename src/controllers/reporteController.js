@@ -170,22 +170,6 @@ doc.pipe(res);
 
 // Área útil
 const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
-if (tarea.ClienteNegocio?.direcciones?.length) {
-
-        const dirSeleccionada =
-          tarea.ClienteNegocio.direcciones.find(
-            d => Number(d.id) === Number(tarea.direccionClienteId)
-          ) || tarea.ClienteNegocio.direcciones[0];
-
-        if (dirSeleccionada) {
-          clienteMaps = dirSeleccionada.maps || null;
-
-          clienteDireccion =
-            dirSeleccionada.alias ||       // 🥇 PRIORIDAD 1
-            dirSeleccionada.direccion ||   // 🥈 PRIORIDAD 2
-            'Ubicación en Google Maps';    // 🥉 fallback
-        }
-      }
 
 
     // Primera página
@@ -203,7 +187,7 @@ if (tarea.ClienteNegocio?.direcciones?.length) {
     doc.fontSize(16).fillColor("#000");
 
     doc.text(`Cliente: ${tarea.ClienteNegocio.nombre}`, MARGIN_LEFT);
-    doc.text(`Dirección del Cliente: ${clienteDireccion}`, MARGIN_LEFT, doc.y);
+    doc.text(`Dirección del Cliente: ${tarea.ClienteNegocio.ClienteDireccion}`, MARGIN_LEFT, doc.y);
     doc.text(`Sucursal: ${tarea.Sucursal.nombre}`, MARGIN_LEFT);
     doc.text(`Dirección de Sucursal: ${tarea.Sucursal.direccion}`, MARGIN_LEFT);
     doc.text(`Actividad: ${tarea.Actividad.nombre}`, MARGIN_LEFT);
