@@ -12,7 +12,8 @@ const {
   Sucursal,
   ClienteNegocio,
   Usuario,
-  Evidencia
+  Evidencia,
+  ClienteDireccion
 } = require("../models/relations");
 
 
@@ -146,7 +147,7 @@ const MARGIN_BOTTOM = 120;
   try {
     const tarea = await Tarea.findOne({
       where: { id: tareaId },
-      include: [ Actividad, Sucursal, ClienteNegocio, { model: Usuario, as: "AsignadoA" }, Evidencia ]
+      include: [ Actividad, Sucursal, ClienteNegocio, ClienteDireccion, { model: Usuario, as: "AsignadoA" }, Evidencia ]
     });
 
     if (!tarea) return res.status(404).json({ error: "Tarea no encontrada" });
@@ -186,7 +187,7 @@ const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
     doc.fontSize(16).fillColor("#000");
 
     doc.text(`Cliente: ${tarea.ClienteNegocio.nombre}`, MARGIN_LEFT);
-    doc.text(`Dirección del Cliente: ${tarea.ClienteNegocio?.nombre}`, MARGIN_LEFT, doc.y);
+    doc.text(`Dirección del Cliente: ${tarea.ClienteNegocio?.ClienteDireccion}`, MARGIN_LEFT, doc.y);
     doc.text(`Sucursal: ${tarea.Sucursal.nombre}`, MARGIN_LEFT);
     doc.text(`Dirección de Sucursal: ${tarea.Sucursal.direccion}`, MARGIN_LEFT);
     doc.text(`Actividad: ${tarea.Actividad.nombre}`, MARGIN_LEFT);
