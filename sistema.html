@@ -1022,11 +1022,11 @@
         <label>Cliente</label>
         <select id="lev-clienteSelect"></select>
 
-        <button type="button" 
-                onclick="irARegistroCliente()" 
+       <button type="button" 
+                id="btnLinkARegistro" 
                 title="Registrar nuevo cliente"
-                style="padding: 5px 10px; cursor: pointer; border-radius: 5px; border: 1px solid #ccc; background: #f0f0f0;">
-            ➕
+                style="padding: 5px 12px; cursor: pointer; border-radius: 8px; border: none; background: rgba(255,255,255,0.2); color: white; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.3);">
+            <span style="font-weight: bold;">+</span>
         </button>
         
     </div>
@@ -1178,6 +1178,62 @@
 
     let levantamientoEditando = null;
     let levantamientosCache = [];
+
+
+
+    /* ===== CONFIGURACIÓN DE BOTONES (Al cargar la página) ===== */
+
+// Este código debe ir afuera de las funciones, en la parte principal de tu <script>
+document.addEventListener("DOMContentLoaded", () => {
+    
+    // Botón para abrir el modal (el que ya tienes)
+    document.getElementById("btnNuevoLevantamiento")
+        ?.addEventListener("click", abrirNuevoLevantamiento);
+
+    // 👇 AQUÍ AGREGAS EL BOTÓN DE IR A REGISTRO DE CLIENTE
+    document.getElementById("btnLinkARegistro")?.addEventListener("click", () => {
+        // 1. Cerramos el modal de levantamiento (tu función ya existente)
+        closeNuevoLevantamiento(); 
+
+        // 2. Buscamos el formulario de clientes
+        const form = document.getElementById("registroClienteForm");
+        
+        if (form) {
+            // 3. Scroll suave hasta el formulario
+            form.scrollIntoView({ behavior: "smooth" });
+            
+            // 4. Efecto visual para que el usuario sepa dónde llegó
+            form.style.boxShadow = "0 0 20px #00938f";
+            setTimeout(() => form.style.boxShadow = "", 2000);
+        } else {
+            console.warn("Amiko, no se encontró el elemento registroClienteForm en el HTML");
+        }
+    });
+});
+
+/* ===== TUS FUNCIONES EXISTENTES ===== */
+
+function openNuevoLevantamiento() {
+    const LevClienteSelect = document.getElementById('lev-clienteSelect');
+    const modal = document.getElementById("modalNuevoLevantamiento");
+    modal.classList.add("active");
+
+    cargarClientesLev();   
+    setPersonalActual();   
+    setFechaHoraActual();  
+    cargarDireccionesLevantamiento();
+
+    LevClienteSelect.onchange = () => {
+        cargarDireccionesLevantamiento(LevClienteSelect.value);
+    };
+}
+
+function closeNuevoLevantamiento() {
+    const modal = document.getElementById("modalNuevoLevantamiento");
+    if (modal) modal.classList.remove("active");
+    // Resetear el estado de edición si es necesario
+    editandoId = null; 
+}
 
 
 /* ===== MODAL NUEVO LEVANTAMIENTO (FORZADO) ===== */
