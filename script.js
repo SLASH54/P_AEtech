@@ -1626,7 +1626,7 @@ const clienteMapsLink = clienteMaps
                   ?`<button onclick="agregarEvidencia('${tarea.id}')" class="text-green-600 hover:text-green-900">
                         Agregar Evidencias
                     </button>`
-                  :`<button disabled title="Solo disponible cuando la tarea este Autorizada y marcada como Pendiente" 
+                  :`<button disabled title="Solo disponible cuando la tarea este Autorizada o marcada como Pendiente" 
                         class="inline-block px-3 py-1 text-sm rounded bg-gray-300 text-gray-600 cursor-not-allowed ml-2">
                         Agregar Evidencias
                     </button>`

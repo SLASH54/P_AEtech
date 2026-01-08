@@ -21,6 +21,13 @@ exports.solicitarTareaExpress = async (req, res) => {
             return res.status(400).json({ message: "Sesión inválida: El ID de usuario no es numérico." });
         }
 
+        // 1. Buscamos el nombre del usuario que está haciendo la solicitud
+        const solicitante = await Usuario.findByPk(req.user.id);
+        const nombreSolicitante = solicitante ? solicitante.nombre : "Técnico";
+
+        // Si mandas fecha desde el front, conviértela a objeto Date primero
+        const fechaFormateada = new Date().toISOString().split('T')[0]; // Esto da 2026-01-08
+
         const nuevaTarea = await Tarea.create({
             nombre: nombre,
             descripcion: descripcion,
@@ -30,8 +37,9 @@ exports.solicitarTareaExpress = async (req, res) => {
             usuarioAsignadoId: userId, 
             // USAREMOS 'Pendiente' por ahora para evitar el error de ENUM en la DB
             estado: 'Pendiente de Autorización', 
-            prioridad: 'Normal',
-            fechaLimite: fechaLimite
+            fechaLimite: fechaFormateada,
+            prioridad: 'Normal'
+            
         });
 
         // LÓGICA DE NOTIFICACIÓN PUSH AL ADMIN
@@ -53,7 +61,7 @@ exports.solicitarTareaExpress = async (req, res) => {
             await Notificacion.create({
                 usuarioId: adminUser.id,
                 tareaId: nuevaTarea.id,
-                mensaje: `Nueva tarea express de ${req.user.nombre}: ${nombre}`,
+                mensaje: `Nueva tarea express de ${nombreSolicitante}: ${nombre}`,
                 leida: false
             });
         });
