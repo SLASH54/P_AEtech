@@ -63,7 +63,7 @@ exports.generateLevantamientoPDF = async (req, res) => {
         // Datos del Cliente (Sin Folio LEV-48)
         doc.fontSize(12).fillColor("black");
         doc.font('Helvetica-Bold').text("Cliente: ", { continued: true }).font('Helvetica').text(lev.cliente_nombre);
-        doc.font('Helvetica-Bold').text("Sucursal/Dirección: ", { continued: true }).font('Helvetica').text(lev.direccion);
+        doc.font('Helvetica-Bold').text("Dirección: ", { continued: true }).font('Helvetica').text(lev.direccion);
         doc.font('Helvetica-Bold').text("Fecha: ", { continued: true }).font('Helvetica').text(new Date(lev.fecha).toLocaleDateString());
         doc.font('Helvetica-Bold').text("Técnico: ", { continued: true }).font('Helvetica').text(lev.personal);
         
