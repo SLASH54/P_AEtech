@@ -129,7 +129,7 @@ exports.createTarea = async (req, res) => {
     try {
        const { 
     nombre, descripcion, usuarioAsignadoId, actividadId, 
-    sucursalId, clienteNegocioId, fechaLimite, prioridad 
+    sucursalId, clienteNegocioId, direccionClienteId, fechaLimite, prioridad 
 } = req.body;
 
         
@@ -148,6 +148,7 @@ exports.createTarea = async (req, res) => {
     actividadId,
     sucursalId,
     clienteNegocioId,
+    direccionClienteId,
     fechaLimite,
     prioridad
 });
