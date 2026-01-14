@@ -39,6 +39,8 @@ const API_BASE_URL = 'https://p-aetech.onrender.com/api'; // Esto lo reemplazar√
 /**
  * Verifica si hay un token de sesi√≥n guardado y lo valida si es necesario.
  */
+
+//refresh del token 
 async function refreshAccessToken() {
   const rt = localStorage.getItem('refreshToken');
   if (!rt) return false;

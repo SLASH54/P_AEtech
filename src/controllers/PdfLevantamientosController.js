@@ -26,6 +26,11 @@ async function cargarFondo(url) {
     } catch (err) { return null; }
 }
 
+
+// =========================================================
+//   GENERAR REPORTE PDF
+// =========================================================
+
 exports.generateLevantamientoPDF = async (req, res) => {
     // Margen para que el texto caiga justo en el área blanca de tu plantilla
     const MARGIN_TOP = 175; 
@@ -116,3 +121,5 @@ exports.generateLevantamientoPDF = async (req, res) => {
         res.status(500).send("Error al generar el PDF");
     }
 };
+
+

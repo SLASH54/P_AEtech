@@ -145,6 +145,7 @@ const MARGIN_BOTTOM = 120;
   const { tareaId } = req.params;
 
   try {
+
     const tarea = await Tarea.findOne({
       where: { id: tareaId },
       include: [ Actividad, Sucursal, ClienteNegocio, { model: ClienteDireccion, as: 'DireccionEspecifica' }, { model: Usuario, as: "AsignadoA" }, Evidencia ]
@@ -172,18 +173,16 @@ doc.pipe(res);
 const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
 
 // 1. Buscamos la dirección en los datos traídos
+
+//disque error del pdf de tareas
+//me dijo gemini que lo borrara sin miedo y que me fueera a dormir y que solo era eso de codigo 
+
+
 let textoDireccion = "No especificada";
-
-if (tarea.ClienteNegocio && tarea.ClienteNegocio.direcciones) {
-    // Buscamos la que coincida con el ID de la tarea
-    const encontrada = tarea.ClienteNegocio.direcciones.find(
-        d => Number(d.id) === Number(tarea.direccionClienteId)
-    ) || tarea.ClienteNegocio.direcciones[0]; // Si no hay match, la primera
-
-    if (encontrada) {
-        textoDireccion = encontrada.alias || encontrada.direccion;
-    }
+if (tarea.DireccionEspecifica) {
+    textoDireccion = tarea.DireccionEspecifica.alias || tarea.DireccionEspecifica.direccion;
 }
+
 
 
     // Primera página

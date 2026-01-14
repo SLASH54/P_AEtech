@@ -48,19 +48,22 @@ exports.registerUser = async (req, res) => {
 // ==============================================
 // 2. INICIO DE SESIÓN
 // ==============================================
+
 const signAccessToken = (user) =>
   jwt.sign(
-    { id: user.id, rol: user.rol },
+    { id: user.id, rol: user.rol }, 
     process.env.JWT_SECRET,
-    { expiresIn: '1h' } // corto
+    { expiresIn: '7d' } // Antes: '1h'
   );
 
+// CAMBIO: Incluimos el rol en el refresh para que persista al renovar
 const signRefreshToken = (user) =>
   jwt.sign(
-    { id: user.id },
+    { id: user.id, rol: user.rol }, 
     process.env.JWT_REFRESH_SECRET,
-    { expiresIn: '30d' } // largo
+    { expiresIn: '30d' } 
   );
+
 
 
 exports.loginUser = async (req, res) => {
@@ -118,6 +121,9 @@ exports.logoutUser = (req, res) => {
 
 
 
+// ==============================================
+// 4. REFRESH TOKEN (CORREGIDO)
+// ==============================================
 exports.refreshToken = (req, res) => {
   const { refreshToken } = req.body;
   if (!refreshToken)
@@ -129,14 +135,17 @@ exports.refreshToken = (req, res) => {
       process.env.JWT_REFRESH_SECRET
     );
 
+    // CAMBIO CRÍTICO: Incluimos el ROL que viene del decoded
+    // Si no pones el rol aquí, el middleware 'admin' te rechazará
     const newAccessToken = jwt.sign(
-      { id: decoded.id },
+      { id: decoded.id, rol: decoded.rol }, 
       process.env.JWT_SECRET,
-      { expiresIn: '1h' }
+      { expiresIn: '7d' } // Nuevo token dura otra semana
     );
 
     res.json({ accessToken: newAccessToken });
-  } catch {
+  } catch (error) {
+    console.error("Error en Refresh:", error);
     res.status(401).json({ message: 'Refresh inválido o expirado' });
   }
 };
