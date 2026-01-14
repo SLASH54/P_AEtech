@@ -43,34 +43,6 @@ exports.solicitarTareaExpress = async (req, res) => {
             
         });
 
-        // ... justo después de Tarea.create ...
-try {
-    // 1. Buscamos específicamente al Administrador (o la persona que autoriza)
-    const adminUser = await Usuario.findOne({ 
-        where: { rol: 'Admin' } // Verifica que el nombre del rol sea exacto en tu DB
-    });
-
-    if (adminUser && adminUser.fcmToken) {
-        const mensaje = {
-            notification: {
-                title: "Nueva Solicitud Express",
-                body: `${nombreSolicitante} ha solicitado la tarea: "${nuevaTarea.nombre}".`,
-            },
-            data: {
-                tareaId: nuevaTarea.id.toString(),
-                tipo: "AUTORIZACION_PENDIENTE"
-            },
-            token: adminUser.fcmToken,
-        };
-
-        await admin.messaging().send(mensaje);
-        console.log("✅ Notificación enviada al Admin:", adminUser.nombre);
-    } else {
-        console.warn("⚠️ No se encontró un Administrador con token FCM configurado.");
-    }
-} catch (error) {
-    console.error("❌ Error enviando notificación al Admin:", error);
-}
         // LÓGICA DE NOTIFICACIÓN PUSH AL ADMIN
         // Buscamos a los admins para enviarles la notificación
         const admins = await Usuario.findAll({ where: { rol: 'Admin' } });
