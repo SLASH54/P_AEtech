@@ -11,7 +11,7 @@ const { ClienteDireccion } = require('../models/relations');
 // ===============================
 exports.solicitarTareaExpress = async (req, res) => {
     try {
-        const { nombre, descripcion, actividadId, sucursalId, clienteNegocioId, fechaLimite, } = req.body;
+        const { nombre, descripcion, actividadId, sucursalId, clienteNegocioId, direccionClienteId, fechaLimite, } = req.body;
 
         // Aseguramos que el ID del usuario sea un número
         // Si req.user.id es "admin", esto fallará, por eso usamos Number()
@@ -34,6 +34,7 @@ exports.solicitarTareaExpress = async (req, res) => {
             actividadId: parseInt(actividadId),
             sucursalId: parseInt(sucursalId),
             clienteNegocioId: parseInt(clienteNegocioId),
+            direccionClienteId: parseInt(direccionClienteId),
             usuarioAsignadoId: userId, 
             // USAREMOS 'Pendiente' por ahora para evitar el error de ENUM en la DB
             estado: 'Pendiente de Autorización', 
