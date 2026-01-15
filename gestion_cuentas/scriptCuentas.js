@@ -19,6 +19,7 @@ function openNuevaCuenta() {
     setFechaHoraActual();
     //modal.classList.add("active");
     modal.style.display = "flex";
+    document.body.style.overflow = 'hidden';
 
 }
 
@@ -26,6 +27,7 @@ function openNuevaCuenta() {
 
 function cerrarNuevaCuentaModal() {
     document.getElementById('modalNuevaCuenta').style.display = 'none';
+    document.body.style.overflow = 'auto';
 }
 
 

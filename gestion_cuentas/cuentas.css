@@ -548,7 +548,16 @@ header h1 {
     background: linear-gradient(135deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4)); /* Gradiente de cristal */
 }
 
+/* Ocultar barra en Chrome, Safari y Opera */
+.modalGlass-content::-webkit-scrollbar {
+    display: none;
+}
 
+/* Ocultar barra en IE, Edge y Firefox */
+.modalGlass-content {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
 
 /* Estilo del Switch de IVA */
 .ios-switch {
