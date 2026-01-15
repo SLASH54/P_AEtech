@@ -687,9 +687,11 @@ async function fetchData(endpoint, options = {}) {
 async function initAdminPanel() {
   const userRole = localStorage.getItem('userRol');
   const adminSection = document.getElementById('Administracion');
+  const email = localStorage.getItem("email");
+  const usuarioEspecial = "denisse.espinoza@aetech.com.mx";
 
   // 🔹 Si NO es admin, solo ocultamos el panel de administración
-  if (userRole !== 'Admin' && userRole !== 'Administrador') {
+  if (userRole !== 'Admin' && email !== usuarioEspecial) {
     if (adminSection) adminSection.classList.remove('show');
     console.log('Rol sin acceso al panel admin, pero puede usar el tablero.');
     return;
