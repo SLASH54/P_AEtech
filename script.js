@@ -163,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Si es Admin O es el usuario específico, mostramos el botón
     if (rol === 'Admin' || email === usuarioEspecial) {
-        if (cardCuentas) cardCuentas.style.display = 'block';
+        if (cardCuentas) cardCuentas.style.display = 'flex';
     }
 });
 

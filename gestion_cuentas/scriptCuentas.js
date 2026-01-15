@@ -1,8 +1,8 @@
 
 // scriptCuentas.js - AL PRINCIPIO DE TODO
 (function verificarPermisos() {
-    const rol = localStorage.getItem('rol');
-    const email = localStorage.getItem('email');
+    const rol = localStorage.getItem('userRol');
+    const email = localStorage.getItem('userEmail');
     const usuarioEspecial = "denisse.espinoza@aetech.com.mx";
 
     if (!(rol === 'Admin' || email === usuarioEspecial)) {
