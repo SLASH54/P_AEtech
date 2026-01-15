@@ -1,156 +1,156 @@
-<!DOCTYPE html>
+me puedes dar el html corregido <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion de Cuentas</title>
-     <link rel="stylesheet" href="cuentas.css">
-       <link rel="icon" href="img/logoAEtech.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion de Cuentas</title>
+     <link rel="stylesheet" href="cuentas.css">
+       <link rel="icon" href="img/logoAEtech.png">
 </head>
 <body>
 
-     <!-- 🔹 Pantalla de carga -->
+     <!-- 🔹 Pantalla de carga -->
 <div id="loader" class="loader-overlay" style="display: none;">
-  <div class="loader-container">
-    <div class="spinner"></div>
-    <p>Procesando, por favor espera...</p>
-  </div>
+  <div class="loader-container">
+    <div class="spinner"></div>
+    <p>Procesando, por favor espera...</p>
+  </div>
 </div>
 
- <div class="container">
-        <header>
-            <img src="img/watermark.png" width="80px" height="80px">
-        </header>
-      
-            
-        <!-- ========== LISTA DE CUENTAS ========== -->
+ <div class="container">
+        <header>
+            <img src="img/watermark.png" width="80px" height="80px">
+        </header>
+      
+            
+        <!-- ========== LISTA DE CUENTAS ========== -->
 <div id="listaCuentas" class="main-content show">
 
-    <div class="tareas-container">
+    <div class="tareas-container">
 
-        <h2 class="section-title">Organizador de Cuentas</h2>
+        <h2 class="section-title">Organizador de Cuentas</h2>
 
-        <!-- BOTÓN NUEVO -->
-      <button id="btnNuevaCuenta" onclick="openNuevaCuenta()"
-        class="btn btn-primary"
-        style="margin-bottom: 15px;">
-    + Nueva Cuenta
+        <!-- BOTÓN NUEVO -->
+      <button id="btnNuevaCuenta" onclick="openNuevaCuenta()"
+        class="btn btn-primary"
+        style="margin-bottom: 15px;">
+    + Nueva Cuenta
 </button>
 
 
 
-        <!-- TABLA -->
-        <div class="table-responsive" style="margin-top: 15px;">
-          <table class="tabla">
-  <thead>
-    <tr>
-      <th>Cliente</th>
-      <th>Estatus</th>
-      <th>Fecha</th>
-      <th>Monto</th>
-      <th>Acciones</th>
-    </tr>
-  </thead>
-  <tbody id="tablaCuentas"></tbody>
+        <!-- TABLA -->
+        <div class="table-responsive" style="margin-top: 15px;">
+          <table class="tabla">
+  <thead>
+    <tr>
+      <th>Cliente</th>
+      <th>Estatus</th>
+      <th>Fecha</th>
+      <th>Monto</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody id="tablaCuentas"></tbody>
 </table>
 
-        </div>
+        </div>
 
-    </div>
+    </div>
 
 </div>
 
 
 <!-- ========== MODAL NUEVA CUENTA (iOS / Glass) ========== -->
 <div id="modalNuevaCuenta" class="modalGlass">
-    <div class="modalGlass-content">
+    <div class="modalGlass-content">
 
-        <h2 class="modalGlass-title">Nueva Cuenta</h2>
-        <span class="modalGlass-close" onclick="cerrarNuevaCuentaModal()">✖</span>
+        <h2 class="modalGlass-title">Nueva Cuenta</h2>
+        <span class="modalGlass-close" onclick="cerrarNuevaCuentaModal()">✖</span>
 <div class="lev-form-grid">
 
-    <div class="lev-field">
-        <label>Cliente</label>
-        <select id="lev-clienteSelect"></select>
+    <div class="lev-field">
+        <label>Cliente</label>
+        <select id="lev-clienteSelect"></select>
 
-       <button type="button" 
-                id="btnLinkARegistro" 
-                title="Registrar nuevo cliente"
-                style="padding: 5px 12px; cursor: pointer; border-radius: 8px; border: none; background: #007bffd4; color: white; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.3);">
+       <button type="button" 
+                id="btnLinkARegistro" 
+                title="Registrar nuevo cliente"
+                style="padding: 5px 12px; cursor: pointer; border-radius: 8px; border: none; background: #007bffd4; color: white; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.3);">
 
-                + <span style="font-weight: bold;">Registrar Cliente</span>
-        </button>
-        
-    </div>
+                + <span style="font-weight: bold;">Registrar Cliente</span>
+        </button>
+        
+    </div>
 
-    <div class="lev-field">
-        <label>Fecha y Hora</label>
-        <input id="lev-fechaHora" type="datetime-local">
-    </div>
+    <div class="lev-field">
+        <label>Fecha y Hora</label>
+        <input id="lev-fechaHora" type="datetime-local">
+    </div>
 
 </div>
 <hr>
 
-        <!-- MATERIALES -->
-       <h4>Productos:</h4>
+        <!-- MATERIALES -->
+       <h4>Productos:</h4>
 
 <div class="lev-product-row">
-    <select id="levInsumo" onchange="levMostrarCampoExtra()" class="ios-select">
-        <option value="" disabled selected>Seleccione un insumo</option>
+    <select id="levInsumo" onchange="levMostrarCampoExtra()" class="ios-select">
+        <option value="" disabled selected>Seleccione un insumo</option>
 
-        <optgroup label="Cable">
-            <option value="Cable">Cable</option>
-        </optgroup>
+        <optgroup label="Cable">
+            <option value="Cable">Cable</option>
+        </optgroup>
 
-        <optgroup label="Transceptor">
-            <option value="Transceptor">Transceptor</option>
-        </optgroup>
+        <optgroup label="Transceptor">
+            <option value="Transceptor">Transceptor</option>
+        </optgroup>
 
-        <optgroup label="Conectores">
-            <option value="Conector de corriente">Conector de corriente</option>
-        </optgroup>
+        <optgroup label="Conectores">
+            <option value="Conector de corriente">Conector de corriente</option>
+        </optgroup>
 
-        <optgroup label="Fuente de poder 12V">
-            <option value="12vdc 1A">12vdc 1A</option>
-            <option value="12vdc 1.5A">12vdc 1.5A</option>
-            <option value="12vdc 2A">12vdc 2A</option>
-            <option value="12vdc 4.1A">12vdc 4.1A</option>
-            <option value="12vdc 5A">12vdc 5A</option>
-        </optgroup>
+        <optgroup label="Fuente de poder 12V">
+            <option value="12vdc 1A">12vdc 1A</option>
+            <option value="12vdc 1.5A">12vdc 1.5A</option>
+            <option value="12vdc 2A">12vdc 2A</option>
+            <option value="12vdc 4.1A">12vdc 4.1A</option>
+            <option value="12vdc 5A">12vdc 5A</option>
+        </optgroup>
 
-        <optgroup label="Fuente centralizada">
-            <option value="Fuente de poder centralizada">Fuente de poder centralizada</option>
-        </optgroup>
+        <optgroup label="Fuente centralizada">
+            <option value="Fuente de poder centralizada">Fuente de poder centralizada</option>
+        </optgroup>
 
-        <optgroup label="Cajas">
-            <option value="Caja estanca">Caja estanca</option>
-            <option value="Caja plástica 180x125x57">Caja plástica 180x125x57</option>
-            <option value="Caja plástica 190x290x140">Caja plástica 190x290x140</option>
-        </optgroup>
+        <optgroup label="Cajas">
+            <option value="Caja estanca">Caja estanca</option>
+            <option value="Caja plástica 180x125x57">Caja plástica 180x125x57</option>
+            <option value="Caja plástica 190x290x140">Caja plástica 190x290x140</option>
+        </optgroup>
 
-        <optgroup label="Otro">
-            <option value="Otro">Otro (especificar)</option>
-        </optgroup>
-    </select>
+        <optgroup label="Otro">
+            <option value="Otro">Otro (especificar)</option>
+        </optgroup>
+    </select>
 
-    <input type="text" id="levInsumoExtra" placeholder="Especificar modelo..."
-           style="display:none; margin-top:6px;">
+    <input type="text" id="levInsumoExtra" placeholder="Especificar modelo..."
+           style="display:none; margin-top:6px;">
 
 
-    
-    <div class="currency-input" style="width: 100px;">
-        <span>$</span>
-        <input type="number" id="levCosto" placeholder="0.00" class="ios-input-small" step="0.01">
-    </div>
+    
+    <div class="currency-input" style="width: 100px;">
+        <span>$</span>
+        <input type="number" id="levCosto" placeholder="0.00" class="ios-input-small" step="0.01">
+    </div>
 
-    <label for="levInputFoto" class="btn-ios-icon" title="Agregar miniatura">
-        📸
-        <input type="file" id="levInputFoto" accept="image/*" style="display:none;">
-    </label>
+    <label for="levInputFoto" class="btn-ios-icon" title="Agregar miniatura">
+        📸
+        <input type="file" id="levInputFoto" accept="image/*" style="display:none;">
+    </label>
 
-    <button id="levBtnAgregarMaterial" class="btn-ios-add">
-        + Agregar
-    </button>
+    <button id="levBtnAgregarMaterial" class="btn-ios-add">
+        + Agregar
+    </button>
 </div>
 
 <div id="previsualizacionFoto" class="mini-preview"></div>
@@ -161,6 +161,19 @@
 <div class="lev-footer-container">
     <div class="lev-totales-column">
         
+        <div class="lev-total-field iva-row" style="display: flex; align-items: center; margin-bottom: 10px;">
+            <label class="ios-switch">
+                <input type="checkbox" id="chkIva" onchange="toggleIva()">
+                <span class="slider"></span>
+            </label>
+            <span style="margin-left: 10px; font-weight: bold; color: white;">IVA</span>
+            
+            <div id="ivaInputContainer" class="currency-input" style="width: 75px; display: none; margin-left: auto;">
+                <input type="number" id="levIvaPorcentaje" value="16" min="0" oninput="calcularSaldo()">
+                <span style="color: #555;">%</span>
+            </div>
+        </div>
+
         <div class="lev-total-field">
             <label>Total:</label>
             <div class="currency-input">
@@ -173,7 +186,7 @@
             <label>Anticipo:</label>
             <div class="currency-input">
                 <span>$</span>
-                <input type="number" id="levAnticipo" placeholder="0.00" step="0.01">
+                <input type="number" id="levAnticipo" placeholder="0.00" step="0.01" oninput="calcularSaldo()">
             </div>
         </div>
 
@@ -184,22 +197,21 @@
                 <input type="number" id="levPorLiquidar" placeholder="0.00" readonly>
             </div>
         </div>
-
     </div>
 </div>
 
 <div class="lev-button-center">
-    <button id="btnGuardarCuenta" class="glass-btn-ios">
-        <div class="shine"></div> 
-        <span class="glass-text">Guardar Cuenta</span>
-    </button>
+    <button id="btnGuardarCuenta" class="glass-btn-ios">
+        <div class="shine"></div> 
+        <span class="glass-text">Guardar Cuenta</span>
+    </button>
 </div>
 
 
-    </div>
+    </div>
 </div>
-    
+    
 
-  <script src="scriptCuentas.js"></script>
+  <script src="scriptCuentas.js"></script>
 </body>
 </html>

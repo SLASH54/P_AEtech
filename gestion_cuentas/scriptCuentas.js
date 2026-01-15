@@ -344,3 +344,39 @@ function addMaterial() {
     input.value = "";
 }
 
+
+// 1. Mostrar/Ocultar el cuadrito del %
+function toggleIva() {
+    const chk = document.getElementById('chkIva');
+    const container = document.getElementById('ivaInputContainer');
+    container.style.display = chk.checked ? 'flex' : 'none';
+    calcularSaldo(); // Recalcular al activar/desactivar
+}
+
+// 2. Cálculo Maestro
+function calcularSaldo() {
+    // Calculamos la suma de todos los materiales (Subtotal)
+    const subtotal = levMaterialesList.reduce((sum, mat) => sum + mat.costo, 0);
+    
+    const chkIva = document.getElementById('chkIva');
+    const inputPorcentaje = document.getElementById('levIvaPorcentaje');
+    const inputTotal = document.getElementById('levTotal');
+    const inputAnticipo = document.getElementById('levAnticipo');
+    const inputLiquidar = document.getElementById('levPorLiquidar');
+
+    let montoConIva = subtotal;
+
+    // Si el IVA está marcado, sumamos el %
+    if (chkIva && chkIva.checked) {
+        const porcentaje = parseFloat(inputPorcentaje.value) || 0;
+        montoConIva = subtotal * (1 + (porcentaje / 100));
+    }
+
+    // Ponemos los valores en los cuadros
+    inputTotal.value = montoConIva.toFixed(2);
+    
+    const anticipo = parseFloat(inputAnticipo.value) || 0;
+    const saldoFinal = montoConIva - anticipo;
+    
+    inputLiquidar.value = saldoFinal.toFixed(2);
+}
