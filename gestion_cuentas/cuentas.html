@@ -159,45 +159,33 @@
 
 
 <div class="lev-footer-container">
-    <div class="lev-totales-column">
-        
-        <div class="lev-total-field iva-row" style="display: flex; align-items: center; margin-bottom: 10px;">
-            <label class="ios-switch">
-                <input type="checkbox" id="chkIva" onchange="toggleIva()">
-                <span class="slider"></span>
-            </label>
-            <span style="margin-left: 10px; font-weight: bold; color: white;">IVA</span>
-            
-            <div id="ivaInputContainer" class="currency-input" style="width: 75px; display: none; margin-left: auto;">
-                <input type="number" id="levIvaPorcentaje" value="16" min="0" oninput="calcularSaldo()">
-                <span style="color: #555;">%</span>
-            </div>
-        </div>
+    <div class="lev-totales-column">
+        
+        <div class="lev-total-field">
+            <label>Total:</label>
+            <div class="currency-input">
+                <span>$</span>
+                <input type="number" id="levTotal" placeholder="0.00" step="0.01" readonly>
+            </div>
+        </div>
 
-        <div class="lev-total-field">
-            <label>Total:</label>
-            <div class="currency-input">
-                <span>$</span>
-                <input type="number" id="levTotal" placeholder="0.00" step="0.01" readonly>
-            </div>
-        </div>
+        <div class="lev-total-field">
+            <label>Anticipo:</label>
+            <div class="currency-input">
+                <span>$</span>
+                <input type="number" id="levAnticipo" placeholder="0.00" step="0.01">
+            </div>
+        </div>
 
-        <div class="lev-total-field">
-            <label>Anticipo:</label>
-            <div class="currency-input">
-                <span>$</span>
-                <input type="number" id="levAnticipo" placeholder="0.00" step="0.01" oninput="calcularSaldo()">
-            </div>
-        </div>
+        <div class="lev-total-field highlight-liquidar">
+            <label>Por liquidar:</label>
+            <div class="currency-input">
+                <span>$</span>
+                <input type="number" id="levPorLiquidar" placeholder="0.00" readonly>
+            </div>
+        </div>
 
-        <div class="lev-total-field highlight-liquidar">
-            <label>Por liquidar:</label>
-            <div class="currency-input">
-                <span>$</span>
-                <input type="number" id="levPorLiquidar" placeholder="0.00" readonly>
-            </div>
-        </div>
-    </div>
+    </div>
 </div>
 
 <div class="lev-button-center">
