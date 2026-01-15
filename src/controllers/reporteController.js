@@ -191,13 +191,13 @@ if (tarea.DireccionEspecifica) {
 
     doc.moveDown(7);
 
-    doc.fontSize(22)
+    doc.fontSize(20)
       .fillColor("#00938f")
       .text("INFORMACION DEL SERVICIO", MARGIN_LEFT, doc.y);
 
     doc.moveDown(1);
 
-    doc.fontSize(16).fillColor("#000");
+    doc.fontSize(12).fillColor("#000");
 
     doc.text(`Cliente: ${tarea.ClienteNegocio.nombre}`, MARGIN_LEFT);
     doc.text(`Dirección del Cliente: ${textoDireccion}`, MARGIN_LEFT, doc.y);
@@ -214,7 +214,7 @@ const MAX_W = 160, MAX_H = 160;
 const GAP = 30;
 doc.moveDown(1);
 
-doc.fontSize(22)
+doc.fontSize(20)
     .fillColor("#00938f")
     .text("EVIDENCIAS", MARGIN_LEFT);
 
@@ -297,7 +297,7 @@ if (resto.length > 0) {
       nuevaPagina(doc, plantillaBuf);
       doc.moveDown(7);
 
-      doc.fontSize(22)
+      doc.fontSize(20)
         .fillColor("#00938f")
         .text("FIRMA DEL CLIENTE", MARGIN_LEFT);
 
@@ -321,7 +321,7 @@ if (resto.length > 0) {
       nuevaPagina(doc, plantillaBuf);
       doc.moveDown(5);
 
-      doc.fontSize(22)
+      doc.fontSize(20)
         .fillColor("#00938f")
         .text("MATERIAL OCUPADO", MARGIN_LEFT);
 
