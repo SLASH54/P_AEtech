@@ -15,15 +15,22 @@ exports.solicitarTareaExpress = async (req, res) => {
 
         // Aseguramos que el ID del usuario sea un número
         // Si req.user.id es "admin", esto fallará, por eso usamos Number()
-        const userId = parseInt(req.user.id);
-
-        if (isNaN(userId)) {
-            return res.status(400).json({ message: "Sesión inválida: El ID de usuario no es numérico." });
+        // 🔴 CORRECCIÓN AQUÍ:
+        // En lugar de forzar parseInt, verificamos que el ID exista en el token
+        if (!req.user || !req.user.id) {
+            return res.status(400).json({ message: "Sesión inválida: No se encontró el ID de usuario." });
         }
 
+        const userId = req.user.id; // Ya no usamos parseInt forzoso aquí para evitar el NaN
+
         // 1. Buscamos el nombre del usuario que está haciendo la solicitud
-        const solicitante = await Usuario.findByPk(req.user.id);
-        const nombreSolicitante = solicitante ? solicitante.nombre : "Técnico";
+        const solicitante = await Usuario.findByPk(userId);
+        
+        if (!solicitante) {
+            return res.status(404).json({ message: "Usuario solicitante no encontrado en la base de datos." });
+        }
+
+        const nombreSolicitante = solicitante.nombre;
 
         // Si mandas fecha desde el front, conviértela a objeto Date primero
         const fechaFormateada = new Date().toISOString().split('T')[0]; // Esto da 2026-01-08
