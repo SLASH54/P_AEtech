@@ -23,27 +23,6 @@
   </div>
 </div>
 
-<button class="glass-btn-ios" onclick="abrirTarjetaDigital()">
-    📇 Mi Tarjeta Digital
-</button>
-
-<div id="modalTarjeta" class="modalGlass" style="display:none;">
-    <div class="modalGlass-content" style="text-align: center; max-width: 350px;">
-        <span class="modalGlass-close" onclick="cerrarTarjetaDigital()">✖</span>
-        
-        <h2 style="color: #005e73;">AE Tech - Contacto</h2>
-        
-        <img src="img/tarjeta.jpg" alt="Tarjeta AE Tech" style="width: 100%; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
-
-        <p style="color: #333; font-size: 14px;">Escanea para guardar contacto:</p>
-        
-        <div id="qrcode">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https://wa.me/2221920179" alt="QR WhatsApp" style="border: 5px solid white; border-radius: 10px;">
-        </div>
-
-        <p style="margin-top: 15px; font-weight: bold; color: #007bff;">vCard / WhatsApp</p>
-    </div>
-</div>
 
 
     <div class="container">
@@ -159,6 +138,9 @@
      <a href="https://facebook.com/AETech18" target="_blank" dm_dont_rewrite_url="true" aria-label="facebook" onclick="dm_gaq_push_event &amp;  dm_gaq_push_event('socialLink', 'click', 'Facebook')"> <span class="dmSocialFacebook dm-social-icons-facebook oneIcon socialHubIcon style6" aria-hidden="true" data-hover-effect="float" class="social-icon"><img src="img/facebook.jpg" alt="facebook.jpg"></a></span>
      <a href="http://instagram.com/aetech18" target="_blank" dm_dont_rewrite_url="true" aria-label="instagram" onclick="dm_gaq_push_event &amp; dm_gaq_push_event('socialLink', 'click', 'Instagram')"> <span class="dmSocialInstagram dm-social-icons-instagram oneIcon socialHubIcon style6" aria-hidden="true" data-hover-effect="float" class="social-icon"><img src="img/instagram.jpg" alt="instagram.jpg"></a></span>
      <a href="mailto:contacto@aetech.com.mx" dm_dont_rewrite_url="true" aria-label="email" onclick="dm_gaq_push_event &amp; dm_gaq_push_event('socialLink', 'click', 'Email')" target="_blank"> <span class="dmSocialEmail dm-social-icons-email oneIcon socialHubIcon style6" aria-hidden="true" data-hover-effect="float" class="social-icon"><img src="img/gmail.jpg" alt="gmail.jpg"></a></span>
+     <button class="glass-btn-ios" onclick="abrirTarjetaDigital()">
+        📇 Mi Tarjeta Digital
+    </button>
     </div>
     
     
@@ -175,7 +157,24 @@
      </a>
     </div>
    </div>
-   
+
+   <div id="modalTarjeta" class="modalGlass" style="display:none;">
+    <div class="modalGlass-content" style="text-align: center; max-width: 350px;">
+        <span class="modalGlass-close" onclick="cerrarTarjetaDigital()">✖</span>
+        
+        <h2 style="color: #005e73;">AE Tech - Contacto</h2>
+        
+        <img src="img/tarjeta.jpg" alt="Tarjeta AE Tech" style="width: 100%; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+
+        <p style="color: #333; font-size: 14px;">Escanea para guardar contacto:</p>
+        
+        <div id="qrcode">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https://wa.me/2221920179" alt="QR WhatsApp" style="border: 5px solid white; border-radius: 10px;">
+        </div>
+
+        <p style="margin-top: 15px; font-weight: bold; color: #007bff;">vCard / WhatsApp</p>
+    </div>
+</div>
    
   <section id="TableroAetech" class="tablero-aetech">
     <div class="quick-actions">
