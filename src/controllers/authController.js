@@ -51,7 +51,7 @@ exports.registerUser = async (req, res) => {
 
 const signAccessToken = (user) =>
   jwt.sign(
-    { id: user.id, rol: user.rol }, 
+    { id: user.id, rol: user.rol, email: user.email }, 
     process.env.JWT_SECRET,
     { expiresIn: '7d' } // Antes: '1h'
   );
@@ -138,7 +138,7 @@ exports.refreshToken = (req, res) => {
     // CAMBIO CRÍTICO: Incluimos el ROL que viene del decoded
     // Si no pones el rol aquí, el middleware 'admin' te rechazará
     const newAccessToken = jwt.sign(
-      { id: decoded.id, rol: decoded.rol }, 
+      { id: decoded.id, rol: decoded.rol, email: decoded.email }, 
       process.env.JWT_SECRET,
       { expiresIn: '7d' } // Nuevo token dura otra semana
     );
