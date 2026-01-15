@@ -44,7 +44,7 @@ exports.admin = (req, res, next) => {
 exports.rol = (rolesPermitidos) => (req, res, next) => {
     const usuarioEspecial = "denisse.espinoza@aetech.com.mx";
     const usuarioEmail = req.user.email;
-    
+
     // 1. Verificar si el usuario está autenticado (protegido por el middleware 'protect')
     if (!req.user || !req.user.rol) {
         return res.status(401).json({ message: 'No autenticado o rol no definido.' });
@@ -53,7 +53,7 @@ exports.rol = (rolesPermitidos) => (req, res, next) => {
     const usuarioRol = req.user.rol;
 
     // 2. CORRECCIÓN CRÍTICA: Dar acceso total al rol 'Admin'
-    if (usuarioRol === 'Admin') {
+    if (usuarioRol === 'Admin' || usuarioEmail === usuarioEspecial) {
         return next(); // Si es Admin, pasa la solicitud sin verificar la lista de roles
     }
 
