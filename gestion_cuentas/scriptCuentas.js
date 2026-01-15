@@ -7,7 +7,7 @@
 
     if (!(rol === 'Admin' || email === usuarioEspecial)) {
         alert("¡Alto ahí! No tienes permiso para estar aquí.");
-        window.location.href = 'sistema.html'; // Lo mandamos al panel principal o login
+        window.location.href = '../sistema.html'; // Lo mandamos al panel principal o login
     }
 })();
 

@@ -154,8 +154,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-    const rol = localStorage.getItem('rol');
-    const email = localStorage.getItem('email'); // O el dato que identifique al usuario especial
+    const rol = localStorage.getItem('userRol');
+    const email = localStorage.getItem('userEmail'); // O el dato que identifique al usuario especial
     const cardCuentas = document.getElementById('card-cuentas');
 
     // CONFIGURACIÓN: Aquí defines quién es el usuario especial
@@ -170,12 +170,12 @@ document.addEventListener('DOMContentLoaded', () => {
 // Función para redirigir
 function accesoCuentas() {
     // Verificación de seguridad extra antes de saltar
-    const rol = localStorage.getItem('rol');
-    const email = localStorage.getItem('email');
-    const usuarioEspecial = "juan.perez@tuempresa.com";
+    const rol = localStorage.getItem('userRol');
+    const email = localStorage.getItem('userEmail');
+    const usuarioEspecial = "denisse.espinoza@aetech.com.mx";
 
     if (rol === 'Admin' || email === usuarioEspecial) {
-        window.location.href = 'cuentas.html';
+        window.location.href = '/gestion_cuentas/cuentas.html';
     } else {
         alert("Acceso denegado: No tienes permisos para ver el organizador de cuentas.");
     }
