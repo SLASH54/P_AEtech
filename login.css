@@ -4459,6 +4459,7 @@ div#tareaExpressModal {
     align-items: center;
     justify-content: center;
     z-index: 9999;                 /* Por encima de todo */
+    padding: 20px;
 }
 
 .modal-content-tarjeta {
