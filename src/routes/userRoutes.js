@@ -1,7 +1,7 @@
 // src/routes/userRoutes.js
 const express = require('express');
 const userController = require('../controllers/userController'); // Necesario en el paso 2.3
-const { protect, admin } = require('../middleware/authMiddleware'); 
+const { protect, rol, admin } = require('../middleware/authMiddleware'); 
 //const { saveFcmToken } = require('../controllers/userController');
 
 const router = express.Router();

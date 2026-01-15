@@ -21,10 +21,10 @@ router.post('/', protect, rol(rolesPermitidos), clienteController.createClienteN
 router.get('/', protect, rol(rolesPermitidos), clienteController.getAllClientesNegocio);
 router.get('/:id', protect, rol(rolesPermitidos), clienteController.getClienteNegocioById);
 router.put('/:id', protect, rol(rolesPermitidos), clienteController.updateClienteNegocio);
-router.delete('/:id', protect, rol(['Admin']), clienteController.deleteClienteNegocio); // Borrar quizás solo Admin
+router.delete('/:id', protect, rol(rolesPermitidos), clienteController.deleteClienteNegocio); // Borrar quizás solo Admin
 
 // ✔ RUTA CORRECTA PARA OBTENER MÚLTIPLES DIRECCIONES
-router.get('/:id/direcciones', protect, admin, async (req, res) => {
+router.get('/:id/direcciones', protect, rol(rolesPermitidos), async (req, res) => {
     try {
         const clienteId = req.params.id;
 
