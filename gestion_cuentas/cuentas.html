@@ -115,10 +115,12 @@
                         </label>
 
                         <button id="levBtnAgregarMaterial" class="btn-ios-add">+ Agregar</button>
+
+                        <input type="text" id="levInsumoExtra" placeholder="Especificar modelo..." 
+                           style="display:none; width: 100%; margin-top: 8px; padding: 8px; border-radius: 10px; border: 1px solid #ccc;">
                     </div>
                     
-                    <input type="text" id="levInsumoExtra" placeholder="Especificar modelo..." 
-                           style="display:none; width: 100%; margin-top: 8px; padding: 8px; border-radius: 10px; border: 1px solid #ccc;">
+                    
                 </div>
 
                 <div id="previsualizacionFoto" class="mini-preview"></div>
@@ -126,6 +128,22 @@
 
                 <div class="lev-footer-container">
                     <div class="lev-totales-column">
+
+                        <div class="lev-total-field iva-row" style="display: flex; align-items: center; margin-bottom: 10px;">
+    <label class="ios-switch">
+        <input type="checkbox" id="chkFactura" onchange="toggleFactura()">
+        <span class="slider"></span>
+    </label>
+    <span style="margin-left: 10px; font-weight: bold; color: white;">Factura</span>
+    
+    <div id="facturaInputContainer" style="display: none; margin-left: auto;">
+        <input type="text" id="levFolioFactura" placeholder="Folio/Serie" 
+               style="width: 100px; padding: 5px; border-radius: 8px; border: none; font-size: 12px;">
+    </div>
+</div>
+
+<div class="lev-total-field iva-row">
+    </div>
                         
                         <div class="lev-total-field iva-row">
                             <label class="ios-switch">

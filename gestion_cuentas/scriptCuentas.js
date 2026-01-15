@@ -380,3 +380,29 @@ function calcularSaldo() {
     
     inputLiquidar.value = saldoFinal.toFixed(2);
 }
+
+
+// 1. Función para el switch de Factura
+function toggleFactura() {
+    const chk = document.getElementById('chkFactura');
+    const container = document.getElementById('facturaInputContainer');
+    
+    // Si está marcado, mostramos el campo para anotar el folio (opcional)
+    container.style.display = chk.checked ? 'block' : 'none';
+}
+
+// 2. Modifica tu función de guardar (donde recolectas los datos)
+// Asegúrate de incluir estos nuevos campos en el objeto que envías al servidor:
+function prepararDatosCuenta() {
+    const datos = {
+        // ... otros campos (cliente, fecha, materiales) ...
+        total: parseFloat(document.getElementById('levTotal').value),
+        anticipo: parseFloat(document.getElementById('levAnticipo').value),
+        iva: document.getElementById('chkIva').checked,
+        ivaPorcentaje: parseFloat(document.getElementById('levIvaPorcentaje').value),
+        factura: document.getElementById('chkFactura').checked,
+        folioFactura: document.getElementById('levFolioFactura').value,
+        // ...
+    };
+    return datos;
+}
