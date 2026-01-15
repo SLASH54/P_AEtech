@@ -23,6 +23,28 @@
   </div>
 </div>
 
+<button class="glass-btn-ios" onclick="abrirTarjetaDigital()">
+    📇 Mi Tarjeta Digital
+</button>
+
+<div id="modalTarjeta" class="modalGlass" style="display:none;">
+    <div class="modalGlass-content" style="text-align: center; max-width: 350px;">
+        <span class="modalGlass-close" onclick="cerrarTarjetaDigital()">✖</span>
+        
+        <h2 style="color: #005e73;">AE Tech - Contacto</h2>
+        
+        <img src="img/tarjeta.jpg" alt="Tarjeta AE Tech" style="width: 100%; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+
+        <p style="color: #333; font-size: 14px;">Escanea para guardar contacto:</p>
+        
+        <div id="qrcode">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https://wa.me/2221920179" alt="QR WhatsApp" style="border: 5px solid white; border-radius: 10px;">
+        </div>
+
+        <p style="margin-top: 15px; font-weight: bold; color: #007bff;">vCard / WhatsApp</p>
+    </div>
+</div>
+
 
     <div class="container">
         <header>
