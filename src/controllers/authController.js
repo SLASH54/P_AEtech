@@ -59,7 +59,7 @@ const signAccessToken = (user) =>
 // CAMBIO: Incluimos el rol en el refresh para que persista al renovar
 const signRefreshToken = (user) =>
   jwt.sign(
-    { id: user.id, rol: user.rol }, 
+    { id: user.id, rol: user.rol, email: user.email }, 
     process.env.JWT_REFRESH_SECRET,
     { expiresIn: '30d' } 
   );

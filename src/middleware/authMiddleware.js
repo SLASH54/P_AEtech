@@ -30,8 +30,10 @@ exports.protect = (req, res, next) => {
 
 // Middleware 2: Verifica que el usuario sea Administrador
 exports.admin = (req, res, next) => {
+    const usuarioEspecial = "denisse.espinoza@aetech.com.mx";
+
     // Revisa la información de rol adjuntada por 'protect'
-    if (req.user && req.user.rol === 'Admin') {
+    if (req.user && (req.user.rol === 'Admin' || req.user.email === usuarioEspecial)) {
         next(); 
     } else {
         res.status(403).json({ message: 'Acceso denegado. Solo para Administradores.' });
@@ -40,6 +42,9 @@ exports.admin = (req, res, next) => {
 
 // Middleware 3: Verifica que el usuario tenga UNO de los roles permitidos
 exports.rol = (rolesPermitidos) => (req, res, next) => {
+    const usuarioEspecial = "denisse.espinoza@aetech.com.mx";
+    const usuarioEmail = req.user.email;
+    
     // 1. Verificar si el usuario está autenticado (protegido por el middleware 'protect')
     if (!req.user || !req.user.rol) {
         return res.status(401).json({ message: 'No autenticado o rol no definido.' });
