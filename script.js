@@ -153,6 +153,34 @@ document.addEventListener('DOMContentLoaded', function() {
   initCrudGlobal();
 });
 
+document.addEventListener('DOMContentLoaded', () => {
+    const rol = localStorage.getItem('rol');
+    const email = localStorage.getItem('email'); // O el dato que identifique al usuario especial
+    const cardCuentas = document.getElementById('card-cuentas');
+
+    // CONFIGURACIÓN: Aquí defines quién es el usuario especial
+    const usuarioEspecial = "denisse.espinoza@aetech.com.mx"; 
+
+    // Si es Admin O es el usuario específico, mostramos el botón
+    if (rol === 'Admin' || email === usuarioEspecial) {
+        if (cardCuentas) cardCuentas.style.display = 'block';
+    }
+});
+
+// Función para redirigir
+function accesoCuentas() {
+    // Verificación de seguridad extra antes de saltar
+    const rol = localStorage.getItem('rol');
+    const email = localStorage.getItem('email');
+    const usuarioEspecial = "juan.perez@tuempresa.com";
+
+    if (rol === 'Admin' || email === usuarioEspecial) {
+        window.location.href = 'cuentas.html';
+    } else {
+        alert("Acceso denegado: No tienes permisos para ver el organizador de cuentas.");
+    }
+}
+
 // Función para manejar el inicio de sesión
 const loginUser = async (e) => {
     e.preventDefault(); // Evita que el formulario se envíe de la forma tradicional (recarga de página)

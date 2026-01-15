@@ -1,3 +1,17 @@
+
+// scriptCuentas.js - AL PRINCIPIO DE TODO
+(function verificarPermisos() {
+    const rol = localStorage.getItem('rol');
+    const email = localStorage.getItem('email');
+    const usuarioEspecial = "denisse.espinoza@aetech.com.mx";
+
+    if (!(rol === 'Admin' || email === usuarioEspecial)) {
+        alert("¡Alto ahí! No tienes permiso para estar aquí.");
+        window.location.href = 'sistema.html'; // Lo mandamos al panel principal o login
+    }
+})();
+
+
 //ABRIR MODAL NUEVA CUENTA//
 function openNuevaCuenta() {
     //const LevClienteSelect = document.getElementById('lev-clienteSelect');
