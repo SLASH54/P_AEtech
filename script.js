@@ -622,10 +622,12 @@ function restrictAdminSection() {
   const userRole = localStorage.getItem('userRol');
   const adminLink = document.getElementById('Panel de Administracion');
   const adminSection = document.getElementById('Administracion');
+  const email = localStorage.getItem("email");
+  const usuarioEspecial = "denisse.espinoza@aetech.com.mx";
 
   // 🔹 Control del enlace del menú
   if (adminLink) {
-    if (userRole === 'Admin' || userRole === 'Administrador') {
+    if (userRole === 'Admin' || email === usuarioEspecial) {
       adminLink.style.display = 'block';
     } else {
       adminLink.style.display = 'none'; // lo ocultamos para roles no admin
@@ -634,7 +636,7 @@ function restrictAdminSection() {
 
   // 🔹 Control de la sección de administración
   if (adminSection) {
-    if (userRole !== 'Admin' && userRole !== 'Administrador') {
+    if (userRole !== 'Admin' && email !== usuarioEspecial) {
       adminSection.classList.remove('show'); // solo la ocultamos
       console.log('Rol sin permisos de administrador: sección oculta.'); 
       // 🔸 eliminamos el alert para que no moleste
