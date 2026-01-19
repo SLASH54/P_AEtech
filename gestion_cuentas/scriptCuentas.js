@@ -526,29 +526,36 @@ document.getElementById('levInputFoto')?.addEventListener('change', async functi
     }
 });
 
-function addMaterial() {
+async function addMaterial() {
     const nombre = document.getElementById('levInsumo').value;
     const costo = parseFloat(document.getElementById('levCosto').value) || 0;
     const cantidad = parseInt(document.getElementById('levCantidad').value) || 1;
 
-    if (!nombre || costo <= 0) return alert("Pon nombre y costo, amiko.");
+    if (!nombre || costo <= 0) {
+        return alert("Amiko, llena el nombre y el costo del producto.");
+    }
 
+    // Creamos el objeto del material
     const nuevoMaterial = {
-        nombre,
-        costo,
-        cantidad,
-        fotoUrl: fotoMaterialTemporal // Aquí va el Base64 comprimido
+        nombre: nombre,
+        costo: costo,
+        cantidad: cantidad,
+        fotoUrl: fotoMaterialTemporal // Este es el Base64 que subirá Cloudinary
     };
 
+    // Lo metemos al array global
     levMaterialesList.push(nuevoMaterial);
-    renderMaterialesList(); // La función que ya tienes para mostrar la lista en el modal
+
+    // Actualizamos la vista y el total
+    renderMaterialesList();
     calcularTotal();
-    
-    // Limpiar para el siguiente
+
+    // Limpiamos los campos para el siguiente
     document.getElementById('levInsumo').value = "";
     document.getElementById('levCosto').value = "";
+    document.getElementById('levCantidad').value = "1";
     fotoMaterialTemporal = null;
-    if(document.getElementById('previsualizacionFoto')) document.getElementById('previsualizacionFoto').innerHTML = "";
+    document.getElementById('previsualizacionFoto').innerHTML = "";
 }
 
 
