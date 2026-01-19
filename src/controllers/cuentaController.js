@@ -1,7 +1,8 @@
 // src/controllers/cuentaController.js
 const { Cuenta, CuentaMaterial, Usuario } = require('../models/cuentasRelations');
 const cloudinary = require('cloudinary').v2;
-// ☁️ La configuración ya la tienes, pero asegúrate de que use tus variables de entorno
+
+// ☁️ Configuración de Cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -9,15 +10,8 @@ cloudinary.config({
 });
 
 exports.crearCuenta = async (req, res) => {
-    // Dentro de crearCuenta en cuentaController.js
-    const saldoCalculado = total - anticipo;
-    let estatusInicial = 'Pendiente';
-
-    if (saldoCalculado <= 0) {
-        estatusInicial = 'Pagado';
-    }
-
     try {
+        // 1. PRIMERO recibimos los datos del cuerpo de la petición
         const { 
             clienteNombre, 
             total, 
@@ -29,25 +23,30 @@ exports.crearCuenta = async (req, res) => {
             materiales 
         } = req.body;
 
+        // 2. DESPUÉS calculamos el saldo y estatus
+        const saldoCalculado = total - anticipo;
+        let estatusInicial = 'Pendiente';
 
-        // 1. Crear la cabecera de la cuenta
+        if (saldoCalculado <= 0) {
+            estatusInicial = 'Pagado';
+        }
+
+        // 3. Crear la cabecera de la cuenta
         const nuevaCuenta = await Cuenta.create({
             clienteNombre,
             total,
             anticipo,
-            saldo: total - anticipo,
+            saldo: saldoCalculado,
             iva,
             ivaPorcentaje,
             factura,
             folioFactura,
-            usuarioId: req.user.id,
-            saldo: saldoCalculado,
-            estatus: estatusInicial
+            estatus: estatusInicial, // Usamos el estatus calculado
+            usuarioId: req.user.id
         });
 
-        // 2. Procesar Materiales y subir fotos a Cloudinary
+        // 4. Procesar Materiales y subir fotos a Cloudinary
         if (materiales && materiales.length > 0) {
-            // Usamos Promise.all para procesar las fotos en paralelo (más rápido)
             const materialesProcesados = await Promise.all(materiales.map(async (mat) => {
                 let urlFotoCloudinary = null;
 
@@ -68,17 +67,17 @@ exports.crearCuenta = async (req, res) => {
                     cantidad: mat.cantidad || 1,
                     costo: mat.costo,
                     unidad: mat.unidad || 'Pza',
-                    fotoUrl: urlFotoCloudinary, // Guardamos la URL de la nube
+                    fotoUrl: urlFotoCloudinary,
                     cuentaId: nuevaCuenta.id
                 };
             }));
 
-            // 3. Ahora sí, guardamos todos los materiales con sus URLs de fotos
+            // Guardamos todos los materiales
             await CuentaMaterial.bulkCreate(materialesProcesados);
         }
 
         res.status(201).json({
-            message: "Cuenta y materiales registrados exitosamente",
+            message: "Cuenta registrada exitosamente",
             id: nuevaCuenta.id
         });
 
@@ -88,13 +87,13 @@ exports.crearCuenta = async (req, res) => {
     }
 };
 
-// Función para obtener todas las cuentas (para tu tabla principal)
+// Función para obtener todas las cuentas
 exports.obtenerCuentas = async (req, res) => {
     try {
         const cuentas = await Cuenta.findAll({
             include: [
                 { model: Usuario, attributes: ['nombre'] },
-                { model: CuentaMaterial, as: 'materiales' } // Trae también sus productos
+                { model: CuentaMaterial, as: 'materiales' }
             ],
             order: [['createdAt', 'DESC']]
         });
