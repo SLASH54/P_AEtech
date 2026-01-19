@@ -1,27 +1,29 @@
-// src/models/cuentasRelations.js
 const Cuenta = require('./Cuenta');
 const CuentaMaterial = require('./CuentaMaterial');
 const Usuario = require('./Usuario');
 
 // Relación: Una cuenta tiene muchos materiales
+// ⚠️ El alias 'materiales' debe coincidir con el 'as' que usas en el Controller
 Cuenta.hasMany(CuentaMaterial, { 
     foreignKey: 'cuentaId', 
-    as: 'materiales', // Este es el alias que usaremos en los "includes"
-    onDelete: 'CASCADE' // Si borras la cuenta, se borran sus materiales
+    as: 'materiales', 
+    onDelete: 'CASCADE' 
 });
 
 CuentaMaterial.belongsTo(Cuenta, { 
-    foreignKey: 'cuentaId' 
+    foreignKey: 'cuentaId',
+    as: 'cuenta' 
 });
 
-// Relación: Un usuario (técnico/admin) crea muchas cuentas
+// Relación con Usuario
 Usuario.hasMany(Cuenta, { 
     foreignKey: 'usuarioId', 
-    as: 'cuentasCreadas' 
+    as: 'cuentas' 
 });
 
 Cuenta.belongsTo(Usuario, { 
-    foreignKey: 'usuarioId' 
+    foreignKey: 'usuarioId',
+    as: 'usuario'
 });
 
 module.exports = {

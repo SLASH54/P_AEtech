@@ -21,10 +21,14 @@ const CuentaMaterial = sequelize.define('CuentaMaterial', {
     },
     unidad: {
         type: DataTypes.STRING,
-        allowNull: true // Ej: "Pza", "Metro", "Servicio"
+        allowNull: true
+    },
+    fotoUrl: { // 👈 ESTO FALTA: Aquí se guarda el link de Cloudinary
+        type: DataTypes.TEXT,
+        allowNull: true
     }
 }, {
-    timestamps: false // No necesitamos fecha de creación por cada tornillo
+    timestamps: false
 });
 
 module.exports = CuentaMaterial;

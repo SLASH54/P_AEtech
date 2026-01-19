@@ -89,17 +89,19 @@ exports.crearCuenta = async (req, res) => {
     }
 };
 
+
 exports.obtenerCuentas = async (req, res) => {
     try {
         const cuentas = await Cuenta.findAll({
             include: [
-                { model: Usuario, attributes: ['nombre'] },
-                { model: CuentaMaterial, as: 'materiales' }
+                { model: Usuario, as: 'usuario', attributes: ['nombre'] }, // 👈 Usar alias 'usuario'
+                { model: CuentaMaterial, as: 'materiales' } // 👈 Usar alias 'materiales'
             ],
             order: [['createdAt', 'DESC']]
         });
         res.json(cuentas);
     } catch (error) {
+        console.error("Error en obtenerCuentas:", error);
         res.status(500).json({ message: "Error al obtener las cuentas." });
     }
 };
