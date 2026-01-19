@@ -60,9 +60,14 @@ app.use('/api/cuentas', require('./src/routes/cuentaRoutes'));
 
 
 // === INICIO DEL SERVIDOR – SOLO UNA VEZ ===
+// === INICIO DEL SERVIDOR – MODIFICADO PARA CREAR TABLAS ===
 connectDB()
-  .then(() => {
+  .then(async () => { // Añadimos async aquí
     console.log('✅ Base de datos conectada correctamente');
+
+    // 🚀 ESTA LÍNEA ES LA MAGIA: Crea las tablas si no existen o agrega columnas nuevas
+    await sequelize.sync({ alter: true });
+    console.log('🚀 Tablas sincronizadas y actualizadas en la DB');
 
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
@@ -72,5 +77,3 @@ connectDB()
   .catch(err => {
     console.error('❌ No se pudo iniciar el servidor:', err);
   });
-
-
