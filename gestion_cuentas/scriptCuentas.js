@@ -160,6 +160,34 @@ function setFechaHoraActual() {
     input.value = fechaHora;
 }
 
+//LLENAR SELECT CLIENTES
+
+async function cargarClientesSelect() {
+  const select = document.getElementById("lev-clienteSelect");
+  if (!select) return;
+  select.innerHTML = `<option value="">Seleccione cliente</option>`;
+
+  try {
+    const token = localStorage.getItem("accessToken");
+    const res = await fetch(`${API_BASE_URL}/clientes`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const clientes = await res.json();
+
+    // 🚨 ESTA ES LA LÍNEA CLAVE: Guardar los datos para las direcciones
+    window.clientesData = {}; 
+
+    clientes.forEach(c => {
+      window.clientesData[c.id] = c; // Guardamos el objeto cliente con sus direcciones
+      const opt = document.createElement("option");
+      opt.value = c.id;
+      opt.textContent = c.nombre;
+      select.appendChild(opt);
+    });
+    return true; 
+  } catch (e) { console.error(e); return false; }
+}
+
 
 
 /* ================= MATERIALES LEVANTAMIENTOS ================= */
