@@ -9,6 +9,7 @@ const { connectDB, sequelize } = require('./src/config/database');
 
 // Cargar relaciones (MUY IMPORTANTE)
 require('./src/models/relations');
+require('./src/models/cuentasRelations');
 
 // Crear app
 const app = express();
@@ -57,10 +58,15 @@ app.use('/api/notificaciones', require('./src/routes/NotificacionRoutes'));
 app.use("/api/levantamientos", require("./src/routes/LevantamientosRoutes"));
 app.use('/api/cuentas', require('./src/routes/cuentaRoutes'));
 
+
 // === INICIO DEL SERVIDOR – SOLO UNA VEZ ===
 connectDB()
-  .then(() => {
+  .then( async () => {
     console.log('✅ Base de datos conectada correctamente');
+
+    // 🚀 ESTA LÍNEA ES EL TRUCO: Fuerza a la BD a crear las columnas nuevas
+    await sequelize.sync({ alter: true }); 
+    console.log('🚀 Tablas de Cuentas actualizadas');
 
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {

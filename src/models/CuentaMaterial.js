@@ -2,38 +2,19 @@ const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/database');
 
 const CuentaMaterial = sequelize.define('CuentaMaterial', {
-    id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-    },
-    nombre: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    cantidad: {
-        type: DataTypes.INTEGER,
-        defaultValue: 1
-    },
-    costo: {
-        type: DataTypes.DECIMAL(10, 2),
-        allowNull: false
-    },
-    unidad: {
-        type: DataTypes.STRING,
-        allowNull: true
-    },
-    fotoUrl: { 
-        type: DataTypes.TEXT,
-        allowNull: true
-    },
-    // 🔑 ESTA ES LA LÍNEA QUE FALTA:
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    nombre: { type: DataTypes.STRING, allowNull: false },
+    cantidad: { type: DataTypes.INTEGER, defaultValue: 1 },
+    costo: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
+    unidad: { type: DataTypes.STRING, allowNull: true },
+    fotoUrl: { type: DataTypes.TEXT, allowNull: true },
+    // 🔑 ESTA ES LA QUE FALTA:
     cuentaId: {
         type: DataTypes.INTEGER,
         allowNull: false
     }
 }, {
-    tableName: 'CuentaMaterials', // Forzamos el nombre de la tabla
+    tableName: 'CuentaMaterials',
     timestamps: false
 });
 

@@ -243,7 +243,6 @@ document.getElementById("levBtnAgregarMaterial")
 
         const insumoBase = document.getElementById("levInsumo").value;
         const extra = document.getElementById("levInsumoExtra").value.trim();
-        const cantidad = document.getElementById("levCantidad").value.trim();
 
         if (!insumoBase || !cantidad) {
             alert("Completa los campos de material");
