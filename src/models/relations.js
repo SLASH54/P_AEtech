@@ -6,7 +6,7 @@ const ClienteDireccion = require('./ClienteDireccion');
 const Tarea = require('./Tarea');
 const Evidencia = require('./Evidencia');
 const Notificacion = require('./Notificacion');
-const Cuenta = require('./cuenta')
+const Cuenta = require('./Cuenta')
 const CuentaMaterial = require('./CuentaMaterial');
 
 
