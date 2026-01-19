@@ -244,7 +244,7 @@ document.getElementById("levBtnAgregarMaterial")
         const insumoBase = document.getElementById("levInsumo").value;
         const extra = document.getElementById("levInsumoExtra").value.trim();
 
-        if (!insumoBase || !cantidad) {
+        if (!insumoBase) {
             alert("Completa los campos de material");
             return;
         }
@@ -444,10 +444,13 @@ function prepararDatosCuenta() {
 async function guardarCuentaFinal() {
     // Validar que haya un cliente seleccionado
     const cliente = document.getElementById('lev-clienteSelect').value;
+    const selectCliente = document.getElementById('lev-clienteSelect');
+    const nombreCliente = selectCliente.options[selectCliente.selectedIndex].text;
+    
     if (!cliente) return alert("Amiko, selecciona un cliente primero.");
 
     const datos = {
-        clienteNombre: cliente,
+        clienteNombre: nombreCliente,
         total: parseFloat(document.getElementById('levTotal').value) || 0,
         anticipo: parseFloat(document.getElementById('levAnticipo').value) || 0,
         iva: document.getElementById('chkIva').checked,
