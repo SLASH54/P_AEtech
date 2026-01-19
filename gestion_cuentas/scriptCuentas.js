@@ -565,7 +565,7 @@ async function cargarCuentasTabla() {
     if (!tbody) return;
 
     try {
-        const response = await fetch(`${API_BASE_URL}/cuentas`, {
+        const response = await fetch(`${API_BASE_URL}/Cuentas`, {
             headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` }
         });
         const cuentas = await response.json();
