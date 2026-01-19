@@ -6,7 +6,6 @@ const CuentaMaterial = sequelize.define('CuentaMaterial', {
     nombre: { type: DataTypes.STRING, allowNull: false },
     cantidad: { type: DataTypes.INTEGER, defaultValue: 1 },
     costo: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
-    unidad: { type: DataTypes.STRING, allowNull: true },
     fotoUrl: { type: DataTypes.TEXT, allowNull: true },
     // 🔑 ESTA ES LA QUE FALTA:
     cuentaId: {
