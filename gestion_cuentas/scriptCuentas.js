@@ -1,3 +1,5 @@
+const API_BASE_URL = 'https://p-aetech.onrender.com/api';
+
 
 // scriptCuentas.js - AL PRINCIPIO DE TODO
 (function verificarPermisos() {
@@ -16,6 +18,7 @@
 function openNuevaCuenta() {
     //const LevClienteSelect = document.getElementById('lev-clienteSelect');
     const modal = document.getElementById("modalNuevaCuenta");
+    cargarClientesSelect(); 
     setFechaHoraActual();
     //modal.classList.add("active");
     modal.style.display = "flex";
