@@ -82,8 +82,8 @@ document.getElementById("levBtnAgregarMaterial")?.addEventListener("click", () =
 
     const costo = parseFloat(inputCosto.value) || 0;
 
-    if (!nombreProducto || costo <= 0) {
-        alert("Amiko, pon el nombre y un costo válido.");
+    if (costo <= 0) {
+        alert("Coloca el nombre y un costo válido.");
         return;
     }
 
@@ -378,6 +378,7 @@ function addMaterial() {
 }
 
 
+
 // 1. Mostrar/Ocultar el cuadrito del %
 function toggleIva() {
     const chk = document.getElementById('chkIva');
@@ -439,3 +440,154 @@ function prepararDatosCuenta() {
     };
     return datos;
 }
+
+
+async function guardarCuentaFinal() {
+    // Validar que haya un cliente seleccionado
+    const cliente = document.getElementById('lev-clienteSelect').value;
+    if (!cliente) return alert("Amiko, selecciona un cliente primero.");
+
+    const datos = {
+        clienteNombre: cliente,
+        total: parseFloat(document.getElementById('levTotal').value) || 0,
+        anticipo: parseFloat(document.getElementById('levAnticipo').value) || 0,
+        iva: document.getElementById('chkIva').checked,
+        ivaPorcentaje: parseInt(document.getElementById('levIvaPorcentaje').value) || 16,
+        factura: document.getElementById('chkFactura').checked,
+        folioFactura: document.getElementById('levFolioFactura').value,
+        materiales: levMaterialesList // El array que vas llenando con el botón "+ Agregar"
+    };
+
+    try {
+        document.getElementById("loader").style.display = "flex";
+
+        const response = await fetch(`${API_BASE_URL}/cuentas`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem("accessToken")}`
+            },
+            body: JSON.stringify(datos)
+        });
+
+        const resultado = await response.json();
+
+        if (response.ok) {
+            alert("✅ Cuenta guardada correctamente");
+            location.reload(); // Para limpiar todo y ver la tabla nueva
+        } else {
+            alert("❌ Error: " + resultado.message);
+        }
+    } catch (error) {
+        console.error("Error al guardar:", error);
+        alert("Hubo un fallo en la conexión.");
+    } finally {
+        document.getElementById("loader").style.display = "none";
+    }
+}
+
+// Vincula esta función al botón de tu modal
+document.getElementById("btnGuardarCuenta").addEventListener("click", guardarCuentaFinal);
+
+// Variable para guardar la foto del material que se está agregando actualmente
+let fotoMaterialTemporal = null;
+
+// Función para comprimir (añádela al final de tu script)
+function comprimirImagen(file, calidad = 0.6) {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const width = 800; 
+                const scaleFactor = width / img.width;
+                canvas.width = width;
+                canvas.height = img.height * scaleFactor;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                resolve(canvas.toDataURL('image/jpeg', calidad));
+            };
+        };
+    });
+}
+
+// Evento cuando seleccionas foto en el modal
+document.getElementById('levInputFoto')?.addEventListener('change', async function(e) {
+    if (e.target.files[0]) {
+        document.getElementById("loader").style.display = "flex";
+        fotoMaterialTemporal = await comprimirImagen(e.target.files[0]);
+        // Mostrar miniatura en el modal
+        const preview = document.getElementById('previsualizacionFoto');
+        if(preview) preview.innerHTML = `<img src="${fotoMaterialTemporal}" style="width:50px; border-radius:5px;">`;
+        document.getElementById("loader").style.display = "none";
+    }
+});
+
+function addMaterial() {
+    const nombre = document.getElementById('levInsumo').value;
+    const costo = parseFloat(document.getElementById('levCosto').value) || 0;
+    const cantidad = parseInt(document.getElementById('levCantidad').value) || 1;
+
+    if (!nombre || costo <= 0) return alert("Pon nombre y costo, amiko.");
+
+    const nuevoMaterial = {
+        nombre,
+        costo,
+        cantidad,
+        fotoUrl: fotoMaterialTemporal // Aquí va el Base64 comprimido
+    };
+
+    levMaterialesList.push(nuevoMaterial);
+    renderMaterialesList(); // La función que ya tienes para mostrar la lista en el modal
+    calcularTotal();
+    
+    // Limpiar para el siguiente
+    document.getElementById('levInsumo').value = "";
+    document.getElementById('levCosto').value = "";
+    fotoMaterialTemporal = null;
+    if(document.getElementById('previsualizacionFoto')) document.getElementById('previsualizacionFoto').innerHTML = "";
+}
+
+
+async function cargarCuentasTabla() {
+    const tbody = document.querySelector(".tabla tbody");
+    if (!tbody) return;
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/cuentas`, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` }
+        });
+        const cuentas = await response.json();
+
+        tbody.innerHTML = ""; // Limpiar tabla
+
+        cuentas.forEach(c => {
+            const fecha = new Date(c.createdAt).toLocaleDateString();
+            const tr = document.createElement("tr");
+            
+            // Si el saldo es 0, ponemos un badge de "Pagado"
+            const statusClass = c.saldo <= 0 ? "status-pagado" : "status-pendiente";
+            const statusText = c.saldo <= 0 ? "Pagado" : "Pendiente";
+
+            tr.innerHTML = `
+                <td>${c.clienteNombre}</td>
+                <td><span class="${statusClass}">${statusText}</span></td>
+                <td>$${parseFloat(c.total).toFixed(2)}</td>
+                <td>${fecha}</td>
+                <td>
+                    <button onclick="verDetalleCuenta(${c.id})" class="btn-ver">👁️</button>
+                    <button onclick="descargarPDFCuenta(${c.id})" class="btn-pdf">PDF</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch (error) {
+        console.error("Error cargando cuentas:", error);
+    }
+}
+
+// Llamar a la función al cargar la página
+document.addEventListener("DOMContentLoaded", cargarCuentasTabla);

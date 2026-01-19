@@ -598,3 +598,21 @@ input:checked + .slider:before { transform: translateX(18px); }
     display: flex;
     align-items: center;
 }
+
+.status-pagado {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 4px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.status-pendiente {
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 4px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: bold;
+}

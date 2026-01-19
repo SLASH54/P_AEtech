@@ -6,6 +6,8 @@ const ClienteDireccion = require('./ClienteDireccion');
 const Tarea = require('./Tarea');
 const Evidencia = require('./Evidencia');
 const Notificacion = require('./Notificacion');
+const Cuenta = require('./cuenta');
+const CuentaMaterial = require('./CuentaMaterial');
 
 
 /* ================= RELACIONES ================= */
@@ -59,6 +61,16 @@ Notificacion.belongsTo(Usuario, { foreignKey: 'usuarioId' });
 Tarea.hasMany(Notificacion, { foreignKey: 'tareaId', onDelete: 'CASCADE' });
 Notificacion.belongsTo(Tarea, { foreignKey: 'tareaId' });
 
+
+// 1. Un usuario crea muchas cuentas
+Usuario.hasMany(Cuenta, { foreignKey: 'usuarioId' });
+Cuenta.belongsTo(Usuario, { foreignKey: 'usuarioId' });
+
+// 2. Una cuenta tiene muchos materiales (Relación 1 a Muchos)
+Cuenta.hasMany(CuentaMaterial, { foreignKey: 'cuentaId', as: 'materiales' });
+CuentaMaterial.belongsTo(Cuenta, { foreignKey: 'cuentaId' });
+
+
 module.exports = {
   Usuario,
   Actividad,
@@ -67,5 +79,7 @@ module.exports = {
   ClienteDireccion,
   Tarea,
   Evidencia,
-  Notificacion
+  Notificacion,
+  Cuenta,
+  CuentaMaterial
 };

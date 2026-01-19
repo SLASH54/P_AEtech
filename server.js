@@ -55,6 +55,7 @@ app.use('/api/reportes', require('./src/routes/reporteRoutes'));
 app.use('/api/upload', require('./src/routes/uploadRoutes'));
 app.use('/api/notificaciones', require('./src/routes/NotificacionRoutes'));
 app.use("/api/levantamientos", require("./src/routes/LevantamientosRoutes"));
+app.use('/api/cuentas', require('./src/routes/cuentaRoutes'));
 
 // === INICIO DEL SERVIDOR – SOLO UNA VEZ ===
 connectDB()
