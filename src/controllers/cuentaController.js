@@ -10,7 +10,7 @@ cloudinary.config({
 
 exports.crearCuenta = async (req, res) => {
     try {
-        // 1. Extraer datos del body PRIMERO
+        // 1. PRIMERO extraemos los datos del req.body
         const { 
             clienteNombre, 
             total, 
@@ -22,10 +22,10 @@ exports.crearCuenta = async (req, res) => {
             materiales 
         } = req.body;
 
-        // 2. Ahora sí calculamos (evita que truene por variables indefinidas)
-        const totalNum = parseFloat(total) || 0;
-        const anticipoNum = parseFloat(anticipo) || 0;
-        const saldoCalculado = totalNum - anticipoNum;
+        // 2. AHORA SÍ calculamos (convertimos a número por seguridad)
+        const nTotal = parseFloat(total) || 0;
+        const nAnticipo = parseFloat(anticipo) || 0;
+        const saldoCalculado = nTotal - nAnticipo;
         
         let estatusInicial = 'Pendiente';
         if (saldoCalculado <= 0) {
@@ -35,8 +35,8 @@ exports.crearCuenta = async (req, res) => {
         // 3. Crear la cabecera de la cuenta
         const nuevaCuenta = await Cuenta.create({
             clienteNombre,
-            total: totalNum,
-            anticipo: anticipoNum,
+            total: nTotal,
+            anticipo: nAnticipo,
             saldo: saldoCalculado,
             iva,
             ivaPorcentaje,
@@ -46,7 +46,7 @@ exports.crearCuenta = async (req, res) => {
             usuarioId: req.user.id 
         });
 
-        // 4. Procesar Materiales
+        // 4. Procesar Materiales y fotos
         if (materiales && materiales.length > 0) {
             const materialesProcesados = await Promise.all(materiales.map(async (mat) => {
                 let urlFotoCloudinary = null;
@@ -58,7 +58,7 @@ exports.crearCuenta = async (req, res) => {
                         });
                         urlFotoCloudinary = uploadRes.secure_url;
                     } catch (err) {
-                        console.error("Error Cloudinary:", err);
+                        console.error("Error en Cloudinary:", err);
                     }
                 }
 
@@ -81,9 +81,9 @@ exports.crearCuenta = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('ERROR AL GUARDAR CUENTA:', error);
+        console.error('ERROR CRÍTICO:', error);
         res.status(500).json({ 
-            message: "Error interno", 
+            message: "Error al guardar la cuenta",
             error: error.message 
         });
     }
