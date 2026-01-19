@@ -61,12 +61,8 @@ app.use('/api/cuentas', require('./src/routes/cuentaRoutes'));
 
 // === INICIO DEL SERVIDOR – SOLO UNA VEZ ===
 connectDB()
-  .then( async () => {
+  .then(() => {
     console.log('✅ Base de datos conectada correctamente');
-
-    // 🚀 ESTA LÍNEA ES EL TRUCO: Fuerza a la BD a crear las columnas nuevas
-    await sequelize.sync({ alter: true }); 
-    console.log('🚀 Tablas de Cuentas actualizadas');
 
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
