@@ -70,6 +70,4 @@ module.exports = {
   Tarea,
   Evidencia,
   Notificacion,
-  Cuenta,
-  CuentaMaterial
 };
