@@ -487,7 +487,9 @@ async function guardarCuentaFinal() {
 }
 
 // Vincula esta función al botón de tu modal
-document.getElementById("btnGuardarCuenta").addEventListener("click", guardarCuentaFinal);
+// Opción más segura
+document.getElementById("btnGuardarCuenta")?.addEventListener("click", guardarCuentaFinal);
+
 
 // Variable para guardar la foto del material que se está agregando actualmente
 let fotoMaterialTemporal = null;

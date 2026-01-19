@@ -2,7 +2,6 @@
 const { Cuenta, CuentaMaterial, Usuario } = require('../models/cuentasRelations');
 const cloudinary = require('cloudinary').v2;
 
-// ☁️ Configuración de Cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -11,7 +10,7 @@ cloudinary.config({
 
 exports.crearCuenta = async (req, res) => {
     try {
-        // 1. PRIMERO recibimos los datos del cuerpo de la petición
+        // 1. Extraer datos del body PRIMERO
         const { 
             clienteNombre, 
             total, 
@@ -23,10 +22,12 @@ exports.crearCuenta = async (req, res) => {
             materiales 
         } = req.body;
 
-        // 2. DESPUÉS calculamos el saldo y estatus
-        const saldoCalculado = total - anticipo;
+        // 2. Ahora sí calculamos (evita que truene por variables indefinidas)
+        const totalNum = parseFloat(total) || 0;
+        const anticipoNum = parseFloat(anticipo) || 0;
+        const saldoCalculado = totalNum - anticipoNum;
+        
         let estatusInicial = 'Pendiente';
-
         if (saldoCalculado <= 0) {
             estatusInicial = 'Pagado';
         }
@@ -34,23 +35,22 @@ exports.crearCuenta = async (req, res) => {
         // 3. Crear la cabecera de la cuenta
         const nuevaCuenta = await Cuenta.create({
             clienteNombre,
-            total,
-            anticipo,
+            total: totalNum,
+            anticipo: anticipoNum,
             saldo: saldoCalculado,
             iva,
             ivaPorcentaje,
             factura,
             folioFactura,
-            estatus: estatusInicial, // Usamos el estatus calculado
-            usuarioId: req.user.id
+            estatus: estatusInicial,
+            usuarioId: req.user.id 
         });
 
-        // 4. Procesar Materiales y subir fotos a Cloudinary
+        // 4. Procesar Materiales
         if (materiales && materiales.length > 0) {
             const materialesProcesados = await Promise.all(materiales.map(async (mat) => {
                 let urlFotoCloudinary = null;
 
-                // Si viene una foto en base64, la subimos
                 if (mat.fotoUrl && mat.fotoUrl.startsWith('data:image')) {
                     try {
                         const uploadRes = await cloudinary.uploader.upload(mat.fotoUrl, {
@@ -58,7 +58,7 @@ exports.crearCuenta = async (req, res) => {
                         });
                         urlFotoCloudinary = uploadRes.secure_url;
                     } catch (err) {
-                        console.error("Error subiendo foto a Cloudinary:", err);
+                        console.error("Error Cloudinary:", err);
                     }
                 }
 
@@ -72,7 +72,6 @@ exports.crearCuenta = async (req, res) => {
                 };
             }));
 
-            // Guardamos todos los materiales
             await CuentaMaterial.bulkCreate(materialesProcesados);
         }
 
@@ -82,12 +81,14 @@ exports.crearCuenta = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error al crear cuenta:', error);
-        res.status(500).json({ message: "Error interno del servidor al guardar la cuenta." });
+        console.error('ERROR AL GUARDAR CUENTA:', error);
+        res.status(500).json({ 
+            message: "Error interno", 
+            error: error.message 
+        });
     }
 };
 
-// Función para obtener todas las cuentas
 exports.obtenerCuentas = async (req, res) => {
     try {
         const cuentas = await Cuenta.findAll({
@@ -99,7 +100,6 @@ exports.obtenerCuentas = async (req, res) => {
         });
         res.json(cuentas);
     } catch (error) {
-        console.error(error);
         res.status(500).json({ message: "Error al obtener las cuentas." });
     }
 };
