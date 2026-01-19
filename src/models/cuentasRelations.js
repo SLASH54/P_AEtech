@@ -3,7 +3,6 @@ const CuentaMaterial = require('./CuentaMaterial');
 const Usuario = require('./Usuario');
 
 // Relación: Una cuenta tiene muchos materiales
-// ⚠️ El alias 'materiales' debe coincidir con el 'as' que usas en el Controller
 Cuenta.hasMany(CuentaMaterial, { 
     foreignKey: 'cuentaId', 
     as: 'materiales', 
@@ -12,10 +11,10 @@ Cuenta.hasMany(CuentaMaterial, {
 
 CuentaMaterial.belongsTo(Cuenta, { 
     foreignKey: 'cuentaId',
-    as: 'cuenta' 
+    as: 'cuenta'
 });
 
-// Relación con Usuario
+// Relación con Usuario (Asegúrate que coincida con el controlador)
 Usuario.hasMany(Cuenta, { 
     foreignKey: 'usuarioId', 
     as: 'cuentas' 
@@ -26,8 +25,4 @@ Cuenta.belongsTo(Usuario, {
     as: 'usuario'
 });
 
-module.exports = {
-    Cuenta,
-    CuentaMaterial,
-    Usuario
-};
+module.exports = { Cuenta, CuentaMaterial, Usuario };

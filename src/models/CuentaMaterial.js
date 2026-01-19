@@ -23,11 +23,17 @@ const CuentaMaterial = sequelize.define('CuentaMaterial', {
         type: DataTypes.STRING,
         allowNull: true
     },
-    fotoUrl: { // 👈 ESTO FALTA: Aquí se guarda el link de Cloudinary
+    fotoUrl: { 
         type: DataTypes.TEXT,
         allowNull: true
+    },
+    // 🔑 ESTA ES LA LÍNEA QUE FALTA:
+    cuentaId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
     }
 }, {
+    tableName: 'CuentaMaterials', // Forzamos el nombre de la tabla
     timestamps: false
 });
 
