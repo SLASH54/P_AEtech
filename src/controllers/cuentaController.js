@@ -1,7 +1,6 @@
 // src/controllers/cuentaController.js
-const { Cuenta, CuentaMaterial, Usuario } = require('../models/relations');
+const { Cuenta, CuentaMaterial, Usuario } = require('../models/cuentasRelations');
 const cloudinary = require('cloudinary').v2;
-
 // ☁️ La configuración ya la tienes, pero asegúrate de que use tus variables de entorno
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
