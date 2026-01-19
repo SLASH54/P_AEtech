@@ -80,7 +80,7 @@ document.getElementById("levBtnAgregarMaterial")?.addEventListener("click", () =
         nombreProducto = inputExtra.value || nombreProducto;
     }
 
-    const costo = parseFloat(inputCosto.value) || 0;
+    const costo = parseFloat(inputCosto.value);
 
     if (costo <= 0) {
         alert("Coloca el nombre y un costo válido.");
@@ -125,7 +125,7 @@ function renderizarListaYTotales() {
 
         li.innerHTML = `
             ${imgHTML}
-            <div class="item-info"><strong>${mat.insumo}</strong></div>
+            <div class="item-info"><strong>${mat.nombre}</strong></div>
             <div class="item-costo">$${mat.costo.toFixed(2)}</div>
             <button class="btn-eliminar" onclick="eliminarMaterial(${mat.id})">❌</button>
         `;
