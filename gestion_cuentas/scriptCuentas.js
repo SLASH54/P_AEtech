@@ -90,7 +90,7 @@ document.getElementById("levBtnAgregarMaterial")?.addEventListener("click", () =
     // Crear objeto del material
     const nuevoMaterial = {
         id: Date.now(), // ID único para borrarlo fácil
-        insumo: nombreProducto,
+        nombre : nombreProducto,
         costo: costo,
         foto: fotoTemporal // Usamos la variable de la cámara que definimos antes
     };
