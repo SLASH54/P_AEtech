@@ -51,7 +51,7 @@ exports.crearCuenta = async (req, res) => {
         // 4. Procesar Materiales y fotos
   if (materiales && materiales.length > 0) {
             const materialesProcesados = await Promise.all(materiales.map(async (mat) => {
-                let urlFotoCloudinary = null;
+                let urlCloudinary = null;
 
                 // 🚀 CAMBIO CLAVE: Checar si 'foto' trae el Base64
                 if (mat.foto && mat.foto.startsWith('data:image')) {
@@ -61,7 +61,7 @@ exports.crearCuenta = async (req, res) => {
                     });
                     urlCloudinary = uploadRes.secure_url;
                         //urlFotoCloudinary = resCloud.secure_url;
-                        console.log("✅ Foto de material subida:", urlFotoCloudinary);
+                        console.log("✅ Foto de material subida:", urlCloudinary);
                     } catch (err) {
                         console.error("❌ Error en Cloudinary para material:", err);
                     }
