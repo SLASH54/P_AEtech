@@ -543,6 +543,9 @@ document.getElementById('levInputFoto')?.addEventListener('change', async functi
     }
 });
 
+
+
+// scriptCuentas.js
 async function addMaterial() {
     const nombre = document.getElementById('lev-material-nombre').value;
     const cantidad = document.getElementById('lev-material-cantidad').value;
@@ -557,9 +560,10 @@ async function addMaterial() {
 
     let fotoBase64 = null;
     if (fotoInput.files && fotoInput.files[0]) {
+        // 🚀 Convertimos a Base64 REAL, no a URL temporal
         fotoBase64 = await new Promise((resolve) => {
             const reader = new FileReader();
-            reader.onload = (e) => resolve(e.target.result);
+            reader.onload = (e) => resolve(e.target.result); 
             reader.readAsDataURL(fotoInput.files[0]);
         });
     }
@@ -569,18 +573,21 @@ async function addMaterial() {
         cantidad: parseInt(cantidad),
         costo: parseFloat(costo),
         unidad,
-        foto: fotoBase64 // El controlador lo subirá a Cloudinary
+        foto: fotoBase64 // 👈 Mandamos el "código" de la imagen
     };
 
     levMaterialesList.push(nuevoMaterial);
+    
+    // Para la vista previa de la tabla usamos el mismo Base64
     actualizarTablaMateriales();
     
-    // Limpiar inputs
+    // Limpiar
     document.getElementById('lev-material-nombre').value = '';
-    document.getElementById('lev-material-cantidad').value = '1';
+    document.getElementById('lev-material-costo').value = '1';
     document.getElementById('lev-material-costo').value = '';
     fotoInput.value = '';
 }
+
 
 
 async function cargarCuentasTabla() {
