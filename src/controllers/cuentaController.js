@@ -56,7 +56,7 @@ exports.crearCuenta = async (req, res) => {
                 // 🚀 CAMBIO CLAVE: Checar si 'foto' trae el Base64
                 if (mat.foto && mat.foto.startsWith('data:image')) {
                     try {
-                        const uploadRes = await cloudinary.uploader.upload(`data:image/jpeg;base64,${mat.foto}`, {
+                        const uploadRes = await cloudinary.uploader.upload(mat.foto, {
                         folder: "cuentas_aetech"
                     });
                     urlCloudinary = uploadRes.secure_url;

@@ -68,11 +68,22 @@ document.getElementById('levAnticipo')?.addEventListener('input', calcularSaldo)
 let fotoTemporal = null;
 
 // Capturar la foto cuando el usuario la selecciona
-document.getElementById("levInputFoto")?.addEventListener("change", function(e) {
+document.getElementById("levInputFoto")?.addEventListener("change", async function(e) {
     const file = e.target.files[0];
     if (file) {
-        fotoTemporal = URL.createObjectURL(file);
-        // Opcional: mostrar un check verde en el icono de cámara
+        // Mostramos el loader porque comprimir puede tardar un poco
+        document.getElementById("loader").style.display = "flex";
+        try {
+            // Usamos la función de compresión que ya tienes abajo para obtener el Base64 real
+            fotoTemporal = await comprimirImagen(file); 
+            
+            // Mostrar miniatura
+            const preview = document.getElementById('previsualizacionFoto');
+            if(preview) preview.innerHTML = `<img src="${fotoTemporal}" style="width:50px; border-radius:5px;">`;
+        } catch (err) {
+            console.error("Error procesando imagen", err);
+        }
+        document.getElementById("loader").style.display = "none";
     }
 });
 
@@ -454,6 +465,7 @@ function prepararDatosCuenta() {
 
 async function guardarCuentaFinal() {
     // Validar que haya un cliente seleccionado
+    const btnGuardar = document.getElementById("btnGuardarCuenta");
     const cliente = document.getElementById('lev-clienteSelect').value;
     const selectCliente = document.getElementById('lev-clienteSelect');
     const nombreCliente = selectCliente.options[selectCliente.selectedIndex].text;
@@ -476,6 +488,10 @@ async function guardarCuentaFinal() {
 
     try {
         document.getElementById("loader").style.display = "flex";
+        // 🔒 1. DESACTIVAR BOTÓN PARA EVITAR DOBLE CLICK
+        btnGuardar.disabled = true;
+        btnGuardar.style.opacity = "0.5";
+        btnGuardar.innerText = "Guardando...";
 
         const response = await fetch(`${API_BASE_URL}/cuentas`, {
             method: 'POST',
@@ -498,6 +514,10 @@ async function guardarCuentaFinal() {
         console.error("Error al guardar:", error);
         alert("Hubo un fallo en la conexión.");
     } finally {
+        // Re-activar si hubo error
+            btnGuardar.disabled = false;
+            btnGuardar.style.opacity = "1";
+            btnGuardar.innerText = "Guardar Cuenta";
         document.getElementById("loader").style.display = "none";
     }
 }
