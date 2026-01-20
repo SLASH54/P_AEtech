@@ -60,31 +60,31 @@ app.use('/api/cuentas', require('./src/routes/cuentaRoutes'));
 
 
 // === INICIO DEL SERVIDOR – SOLO UNA VEZ ===
-//connectDB()
-//  .then(() => {
-//    console.log('✅ Base de datos conectada correctamente');
-
-//    const PORT = process.env.PORT || 3000;
-//    app.listen(PORT, () => {
-//      console.log(`🚀 Servidor iniciado en http://localhost:${PORT}`);
-//    });
-//  })
-//  .catch(err => {
-//    console.error('❌ No se pudo iniciar el servidor:', err);
-//  });
-
-
-// server.js final
 connectDB()
-  .then(async () => {
+  .then(() => {
     console.log('✅ Base de datos conectada correctamente');
-
-    // Cambiamos alter:true por un sync normal ahora que ya borramos las tablas
-    await sequelize.sync(); 
-    console.log('🚀 Tablas creadas desde cero exitosamente');
 
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
-      console.log(`🚀 Servidor en puerto ${PORT}`);
+      console.log(`🚀 Servidor iniciado en http://localhost:${PORT}`);
     });
+  })
+  .catch(err => {
+    console.error('❌ No se pudo iniciar el servidor:', err);
   });
+
+
+// server.js final
+//connectDB()
+//  .then(async () => {
+//    console.log('✅ Base de datos conectada correctamente');
+
+    // Cambiamos alter:true por un sync normal ahora que ya borramos las tablas
+//    await sequelize.sync(); 
+//    console.log('🚀 Tablas creadas desde cero exitosamente');
+
+//    const PORT = process.env.PORT || 3000;
+//    app.listen(PORT, () => {
+//      console.log(`🚀 Servidor en puerto ${PORT}`);
+//    });
+//  });
