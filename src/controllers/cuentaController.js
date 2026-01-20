@@ -12,6 +12,7 @@ exports.crearCuenta = async (req, res) => {
     try {
         // 1. PRIMERO extraemos los datos del req.body
         const { 
+            numeroNota,
             clienteNombre, 
             total, 
             anticipo, 
@@ -34,6 +35,7 @@ exports.crearCuenta = async (req, res) => {
 
         // 3. Crear la cabecera de la cuenta
         const nuevaCuenta = await Cuenta.create({
+            numeroNota,
             clienteNombre,
             total: nTotal,
             anticipo: nAnticipo,

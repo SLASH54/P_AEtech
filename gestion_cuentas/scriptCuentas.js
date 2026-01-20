@@ -14,6 +14,8 @@ const API_BASE_URL = 'https://p-aetech.onrender.com/api';
 })();
 
 
+let proximoNumeroNota = "";
+
 //ABRIR MODAL NUEVA CUENTA//
 function openNuevaCuenta() {
     //const LevClienteSelect = document.getElementById('lev-clienteSelect');
@@ -22,14 +24,13 @@ function openNuevaCuenta() {
     setFechaHoraActual();
 
     // 💡 Lógica para el número de nota
-    const tbody = document.querySelector(".tabla tbody");
-    const numNotas = tbody.rows.length + 1; // Cuenta las filas actuales y suma 1
+    const totalFilas = document.querySelectorAll(".tabla tbody tr").length;
+    proximoNumeroNota = `Nota #${totalFilas + 1}`;
     
-    // Asumiendo que tienes un input para el nombre de la nota, si no, lo creamos
-    // Si usas el campo de clienteNombre para esto, o uno nuevo:
-    console.log("Generando Nota #" + numNotas);
-    // Puedes guardar este dato en una variable global o un input oculto
-    window.proximaNota = "Nota #" + numNotas;
+    // Si quieres mostrarlo en el modal para que Denisse lo vea:
+    document.getElementById('labelNumeroNota').innerText = proximoNumeroNota;
+    
+    console.log("Generando:", nombreNotaGenerado); // Para que veas en consola si cuenta bien
 
     //modal.classList.add("active");
     modal.style.display = "flex";
@@ -458,9 +459,10 @@ async function guardarCuentaFinal() {
     const selectCliente = document.getElementById('lev-clienteSelect');
     const nombreCliente = selectCliente.options[selectCliente.selectedIndex].text;
     
-    if (!cliente) return alert("Amiko, selecciona un cliente primero.");
+    if (!cliente) return alert("Selecciona un cliente primero.");
 
     const datos = {
+        numeroNota: proximoNumeroNota,
         clienteNombre: nombreCliente,
         total: parseFloat(document.getElementById('levTotal').value) || 0,
         anticipo: parseFloat(document.getElementById('levAnticipo').value) || 0,
@@ -548,7 +550,7 @@ async function addMaterial() {
     const fotoInput = document.getElementById('lev-material-foto');
 
     if (!nombre || !cantidad || !costo) {
-        alert("¡Amiko! Te falta el nombre, cantidad o costo del material.");
+        alert("Te falta el nombre, cantidad o costo del material.");
         return;
     }
 
@@ -602,6 +604,7 @@ async function cargarCuentasTabla() {
             const statusText = c.saldo <= 0 ? "Pagado" : "Pendiente";
 
             tr.innerHTML = `
+                <td><strong>${c.numeroNota || 'S/N'}</strong></td>
                 <td>${c.clienteNombre}</td>
                 <td><span class="${statusClass}">${statusText}</span></td>
                 <td>$${parseFloat(c.total).toFixed(2)}</td>

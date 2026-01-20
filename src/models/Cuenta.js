@@ -7,6 +7,10 @@ const Cuenta = sequelize.define('Cuenta', {
         primaryKey: true,
         autoIncrement: true
     },
+    numeroNota: { // 👈 NUEVA COLUMNA
+        type: DataTypes.STRING,
+        allowNull: true
+    },
     clienteNombre: {
         type: DataTypes.STRING,
         allowNull: false
