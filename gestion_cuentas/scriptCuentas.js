@@ -546,6 +546,7 @@ document.getElementById('levInputFoto')?.addEventListener('change', async functi
 
 
 // scriptCuentas.js
+
 async function addMaterial() {
     const nombre = document.getElementById('lev-material-nombre').value;
     const cantidad = document.getElementById('lev-material-cantidad').value;
@@ -553,42 +554,41 @@ async function addMaterial() {
     const unidad = document.getElementById('lev-material-unidad').value;
     const fotoInput = document.getElementById('lev-material-foto');
 
-    if (!nombre || !cantidad || !costo) {
-        alert("Te falta el nombre, cantidad o costo del material.");
+    if (!nombre || !costo) {
+        alert("Amiko, el nombre y el costo son obligatorios.");
         return;
     }
 
     let fotoBase64 = null;
+
+    // 🚀 IGUAL QUE EN LEVANTAMIENTOS: Convertimos a Base64
     if (fotoInput.files && fotoInput.files[0]) {
-        // 🚀 Convertimos a Base64 REAL, no a URL temporal
         fotoBase64 = await new Promise((resolve) => {
             const reader = new FileReader();
-            reader.onload = (e) => resolve(e.target.result); 
+            reader.onload = (e) => resolve(e.target.result); // Aquí se crea el data:image/...
             reader.readAsDataURL(fotoInput.files[0]);
         });
     }
 
     const nuevoMaterial = {
         nombre,
-        cantidad: parseInt(cantidad),
+        cantidad: parseInt(cantidad) || 1,
         costo: parseFloat(costo),
-        unidad,
-        foto: fotoBase64 // 👈 Mandamos el "código" de la imagen
+        unidad: unidad || 'Pza',
+        foto: fotoBase64 // 👈 Ahora mandamos el "código" real de la imagen, no el link de netlify
     };
 
     levMaterialesList.push(nuevoMaterial);
     
-    // Para la vista previa de la tabla usamos el mismo Base64
+    // Actualizamos la tabla visual
     actualizarTablaMateriales();
     
-    // Limpiar
+    // Limpiar campos para el siguiente material
     document.getElementById('lev-material-nombre').value = '';
-    document.getElementById('lev-material-costo').value = '1';
+    document.getElementById('lev-material-cantidad').value = '1';
     document.getElementById('lev-material-costo').value = '';
     fotoInput.value = '';
 }
-
-
 
 async function cargarCuentasTabla() {
     const tbody = document.querySelector(".tabla tbody");
