@@ -490,7 +490,7 @@ async function guardarCuentaFinal() {
 
         if (response.ok) {
             alert("✅ Cuenta guardada correctamente");
-            location.reload(); // Para limpiar todo y ver la tabla nueva
+            //location.reload(); // Para limpiar todo y ver la tabla nueva
         } else {
             alert("❌ Error: " + resultado.message);
         }
