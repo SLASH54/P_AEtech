@@ -814,7 +814,7 @@ async function eliminarCuenta(id) {
 
         if (response.ok) {
             alert("🗑️ Nota eliminada con éxito");
-            cargarCuentas(); // Recargamos la tabla para que desaparezca la fila
+            cargarCuentasTabla(); // Recargamos la tabla para que desaparezca la fila
         } else {
             const error = await response.json();
             alert("❌ Error: " + error.message);
