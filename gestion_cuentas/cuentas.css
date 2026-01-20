@@ -743,3 +743,16 @@ input:checked + .slider:before { transform: translateX(18px); }
 .currency-input span {
     color: black !important;
 }
+
+#detCliente, 
+#infoFacturaExtra, 
+.tabla-detalle tr,
+.lev-total-field label {
+    color: black !important;
+}
+
+.info-factura-box {
+    border-left: 4px solid #007aff; /* Una rayita azul para que se vea ordenado */
+    padding-left: 10px;
+    background: rgba(0, 0, 0, 0.05);
+}

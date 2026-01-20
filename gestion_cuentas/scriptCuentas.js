@@ -655,7 +655,6 @@ document.addEventListener("DOMContentLoaded", cargarCuentasTabla);
 
 
 //ver cuenta
-
 async function verDetalleCuenta(id) {
     try {
         document.getElementById("loader").style.display = "flex";
@@ -671,32 +670,22 @@ async function verDetalleCuenta(id) {
             return;
         }
 
-        // --- ENCABEZADO ---
+        // --- ENCABEZADO (CLIENTE EN NEGRO) ---
         document.getElementById('detNumeroNota').innerText = cuenta.numeroNota || `Nota #${cuenta.id}`;
-        
-        // CORRECCIÓN: Aseguramos que el nombre del cliente se vea y sea NEGRO
         const txtCliente = document.getElementById('detCliente');
         txtCliente.innerText = `Cliente: ${cuenta.clienteNombre}`;
         txtCliente.style.color = "black"; 
         txtCliente.style.fontWeight = "bold";
 
-        // --- BADGES (IVA/FACTURA) ---
-        const badgesContainer = document.getElementById('detBadges');
-        badgesContainer.innerHTML = "";
-        if (cuenta.iva) badgesContainer.innerHTML += `<span class="badge badge-iva">CON IVA</span>`;
-        if (cuenta.factura) badgesContainer.innerHTML += `<span class="badge badge-factura">FACTURADO</span>`;
-
-        // --- TABLA DE PRODUCTOS ---
+        // --- TABLA DE PRODUCTOS (LETRAS NEGRAS) ---
         const tbody = document.getElementById('detListaProductos');
         tbody.innerHTML = "";
 
         cuenta.materiales.forEach(mat => {
             const tr = document.createElement('tr');
+            tr.style.color = "black"; 
             const imgSource = mat.fotoUrl || 'img/no-image.png'; 
             
-            // Forzamos que el texto de la tabla sea negro
-            tr.style.color = "black"; 
-
             tr.innerHTML = `
                 <td>
                     <div class="contenedor-img-detalle">
@@ -705,31 +694,50 @@ async function verDetalleCuenta(id) {
                 </td>
                 <td style="font-weight: 500;">${mat.nombre}</td>
                 <td style="text-align: center;">${mat.cantidad}</td>
-                <td style="text-align: right;">$${parseFloat(mat.costo).toLocaleString()}</td>
+                <td style="text-align: right;">$${parseFloat(mat.costo).toLocaleString('es-MX', {minimumFractionDigits:2})}</td>
             `;
             tbody.appendChild(tr);
         });
 
-        // --- SECCIÓN DE ABAJO (TOTALES) ---
-        // Ponemos el folio y porcentaje en NEGRO
+        // --- CÁLCULO Y VISUALIZACIÓN DE IVA ---
         const infoFactura = document.getElementById('infoFacturaExtra');
-        if (cuenta.factura || cuenta.iva) {
+        const badgesContainer = document.getElementById('detBadges');
+        badgesContainer.innerHTML = "";
+
+        if (cuenta.iva || cuenta.factura) {
             infoFactura.style.display = "block";
-            infoFactura.style.color = "black"; // Letras negras
-            document.getElementById('detFolioFactura').innerText = cuenta.folioFactura || "N/A";
-            document.getElementById('detIvaPorcentaje').innerText = cuenta.ivaPorcentaje || "16";
+            infoFactura.style.color = "black";
+
+            // Calculamos el monto del IVA: (Total * Porcentaje) / 100
+            const porcentaje = cuenta.ivaPorcentaje || 16;
+            const montoIva = (parseFloat(cuenta.total) * porcentaje) / 100;
+
+            // Mostramos los badges
+            if (cuenta.iva) badgesContainer.innerHTML += `<span class="badge badge-iva">IVA ${porcentaje}%</span>`;
+            if (cuenta.factura) badgesContainer.innerHTML += `<span class="badge badge-factura">FACTURADO</span>`;
+
+            // Escribimos el detalle en el cuadro (Folio y Monto del IVA)
+            infoFactura.innerHTML = `
+                <p style="margin: 5px 0;"><strong>Folio Factura:</strong> ${cuenta.folioFactura || "N/A"}</p>
+                <p style="margin: 5px 0; color: #d32f2f;"><strong>Monto IVA (${porcentaje}%):</strong> $${montoIva.toFixed(2)}</p>
+            `;
         } else {
             infoFactura.style.display = "none";
         }
 
-        // Totales en negro
-        document.getElementById('detTotal').value = parseFloat(cuenta.total).toFixed(2);
-        document.getElementById('detTotal').style.color = "black";
-        
-        document.getElementById('detSaldo').value = parseFloat(cuenta.saldo).toFixed(2);
-        document.getElementById('detSaldo').style.color = "black";
+        // --- TOTALES ABAJO (TODO EN NEGRO) ---
+        const inputTotal = document.getElementById('detTotal');
+        const inputSaldo = document.getElementById('detSaldo');
 
-        // Mostrar modal
+        inputTotal.value = parseFloat(cuenta.total).toFixed(2);
+        inputTotal.style.color = "black";
+        inputTotal.style.fontWeight = "bold";
+
+        inputSaldo.value = parseFloat(cuenta.saldo).toFixed(2);
+        inputSaldo.style.color = (cuenta.saldo > 0) ? "#d32f2f" : "#2e7d32"; // Rojo si debe, verde si no
+        inputSaldo.style.fontWeight = "bold";
+
+        // Abrir Modal
         document.getElementById('modalDetalleCuenta').style.display = 'flex';
         document.body.style.overflow = 'hidden';
 
@@ -740,6 +748,8 @@ async function verDetalleCuenta(id) {
         document.getElementById("loader").style.display = "none";
     }
 }
+
+
 // Función auxiliar para cerrar
 function cerrarDetalleModal() {
     document.getElementById('modalDetalleCuenta').style.display = 'none';
