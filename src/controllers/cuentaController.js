@@ -56,10 +56,11 @@ exports.crearCuenta = async (req, res) => {
                 // 🚀 CAMBIO CLAVE: Checar si 'foto' trae el Base64
                 if (mat.foto && mat.foto.startsWith('data:image')) {
                     try {
-                        const resCloud = await cloudinary.uploader.upload(mat.foto, {
-                            folder: 'cuentas_aetech' // Organizado en su carpetita
-                        });
-                        urlFotoCloudinary = resCloud.secure_url;
+                        const uploadRes = await cloudinary.uploader.upload(`data:image/jpeg;base64,${mat.foto}`, {
+                        folder: "cuentas_aetech"
+                    });
+                    urlCloudinary = uploadRes.secure_url;
+                        //urlFotoCloudinary = resCloud.secure_url;
                         console.log("✅ Foto de material subida:", urlFotoCloudinary);
                     } catch (err) {
                         console.error("❌ Error en Cloudinary para material:", err);
@@ -71,7 +72,7 @@ exports.crearCuenta = async (req, res) => {
                     cantidad: mat.cantidad || 1,
                     costo: mat.costo,
                     unidad: mat.unidad || 'Pza',
-                    fotoUrl: urlFotoCloudinary, // Se guarda la URL final
+                    fotoUrl: urlCloudinary, // Se guarda la URL final
                     cuentaId: nuevaCuenta.id
                 };
             }));
