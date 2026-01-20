@@ -59,6 +59,7 @@ exports.crearCuenta = async (req, res) => {
                             folder: 'cuentas_materiales'
                         });
                         urlFotoCloudinary = uploadRes.secure_url;
+                        console.log("✅ Foto subida a Cloudinary:", urlFotoCloudinary); // 👈 Agrega esto para debug
                     } catch (err) {
                         console.error("Error en Cloudinary:", err);
                     }

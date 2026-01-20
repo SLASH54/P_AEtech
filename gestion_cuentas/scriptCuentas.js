@@ -472,6 +472,8 @@ async function guardarCuentaFinal() {
         materiales: levMaterialesList // El array que vas llenando con el botón "+ Agregar"
     };
 
+    console.log("Enviando estos materiales:", datos.materiales); // Revisa en consola que 'foto' tenga datos
+
     try {
         document.getElementById("loader").style.display = "flex";
 
