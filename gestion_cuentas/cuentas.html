@@ -196,42 +196,46 @@
     </div>
 
     <div id="modalDetalleCuenta" class="modalGlass" style="display: none;">
-    <div class="modalGlass-content detalle-container">
-        <span class="modalGlass-close" onclick="cerrarDetalleModal()">✖</span>
+    <div class="modalGlass-content detalle-container" style="background: rgba(255, 255, 255, 0.95) !important; color: black !important; border-radius: 20px; padding: 20px; max-width: 500px;">
+        <span class="modalGlass-close" onclick="cerrarDetalleModal()" style="color: black; cursor: pointer; float: right; font-size: 20px;">&times;</span>
         
-        <div class="detalle-header">
-            <h2 id="detNumeroNota" class="modalGlass-title">Nota #</h2>
-            <div id="detBadges" class="badges-container"></div>
-            <p id="detCliente" class="detalle-cliente-sub"></p>
-        </div>
+        <h2 id="detNumeroNota" style="color: black; text-align: center; margin-top: 10px;">Nota #</h2>
+        <div id="detBadges" style="display: flex; justify-content: center; gap: 10px; margin-bottom: 10px;"></div>
+        
+        <p id="detCliente" style="color: black !important; text-align: center; font-weight: bold; font-size: 1.2rem; margin-bottom: 20px;"></p>
 
         <div class="table-responsive">
-            <table class="tabla-detalle">
+            <table style="width: 100%; border-collapse: collapse; color: black !important;">
                 <thead>
-                    <tr>
-                        <th style="width: 80px;">Imagen</th>
-                        <th>Producto</th>
-                        <th style="text-align: center;">Cant.</th>
-                        <th style="text-align: right;">Precio</th>
+                    <tr style="border-bottom: 2px solid #ddd;">
+                        <th style="text-align: left; padding: 8px;">Imagen</th>
+                        <th style="text-align: left; padding: 8px;">Producto</th>
+                        <th style="text-align: center; padding: 8px;">Cant.</th>
+                        <th style="text-align: right; padding: 8px;">Precio</th>
                     </tr>
                 </thead>
-                <tbody id="detListaProductos"></tbody>
+                <tbody id="detListaProductos">
+                    </tbody>
             </table>
         </div>
 
-        <div class="lev-totales-column">
-            <div id="infoFacturaExtra" class="info-factura-box" style="display:none;">
-                <p><strong>Folio Factura:</strong> <span id="detFolioFactura"></span></p>
-                <p><strong>IVA:</strong> <span id="detIvaPorcentaje"></span>%</p>
+        <div id="infoFacturaExtra" style="display:none; background: rgba(0,0,0,0.05); padding: 15px; border-radius: 10px; margin-top: 15px; border-left: 5px solid #007aff; color: black !important;">
+            </div>
+
+        <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 5px 0;">
+                <label style="color: black; font-weight: bold;">Total:</label>
+                <div style="color: black; font-weight: bold;">$ <input type="text" id="detTotal" readonly style="border: none; background: transparent; color: black; font-weight: bold; width: 80px; text-align: right;"></div>
             </div>
             
-            <div class="lev-total-field">
-                <label>Total:</label>
-                <div class="currency-input"><span>$</span><input type="text" id="detTotal" readonly></div>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 5px 0;">
+                <label style="color: black; font-weight: bold;">Anticipo:</label>
+                <div style="color: black; font-weight: bold;">$ <input type="text" id="detAnticipo" readonly style="border: none; background: transparent; color: black; font-weight: bold; width: 80px; text-align: right;"></div>
             </div>
-            <div class="lev-total-field highlight-liquidar">
-                <label>Por liquidar:</label>
-                <div class="currency-input"><span>$</span><input type="text" id="detSaldo" readonly></div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.03); padding: 10px; border-radius: 8px;">
+                <label style="color: black; font-weight: 800;">Por Liquidar:</label>
+                <div style="font-weight: 800;">$ <input type="text" id="detSaldo" readonly style="border: none; background: transparent; font-weight: 800; width: 80px; text-align: right;"></div>
             </div>
         </div>
     </div>

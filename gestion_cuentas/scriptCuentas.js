@@ -670,14 +670,14 @@ async function verDetalleCuenta(id) {
             return;
         }
 
-        // --- ENCABEZADO (CLIENTE EN NEGRO) ---
+        // --- ENCABEZADO (NEGRO) ---
         document.getElementById('detNumeroNota').innerText = cuenta.numeroNota || `Nota #${cuenta.id}`;
         const txtCliente = document.getElementById('detCliente');
         txtCliente.innerText = `Cliente: ${cuenta.clienteNombre}`;
         txtCliente.style.color = "black"; 
         txtCliente.style.fontWeight = "bold";
 
-        // --- TABLA DE PRODUCTOS (LETRAS NEGRAS) ---
+        // --- TABLA DE PRODUCTOS (NEGRO) ---
         const tbody = document.getElementById('detListaProductos');
         tbody.innerHTML = "";
 
@@ -699,7 +699,7 @@ async function verDetalleCuenta(id) {
             tbody.appendChild(tr);
         });
 
-        // --- CÁLCULO Y VISUALIZACIÓN DE IVA ---
+        // --- DESGLOSE DE IVA Y FACTURA (NEGRO) ---
         const infoFactura = document.getElementById('infoFacturaExtra');
         const badgesContainer = document.getElementById('detBadges');
         badgesContainer.innerHTML = "";
@@ -708,33 +708,37 @@ async function verDetalleCuenta(id) {
             infoFactura.style.display = "block";
             infoFactura.style.color = "black";
 
-            // Calculamos el monto del IVA: (Total * Porcentaje) / 100
             const porcentaje = cuenta.ivaPorcentaje || 16;
             const montoIva = (parseFloat(cuenta.total) * porcentaje) / 100;
 
-            // Mostramos los badges
-            if (cuenta.iva) badgesContainer.innerHTML += `<span class="badge badge-iva">IVA ${porcentaje}%</span>`;
+            if (cuenta.iva) badgesContainer.innerHTML += `<span class="badge badge-iva">CON IVA</span>`;
             if (cuenta.factura) badgesContainer.innerHTML += `<span class="badge badge-factura">FACTURADO</span>`;
 
-            // Escribimos el detalle en el cuadro (Folio y Monto del IVA)
             infoFactura.innerHTML = `
                 <p style="margin: 5px 0;"><strong>Folio Factura:</strong> ${cuenta.folioFactura || "N/A"}</p>
-                <p style="margin: 5px 0; color: #d32f2f;"><strong>Monto IVA (${porcentaje}%):</strong> $${montoIva.toFixed(2)}</p>
+                <p style="margin: 5px 0; color: black;"><strong>Monto IVA (${porcentaje}%):</strong> $${montoIva.toFixed(2)}</p>
             `;
         } else {
             infoFactura.style.display = "none";
         }
 
-        // --- TOTALES ABAJO (TODO EN NEGRO) ---
-        const inputTotal = document.getElementById('detTotal');
+        // --- TOTALES, ANTICIPO Y SALDO (NEGRO) ---
+        // Asegúrate de tener estos IDs en tu HTML
+        document.getElementById('detTotal').value = parseFloat(cuenta.total).toFixed(2);
+        document.getElementById('detTotal').style.color = "black";
+
+        // AGREGAMOS EL ANTICIPO AQUÍ
+        const inputAnticipo = document.getElementById('detAnticipo');
+        if (inputAnticipo) {
+            inputAnticipo.value = parseFloat(cuenta.anticipo || 0).toFixed(2);
+            inputAnticipo.style.color = "black";
+            inputAnticipo.style.fontWeight = "bold";
+        }
+
         const inputSaldo = document.getElementById('detSaldo');
-
-        inputTotal.value = parseFloat(cuenta.total).toFixed(2);
-        inputTotal.style.color = "black";
-        inputTotal.style.fontWeight = "bold";
-
         inputSaldo.value = parseFloat(cuenta.saldo).toFixed(2);
-        inputSaldo.style.color = (cuenta.saldo > 0) ? "#d32f2f" : "#2e7d32"; // Rojo si debe, verde si no
+        // Si el saldo es mayor a 0, lo ponemos en rojo para que resalte la deuda
+        inputSaldo.style.color = (cuenta.saldo > 0) ? "#d32f2f" : "#2e7d32";
         inputSaldo.style.fontWeight = "bold";
 
         // Abrir Modal
@@ -748,7 +752,6 @@ async function verDetalleCuenta(id) {
         document.getElementById("loader").style.display = "none";
     }
 }
-
 
 // Función auxiliar para cerrar
 function cerrarDetalleModal() {
