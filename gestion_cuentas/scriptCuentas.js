@@ -758,3 +758,38 @@ function cerrarDetalleModal() {
     document.getElementById('modalDetalleCuenta').style.display = 'none';
     document.body.style.overflow = 'auto';
 }
+
+
+
+
+//pdf
+async function descargarPDFCuenta(id) {
+    try {
+        document.getElementById("loader").style.display = "flex";
+        
+        const response = await fetch(`${API_BASE_URL}/cuentas/${id}/pdf`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("accessToken")}`
+            }
+        });
+
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Nota_Cuenta_${id}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        } else {
+            alert("Error al generar el PDF");
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        alert("Fallo al conectar con el servidor");
+    } finally {
+        document.getElementById("loader").style.display = "none";
+    }
+}
