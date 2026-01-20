@@ -640,6 +640,7 @@ async function cargarCuentasTabla() {
                 <td>
                     <button onclick="verDetalleCuenta(${c.id})" class="btn-ver">👁️</button>
                     <button onclick="descargarPDFCuenta(${c.id})" class="btn-pdf">PDF</button>
+                    <button onclick="eliminarCuenta(${c.id})" class="btn-eliminar" style="background: #ff3b30; border: none; border-radius: 5px; cursor: pointer;">🗑️</button>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -789,6 +790,38 @@ async function descargarPDFCuenta(id) {
     } catch (error) {
         console.error("Error:", error);
         alert("Fallo al conectar con el servidor");
+    } finally {
+        document.getElementById("loader").style.display = "none";
+    }
+}
+
+
+async function eliminarCuenta(id) {
+    // Confirmación de seguridad
+    const confirmar = confirm("⚠️ ¿Estás seguro de eliminar esta nota? Esta acción no se puede deshacer.");
+    
+    if (!confirmar) return;
+
+    try {
+        document.getElementById("loader").style.display = "flex";
+
+        const response = await fetch(`${API_BASE_URL}/cuentas/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("accessToken")}`
+            }
+        });
+
+        if (response.ok) {
+            alert("🗑️ Nota eliminada con éxito");
+            cargarCuentas(); // Recargamos la tabla para que desaparezca la fila
+        } else {
+            const error = await response.json();
+            alert("❌ Error: " + error.message);
+        }
+    } catch (error) {
+        console.error("Error al eliminar:", error);
+        alert("Hubo un fallo en la conexión al intentar eliminar.");
     } finally {
         document.getElementById("loader").style.display = "none";
     }

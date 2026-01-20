@@ -110,3 +110,36 @@ exports.obtenerCuentas = async (req, res) => {
         res.status(500).json({ message: "Error al obtener las cuentas." });
     }
 };
+
+
+exports.eliminarCuenta = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // 1. Buscar la cuenta y sus materiales para obtener las URLs de las fotos
+        const cuenta = await Cuenta.findByPk(id, {
+            include: [{ model: CuentaMaterial, as: 'materiales' }]
+        });
+
+        if (!cuenta) {
+            return res.status(404).json({ message: "Cuenta no encontrada" });
+        }
+
+        // 2. (Opcional) Borrar fotos de Cloudinary si quieres limpiar espacio
+        for (const mat of cuenta.materiales) {
+            if (mat.fotoUrl && mat.fotoUrl.includes("cloudinary")) {
+                const publicId = mat.fotoUrl.split('/').pop().split('.')[0];
+                await cloudinary.uploader.destroy(`cuentas_aetech/${publicId}`).catch(err => console.log("Error borrando en Cloudinary:", err));
+            }
+        }
+
+        // 3. Eliminar la cuenta (Gracias al CASCADE en la relación, borrará los materiales automáticamente)
+        await cuenta.destroy();
+
+        res.json({ message: "Cuenta eliminada correctamente" });
+
+    } catch (error) {
+        console.error("Error al eliminar cuenta:", error);
+        res.status(500).json({ message: "Error interno al eliminar" });
+    }
+};
