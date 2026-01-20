@@ -27,7 +27,6 @@ function openNuevaCuenta() {
     const totalFilas = document.querySelectorAll(".tabla tbody tr").length;
     proximoNumeroNota = `Nota #${totalFilas + 1}`;
     
-    // Si quieres mostrarlo en el modal para que Denisse lo vea:
     document.getElementById('labelNumeroNota').innerText = proximoNumeroNota;
     
     console.log("Generando:", proximoNumeroNota); // Para que veas en consola si cuenta bien
@@ -556,7 +555,6 @@ async function addMaterial() {
 
     let fotoBase64 = null;
     if (fotoInput.files && fotoInput.files[0]) {
-        // Convertimos la imagen a Base64 para que el controlador la reciba
         fotoBase64 = await new Promise((resolve) => {
             const reader = new FileReader();
             reader.onload = (e) => resolve(e.target.result);
@@ -569,7 +567,7 @@ async function addMaterial() {
         cantidad: parseInt(cantidad),
         costo: parseFloat(costo),
         unidad,
-        fotoUrl: fotoBase64 // El controlador lo subirá a Cloudinary
+        foto: fotoBase64 // El controlador lo subirá a Cloudinary
     };
 
     levMaterialesList.push(nuevoMaterial);

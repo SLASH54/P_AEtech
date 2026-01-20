@@ -53,9 +53,9 @@ exports.crearCuenta = async (req, res) => {
             const materialesProcesados = await Promise.all(materiales.map(async (mat) => {
                 let urlFotoCloudinary = null;
 
-                if (mat.fotoUrl && mat.fotoUrl.startsWith('data:image')) {
+                if (mat.foto && mat.foto.startsWith('data:image')) {
                     try {
-                        const uploadRes = await cloudinary.uploader.upload(mat.fotoUrl, {
+                        const uploadRes = await cloudinary.uploader.upload(mat.foto, {
                             folder: 'cuentas_materiales'
                         });
                         urlFotoCloudinary = uploadRes.secure_url;
