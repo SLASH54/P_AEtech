@@ -30,7 +30,7 @@ function openNuevaCuenta() {
     // Si quieres mostrarlo en el modal para que Denisse lo vea:
     document.getElementById('labelNumeroNota').innerText = proximoNumeroNota;
     
-    console.log("Generando:", nombreNotaGenerado); // Para que veas en consola si cuenta bien
+    console.log("Generando:", proximoNumeroNota); // Para que veas en consola si cuenta bien
 
     //modal.classList.add("active");
     modal.style.display = "flex";
