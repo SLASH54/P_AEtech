@@ -819,9 +819,6 @@ async function eliminarCuenta(id) {
             const error = await response.json();
             alert("❌ Error: " + error.message);
         }
-    } catch (error) {
-        console.error("Error al eliminar:", error);
-        alert("Hubo un fallo en la conexión al intentar eliminar.");
     } finally {
         document.getElementById("loader").style.display = "none";
     }
