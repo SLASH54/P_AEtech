@@ -464,14 +464,21 @@ function prepararDatosCuenta() {
 
 
 async function guardarCuentaFinal() {
-    // Validar que haya un cliente seleccionado
     const btnGuardar = document.getElementById("btnGuardarCuenta");
-    const cliente = document.getElementById('lev-clienteSelect').value;
+    
+    // 1. Validaciones iniciales
     const selectCliente = document.getElementById('lev-clienteSelect');
+    if (!selectCliente.value) return alert("Selecciona un cliente primero.");
+
+    // 2. EVITAR DOBLE CLIC: Desactivar botón inmediatamente
+    if (btnGuardar.disabled) return; // Si ya está desactivado, no hacer nada
+    
+    btnGuardar.disabled = true;
+    btnGuardar.style.opacity = "0.5";
+    btnGuardar.innerText = "Guardando...";
+
     const nombreCliente = selectCliente.options[selectCliente.selectedIndex].text;
     
-    if (!cliente) return alert("Selecciona un cliente primero.");
-
     const datos = {
         numeroNota: proximoNumeroNota,
         clienteNombre: nombreCliente,
@@ -481,17 +488,11 @@ async function guardarCuentaFinal() {
         ivaPorcentaje: parseInt(document.getElementById('levIvaPorcentaje').value) || 16,
         factura: document.getElementById('chkFactura').checked,
         folioFactura: document.getElementById('levFolioFactura').value,
-        materiales: levMaterialesList // El array que vas llenando con el botón "+ Agregar"
+        materiales: levMaterialesList 
     };
-
-    console.log("Enviando estos materiales:", datos.materiales); // Revisa en consola que 'foto' tenga datos
 
     try {
         document.getElementById("loader").style.display = "flex";
-        // 🔒 1. DESACTIVAR BOTÓN PARA EVITAR DOBLE CLICK
-        btnGuardar.disabled = true;
-        btnGuardar.style.opacity = "0.5";
-        btnGuardar.innerText = "Guardando...";
 
         const response = await fetch(`${API_BASE_URL}/cuentas`, {
             method: 'POST',
@@ -502,28 +503,28 @@ async function guardarCuentaFinal() {
             body: JSON.stringify(datos)
         });
 
-        const resultado = await response.json();
-
         if (response.ok) {
             alert("✅ Cuenta guardada correctamente");
-            //location.reload(); // Para limpiar todo y ver la tabla nueva
+            location.reload(); // Recarga para limpiar todo
         } else {
+            const resultado = await response.json();
             alert("❌ Error: " + resultado.message);
+            // Re-activar si hubo error para que el usuario pueda corregir
+            btnGuardar.disabled = false;
+            btnGuardar.style.opacity = "1";
+            btnGuardar.innerText = "Guardar Cuenta";
         }
     } catch (error) {
         console.error("Error al guardar:", error);
         alert("Hubo un fallo en la conexión.");
+        btnGuardar.disabled = false;
+        btnGuardar.style.opacity = "1";
+        btnGuardar.innerText = "Guardar Cuenta";
     } finally {
-        // Re-activar si hubo error
-            btnGuardar.disabled = false;
-            btnGuardar.style.opacity = "1";
-            btnGuardar.innerText = "Guardar Cuenta";
         document.getElementById("loader").style.display = "none";
     }
 }
 
-// Vincula esta función al botón de tu modal
-document.getElementById("btnGuardarCuenta").addEventListener("click", guardarCuentaFinal);
 
 
 // Variable para guardar la foto del material que se está agregando actualmente
