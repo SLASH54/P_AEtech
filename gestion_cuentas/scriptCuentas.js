@@ -658,8 +658,10 @@ document.addEventListener("DOMContentLoaded", cargarCuentasTabla);
 
 async function verDetalleCuenta(id) {
     try {
+        // 1. Mostramos el loader mientras descarga la info
         document.getElementById("loader").style.display = "flex";
 
+        // 2. Traemos todas las cuentas para buscar la que necesitamos
         const response = await fetch(`${API_BASE_URL}/cuentas`, {
             headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` }
         });
@@ -673,43 +675,69 @@ async function verDetalleCuenta(id) {
             return;
         }
 
-        // 1. Llenar encabezados
+        // --- LLENADO DE DATOS DEL ENCABEZADO ---
         document.getElementById('detNumeroNota').innerText = cuenta.numeroNota || `Nota #${cuenta.id}`;
         document.getElementById('detCliente').innerText = `Cliente: ${cuenta.clienteNombre}`;
 
-        // 2. Renderizar lista de productos/materiales
+        // --- LÓGICA DE IVA Y FACTURA ---
+        const badgesContainer = document.getElementById('detBadges');
+        badgesContainer.innerHTML = ""; // Limpiar antes de llenar
+
+        // Si la nota tiene IVA activado, mostramos el badge verde
+        if (cuenta.iva) {
+            badgesContainer.innerHTML += `<span class="badge badge-iva">CON IVA (${cuenta.ivaPorcentaje}%)</span>`;
+        }
+        
+        // Si la nota tiene Factura activada, mostramos el badge azul y el folio
+        const infoFactura = document.getElementById('infoFacturaExtra');
+        if (cuenta.factura) {
+            badgesContainer.innerHTML += `<span class="badge badge-factura">FACTURADO</span>`;
+            infoFactura.style.display = "block";
+            document.getElementById('detFolioFactura').innerText = cuenta.folioFactura || "N/A";
+            document.getElementById('detIvaPorcentaje').innerText = cuenta.ivaPorcentaje || "16";
+        } else {
+            infoFactura.style.display = "none";
+        }
+
+        // --- RENDERIZAR PRODUCTOS / MATERIALES ---
         const tbody = document.getElementById('detListaProductos');
-        tbody.innerHTML = "";
+        tbody.innerHTML = ""; // Limpiar tabla
 
         if (cuenta.materiales && cuenta.materiales.length > 0) {
             cuenta.materiales.forEach(mat => {
                 const tr = document.createElement('tr');
                 
-                // Si hay fotoUrl de Cloudinary, la mostramos; si no, un icono por defecto
+                // Si mat.fotoUrl existe (es el link de Cloudinary), la mostramos
+                // Si no, ponemos un icono de caja por defecto
                 const imgHTML = mat.fotoUrl 
-                    ? `<img src="${mat.fotoUrl}" class="img-miniatura-detalle" onclick="window.open('${mat.fotoUrl}', '_blank')">`
-                    : `<span>📦</span>`;
+                    ? `<div class="contenedor-img-detalle">
+                        <img src="${mat.fotoUrl}" alt="Producto" onclick="window.open('${mat.fotoUrl}', '_blank')">
+                       </div>`
+                    : `<div class="contenedor-img-detalle" style="display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.1);">
+                        <span style="font-size:20px;">📦</span>
+                       </div>`;
 
                 tr.innerHTML = `
-                    <td style="text-align:center;">${imgHTML}</td>
-                    <td>${mat.nombre}</td>
-                    <td style="text-align:center;">${mat.cantidad || 1}</td>
-                    <td>$${parseFloat(mat.costo).toFixed(2)}</td>
+                    <td>${imgHTML}</td>
+                    <td style="vertical-align: middle;">${mat.nombre}</td>
+                    <td style="text-align: center; vertical-align: middle;">${mat.cantidad || 1}</td>
+                    <td style="text-align: right; vertical-align: middle;">$${parseFloat(mat.costo).toLocaleString('es-MX', {minimumFractionDigits: 2})}</td>
                 `;
                 tbody.appendChild(tr);
             });
         } else {
-            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">No hay productos registrados</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px;">Esta nota no tiene productos.</td></tr>`;
         }
 
-        // 3. Llenar totales y saldos
+        // --- TOTALES Y SALDOS ---
         document.getElementById('detTotal').value = parseFloat(cuenta.total).toFixed(2);
-        document.getElementById('detAnticipo').value = parseFloat(cuenta.anticipo).toFixed(2);
+        // Usamos cuenta.saldo que ya viene calculado del backend
         document.getElementById('detSaldo').value = parseFloat(cuenta.saldo).toFixed(2);
 
-        // 4. Mostrar el modal
-        document.getElementById('modalDetalleCuenta').style.display = 'flex';
-        document.body.style.overflow = 'hidden';
+        // --- MOSTRAR EL MODAL ---
+        const modal = document.getElementById('modalDetalleCuenta');
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden'; // Evita scroll atrás del modal
 
     } catch (error) {
         console.error("Error al obtener detalle:", error);
@@ -719,6 +747,7 @@ async function verDetalleCuenta(id) {
     }
 }
 
+// Función auxiliar para cerrar
 function cerrarDetalleModal() {
     document.getElementById('modalDetalleCuenta').style.display = 'none';
     document.body.style.overflow = 'auto';

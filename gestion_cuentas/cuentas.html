@@ -195,37 +195,39 @@
         </div>
     </div>
 
-
-    
     <div id="modalDetalleCuenta" class="modalGlass" style="display: none;">
     <div class="modalGlass-content detalle-container">
         <span class="modalGlass-close" onclick="cerrarDetalleModal()">✖</span>
         
-        <h2 id="detNumeroNota" class="modalGlass-title">Nota #</h2>
-        <p id="detCliente" style="text-align: center; color: white; margin-bottom: 20px;"></p>
+        <div class="detalle-header">
+            <h2 id="detNumeroNota" class="modalGlass-title">Nota #</h2>
+            <div id="detBadges" class="badges-container"></div>
+            <p id="detCliente" class="detalle-cliente-sub"></p>
+        </div>
 
         <div class="table-responsive">
             <table class="tabla-detalle">
                 <thead>
                     <tr>
-                        <th>Imagen</th>
+                        <th style="width: 80px;">Imagen</th>
                         <th>Producto</th>
-                        <th>Cant.</th>
-                        <th>Precio</th>
+                        <th style="text-align: center;">Cant.</th>
+                        <th style="text-align: right;">Precio</th>
                     </tr>
                 </thead>
                 <tbody id="detListaProductos"></tbody>
             </table>
         </div>
 
-        <div class="lev-totales-column" style="margin-top: 20px; width: 100%;">
+        <div class="lev-totales-column">
+            <div id="infoFacturaExtra" class="info-factura-box" style="display:none;">
+                <p><strong>Folio Factura:</strong> <span id="detFolioFactura"></span></p>
+                <p><strong>IVA:</strong> <span id="detIvaPorcentaje"></span>%</p>
+            </div>
+            
             <div class="lev-total-field">
                 <label>Total:</label>
                 <div class="currency-input"><span>$</span><input type="text" id="detTotal" readonly></div>
-            </div>
-            <div class="lev-total-field">
-                <label>Anticipo:</label>
-                <div class="currency-input"><span>$</span><input type="text" id="detAnticipo" readonly></div>
             </div>
             <div class="lev-total-field highlight-liquidar">
                 <label>Por liquidar:</label>
