@@ -20,6 +20,17 @@ function openNuevaCuenta() {
     const modal = document.getElementById("modalNuevaCuenta");
     cargarClientesSelect(); 
     setFechaHoraActual();
+
+    // 💡 Lógica para el número de nota
+    const tbody = document.querySelector(".tabla tbody");
+    const numNotas = tbody.rows.length + 1; // Cuenta las filas actuales y suma 1
+    
+    // Asumiendo que tienes un input para el nombre de la nota, si no, lo creamos
+    // Si usas el campo de clienteNombre para esto, o uno nuevo:
+    console.log("Generando Nota #" + numNotas);
+    // Puedes guardar este dato en una variable global o un input oculto
+    window.proximaNota = "Nota #" + numNotas;
+
     //modal.classList.add("active");
     modal.style.display = "flex";
     document.body.style.overflow = 'hidden';
@@ -245,7 +256,7 @@ document.getElementById("levBtnAgregarMaterial")
         const extra = document.getElementById("levInsumoExtra").value.trim();
 
         if (!insumoBase) {
-            alert("Completa los campos de material");
+            //alert("Completa los campos de material");
             return;
         }
 
@@ -530,35 +541,43 @@ document.getElementById('levInputFoto')?.addEventListener('change', async functi
 });
 
 async function addMaterial() {
-    const nombre = document.getElementById('levInsumo').value;
-    const costo = parseFloat(document.getElementById('levCosto').value) || 0;
-    const cantidad = parseInt(document.getElementById('levCantidad').value) || 1;
+    const nombre = document.getElementById('lev-material-nombre').value;
+    const cantidad = document.getElementById('lev-material-cantidad').value;
+    const costo = document.getElementById('lev-material-costo').value;
+    const unidad = document.getElementById('lev-material-unidad').value;
+    const fotoInput = document.getElementById('lev-material-foto');
 
-    if (!nombre || costo <= 0) {
-        return alert("Amiko, llena el nombre y el costo del producto.");
+    if (!nombre || !cantidad || !costo) {
+        alert("¡Amiko! Te falta el nombre, cantidad o costo del material.");
+        return;
     }
 
-    // Creamos el objeto del material
+    let fotoBase64 = null;
+    if (fotoInput.files && fotoInput.files[0]) {
+        // Convertimos la imagen a Base64 para que el controlador la reciba
+        fotoBase64 = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.readAsDataURL(fotoInput.files[0]);
+        });
+    }
+
     const nuevoMaterial = {
-        nombre: nombre,
-        costo: costo,
-        cantidad: cantidad,
-        fotoUrl: fotoMaterialTemporal // Este es el Base64 que subirá Cloudinary
+        nombre,
+        cantidad: parseInt(cantidad),
+        costo: parseFloat(costo),
+        unidad,
+        fotoUrl: fotoBase64 // El controlador lo subirá a Cloudinary
     };
 
-    // Lo metemos al array global
     levMaterialesList.push(nuevoMaterial);
-
-    // Actualizamos la vista y el total
-    renderMaterialesList();
-    calcularTotal();
-
-    // Limpiamos los campos para el siguiente
-    document.getElementById('levInsumo').value = "";
-    document.getElementById('levCosto').value = "";
-    document.getElementById('levCantidad').value = "1";
-    fotoMaterialTemporal = null;
-    document.getElementById('previsualizacionFoto').innerHTML = "";
+    actualizarTablaMateriales();
+    
+    // Limpiar inputs
+    document.getElementById('lev-material-nombre').value = '';
+    document.getElementById('lev-material-cantidad').value = '1';
+    document.getElementById('lev-material-costo').value = '';
+    fotoInput.value = '';
 }
 
 
