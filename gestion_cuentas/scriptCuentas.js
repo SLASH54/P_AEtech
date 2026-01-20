@@ -651,3 +651,75 @@ async function cargarCuentasTabla() {
 
 // Llamar a la función al cargar la página
 document.addEventListener("DOMContentLoaded", cargarCuentasTabla);
+
+
+
+//ver cuenta
+
+async function verDetalleCuenta(id) {
+    try {
+        document.getElementById("loader").style.display = "flex";
+
+        const response = await fetch(`${API_BASE_URL}/cuentas`, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` }
+        });
+        const cuentas = await response.json();
+        
+        // Buscamos la cuenta específica por su ID
+        const cuenta = cuentas.find(c => c.id === id);
+
+        if (!cuenta) {
+            alert("No se encontró la información de esta cuenta.");
+            return;
+        }
+
+        // 1. Llenar encabezados
+        document.getElementById('detNumeroNota').innerText = cuenta.numeroNota || `Nota #${cuenta.id}`;
+        document.getElementById('detCliente').innerText = `Cliente: ${cuenta.clienteNombre}`;
+
+        // 2. Renderizar lista de productos/materiales
+        const tbody = document.getElementById('detListaProductos');
+        tbody.innerHTML = "";
+
+        if (cuenta.materiales && cuenta.materiales.length > 0) {
+            cuenta.materiales.forEach(mat => {
+                const tr = document.createElement('tr');
+                
+                // Si hay fotoUrl de Cloudinary, la mostramos; si no, un icono por defecto
+                const imgHTML = mat.fotoUrl 
+                    ? `<img src="${mat.fotoUrl}" class="img-miniatura-detalle" onclick="window.open('${mat.fotoUrl}', '_blank')">`
+                    : `<span>📦</span>`;
+
+                tr.innerHTML = `
+                    <td style="text-align:center;">${imgHTML}</td>
+                    <td>${mat.nombre}</td>
+                    <td style="text-align:center;">${mat.cantidad || 1}</td>
+                    <td>$${parseFloat(mat.costo).toFixed(2)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } else {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">No hay productos registrados</td></tr>`;
+        }
+
+        // 3. Llenar totales y saldos
+        document.getElementById('detTotal').value = parseFloat(cuenta.total).toFixed(2);
+        document.getElementById('detAnticipo').value = parseFloat(cuenta.anticipo).toFixed(2);
+        document.getElementById('detSaldo').value = parseFloat(cuenta.saldo).toFixed(2);
+
+        // 4. Mostrar el modal
+        document.getElementById('modalDetalleCuenta').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+
+    } catch (error) {
+        console.error("Error al obtener detalle:", error);
+        alert("Error al cargar los detalles de la cuenta.");
+    } finally {
+        document.getElementById("loader").style.display = "none";
+    }
+}
+
+function cerrarDetalleModal() {
+    document.getElementById('modalDetalleCuenta').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
