@@ -711,3 +711,35 @@ input:checked + .slider:before { transform: translateX(18px); }
     color: #aaa;
     margin-top: -5px;
 }
+
+/* El contenedor de los productos ahora tendrá letras negras */
+.tabla-detalle td, 
+.tabla-detalle th {
+    color: black !important;
+}
+
+/* El nombre del cliente resaltado */
+.detalle-cliente-sub {
+    color: black !important;
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+}
+
+/* La parte de abajo (totales y factura) */
+.info-factura-box p,
+.lev-total-field label,
+.lev-total-field input {
+    color: black !important;
+    font-weight: 600;
+}
+
+/* Estilo para los inputs de los totales para que se vean claros en negro */
+.currency-input input {
+    background: transparent;
+    border: none;
+    color: black !important;
+}
+
+.currency-input span {
+    color: black !important;
+}

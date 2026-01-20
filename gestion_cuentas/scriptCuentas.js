@@ -658,95 +658,88 @@ document.addEventListener("DOMContentLoaded", cargarCuentasTabla);
 
 async function verDetalleCuenta(id) {
     try {
-        // 1. Mostramos el loader mientras descarga la info
         document.getElementById("loader").style.display = "flex";
 
-        // 2. Traemos todas las cuentas para buscar la que necesitamos
         const response = await fetch(`${API_BASE_URL}/cuentas`, {
             headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` }
         });
         const cuentas = await response.json();
-        
-        // Buscamos la cuenta específica por su ID
         const cuenta = cuentas.find(c => c.id === id);
 
         if (!cuenta) {
-            alert("No se encontró la información de esta cuenta.");
+            alert("No se encontró la información.");
             return;
         }
 
-        // --- LLENADO DE DATOS DEL ENCABEZADO ---
+        // --- ENCABEZADO ---
         document.getElementById('detNumeroNota').innerText = cuenta.numeroNota || `Nota #${cuenta.id}`;
-        document.getElementById('detCliente').innerText = `Cliente: ${cuenta.clienteNombre}`;
-
-        // --- LÓGICA DE IVA Y FACTURA ---
-        const badgesContainer = document.getElementById('detBadges');
-        badgesContainer.innerHTML = ""; // Limpiar antes de llenar
-
-        // Si la nota tiene IVA activado, mostramos el badge verde
-        if (cuenta.iva) {
-            badgesContainer.innerHTML += `<span class="badge badge-iva">CON IVA (${cuenta.ivaPorcentaje}%)</span>`;
-        }
         
-        // Si la nota tiene Factura activada, mostramos el badge azul y el folio
+        // CORRECCIÓN: Aseguramos que el nombre del cliente se vea y sea NEGRO
+        const txtCliente = document.getElementById('detCliente');
+        txtCliente.innerText = `Cliente: ${cuenta.clienteNombre}`;
+        txtCliente.style.color = "black"; 
+        txtCliente.style.fontWeight = "bold";
+
+        // --- BADGES (IVA/FACTURA) ---
+        const badgesContainer = document.getElementById('detBadges');
+        badgesContainer.innerHTML = "";
+        if (cuenta.iva) badgesContainer.innerHTML += `<span class="badge badge-iva">CON IVA</span>`;
+        if (cuenta.factura) badgesContainer.innerHTML += `<span class="badge badge-factura">FACTURADO</span>`;
+
+        // --- TABLA DE PRODUCTOS ---
+        const tbody = document.getElementById('detListaProductos');
+        tbody.innerHTML = "";
+
+        cuenta.materiales.forEach(mat => {
+            const tr = document.createElement('tr');
+            const imgSource = mat.fotoUrl || 'img/no-image.png'; 
+            
+            // Forzamos que el texto de la tabla sea negro
+            tr.style.color = "black"; 
+
+            tr.innerHTML = `
+                <td>
+                    <div class="contenedor-img-detalle">
+                        <img src="${imgSource}" onclick="window.open('${imgSource}', '_blank')">
+                    </div>
+                </td>
+                <td style="font-weight: 500;">${mat.nombre}</td>
+                <td style="text-align: center;">${mat.cantidad}</td>
+                <td style="text-align: right;">$${parseFloat(mat.costo).toLocaleString()}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // --- SECCIÓN DE ABAJO (TOTALES) ---
+        // Ponemos el folio y porcentaje en NEGRO
         const infoFactura = document.getElementById('infoFacturaExtra');
-        if (cuenta.factura) {
-            badgesContainer.innerHTML += `<span class="badge badge-factura">FACTURADO</span>`;
+        if (cuenta.factura || cuenta.iva) {
             infoFactura.style.display = "block";
+            infoFactura.style.color = "black"; // Letras negras
             document.getElementById('detFolioFactura').innerText = cuenta.folioFactura || "N/A";
             document.getElementById('detIvaPorcentaje').innerText = cuenta.ivaPorcentaje || "16";
         } else {
             infoFactura.style.display = "none";
         }
 
-        // --- RENDERIZAR PRODUCTOS / MATERIALES ---
-        const tbody = document.getElementById('detListaProductos');
-        tbody.innerHTML = ""; // Limpiar tabla
-
-        if (cuenta.materiales && cuenta.materiales.length > 0) {
-            cuenta.materiales.forEach(mat => {
-                const tr = document.createElement('tr');
-                
-                // Si mat.fotoUrl existe (es el link de Cloudinary), la mostramos
-                // Si no, ponemos un icono de caja por defecto
-                const imgHTML = mat.fotoUrl 
-                    ? `<div class="contenedor-img-detalle">
-                        <img src="${mat.fotoUrl}" alt="Producto" onclick="window.open('${mat.fotoUrl}', '_blank')">
-                       </div>`
-                    : `<div class="contenedor-img-detalle" style="display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.1);">
-                        <span style="font-size:20px;">📦</span>
-                       </div>`;
-
-                tr.innerHTML = `
-                    <td>${imgHTML}</td>
-                    <td style="vertical-align: middle;">${mat.nombre}</td>
-                    <td style="text-align: center; vertical-align: middle;">${mat.cantidad || 1}</td>
-                    <td style="text-align: right; vertical-align: middle;">$${parseFloat(mat.costo).toLocaleString('es-MX', {minimumFractionDigits: 2})}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        } else {
-            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px;">Esta nota no tiene productos.</td></tr>`;
-        }
-
-        // --- TOTALES Y SALDOS ---
+        // Totales en negro
         document.getElementById('detTotal').value = parseFloat(cuenta.total).toFixed(2);
-        // Usamos cuenta.saldo que ya viene calculado del backend
+        document.getElementById('detTotal').style.color = "black";
+        
         document.getElementById('detSaldo').value = parseFloat(cuenta.saldo).toFixed(2);
+        document.getElementById('detSaldo').style.color = "black";
 
-        // --- MOSTRAR EL MODAL ---
-        const modal = document.getElementById('modalDetalleCuenta');
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden'; // Evita scroll atrás del modal
+        // Mostrar modal
+        document.getElementById('modalDetalleCuenta').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
 
     } catch (error) {
-        console.error("Error al obtener detalle:", error);
-        alert("Error al cargar los detalles de la cuenta.");
+        console.error("Error:", error);
+        alert("Error al cargar detalles.");
     } finally {
         document.getElementById("loader").style.display = "none";
     }
 }
-
 // Función auxiliar para cerrar
 function cerrarDetalleModal() {
     document.getElementById('modalDetalleCuenta').style.display = 'none';
