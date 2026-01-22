@@ -44,12 +44,13 @@ function cerrarNuevaCuentaModal() {
     document.body.style.overflow = 'auto';
 
     // Resetear todo a modo "Nueva Cuenta"
+    // RESETEAR ESTADO
     editandoId = null; 
     levMaterialesList = [];
-    document.getElementById('modalNuevaCuenta').reset();
-    document.getElementById("labelNumeroNota").innerText = "Nueva Cuenta";
+    document.getElementById('levFormNuevaCuenta').reset();
+    document.querySelector("#modalNuevaCuenta .modalGlass-title").innerText = "Nueva Cuenta";
     document.getElementById("btnGuardarCuenta").innerText = "Guardar Cuenta";
-    actualizarTablaMateriales();
+    levRenderMateriales();
 }
 
 
@@ -844,6 +845,8 @@ let editandoId = null; // Variable global para saber si estamos editando
 async function prepararEdicion(id) {
     try {
         document.getElementById("loader").style.display = "flex";
+        
+        // 1. Buscamos la cuenta
         const response = await fetch(`${API_BASE_URL}/cuentas`, {
             headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` }
         });
@@ -852,39 +855,46 @@ async function prepararEdicion(id) {
 
         if (!cuenta) return;
 
-        editandoId = id; // Guardamos el ID que estamos editando
-        
-        // 1. Abrir el modal y cambiar textos
-        openNuevaCuenta(); 
-        document.getElementById("labelNumeroNota").innerText = "Editar Cuenta " + (cuenta.numeroNota || "");
+        editandoId = id; // IMPORTANTE: Guardamos el ID
+
+        // 2. Abrimos el modal (usando tu función actual)
+        openNuevaCuenta();
+
+        // 3. Cambiamos los textos para que diga "Editar"
+        document.querySelector("#modalNuevaCuenta .modalGlass-title").innerText = "Editar Nota";
+        document.getElementById("labelNumeroNota").innerText = cuenta.numeroNota || "";
         document.getElementById("btnGuardarCuenta").innerText = "Actualizar Cambios";
 
-        // 2. Llenar campos básicos
-        // Nota: Para el select de cliente, busca el valor por el nombre si no tienes el ID a la mano
+        // 4. Llenamos los datos del cliente
         const selectCliente = document.getElementById('lev-clienteSelect');
-        Array.from(selectCliente.options).forEach(opt => {
-            if(opt.text === cuenta.clienteNombre) opt.selected = true;
-        });
+        for (let i = 0; i < selectCliente.options.length; i++) {
+            if (selectCliente.options[i].text === cuenta.clienteNombre) {
+                selectCliente.selectedIndex = i;
+                break;
+            }
+        }
 
+        // 5. Llenamos los checks y montos
         document.getElementById('levAnticipo').value = cuenta.anticipo;
         document.getElementById('chkIva').checked = cuenta.iva;
         document.getElementById('levIvaPorcentaje').value = cuenta.ivaPorcentaje;
         document.getElementById('chkFactura').checked = cuenta.factura;
         document.getElementById('levFolioFactura').value = cuenta.folioFactura;
 
-        // 3. Cargar materiales al array temporal y renderizar
+        // 6. Cargamos los materiales existentes al array
         levMaterialesList = cuenta.materiales.map(m => ({
             nombre: m.nombre,
             cantidad: m.cantidad,
             costo: m.costo,
-            fotoUrl: m.fotoUrl // Guardamos la URL actual
+            fotoUrl: m.fotoUrl // Mantenemos la foto que ya tiene
         }));
-        
-        levRenderMateriales(); // Tu función que dibuja los materiales en el modal
+
+        // 7. Refrescamos la tablita del modal
+        levRenderMateriales(); // Asegúrate de que este nombre sea el que usas para dibujar la tabla
         calcularSaldo();
 
     } catch (error) {
-        console.error(error);
+        console.error("Error al editar:", error);
     } finally {
         document.getElementById("loader").style.display = "none";
     }
