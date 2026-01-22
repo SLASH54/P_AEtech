@@ -1,4 +1,7 @@
 const API_BASE_URL = 'https://p-aetech.onrender.com/api';
+let editandoId = null; // Variable global para saber si estamos editando
+let levMaterialesList = []; 
+let proximoNumeroNota = "";
 
 
 // scriptCuentas.js - AL PRINCIPIO DE TODO
@@ -14,7 +17,6 @@ const API_BASE_URL = 'https://p-aetech.onrender.com/api';
 })();
 
 
-let proximoNumeroNota = "";
 
 //ABRIR MODAL NUEVA CUENTA//
 function openNuevaCuenta() {
@@ -48,7 +50,7 @@ function cerrarNuevaCuentaModal() {
     editandoId = null; 
     levMaterialesList = [];
     document.getElementById('levFormNuevaCuenta').reset();
-    document.querySelector("#modalNuevaCuenta .modalGlass-title").innerText = "Nueva Cuenta";
+    document.getElementById("labelNumeroNota").innerText = "Nueva Cuenta";
     document.getElementById("btnGuardarCuenta").innerText = "Guardar Cuenta";
     levRenderMateriales();
 }
@@ -97,7 +99,7 @@ document.getElementById("levInputFoto")?.addEventListener("change", async functi
 });
 
 // Variable global para la lista de materiales (ya la tenías, asegúrate de que esté arriba)
-let levMaterialesList = []; 
+
 
 // 1. FUNCIÓN PARA AGREGAR MATERIAL (Actualizada)
 document.getElementById("levBtnAgregarMaterial")?.addEventListener("click", () => {
@@ -371,40 +373,37 @@ function levLimpiarInputs() {
 //}
 
 function levRenderMateriales() {
-    const tbody = document.getElementById("levListaMateriales").querySelector('tbody');
+    const tbody = document.getElementById('levMaterialesTable').querySelector('tbody');
+    if (!tbody) return;
     tbody.innerHTML = '';
 
     levMaterialesList.forEach((item, index) => {
         const tr = document.createElement('tr');
         
-        // --- Lógica para decidir qué imagen mostrar ---
-        let fuenteImagen = 'img/no-image.png'; // Imagen por defecto
-        
+        // 🔥 AQUÍ ESTÁ EL TRUCO: Decidir qué imagen mostrar
+        let fotoAMostrar = 'img/no-image.png';
         if (item.foto) {
-            // Si el usuario acaba de subir una foto nueva desde su PC
-            fuenteImagen = item.foto; 
+            fotoAMostrar = item.foto; // Si es nueva (Base64)
         } else if (item.fotoUrl) {
-            // Si la foto ya existe en Cloudinary (viene de la edición)
-            fuenteImagen = item.fotoUrl;
+            fotoAMostrar = item.fotoUrl; // Si es de Cloudinary (Edición)
         }
 
         tr.innerHTML = `
             <td>
-                <div class="lev-img-preview">
-                    <img src="${fuenteImagen}" style="width:50px; height:50px; object-fit:cover; border-radius:8px;">
+                <div class="lev-img-preview" style="width:50px; height:50px; overflow:hidden; border-radius:8px;">
+                    <img src="${fotoAMostrar}" style="width:100%; height:100%; object-fit:cover;">
                 </div>
             </td>
-            <td>${item.nombre}</td>
-            <td style="text-align:center;">${item.cantidad}</td>
-            <td style="text-align:right;">$${item.costo.toFixed(2)}</td>
+            <td style="color:black;">${item.nombre}</td>
+            <td style="text-align:center; color:black;">${item.cantidad}</td>
+            <td style="text-align:right; color:black;">$${parseFloat(item.costo).toFixed(2)}</td>
             <td style="text-align:center;">
-                <button onclick="levEliminarMaterial(${index})" class="btn-delete-item" style="background:none; border:none; color:red; cursor:pointer;">✕</button>
+                <button onclick="levEliminarMaterial(${index})" class="btn-delete-item" style="background:none; border:none; color:red; cursor:pointer; font-size:1.2rem;">✕</button>
             </td>
         `;
         tbody.appendChild(tr);
     });
-    
-    calcularSaldo(); // Recalculamos el total del modal
+    calcularTotal();
 }
 
 // 👁️ MOSTRAR CAMPOS EXTRA
@@ -877,12 +876,9 @@ async function eliminarCuenta(id) {
 }
 
 
-let editandoId = null; // Variable global para saber si estamos editando
-
 async function prepararEdicion(id) {
     try {
         document.getElementById("loader").style.display = "flex";
-        
         const response = await fetch(`${API_BASE_URL}/cuentas`, {
             headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` }
         });
@@ -891,39 +887,35 @@ async function prepararEdicion(id) {
 
         if (!cuenta) return;
 
-        editandoId = id;
-        openNuevaCuenta(); // Abrimos el modal
+        editandoId = id; 
+        openNuevaCuenta(); // Abrir modal
 
-        // Cambiamos textos
+        // Cambiar interfaz a modo edición
         document.querySelector("#modalNuevaCuenta .modalGlass-title").innerText = "Editar Nota";
         document.getElementById("btnGuardarCuenta").innerText = "Actualizar Cambios";
         document.getElementById("labelNumeroNota").innerText = cuenta.numeroNota || "";
 
-        // Llenamos campos básicos (Cliente, Anticipo, IVA, etc.)
-        // ... (el código que ya tienes para llenar los inputs) ...
-         // 4. Llenamos los datos del cliente
-        const selectCliente = document.getElementById('lev-clienteSelect');
-        for (let i = 0; i < selectCliente.options.length; i++) {
-            if (selectCliente.options[i].text === cuenta.clienteNombre) {
-                selectCliente.selectedIndex = i;
-                break;
-            }
-        }
-
-        // 5. Llenamos los checks y montos
+        // Llenar datos básicos
         document.getElementById('levAnticipo').value = cuenta.anticipo;
         document.getElementById('chkIva').checked = cuenta.iva;
         document.getElementById('levIvaPorcentaje').value = cuenta.ivaPorcentaje;
         document.getElementById('chkFactura').checked = cuenta.factura;
         document.getElementById('levFolioFactura').value = cuenta.folioFactura;
 
-        // 🔥 LLAMAMOS A LA NUEVA FUNCIÓN EXCLUSIVA
-        cargarMaterialesEdicion(cuenta.materiales);
+        // 🔥 CARGAR MATERIALES AL ARRAY GLOBAL
+        levMaterialesList = cuenta.materiales.map(m => ({
+            nombre: m.nombre,
+            cantidad: m.cantidad,
+            costo: parseFloat(m.costo) || 0,
+            fotoUrl: m.fotoUrl, // URL de la base de datos
+            foto: null // No hay archivo nuevo aún
+        }));
 
+        levRenderMateriales(); // Dibujar la tabla
         calcularSaldo();
 
     } catch (error) {
-        console.error("Error al cargar materiales para editar:", error);
+        console.error("Error en preparación:", error);
     } finally {
         document.getElementById("loader").style.display = "none";
     }
