@@ -373,7 +373,7 @@ function levLimpiarInputs() {
 //}
 
 function levRenderMateriales() {
-    const tbody = document.getElementById('levMaterialesTable').querySelector('tbody');
+    const tbody = document.getElementById('levListaMateriales').querySelector('tbody');
     if (!tbody) return;
     tbody.innerHTML = '';
 
