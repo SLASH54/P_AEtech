@@ -981,13 +981,15 @@ function cargarMaterialesEdicion(materialesBD) {
 
 
 //editar 
-// --- 1. FUNCIÓN PARA ABRIR EL MODAL Y CARGAR DATOS ---
+
+
+
+// 1. ABRIR Y CARGAR DATOS
 async function prepararEdicion(id) {
     try {
         document.getElementById("loader").style.display = "flex";
         editandoId = id;
 
-        // Buscamos la cuenta en el servidor
         const response = await fetch(`${API_BASE_URL}/cuentas`, {
             headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` }
         });
@@ -996,55 +998,45 @@ async function prepararEdicion(id) {
 
         if (!cuenta) return;
 
-        // Abrimos el modal exclusivo
+        // Abrir modal y cargar clientes
         document.getElementById("modalEditarCuenta").style.display = "flex";
-        
-        // Cargamos el select de clientes (exclusivo para editar)
         await cargarClientesSelectEdit(cuenta.clienteNombre);
 
-        // Llenamos los campos básicos
+        // Llenar campos
         document.getElementById("labelNumeroNotaEdit").innerText = cuenta.numeroNota;
         document.getElementById("levAnticipoEdit").value = cuenta.anticipo;
 
-        // PASAMOS LOS MATERIALES AL ARRAY EXCLUSIVO
+        // Cargar materiales
         materialesEditList = cuenta.materiales.map(m => ({
             nombre: m.nombre,
             cantidad: m.cantidad,
             costo: parseFloat(m.costo),
-            fotoUrl: m.fotoUrl, // Foto que ya vive en la nube
-            foto: null          // No hay foto nueva todavía
+            fotoUrl: m.fotoUrl,
+            foto: null 
         }));
 
-        renderMaterialesEdit(); // Dibujamos la tabla de edición
-
-    } catch (error) {
-        console.error("Error al preparar edición:", error);
-    } finally {
-        document.getElementById("loader").style.display = "none";
-    }
+        renderMaterialesEdit();
+    } catch (e) { console.error(e); }
+    finally { document.getElementById("loader").style.display = "none"; }
 }
 
-// --- 2. AGREGAR PRODUCTOS NUEVOS DENTRO DE LA EDICIÓN ---
+// 2. AGREGAR MATERIAL (Igual que en el de Nueva Cuenta)
 function agregarMaterialEdit() {
     const nombre = document.getElementById("edit-prodNombre").value;
     const costo = parseFloat(document.getElementById("edit-prodCosto").value);
     const cant = parseInt(document.getElementById("edit-prodCant").value);
 
-    if (!nombre || isNaN(costo)) {
-        alert("Carnal, llena el nombre y el precio del producto.");
-        return;
-    }
+    if (!nombre || isNaN(costo)) return alert("Carnal, faltan datos del producto");
 
-    // Lo agregamos a la lista de edición
     materialesEditList.push({
         nombre,
         costo,
         cantidad: cant,
-        foto: tempFotoEdit, // Si tomó foto nueva, va aquí
-        fotoUrl: null       // Como es nuevo, no tiene URL aún
+        foto: tempFotoEdit,
+        fotoUrl: null
     });
 
-    // Limpiamos los campitos
+    // Limpiar inputs de la mini-sección
     document.getElementById("edit-prodNombre").value = "";
     document.getElementById("edit-prodCosto").value = "";
     document.getElementById("edit-prodCant").value = "1";
@@ -1054,52 +1046,85 @@ function agregarMaterialEdit() {
     renderMaterialesEdit();
 }
 
-// --- 3. DIBUJAR LA TABLA DEL MODAL EDITAR ---
+// 3. RENDERIZAR TABLA
 function renderMaterialesEdit() {
     const tbody = document.querySelector("#tablaMaterialesEdit tbody");
     tbody.innerHTML = "";
-    let subtotal = 0;
+    let total = 0;
 
     materialesEditList.forEach((item, index) => {
-        subtotal += (item.cantidad * item.costo);
+        total += (item.cantidad * item.costo);
+        const img = item.foto || item.fotoUrl || 'img/no-image.png';
         
-        // Decidimos qué imagen mostrar (la nueva o la que ya estaba)
-        const imgPath = item.foto || item.fotoUrl || 'img/no-image.png';
-
         tbody.innerHTML += `
-            <tr>
-                <td><img src="${imgPath}" style="width:45px; height:45px; object-fit:cover; border-radius:8px;"></td>
-                <td style="color: black;">${item.nombre}</td>
-                <td style="color: black; text-align: center;">${item.cantidad}</td>
-                <td style="color: black; text-align: right;">$${item.costo.toFixed(2)}</td>
-                <td style="text-align: center;">
-                    <button onclick="materialesEditList.splice(${index},1); renderMaterialesEdit();" 
-                            style="background:none; border:none; color:#ff3b30; cursor:pointer; font-size:1.2rem;">✕</button>
+            <tr style="background: white;">
+                <td style="text-align:center;"><img src="${img}" style="width:45px; height:45px; border-radius:8px; object-fit:cover;"></td>
+                <td style="color:black;">${item.nombre}</td>
+                <td style="color:black; text-align:center;">${item.cantidad}</td>
+                <td style="color:black; text-align:right;">$${item.costo.toFixed(2)}</td>
+                <td style="text-align:center;">
+                    <button type="button" onclick="materialesEditList.splice(${index},1); renderMaterialesEdit();" style="background:none; border:none; color:red; cursor:pointer; font-size:1.2rem;">✕</button>
                 </td>
             </tr>
         `;
     });
 
-    document.getElementById("levTotalEdit").value = subtotal.toFixed(2);
+    document.getElementById("levTotalEdit").value = total.toFixed(2);
     calcularSaldoEdit();
 }
 
-// --- 4. CERRAR Y LIMPIAR ---
-function cerrarModalEditar() {
-    document.getElementById("modalEditarCuenta").style.display = "none";
-    editandoId = null;
-    materialesEditList = [];
-    tempFotoEdit = null;
-    document.getElementById("levFormEditarCuenta").reset();
+// 4. FUNCIONES DE APOYO
+function calcularSaldoEdit() {
+    const total = parseFloat(document.getElementById("levTotalEdit").value) || 0;
+    const anticipo = parseFloat(document.getElementById("levAnticipoEdit").value) || 0;
+    document.getElementById("levSaldoEdit").value = (total - anticipo).toFixed(2);
 }
 
-// --- 5. ENVIAR CAMBIOS AL SERVIDOR (PUT) ---
+function procesarFotoEdit(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            tempFotoEdit = e.target.result;
+            document.getElementById("imgPreviewEdit").src = tempFotoEdit;
+            document.getElementById("previewFotoEdit").style.display = "block";
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+async function cargarClientesSelectEdit(clienteActual) {
+    const select = document.getElementById("edit-clienteSelect");
+    try {
+        const res = await fetch(`${API_BASE_URL}/clientes`, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` }
+        });
+        const clientes = await res.json();
+        select.innerHTML = "";
+        clientes.forEach(c => {
+            const opt = document.createElement("option");
+            opt.value = c.nombre;
+            opt.text = c.nombre;
+            if(c.nombre === clienteActual) opt.selected = true;
+            select.appendChild(opt);
+        });
+    } catch(e) { console.error("Error clientes:", e); }
+}
+
+function cerrarModalEditar() {
+    document.getElementById("modalEditarCuenta").style.display = "none";
+    document.getElementById("levFormEditarCuenta").reset();
+    materialesEditList = [];
+}
+
+// 5. GUARDAR CAMBIOS (PUT)
 async function actualizarCuentaFinal() {
+    if (materialesEditList.length === 0) return alert("La nota no puede estar vacía");
+
     const datos = {
         clienteNombre: document.getElementById("edit-clienteSelect").value,
         anticipo: document.getElementById("levAnticipoEdit").value,
         total: document.getElementById("levTotalEdit").value,
-        materiales: materialesEditList 
+        materiales: materialesEditList
     };
 
     try {
@@ -1114,13 +1139,10 @@ async function actualizarCuentaFinal() {
         });
 
         if (res.ok) {
-            alert("✅ ¡A toda dar! Cuenta actualizada.");
+            alert("✅ ¡Listo carnal! Cambios guardados.");
             cerrarModalEditar();
-            cargarCuentas(); // Refrescamos la lista principal
+            cargarCuentas();
         }
-    } catch (e) {
-        alert("Falló la conexión carnal.");
-    } finally {
-        document.getElementById("loader").style.display = "none";
-    }
+    } catch (e) { alert("Error al conectar al servidor"); }
+    finally { document.getElementById("loader").style.display = "none"; }
 }
