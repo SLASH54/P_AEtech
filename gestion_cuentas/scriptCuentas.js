@@ -880,8 +880,8 @@ async function prepararEdicion(id) {
             fotoUrl: m.fotoUrl // Guardamos la URL actual
         }));
         
-        actualizarTablaMateriales(); // Tu función que dibuja los materiales en el modal
-        calcularTotal();
+        levRenderMateriales(); // Tu función que dibuja los materiales en el modal
+        calcularSaldo();
 
     } catch (error) {
         console.error(error);
