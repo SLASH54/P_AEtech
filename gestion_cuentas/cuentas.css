@@ -1165,3 +1165,30 @@ input:checked + .slider:before { transform: translateX(18px); }
 .btn-clear-ios:active {
     transform: scale(0.9);
 }
+
+/* Botón de Regresar estilo iOS */
+.btn-back-ios {
+    background: rgba(142, 142, 147, 0.2) !important; /* Gris suave translúcido */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+    width: 35px;
+    height: 35px;
+    border-radius: 50% !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-back-ios:hover {
+    background: rgba(142, 142, 147, 0.4) !important;
+    transform: translateX(-3px); /* Pequeño brinco a la izquierda */
+}
+
+.btn-back-ios:active {
+    transform: scale(0.9);
+}
