@@ -1192,3 +1192,50 @@ input:checked + .slider:before { transform: translateX(18px); }
 .btn-back-ios:active {
     transform: scale(0.9);
 }
+
+.ios-header {
+    display: flex;
+    justify-content: space-between; /* Empuja los 3 bloques: izq, centro, der */
+    align-items: center;
+    background-color: #005e737d;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 10px 20px;
+    height: 90px; /* Ajusta según el tamaño de tu logo */
+}
+
+/* Los dos lados miden lo mismo para que el centro sea real */
+.header-side {
+    flex: 1; 
+    display: flex;
+    justify-content: flex-start; /* Botón a la izquierda */
+}
+
+.header-center {
+    flex: 2; /* Le damos más espacio al logo */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Estilo circular para el botón de regresar en el header */
+.btn-back-ios-header {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    backdrop-filter: blur(5px);
+    color: white !important;
+    width: 45px;
+    height: 45px;
+    border-radius: 50% !important; /* Totalmente circular */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-back-ios-header:hover {
+    background: rgba(255, 255, 255, 0.4) !important;
+    transform: scale(1.1);
+}
