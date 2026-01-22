@@ -508,19 +508,14 @@ async function guardarCuentaFinal() {
     try {
         document.getElementById("loader").style.display = "flex";
 
-        // Dentro de guardarCuentaFinal()...
-        const metodo = editandoId ? 'PUT' : 'POST';
-        const url = editandoId ? `${API_BASE_URL}/cuentas/${editandoId}` : `${API_BASE_URL}/cuentas`;
-
-        const response = await fetch(url, {
-            method: metodo,
+        const response = await fetch(`${API_BASE_URL}/cuentas`, {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${localStorage.getItem("accessToken")}`
             },
             body: JSON.stringify(datos)
         });
-
 
         if (response.ok) {
             alert("✅ Cuenta guardada correctamente");
