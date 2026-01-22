@@ -333,41 +333,78 @@ function levLimpiarInputs() {
 }
 
 // 🖨️ RENDER MATERIALES
+//function levRenderMateriales() {
+//    const ul = document.getElementById("levListaMateriales");
+//    ul.innerHTML = "";
+
+//    const grupos = {};
+
+//    levMaterialesList.forEach(mat => {
+//        if (!grupos[mat.categoria]) grupos[mat.categoria] = [];
+//        grupos[mat.categoria].push(mat);
+//    });
+
+//    Object.keys(grupos).sort().forEach(cat => {
+
+//        const header = document.createElement("li");
+//        header.innerHTML = `<strong>${cat}</strong>`;
+//        header.style.marginTop = "10px";
+//        ul.appendChild(header);
+
+//        grupos[cat].forEach(mat => {
+//            const li = document.createElement("li");
+//            li.innerHTML = `
+//                ${mat.insumo} – ${mat.cantidad} ${mat.unidad}
+//                <button class="levBtnEliminarMat">❌</button>
+//            `;
+
+//            li.querySelector(".levBtnEliminarMat").onclick = () => {
+//                levMaterialesList = levMaterialesList.filter(
+//                    m => !(m.insumo === mat.insumo && m.unidad === mat.unidad)
+//                );
+//                levRenderMateriales();
+//            };
+
+//            ul.appendChild(li);
+//        });
+//    });
+//}
+
 function levRenderMateriales() {
-    const ul = document.getElementById("levListaMateriales");
-    ul.innerHTML = "";
+    const tbody = document.getElementById("levListaMateriales").querySelector('tbody');
+    tbody.innerHTML = '';
 
-    const grupos = {};
+    levMaterialesList.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        
+        // --- Lógica para decidir qué imagen mostrar ---
+        let fuenteImagen = 'img/no-image.png'; // Imagen por defecto
+        
+        if (item.foto) {
+            // Si el usuario acaba de subir una foto nueva desde su PC
+            fuenteImagen = item.foto; 
+        } else if (item.fotoUrl) {
+            // Si la foto ya existe en Cloudinary (viene de la edición)
+            fuenteImagen = item.fotoUrl;
+        }
 
-    levMaterialesList.forEach(mat => {
-        if (!grupos[mat.categoria]) grupos[mat.categoria] = [];
-        grupos[mat.categoria].push(mat);
+        tr.innerHTML = `
+            <td>
+                <div class="lev-img-preview">
+                    <img src="${fuenteImagen}" style="width:50px; height:50px; object-fit:cover; border-radius:8px;">
+                </div>
+            </td>
+            <td>${item.nombre}</td>
+            <td style="text-align:center;">${item.cantidad}</td>
+            <td style="text-align:right;">$${item.costo.toFixed(2)}</td>
+            <td style="text-align:center;">
+                <button onclick="levEliminarMaterial(${index})" class="btn-delete-item" style="background:none; border:none; color:red; cursor:pointer;">✕</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
     });
-
-    Object.keys(grupos).sort().forEach(cat => {
-
-        const header = document.createElement("li");
-        header.innerHTML = `<strong>${cat}</strong>`;
-        header.style.marginTop = "10px";
-        ul.appendChild(header);
-
-        grupos[cat].forEach(mat => {
-            const li = document.createElement("li");
-            li.innerHTML = `
-                ${mat.insumo} – ${mat.cantidad} ${mat.unidad}
-                <button class="levBtnEliminarMat">❌</button>
-            `;
-
-            li.querySelector(".levBtnEliminarMat").onclick = () => {
-                levMaterialesList = levMaterialesList.filter(
-                    m => !(m.insumo === mat.insumo && m.unidad === mat.unidad)
-                );
-                levRenderMateriales();
-            };
-
-            ul.appendChild(li);
-        });
-    });
+    
+    calcularSaldo(); // Recalculamos el total del modal
 }
 
 // 👁️ MOSTRAR CAMPOS EXTRA
@@ -846,7 +883,6 @@ async function prepararEdicion(id) {
     try {
         document.getElementById("loader").style.display = "flex";
         
-        // 1. Buscamos la cuenta
         const response = await fetch(`${API_BASE_URL}/cuentas`, {
             headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` }
         });
@@ -855,17 +891,17 @@ async function prepararEdicion(id) {
 
         if (!cuenta) return;
 
-        editandoId = id; // IMPORTANTE: Guardamos el ID
+        editandoId = id;
+        openNuevaCuenta(); // Abrimos el modal
 
-        // 2. Abrimos el modal (usando tu función actual)
-        openNuevaCuenta();
-
-        // 3. Cambiamos los textos para que diga "Editar"
+        // Cambiamos textos
         document.querySelector("#modalNuevaCuenta .modalGlass-title").innerText = "Editar Nota";
-        document.getElementById("labelNumeroNota").innerText = cuenta.numeroNota || "";
         document.getElementById("btnGuardarCuenta").innerText = "Actualizar Cambios";
+        document.getElementById("labelNumeroNota").innerText = cuenta.numeroNota || "";
 
-        // 4. Llenamos los datos del cliente
+        // Llenamos campos básicos (Cliente, Anticipo, IVA, etc.)
+        // ... (el código que ya tienes para llenar los inputs) ...
+         // 4. Llenamos los datos del cliente
         const selectCliente = document.getElementById('lev-clienteSelect');
         for (let i = 0; i < selectCliente.options.length; i++) {
             if (selectCliente.options[i].text === cuenta.clienteNombre) {
@@ -881,21 +917,33 @@ async function prepararEdicion(id) {
         document.getElementById('chkFactura').checked = cuenta.factura;
         document.getElementById('levFolioFactura').value = cuenta.folioFactura;
 
-        // 6. Cargamos los materiales existentes al array
-        levMaterialesList = cuenta.materiales.map(m => ({
-            nombre: m.nombre,
-            cantidad: m.cantidad,
-            costo: m.costo,
-            fotoUrl: m.fotoUrl // Mantenemos la foto que ya tiene
-        }));
+        // 🔥 LLAMAMOS A LA NUEVA FUNCIÓN EXCLUSIVA
+        cargarMaterialesEdicion(cuenta.materiales);
 
-        // 7. Refrescamos la tablita del modal
-        levRenderMateriales(); // Asegúrate de que este nombre sea el que usas para dibujar la tabla
         calcularSaldo();
 
     } catch (error) {
-        console.error("Error al editar:", error);
+        console.error("Error al cargar materiales para editar:", error);
     } finally {
         document.getElementById("loader").style.display = "none";
     }
+}
+
+
+
+function cargarMaterialesEdicion(materialesBD) {
+    // Limpiamos la lista actual antes de cargar los de la base de datos
+    levMaterialesList = materialesBD.map(m => {
+        return {
+            nombre: m.nombre,
+            cantidad: m.cantidad,
+            costo: parseFloat(m.costo),
+            // IMPORTANTE: Guardamos la URL de Cloudinary en una propiedad específica
+            fotoUrl: m.fotoUrl, 
+            foto: null // Esto indica que NO es un archivo nuevo cargado desde la PC
+        };
+    });
+
+    // Una vez lleno el array, mandamos a dibujar la tabla
+    levRenderMateriales();
 }
