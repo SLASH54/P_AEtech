@@ -1115,3 +1115,13 @@ function filtrarNotasPorCliente() {
 // 3. Ejecutar al cargar la página (agrega esto al final de tu archivo o donde cargues las cuentas)
 document.addEventListener("DOMContentLoaded", cargarFiltroClientes);
 
+function limpiarFiltroCliente() {
+    const select = document.getElementById("filtroCliente");
+    select.value = ""; // Regresa a "Todos los Clientes"
+    filtrarNotasPorCliente(); // Ejecuta el filtro (que ahora mostrará todo)
+    
+    // Opcional: un pequeño efecto visual de que se limpió
+    select.style.boxShadow = "0 0 10px rgba(52, 199, 89, 0.5)";
+    setTimeout(() => select.style.boxShadow = "none", 500);
+}
+

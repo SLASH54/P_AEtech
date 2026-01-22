@@ -25,15 +25,19 @@
             <div class="tareas-container">
                 <h2 class="section-title">Organizador de Cuentas</h2>
 
-            <div class="lev-header-actions" style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
+         <div class="lev-header-actions" style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
     <button id="btnNuevaCuenta" onclick="openNuevaCuenta()" class="btn btn-primary" style="margin-bottom: 0;">
         + Nueva Cuenta
     </button>
 
-    <div class="glass-filter-container">
+    <div style="display: flex; gap: 5px; align-items: center;">
         <select id="filtroCliente" onchange="filtrarNotasPorCliente()" class="glass-select-ios">
             <option value="">👤 Todos los Clientes</option>
-            </select>
+        </select>
+        
+        <button onclick="limpiarFiltroCliente()" class="btn-clear-ios" title="Limpiar Filtro">
+            ✕
+        </button>
     </div>
 </div>
 
