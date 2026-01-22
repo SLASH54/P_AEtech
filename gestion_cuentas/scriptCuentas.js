@@ -1141,3 +1141,107 @@ async function actualizarCuentaFinal() {
     } catch (e) { alert("Error al conectar al servidor"); }
     finally { document.getElementById("loader").style.display = "none"; }
 }
+
+
+// 1. Mostrar/Ocultar folio de factura en edición
+function toggleFacturaEdit() {
+    const chk = document.getElementById("chkFacturaEdit");
+    const inputFolio = document.getElementById("levFolioFacturaEdit");
+    inputFolio.style.display = chk.checked ? "inline-block" : "none";
+}
+
+// 2. Cálculo de Saldo con IVA (Espejo de calcularSaldo)
+function calcularSaldoEdit() {
+    let totalMateriales = 0;
+    materialesEditList.forEach(item => {
+        totalMateriales += (item.cantidad * item.costo);
+    });
+
+    const llevaIva = document.getElementById("chkIvaEdit").checked;
+    const porcentajeIva = parseFloat(document.getElementById("levIvaPorcentajeEdit").value) || 0;
+    
+    let totalFinal = totalMateriales;
+    if (llevaIva) {
+        totalFinal += (totalMateriales * (porcentajeIva / 100));
+    }
+
+    const anticipo = parseFloat(document.getElementById("levAnticipoEdit").value) || 0;
+    const saldo = totalFinal - anticipo;
+
+    document.getElementById("levTotalEdit").value = totalFinal.toFixed(2);
+    document.getElementById("levSaldoEdit").value = saldo.toFixed(2);
+}
+
+// 3. Modifica la función prepararEdicion para cargar estos nuevos campos
+async function prepararEdicion(id) {
+    try {
+        document.getElementById("loader").style.display = "flex";
+        editandoId = id;
+
+        const response = await fetch(`${API_BASE_URL}/cuentas`, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` }
+        });
+        const cuentas = await response.json();
+        const cuenta = cuentas.find(c => c.id === id);
+
+        if (!cuenta) return;
+
+        document.getElementById("modalEditarCuenta").style.display = "flex";
+        await cargarClientesSelectEdit(cuenta.clienteNombre);
+
+        // Llenar campos principales
+        document.getElementById("labelNumeroNotaEdit").innerText = cuenta.numeroNota;
+        document.getElementById("levAnticipoEdit").value = cuenta.anticipo;
+        
+        // Llenar campos de IVA y Factura
+        document.getElementById("chkIvaEdit").checked = cuenta.iva || false;
+        document.getElementById("levIvaPorcentajeEdit").value = cuenta.ivaPorcentaje || 16;
+        document.getElementById("chkFacturaEdit").checked = cuenta.factura || false;
+        document.getElementById("levFolioFacturaEdit").value = cuenta.folioFactura || "";
+        toggleFacturaEdit(); // Mostrar folio si es necesario
+
+        materialesEditList = cuenta.materiales.map(m => ({
+            nombre: m.nombre,
+            cantidad: m.cantidad,
+            costo: parseFloat(m.costo),
+            fotoUrl: m.fotoUrl,
+            foto: null 
+        }));
+
+        renderMaterialesEdit();
+    } catch (e) { console.error(e); }
+    finally { document.getElementById("loader").style.display = "none"; }
+}
+
+// 4. Modifica actualizarCuentaFinal para enviar los datos de IVA/Factura
+async function actualizarCuentaFinal() {
+    const datos = {
+        clienteNombre: document.getElementById("edit-clienteSelect").value,
+        anticipo: document.getElementById("levAnticipoEdit").value,
+        total: document.getElementById("levTotalEdit").value,
+        iva: document.getElementById("chkIvaEdit").checked,
+        ivaPorcentaje: document.getElementById("levIvaPorcentajeEdit").value,
+        factura: document.getElementById("chkFacturaEdit").checked,
+        folioFactura: document.getElementById("levFolioFacturaEdit").value,
+        materiales: materialesEditList
+    };
+
+    try {
+        document.getElementById("loader").style.display = "flex";
+        const res = await fetch(`${API_BASE_URL}/cuentas/${editandoId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem("accessToken")}`
+            },
+            body: JSON.stringify(datos)
+        });
+
+        if (res.ok) {
+            alert("✅ Nota Actualizada con IVA/Factura");
+            cerrarModalEditar();
+            cargarCuentas();
+        }
+    } catch (e) { alert("Error al guardar"); }
+    finally { document.getElementById("loader").style.display = "none"; }
+}
