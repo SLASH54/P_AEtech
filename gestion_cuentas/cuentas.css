@@ -880,3 +880,138 @@ input:checked + .slider:before { transform: translateX(18px); }
 
 #tablaMaterialesEdit td:first-child { border-radius: 12px 0 0 12px; }
 #tablaMaterialesEdit td:last-child { border-radius: 0 12px 12px 0; }
+
+/* CONTENEDOR DE TOTALES ESTILO iOS PREMIUM */
+.lev-totales-container {
+    background: rgba(255, 255, 255, 0.4) !important; /* Transparencia para el efecto cristal */
+    backdrop-filter: blur(15px) saturate(180%); /* El famoso desenfoque de Apple */
+    -webkit-backdrop-filter: blur(15px) saturate(180%);
+    border-radius: 22px !important; /* Bordes super redondeados */
+    padding: 20px !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Filas individuales */
+.lev-total-field {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+}
+
+/* Etiquetas */
+.lev-total-field label {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif !important;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    color: #3a3a3c !important; /* Gris oscuro elegante */
+}
+
+/* Inputs de los Totales */
+.lev-total-field input {
+    font-family: "SF Pro Text", sans-serif !important;
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    border: none !important;
+    background: transparent !important;
+    text-align: right !important;
+    width: 130px !important;
+    outline: none !important;
+}
+
+/* Estilo para el Anticipo (El que está en medio y es editable) */
+#levAnticipoEdit {
+    background: rgba(255, 255, 255, 0.6) !important;
+    border: 1px solid rgba(0, 122, 255, 0.2) !important; /* Un toque de azul */
+    border-radius: 10px !important;
+    padding: 5px 10px !important;
+    color: #007aff !important; /* Azul San Francisco */
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+}
+
+#levAnticipoEdit:focus {
+    background: #ffffff !important;
+    border-color: #007aff !important;
+    box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1) !important;
+}
+
+/* Estilo para el Saldo (Abajo) */
+#levSaldoEdit {
+    color: #ff3b30 !important; /* Rojo vibrante de iOS */
+    font-size: 22px !important; /* Más grande para que resalte la deuda */
+    letter-spacing: -0.5px;
+}
+
+/* Línea divisoria minimalista en el anticipo */
+.lev-total-field:nth-child(2) {
+    border-top: 0.5px solid rgba(0, 0, 0, 0.08) !important;
+    border-bottom: 0.5px solid rgba(0, 0, 0, 0.08) !important;
+    padding: 15px 0 !important;
+}
+
+
+/* ==========================================
+   RESPONSIVE - ESTILO APP MÓVIL iOS
+   ========================================== */
+@media (max-width: 600px) {
+    /* 1. Ajuste del Modal para que parezca una "Card" de Apple */
+    .modal-content {
+        width: 95% !important;
+        margin: 10px auto !important;
+        padding: 15px !important;
+        border-radius: 25px !important;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    /* 2. El contenedor de totales en móvil */
+    .lev-totales-container {
+        padding: 15px !important;
+        gap: 8px !important;
+        margin-top: 15px;
+    }
+
+    /* 3. Hacer los textos un poco más grandes para leer fácil */
+    .lev-total-field label {
+        font-size: 14px !important;
+    }
+
+    .lev-total-field input {
+        font-size: 16px !important;
+        width: 100px !important;
+    }
+
+    /* 4. Inputs de Insumos y Cantidad en columna para que no se amontonen */
+    .lev-form-row {
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+
+    .lev-form-row div {
+        width: 100% !important;
+    }
+
+    /* 5. Botones tipo "Touch" (más altos para el dedo) */
+    .glass-btn-ios, .btn-add-ios {
+        height: 48px !important;
+        font-size: 16px !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* 6. Tabla de materiales en móvil: ocultamos lo que estorba */
+    .tabla th:nth-child(1), .tabla td:nth-child(1) {
+        width: 50px; /* Foto más pequeña */
+    }
+
+    /* 7. El saldo más resaltado en el cel */
+    #levSaldoEdit {
+        font-size: 24px !important;
+    }
+}
