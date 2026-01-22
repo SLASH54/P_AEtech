@@ -1112,3 +1112,29 @@ input:checked + .slider:before { transform: translateX(18px); }
 .btn-tabla-ios:active {
     transform: scale(0.9);
 }
+
+
+.glass-select-ios {
+    background: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    border-radius: 12px !important;
+    padding: 8px 15px !important;
+    color: white !important; /* Cambia a negro si tu fondo es muy claro */
+    font-size: 14px;
+    font-weight: 500;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.glass-select-ios option {
+    background: #ffffff; /* Las opciones deben ser blancas para leerse bien */
+    color: #333;
+}
+
+.glass-select-ios:hover {
+    background: rgba(255, 255, 255, 0.3) !important;
+    transform: translateY(-1px);
+}

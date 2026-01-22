@@ -1074,3 +1074,44 @@ function cerrarModalEditar() {
 }
 
 
+
+// 1. LLENAR EL FILTRO DE CLIENTES AL CARGAR LA PÁGINA
+async function cargarFiltroClientes() {
+    const selectFiltro = document.getElementById("filtroCliente");
+    try {
+        const res = await fetch(`${API_BASE_URL}/clientes`, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` }
+        });
+        const clientes = await res.json();
+        
+        // Mantener la opción de "Todos" y agregar el resto
+        selectFiltro.innerHTML = '<option value="">👤 Todos los Clientes</option>';
+        clientes.forEach(c => {
+            const opt = document.createElement("option");
+            opt.value = c.nombre;
+            opt.text = c.nombre;
+            selectFiltro.appendChild(opt);
+        });
+    } catch(e) { console.error("Error al cargar filtro:", e); }
+}
+
+// 2. LA FUNCIÓN QUE FILTRA LA TABLA EN TIEMPO REAL
+function filtrarNotasPorCliente() {
+    const valorFiltro = document.getElementById("filtroCliente").value.toLowerCase();
+    const filas = document.querySelectorAll(".tabla tbody tr");
+
+    filas.forEach(fila => {
+        // Buscamos el nombre del cliente en la segunda columna (td:nth-child(2))
+        const nombreCliente = fila.querySelector("td:nth-child(2)").innerText.toLowerCase();
+        
+        if (valorFiltro === "" || nombreCliente.includes(valorFiltro)) {
+            fila.style.display = ""; // Mostrar
+        } else {
+            fila.style.display = "none"; // Ocultar
+        }
+    });
+}
+
+// 3. Ejecutar al cargar la página (agrega esto al final de tu archivo o donde cargues las cuentas)
+document.addEventListener("DOMContentLoaded", cargarFiltroClientes);
+
