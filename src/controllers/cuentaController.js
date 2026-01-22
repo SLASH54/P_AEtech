@@ -143,3 +143,56 @@ exports.eliminarCuenta = async (req, res) => {
         res.status(500).json({ message: "Error interno al eliminar" });
     }
 };
+
+exports.editarCuenta = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { clienteNombre, total, anticipo, iva, ivaPorcentaje, factura, folioFactura, materiales } = req.body;
+
+        const cuenta = await Cuenta.findByPk(id);
+        if (!cuenta) return res.status(404).json({ message: "Cuenta no encontrada" });
+
+        // 1. Recalcular saldo y estatus
+        const nTotal = parseFloat(total) || 0;
+        const nAnticipo = parseFloat(anticipo) || 0;
+        const saldoCalculado = nTotal - nAnticipo;
+        const nuevoEstatus = saldoCalculado <= 0 ? 'Pagado' : 'Pendiente';
+
+        // 2. Actualizar cabecera
+        await cuenta.update({
+            clienteNombre, total: nTotal, anticipo: nAnticipo,
+            saldo: saldoCalculado, iva, ivaPorcentaje,
+            factura, folioFactura, estatus: nuevoEstatus
+        });
+
+        // 3. Manejar materiales (Eliminar anteriores y crear nuevos)
+        // Nota: En una app más grande podrías comparar IDs, pero borrar y recrear es más limpio para prototipos
+        await CuentaMaterial.destroy({ where: { cuentaId: id } });
+
+        if (materiales && materiales.length > 0) {
+            const materialesProcesados = await Promise.all(materiales.map(async (mat) => {
+                let urlFinal = mat.fotoUrl;
+
+                // Si la foto es nueva (Base64), subirla a Cloudinary
+                if (mat.foto && mat.foto.startsWith('data:image')) {
+                    const uploadRes = await cloudinary.uploader.upload(mat.foto, { folder: "cuentas_aetech" });
+                    urlFinal = uploadRes.secure_url;
+                }
+
+                return {
+                    nombre: mat.nombre,
+                    cantidad: mat.cantidad || 1,
+                    costo: mat.costo,
+                    fotoUrl: urlFinal,
+                    cuentaId: id
+                };
+            }));
+            await CuentaMaterial.bulkCreate(materialesProcesados);
+        }
+
+        res.json({ message: "Cuenta actualizada correctamente" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error al editar la cuenta" });
+    }
+};

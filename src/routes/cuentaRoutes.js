@@ -16,4 +16,6 @@ router.get('/:id/pdf', protect, pdfController.generarPDFCuenta);
 // ... tus otras rutas
 router.delete('/:id', protect, cuentaController.eliminarCuenta);
 
+router.put('/:id', protect, cuentaController.editarCuenta);
+
 module.exports = router;

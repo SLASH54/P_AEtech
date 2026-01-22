@@ -42,6 +42,14 @@ function openNuevaCuenta() {
 function cerrarNuevaCuentaModal() {
     document.getElementById('modalNuevaCuenta').style.display = 'none';
     document.body.style.overflow = 'auto';
+
+    // Resetear todo a modo "Nueva Cuenta"
+    editandoId = null; 
+    levMaterialesList = [];
+    document.getElementById('levFormNuevaCuenta').reset();
+    document.querySelector("#modalNuevaCuenta .modalGlass-title").innerText = "Nueva Cuenta";
+    document.getElementById("btnGuardarCuenta").innerText = "Guardar Cuenta";
+    actualizarTablaMateriales();
 }
 
 
@@ -494,14 +502,19 @@ async function guardarCuentaFinal() {
     try {
         document.getElementById("loader").style.display = "flex";
 
-        const response = await fetch(`${API_BASE_URL}/cuentas`, {
-            method: 'POST',
+        // Dentro de guardarCuentaFinal()...
+        const metodo = editandoId ? 'PUT' : 'POST';
+        const url = editandoId ? `${API_BASE_URL}/cuentas/${editandoId}` : `${API_BASE_URL}/cuentas`;
+
+        const response = await fetch(url, {
+            method: metodo,
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${localStorage.getItem("accessToken")}`
             },
             body: JSON.stringify(datos)
         });
+
 
         if (response.ok) {
             alert("✅ Cuenta guardada correctamente");
@@ -639,6 +652,7 @@ async function cargarCuentasTabla() {
                 <td>${fecha}</td>
                 <td>
                     <button onclick="verDetalleCuenta(${c.id})" class="btn-ver">👁️</button>
+                    <button onclick="prepararEdicion(${c.id})" class="btn-edit" style="background: rgba(255,165,0,0.2); color: orange; border-radius:10px; border:1px solid orange; cursor:pointer;">✏️</button>
                     <button onclick="descargarPDFCuenta(${c.id})" class="btn-pdf">PDF</button>
                     <button onclick="eliminarCuenta(${c.id})" class="btn-eliminar" style="background: #ff3b30; border: none; border-radius: 5px; cursor: pointer;">🗑️</button>
                 </td>
@@ -819,6 +833,58 @@ async function eliminarCuenta(id) {
             const error = await response.json();
             alert("❌ Error: " + error.message);
         }
+    } finally {
+        document.getElementById("loader").style.display = "none";
+    }
+}
+
+
+let editandoId = null; // Variable global para saber si estamos editando
+
+async function prepararEdicion(id) {
+    try {
+        document.getElementById("loader").style.display = "flex";
+        const response = await fetch(`${API_BASE_URL}/cuentas`, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` }
+        });
+        const cuentas = await response.json();
+        const cuenta = cuentas.find(c => c.id === id);
+
+        if (!cuenta) return;
+
+        editandoId = id; // Guardamos el ID que estamos editando
+        
+        // 1. Abrir el modal y cambiar textos
+        openNuevaCuenta(); 
+        document.querySelector(".modal-title").innerText = "Editar Cuenta " + (cuenta.numeroNota || "");
+        document.getElementById("btnGuardarCuenta").innerText = "Actualizar Cambios";
+
+        // 2. Llenar campos básicos
+        // Nota: Para el select de cliente, busca el valor por el nombre si no tienes el ID a la mano
+        const selectCliente = document.getElementById('lev-clienteSelect');
+        Array.from(selectCliente.options).forEach(opt => {
+            if(opt.text === cuenta.clienteNombre) opt.selected = true;
+        });
+
+        document.getElementById('levAnticipo').value = cuenta.anticipo;
+        document.getElementById('chkIva').checked = cuenta.iva;
+        document.getElementById('levIvaPorcentaje').value = cuenta.ivaPorcentaje;
+        document.getElementById('chkFactura').checked = cuenta.factura;
+        document.getElementById('levFolioFactura').value = cuenta.folioFactura;
+
+        // 3. Cargar materiales al array temporal y renderizar
+        levMaterialesList = cuenta.materiales.map(m => ({
+            nombre: m.nombre,
+            cantidad: m.cantidad,
+            costo: m.costo,
+            fotoUrl: m.fotoUrl // Guardamos la URL actual
+        }));
+        
+        actualizarTablaMateriales(); // Tu función que dibuja los materiales en el modal
+        calcularTotal();
+
+    } catch (error) {
+        console.error(error);
     } finally {
         document.getElementById("loader").style.display = "none";
     }
