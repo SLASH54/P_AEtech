@@ -241,6 +241,63 @@
     </div>
 </div>
 
+<div id="modalEditarCuenta" class="modalGlass" style="display: none;">
+    <div class="modalGlass-content" style="max-width: 800px;">
+        <span class="modalGlass-close" onclick="cerrarModalEditar()">×</span>
+        <h2 class="modalGlass-title">Editar Nota</h2>
+        <h3 id="labelNumeroNotaEdit" style="text-align: center; color: #ff9f0a;">Nota #</h3>
+
+        <form id="levFormEditarCuenta">
+            <div class="lev-grid-container">
+                <div class="lev-input-group">
+                    <label>Cliente:</label>
+                    <input type="text" id="edit-clienteNombre" readonly style="background: rgba(255,255,255,0.1); color: white;">
+                </div>
+
+                <div class="lev-input-group">
+                    <label>Anticipo:</label>
+                    <input type="number" id="levAnticipoEdit" oninput="calcularSaldoEdit()" step="0.01">
+                </div>
+            </div>
+
+            <div class="lev-materiales-section">
+                <h4>Productos de la Nota</h4>
+                <div class="table-responsive">
+                    <table id="levMaterialesTableEdit" class="tabla">
+                        <thead>
+                            <tr>
+                                <th>Imagen</th>
+                                <th>Producto</th>
+                                <th>Cant.</th>
+                                <th>Precio</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="lev-totales-container">
+                <div class="lev-total-field">
+                    <label>Total:</label>
+                    <input type="text" id="levTotalEdit" readonly>
+                </div>
+                <div class="lev-total-field">
+                    <label style="color: #ff3b30; font-weight: bold;">Por Liquidar:</label>
+                    <input type="text" id="levSaldoEdit" readonly style="color: #ff3b30; font-weight: bold;">
+                </div>
+            </div>
+
+            <div class="lev-button-center" style="margin-top: 20px;">
+                <button type="button" onclick="actualizarCuentaFinal()" class="btn-edit" style="width: 100%; padding: 15px;">
+                    Actualizar Cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
     <script src="scriptCuentas.js"></script>
 </body>
 </html>

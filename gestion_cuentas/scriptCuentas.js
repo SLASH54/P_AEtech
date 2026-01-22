@@ -335,76 +335,44 @@ function levLimpiarInputs() {
 }
 
 // 🖨️ RENDER MATERIALES
-//function levRenderMateriales() {
-//    const ul = document.getElementById("levListaMateriales");
-//    ul.innerHTML = "";
-
-//    const grupos = {};
-
-//    levMaterialesList.forEach(mat => {
-//        if (!grupos[mat.categoria]) grupos[mat.categoria] = [];
-//        grupos[mat.categoria].push(mat);
-//    });
-
-//    Object.keys(grupos).sort().forEach(cat => {
-
-//        const header = document.createElement("li");
-//        header.innerHTML = `<strong>${cat}</strong>`;
-//        header.style.marginTop = "10px";
-//        ul.appendChild(header);
-
-//        grupos[cat].forEach(mat => {
-//            const li = document.createElement("li");
-//            li.innerHTML = `
-//                ${mat.insumo} – ${mat.cantidad} ${mat.unidad}
-//                <button class="levBtnEliminarMat">❌</button>
-//            `;
-
-//            li.querySelector(".levBtnEliminarMat").onclick = () => {
-//                levMaterialesList = levMaterialesList.filter(
-//                    m => !(m.insumo === mat.insumo && m.unidad === mat.unidad)
-//                );
-//                levRenderMateriales();
-//            };
-
-//            ul.appendChild(li);
-//        });
-//    });
-//}
-
 function levRenderMateriales() {
-    const tbody = document.getElementById('levListaMateriales').querySelector('tbody');
-    if (!tbody) return;
-    tbody.innerHTML = '';
+    const ul = document.getElementById("levListaMateriales");
+    ul.innerHTML = "";
 
-    levMaterialesList.forEach((item, index) => {
-        const tr = document.createElement('tr');
-        
-        // 🔥 AQUÍ ESTÁ EL TRUCO: Decidir qué imagen mostrar
-        let fotoAMostrar = 'img/no-image.png';
-        if (item.foto) {
-            fotoAMostrar = item.foto; // Si es nueva (Base64)
-        } else if (item.fotoUrl) {
-            fotoAMostrar = item.fotoUrl; // Si es de Cloudinary (Edición)
-        }
+    const grupos = {};
 
-        tr.innerHTML = `
-            <td>
-                <div class="lev-img-preview" style="width:50px; height:50px; overflow:hidden; border-radius:8px;">
-                    <img src="${fotoAMostrar}" style="width:100%; height:100%; object-fit:cover;">
-                </div>
-            </td>
-            <td style="color:black;">${item.nombre}</td>
-            <td style="text-align:center; color:black;">${item.cantidad}</td>
-            <td style="text-align:right; color:black;">$${parseFloat(item.costo).toFixed(2)}</td>
-            <td style="text-align:center;">
-                <button onclick="levEliminarMaterial(${index})" class="btn-delete-item" style="background:none; border:none; color:red; cursor:pointer; font-size:1.2rem;">✕</button>
-            </td>
-        `;
-        tbody.appendChild(tr);
+    levMaterialesList.forEach(mat => {
+        if (!grupos[mat.categoria]) grupos[mat.categoria] = [];
+        grupos[mat.categoria].push(mat);
     });
-    calcularTotal();
+
+    Object.keys(grupos).sort().forEach(cat => {
+
+        const header = document.createElement("li");
+        header.innerHTML = `<strong>${cat}</strong>`;
+        header.style.marginTop = "10px";
+        ul.appendChild(header);
+
+        grupos[cat].forEach(mat => {
+            const li = document.createElement("li");
+            li.innerHTML = `
+                ${mat.insumo} – ${mat.cantidad} ${mat.unidad}
+                <button class="levBtnEliminarMat">❌</button>
+            `;
+
+            li.querySelector(".levBtnEliminarMat").onclick = () => {
+                levMaterialesList = levMaterialesList.filter(
+                    m => !(m.insumo === mat.insumo && m.unidad === mat.unidad)
+                );
+                levRenderMateriales();
+            };
+
+            ul.appendChild(li);
+        });
+    });
 }
+
+
 
 // 👁️ MOSTRAR CAMPOS EXTRA
 function levMostrarCampoExtra() {
@@ -876,9 +844,14 @@ async function eliminarCuenta(id) {
 }
 
 
+let materialesEditList = []; // Array exclusivo para edición
+
+// 1. ABRIR EL MODAL DE EDICIÓN
 async function prepararEdicion(id) {
     try {
         document.getElementById("loader").style.display = "flex";
+        editandoId = id;
+
         const response = await fetch(`${API_BASE_URL}/cuentas`, {
             headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` }
         });
@@ -887,37 +860,100 @@ async function prepararEdicion(id) {
 
         if (!cuenta) return;
 
-        editandoId = id; 
-        openNuevaCuenta(); // Abrir modal
+        // Llenar campos del modal de edición
+        document.getElementById("modalEditarCuenta").style.display = "flex";
+        document.getElementById("labelNumeroNotaEdit").innerText = cuenta.numeroNota;
+        document.getElementById("edit-clienteNombre").value = cuenta.clienteNombre;
+        document.getElementById("levAnticipoEdit").value = cuenta.anticipo;
 
-        // Cambiar interfaz a modo edición
-        document.getElementById("labelNumeroNota").innerText = "Editar Nota";
-        document.getElementById("btnGuardarCuenta").innerText = "Actualizar Cambios";
-        document.getElementById("labelNumeroNota").innerText = cuenta.numeroNota || "";
-
-        // Llenar datos básicos
-        document.getElementById('levAnticipo').value = cuenta.anticipo;
-        document.getElementById('chkIva').checked = cuenta.iva;
-        document.getElementById('levIvaPorcentaje').value = cuenta.ivaPorcentaje;
-        document.getElementById('chkFactura').checked = cuenta.factura;
-        document.getElementById('levFolioFactura').value = cuenta.folioFactura;
-
-        // 🔥 CARGAR MATERIALES AL ARRAY GLOBAL
-        levMaterialesList = cuenta.materiales.map(m => ({
+        // Cargar materiales al array exclusivo
+        materialesEditList = cuenta.materiales.map(m => ({
             nombre: m.nombre,
             cantidad: m.cantidad,
-            costo: parseFloat(m.costo) || 0,
-            fotoUrl: m.fotoUrl, // URL de la base de datos
-            foto: null // No hay archivo nuevo aún
+            costo: parseFloat(m.costo),
+            fotoUrl: m.fotoUrl,
+            foto: null 
         }));
 
-        levRenderMateriales(); // Dibujar la tabla
-        calcularSaldo();
+        renderMaterialesEdit();
+        calcularSaldoEdit();
 
     } catch (error) {
-        console.error("Error en preparación:", error);
+        console.error("Error:", error);
     } finally {
         document.getElementById("loader").style.display = "none";
+    }
+}
+
+// 2. RENDERIZAR TABLA DE EDICIÓN
+function renderMaterialesEdit() {
+    const tbody = document.querySelector("#levMaterialesTableEdit tbody");
+    tbody.innerHTML = "";
+    let subtotal = 0;
+
+    materialesEditList.forEach((item, index) => {
+        subtotal += (item.cantidad * item.costo);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td><img src="${item.fotoUrl || 'img/no-image.png'}" style="width:40px; border-radius:5px;"></td>
+            <td style="color:black;">${item.nombre}</td>
+            <td style="color:black; text-align:center;">${item.cantidad}</td>
+            <td style="color:black; text-align:right;">$${item.costo.toFixed(2)}</td>
+            <td><button onclick="eliminarMaterialEdit(${index})" style="color:red; background:none; border:none; cursor:pointer;">✕</button></td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    document.getElementById("levTotalEdit").value = subtotal.toFixed(2);
+    calcularSaldoEdit();
+}
+
+// 3. CALCULAR SALDO EN EDICIÓN
+function calcularSaldoEdit() {
+    const total = parseFloat(document.getElementById("levTotalEdit").value) || 0;
+    const anticipo = parseFloat(document.getElementById("levAnticipoEdit").value) || 0;
+    document.getElementById("levSaldoEdit").value = (total - anticipo).toFixed(2);
+}
+
+// 4. ELIMINAR MATERIAL DEL ARRAY DE EDICIÓN
+function eliminarMaterialEdit(index) {
+    materialesEditList.splice(index, 1);
+    renderMaterialesEdit();
+}
+
+// 5. CERRAR MODAL
+function cerrarModalEditar() {
+    document.getElementById("modalEditarCuenta").style.display = "none";
+    editandoId = null;
+    materialesEditList = [];
+}
+
+// 6. ENVIAR ACTUALIZACIÓN AL BACKEND
+async function actualizarCuentaFinal() {
+    const datos = {
+        clienteNombre: document.getElementById("edit-clienteNombre").value,
+        anticipo: document.getElementById("levAnticipoEdit").value,
+        total: document.getElementById("levTotalEdit").value,
+        materiales: materialesEditList // Mandamos la lista editada
+    };
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/cuentas/${editandoId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem("accessToken")}`
+            },
+            body: JSON.stringify(datos)
+        });
+
+        if (response.ok) {
+            alert("✅ Nota actualizada correctamente");
+            cerrarModalEditar();
+            cargarCuentas();
+        }
+    } catch (error) {
+        alert("Error al actualizar");
     }
 }
 
