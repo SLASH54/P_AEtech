@@ -845,10 +845,10 @@ let materialesEditList = []; // Array exclusivo para edición
 
 
 /* ==========================================
-   SISTEMA DE EDICIÓN UNIFICADO (AEtech)
+   SECCIÓN DE EDICIÓN FINAL (AEtech)
    ========================================== */
 
-// 1. CARGAR DATOS EN EL MODAL (Incluye IVA, Factura y Clientes)
+// 1. CARGAR DATOS (Incluye Clientes, IVA y Factura)
 async function prepararEdicion(id) {
     try {
         document.getElementById("loader").style.display = "flex";
@@ -864,14 +864,16 @@ async function prepararEdicion(id) {
 
         document.getElementById("modalEditarCuenta").style.display = "flex";
         
-        // 🔥 AQUÍ ESTÁ TU FUNCIÓN DE CLIENTES, YA NO SE VA
+        // Cargar clientes y seleccionar el actual
         await cargarClientesSelectEdit(cuenta.clienteNombre);
 
         // Llenar campos principales
         document.getElementById("labelNumeroNotaEdit").innerText = cuenta.numeroNota;
+        
+        // AQUÍ CARGAMOS EL ANTICIPO AL INPUT QUE PUSISTE EN MEDIO
         document.getElementById("levAnticipoEdit").value = cuenta.anticipo;
         
-        // Llenar campos de IVA y Factura
+        // IVA y Factura
         document.getElementById("chkIvaEdit").checked = cuenta.iva || false;
         document.getElementById("levIvaPorcentajeEdit").value = cuenta.ivaPorcentaje || 16;
         document.getElementById("chkFacturaEdit").checked = cuenta.factura || false;
@@ -879,7 +881,7 @@ async function prepararEdicion(id) {
         
         toggleFacturaEdit(); 
 
-        // Cargar materiales existentes
+        // Cargar la lista de materiales
         materialesEditList = cuenta.materiales.map(m => ({
             nombre: m.nombre,
             cantidad: m.cantidad,
@@ -890,13 +892,13 @@ async function prepararEdicion(id) {
 
         renderMaterialesEdit();
     } catch (e) { 
-        console.error("Error al preparar:", e); 
+        console.error("Error en prepararEdicion:", e); 
     } finally { 
         document.getElementById("loader").style.display = "none"; 
     }
 }
 
-// 2. FUNCIÓN PARA CARGAR CLIENTES DESDE LA API (La que faltaba)
+// 2. CARGAR CLIENTES (Para el select de edición)
 async function cargarClientesSelectEdit(clienteActual) {
     const select = document.getElementById("edit-clienteSelect");
     try {
@@ -904,7 +906,7 @@ async function cargarClientesSelectEdit(clienteActual) {
             headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` }
         });
         const clientes = await res.json();
-        select.innerHTML = ""; // Limpiar
+        select.innerHTML = ""; 
         clientes.forEach(c => {
             const opt = document.createElement("option");
             opt.value = c.nombre;
@@ -912,70 +914,10 @@ async function cargarClientesSelectEdit(clienteActual) {
             if(c.nombre === clienteActual) opt.selected = true;
             select.appendChild(opt);
         });
-    } catch(e) { 
-        console.error("Error cargando clientes en edición:", e); 
-    }
+    } catch(e) { console.error("Error clientes:", e); }
 }
 
-// 3. AGREGAR MATERIAL (Con lógica de Select de Insumos)
-function agregarMaterialEdit() {
-    const select = document.getElementById("edit-levInsumo");
-    const campoExtra = document.getElementById("edit-levInsumoExtra");
-    const costoInput = document.getElementById("edit-prodCosto");
-    const cantInput = document.getElementById("edit-prodCant");
-
-    let nombre = (select.value === "Otro") ? campoExtra.value : select.value;
-    const costo = parseFloat(costoInput.value);
-    const cant = parseInt(cantInput.value) || 1;
-
-    if (!nombre || isNaN(costo)) {
-        return alert("Carnal, selecciona un producto y ponle precio.");
-    }
-
-    materialesEditList.push({
-        nombre: nombre,
-        costo: costo,
-        cantidad: cant,
-        foto: tempFotoEdit,
-        fotoUrl: null
-    });
-
-    // Limpiar campos
-    select.value = "";
-    campoExtra.value = "";
-    campoExtra.style.display = "none";
-    costoInput.value = "";
-    cantInput.value = "1";
-    document.getElementById("previewFotoEdit").style.display = "none";
-    tempFotoEdit = null;
-
-    renderMaterialesEdit();
-}
-
-// 4. RENDERIZAR TABLA Y CALCULAR
-function renderMaterialesEdit() {
-    const tbody = document.querySelector("#tablaMaterialesEdit tbody");
-    if(!tbody) return;
-    tbody.innerHTML = "";
-    
-    materialesEditList.forEach((item, index) => {
-        const img = item.foto || item.fotoUrl || 'img/no-image.png';
-        tbody.innerHTML += `
-            <tr style="background: white;">
-                <td style="text-align:center;"><img src="${img}" style="width:45px; height:45px; border-radius:8px; object-fit:cover;"></td>
-                <td style="color:black;">${item.nombre}</td>
-                <td style="color:black; text-align:center;">${item.cantidad}</td>
-                <td style="color:black; text-align:right;">$${item.costo.toFixed(2)}</td>
-                <td style="text-align:center;">
-                    <button type="button" onclick="materialesEditList.splice(${index},1); renderMaterialesEdit();" style="background:none; border:none; color:red; cursor:pointer; font-size:1.2rem;">✕</button>
-                </td>
-            </tr>
-        `;
-    });
-    calcularSaldoEdit();
-}
-
-// 5. CÁLCULOS DE IVA Y SALDO
+// 3. CÁLCULO DE SALDO (Sincronizado con tu HTML de 3 niveles)
 function calcularSaldoEdit() {
     let totalMateriales = 0;
     materialesEditList.forEach(item => {
@@ -990,11 +932,51 @@ function calcularSaldoEdit() {
         totalFinal += (totalMateriales * (porcentajeIva / 100));
     }
 
+    // Leemos el anticipo que está en medio
     const anticipo = parseFloat(document.getElementById("levAnticipoEdit").value) || 0;
     const saldo = totalFinal - anticipo;
 
+    // Pintamos los resultados en tu nuevo HTML
     document.getElementById("levTotalEdit").value = totalFinal.toFixed(2);
     document.getElementById("levSaldoEdit").value = saldo.toFixed(2);
+}
+
+// 4. GUARDAR CAMBIOS (PUT)
+async function actualizarCuentaFinal() {
+    if (materialesEditList.length === 0) return alert("Carnal, la nota no puede estar vacía");
+
+    const datos = {
+        clienteNombre: document.getElementById("edit-clienteSelect").value,
+        anticipo: parseFloat(document.getElementById("levAnticipoEdit").value) || 0,
+        total: parseFloat(document.getElementById("levTotalEdit").value) || 0,
+        iva: document.getElementById("chkIvaEdit").checked,
+        ivaPorcentaje: parseFloat(document.getElementById("levIvaPorcentajeEdit").value) || 0,
+        factura: document.getElementById("chkFacturaEdit").checked,
+        folioFactura: document.getElementById("levFolioFacturaEdit").value,
+        materiales: materialesEditList
+    };
+
+    try {
+        document.getElementById("loader").style.display = "flex";
+        const res = await fetch(`${API_BASE_URL}/cuentas/${editandoId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem("accessToken")}`
+            },
+            body: JSON.stringify(datos)
+        });
+
+        if (res.ok) {
+            alert("✅ ¡Nota actualizada con éxito!");
+            cerrarModalEditar();
+            cargarCuentas(); // Refresca la tabla principal
+        }
+    } catch (e) { 
+        alert("Error al conectar al servidor"); 
+    } finally { 
+        document.getElementById("loader").style.display = "none"; 
+    }
 }
 
 // 6. GUARDAR CAMBIOS (PUT)

@@ -257,10 +257,7 @@
                     <label>Cliente:</label>
                     <select id="edit-clienteSelect" class="lev-select-custom"></select>
                 </div>
-                <div class="lev-input-group">
-                    <label>Anticipo ($):</label>
-                    <input type="number" id="levAnticipoEdit" oninput="calcularSaldoEdit()" step="0.01">
-                </div>
+                
             </div>
 
             <div class="lev-add-material-box">
@@ -342,16 +339,24 @@
                 </div>
             </div>
 
-            <div class="lev-totales-container">
-                <div class="lev-total-field">
-                    <label>Total:</label>
-                    <input type="text" id="levTotalEdit" readonly>
-                </div>
-                <div class="lev-total-field">
-                    <label style="color: #ff3b30;">Saldo:</label>
-                    <input type="text" id="levSaldoEdit" readonly style="color: #ff3b30; font-weight: bold;">
-                </div>
-            </div>
+         <div class="lev-totales-container" style="display: flex; flex-direction: column; gap: 10px; background: #f9f9f9; padding: 15px; border-radius: 10px;">
+    
+    <div class="lev-total-field" style="display: flex; justify-content: space-between; align-items: center;">
+        <label style="font-weight: bold; color: black;">Total:</label>
+        <input type="text" id="levTotalEdit" readonly style="border: none; background: transparent; text-align: right; font-weight: bold; width: 100px;">
+    </div>
+
+    <div class="lev-total-field" style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #ddd; border-bottom: 1px solid #ddd; padding: 5px 0;">
+        <label style="font-weight: bold; color: #28a745;">Anticipo:</label>
+        <input type="number" id="levAnticipoEdit" oninput="calcularSaldoEdit()" style="width: 100px; text-align: right; border: 1px solid #ccc; border-radius: 5px; padding: 3px;">
+    </div>
+
+    <div class="lev-total-field" style="display: flex; justify-content: space-between; align-items: center;">
+        <label style="font-weight: bold; color: #ff3b30;">Saldo (Por liquidar):</label>
+        <input type="text" id="levSaldoEdit" readonly style="border: none; background: transparent; text-align: right; font-weight: bold; color: #ff3b30; width: 100px;">
+    </div>
+
+</div>
 
             <div class="lev-button-center" style="margin-top: 20px;">
                 <button type="button" onclick="actualizarCuentaFinal()" class="glass-btn-ios" style="background: #007aff; width: 100%;">
