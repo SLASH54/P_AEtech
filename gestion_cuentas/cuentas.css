@@ -1198,8 +1198,8 @@ input:checked + .slider:before { transform: translateX(18px); }
     justify-content: space-between; /* Empuja los 3 bloques: izq, centro, der */
     align-items: center;
     background-color: #005e737d;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
     padding: 10px 20px;
     height: 90px; /* Ajusta según el tamaño de tu logo */
 }

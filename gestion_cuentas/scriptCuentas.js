@@ -657,6 +657,7 @@ async function cargarCuentasTabla() {
         <button onclick="prepararEdicion(${c.id})" class="btn-tabla-ios btn-edit-ios" title="Editar">✏️</button>
         <button onclick="descargarPDFCuenta(${c.id})" class="btn-tabla-ios btn-pdf-ios" title="Descargar PDF">PDF</button>
         <button onclick="eliminarCuenta(${c.id})" class="btn-tabla-ios btn-eliminar-ios" title="Eliminar">🗑️</button>
+        <button onclick="compartirNota(${c.id})" class="btn-tabla-ios" style="background: rgba(50, 215, 255, 0.15); color: #00bcd4;" title="Compartir Link">🔗</button>
     </div>
 </td>
             `;
@@ -1125,3 +1126,15 @@ function limpiarFiltroCliente() {
     setTimeout(() => select.style.boxShadow = "none", 500);
 }
 
+function compartirNota(id) {
+    // Generamos la URL base (ajusta el nombre del archivo si es necesario)
+    const url = `${window.location.origin}/nota_publica.html?id=${id}`;
+    
+    // Intentamos copiar al portapapeles
+    navigator.clipboard.writeText(url).then(() => {
+        alert("✅ ¡Link copiado! Ya puedes pegarlo en WhatsApp para el cliente.");
+    }).catch(err => {
+        // Por si el navegador bloquea el copiado automático
+        prompt("Copia este link para el cliente:", url);
+    });
+}
