@@ -2,6 +2,7 @@ const API_BASE_URL = 'https://p-aetech.onrender.com/api';
 let editandoId = null; // Variable global para saber si estamos editando
 let levMaterialesList = []; 
 let proximoNumeroNota = "";
+let tempFotoEdit = null;     // Para guardar la foto que subas EN EL MOMENTO de editar 
 
 
 // scriptCuentas.js - AL PRINCIPIO DE TODO
@@ -974,4 +975,152 @@ function cargarMaterialesEdicion(materialesBD) {
 
     // Una vez lleno el array, mandamos a dibujar la tabla
     levRenderMateriales();
+}
+
+
+
+
+//editar 
+// --- 1. FUNCIÓN PARA ABRIR EL MODAL Y CARGAR DATOS ---
+async function prepararEdicion(id) {
+    try {
+        document.getElementById("loader").style.display = "flex";
+        editandoId = id;
+
+        // Buscamos la cuenta en el servidor
+        const response = await fetch(`${API_BASE_URL}/cuentas`, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` }
+        });
+        const cuentas = await response.json();
+        const cuenta = cuentas.find(c => c.id === id);
+
+        if (!cuenta) return;
+
+        // Abrimos el modal exclusivo
+        document.getElementById("modalEditarCuenta").style.display = "flex";
+        
+        // Cargamos el select de clientes (exclusivo para editar)
+        await cargarClientesSelectEdit(cuenta.clienteNombre);
+
+        // Llenamos los campos básicos
+        document.getElementById("labelNumeroNotaEdit").innerText = cuenta.numeroNota;
+        document.getElementById("levAnticipoEdit").value = cuenta.anticipo;
+
+        // PASAMOS LOS MATERIALES AL ARRAY EXCLUSIVO
+        materialesEditList = cuenta.materiales.map(m => ({
+            nombre: m.nombre,
+            cantidad: m.cantidad,
+            costo: parseFloat(m.costo),
+            fotoUrl: m.fotoUrl, // Foto que ya vive en la nube
+            foto: null          // No hay foto nueva todavía
+        }));
+
+        renderMaterialesEdit(); // Dibujamos la tabla de edición
+
+    } catch (error) {
+        console.error("Error al preparar edición:", error);
+    } finally {
+        document.getElementById("loader").style.display = "none";
+    }
+}
+
+// --- 2. AGREGAR PRODUCTOS NUEVOS DENTRO DE LA EDICIÓN ---
+function agregarMaterialEdit() {
+    const nombre = document.getElementById("edit-prodNombre").value;
+    const costo = parseFloat(document.getElementById("edit-prodCosto").value);
+    const cant = parseInt(document.getElementById("edit-prodCant").value);
+
+    if (!nombre || isNaN(costo)) {
+        alert("Carnal, llena el nombre y el precio del producto.");
+        return;
+    }
+
+    // Lo agregamos a la lista de edición
+    materialesEditList.push({
+        nombre,
+        costo,
+        cantidad: cant,
+        foto: tempFotoEdit, // Si tomó foto nueva, va aquí
+        fotoUrl: null       // Como es nuevo, no tiene URL aún
+    });
+
+    // Limpiamos los campitos
+    document.getElementById("edit-prodNombre").value = "";
+    document.getElementById("edit-prodCosto").value = "";
+    document.getElementById("edit-prodCant").value = "1";
+    document.getElementById("previewFotoEdit").style.display = "none";
+    tempFotoEdit = null;
+
+    renderMaterialesEdit();
+}
+
+// --- 3. DIBUJAR LA TABLA DEL MODAL EDITAR ---
+function renderMaterialesEdit() {
+    const tbody = document.querySelector("#tablaMaterialesEdit tbody");
+    tbody.innerHTML = "";
+    let subtotal = 0;
+
+    materialesEditList.forEach((item, index) => {
+        subtotal += (item.cantidad * item.costo);
+        
+        // Decidimos qué imagen mostrar (la nueva o la que ya estaba)
+        const imgPath = item.foto || item.fotoUrl || 'img/no-image.png';
+
+        tbody.innerHTML += `
+            <tr>
+                <td><img src="${imgPath}" style="width:45px; height:45px; object-fit:cover; border-radius:8px;"></td>
+                <td style="color: black;">${item.nombre}</td>
+                <td style="color: black; text-align: center;">${item.cantidad}</td>
+                <td style="color: black; text-align: right;">$${item.costo.toFixed(2)}</td>
+                <td style="text-align: center;">
+                    <button onclick="materialesEditList.splice(${index},1); renderMaterialesEdit();" 
+                            style="background:none; border:none; color:#ff3b30; cursor:pointer; font-size:1.2rem;">✕</button>
+                </td>
+            </tr>
+        `;
+    });
+
+    document.getElementById("levTotalEdit").value = subtotal.toFixed(2);
+    calcularSaldoEdit();
+}
+
+// --- 4. CERRAR Y LIMPIAR ---
+function cerrarModalEditar() {
+    document.getElementById("modalEditarCuenta").style.display = "none";
+    editandoId = null;
+    materialesEditList = [];
+    tempFotoEdit = null;
+    document.getElementById("levFormEditarCuenta").reset();
+}
+
+// --- 5. ENVIAR CAMBIOS AL SERVIDOR (PUT) ---
+async function actualizarCuentaFinal() {
+    const datos = {
+        clienteNombre: document.getElementById("edit-clienteSelect").value,
+        anticipo: document.getElementById("levAnticipoEdit").value,
+        total: document.getElementById("levTotalEdit").value,
+        materiales: materialesEditList 
+    };
+
+    try {
+        document.getElementById("loader").style.display = "flex";
+        const res = await fetch(`${API_BASE_URL}/cuentas/${editandoId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem("accessToken")}`
+            },
+            body: JSON.stringify(datos)
+        });
+
+        if (res.ok) {
+            alert("✅ ¡A toda dar! Cuenta actualizada.");
+            cerrarModalEditar();
+            cargarCuentas(); // Refrescamos la lista principal
+        }
+    } catch (e) {
+        alert("Falló la conexión carnal.");
+    } finally {
+        document.getElementById("loader").style.display = "none";
+    }
 }

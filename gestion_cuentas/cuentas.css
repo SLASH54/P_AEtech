@@ -798,3 +798,85 @@ input:checked + .slider:before { transform: translateX(18px); }
     color: white;
     transform: scale(1.05);
 }
+
+
+/* --- ESTILO IOS GLASS PARA EL MODAL DE EDICIÓN --- */
+#modalEditarCuenta {
+    background: rgba(0, 0, 0, 0.4); /* Fondo oscurecido */
+    backdrop-filter: blur(8px);
+}
+
+#modalEditarCuenta .modalGlass-content {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border-radius: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    padding: 30px;
+}
+
+/* Inputs estilo Apple */
+.glass-input-ios {
+    background: #f2f2f7 !important; /* Gris clarito de iOS */
+    border: none !important;
+    border-radius: 12px !important;
+    padding: 12px 15px !important;
+    color: #000 !important;
+    font-size: 16px;
+    width: 100%;
+    margin-top: 5px;
+    transition: all 0.3s ease;
+}
+
+.glass-input-ios:focus {
+    background: #ffffff !important;
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.4);
+    outline: none;
+}
+
+/* Botones con estilo moderno */
+.btn-add-ios {
+    background: #34c759; /* Verde éxito */
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 0 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.btn-add-ios:hover {
+    transform: scale(1.05);
+    background: #2db04d;
+}
+
+.btn-foto-ios {
+    background: #007aff; /* Azul Apple */
+    color: white;
+    border: none;
+    border-radius: 12px;
+    width: 45px;
+    height: 45px;
+    cursor: pointer;
+    font-size: 1.2rem;
+}
+
+/* Tabla interna del modal */
+#tablaMaterialesEdit {
+    border-collapse: separate;
+    border-spacing: 0 8px;
+    width: 100%;
+}
+
+#tablaMaterialesEdit tr {
+    background: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+#tablaMaterialesEdit td {
+    padding: 12px;
+    color: #333 !important;
+}
+
+#tablaMaterialesEdit td:first-child { border-radius: 12px 0 0 12px; }
+#tablaMaterialesEdit td:last-child { border-radius: 0 12px 12px 0; }

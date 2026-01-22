@@ -241,62 +241,81 @@
     </div>
 </div>
 
+
+
 <div id="modalEditarCuenta" class="modalGlass" style="display: none;">
-    <div class="modalGlass-content" style="max-width: 800px;">
-        <span class="modalGlass-close" onclick="cerrarModalEditar()">×</span>
-        <h2 class="modalGlass-title">Editar Nota</h2>
-        <h3 id="labelNumeroNotaEdit" style="text-align: center; color: #ff9f0a;">Nota #</h3>
+    <div class="modalGlass-content" style="max-width: 900px; background: rgba(255, 255, 255, 0.8) !important; backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.3);">
+        <span class="modalGlass-close" onclick="cerrarModalEditar()" style="color: #333;">×</span>
+        
+        <div style="text-align: center; margin-bottom: 20px;">
+            <h2 style="color: #000; margin-bottom: 5px;">Editar Nota de Servicio</h2>
+            <span id="labelNumeroNotaEdit" style="background: #ff9f0a; color: white; padding: 4px 12px; border-radius: 15px; font-weight: bold; font-size: 0.9rem;">Nota #--</span>
+        </div>
 
-        <form id="levFormEditarCuenta">
-            <div class="lev-grid-container">
-                <div class="lev-input-group">
-                    <label>Cliente:</label>
-                    <input type="text" id="edit-clienteNombre" readonly style="background: rgba(255,255,255,0.1); color: white;">
-                </div>
-
-                <div class="lev-input-group">
-                    <label>Anticipo:</label>
-                    <input type="number" id="levAnticipoEdit" oninput="calcularSaldoEdit()" step="0.01">
-                </div>
+        <div class="lev-grid-container">
+            <div class="lev-input-group">
+                <label style="color: #333;">Cambiar Cliente:</label>
+                <select id="edit-clienteSelect" class="glass-input-ios" style="color: black;"></select>
             </div>
-
-            <div class="lev-materiales-section">
-                <h4>Productos de la Nota</h4>
-                <div class="table-responsive">
-                    <table id="levMaterialesTableEdit" class="tabla">
-                        <thead>
-                            <tr>
-                                <th>Imagen</th>
-                                <th>Producto</th>
-                                <th>Cant.</th>
-                                <th>Precio</th>
-                                <th>Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
+            <div class="lev-input-group">
+                <label style="color: #333;">Anticipo ($):</label>
+                <input type="number" id="levAnticipoEdit" class="glass-input-ios" oninput="calcularSaldoEdit()" style="color: black;">
             </div>
+        </div>
 
-            <div class="lev-totales-container">
+        <div style="background: rgba(0,0,0,0.05); padding: 15px; border-radius: 15px; margin: 20px 0;">
+            <h4 style="color: #000; margin-top: 0;">➕ Agregar más productos</h4>
+            <div class="lev-grid-container" style="grid-template-columns: 1fr 1fr 100px 100px auto;">
+                <input type="text" id="edit-prodNombre" placeholder="Producto" class="glass-input-ios">
+                <input type="number" id="edit-prodCosto" placeholder="Precio" class="glass-input-ios">
+                <input type="number" id="edit-prodCant" placeholder="Cant." class="glass-input-ios" value="1">
+                <input type="file" id="edit-prodFoto" style="display:none;" onchange="procesarFotoEdit(this)">
+                <button type="button" onclick="document.getElementById('edit-prodFoto').click()" class="btn-foto-ios">📷</button>
+                <button type="button" onclick="agregarMaterialEdit()" class="btn-add-ios">Agregar</button>
+            </div>
+            <div id="previewFotoEdit" style="margin-top: 10px; display: none;">
+                <img id="imgPreviewEdit" src="" style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover;">
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table id="tablaMaterialesEdit" class="tabla" style="background: white; border-radius: 15px; overflow: hidden;">
+                <thead>
+                    <tr style="background: #f2f2f7; color: #000;">
+                        <th>Imagen</th>
+                        <th>Producto</th>
+                        <th>Cant.</th>
+                        <th>Precio</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody style="color: black !important;"></tbody>
+            </table>
+        </div>
+
+        <div class="lev-totales-container" style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 15px; margin-top: 20px;">
+            <div style="display: flex; justify-content: flex-end; gap: 20px;">
                 <div class="lev-total-field">
-                    <label>Total:</label>
-                    <input type="text" id="levTotalEdit" readonly>
+                    <label style="color: #333;">Total:</label>
+                    <input type="text" id="levTotalEdit" readonly style="color: black; font-weight: bold; border:none; background:transparent; text-align:right;">
                 </div>
                 <div class="lev-total-field">
-                    <label style="color: #ff3b30; font-weight: bold;">Por Liquidar:</label>
-                    <input type="text" id="levSaldoEdit" readonly style="color: #ff3b30; font-weight: bold;">
+                    <label style="color: #ff3b30; font-weight: bold;">Saldo:</label>
+                    <input type="text" id="levSaldoEdit" readonly style="color: #ff3b30; font-weight: bold; border:none; background:transparent; text-align:right;">
                 </div>
             </div>
+        </div>
 
-            <div class="lev-button-center" style="margin-top: 20px;">
-                <button type="button" onclick="actualizarCuentaFinal()" class="btn-edit" style="width: 100%; padding: 15px;">
-                    Actualizar Cambios
-                </button>
-            </div>
-        </form>
+        <div style="margin-top: 20px;">
+            <button onclick="actualizarCuentaFinal()" class="glass-btn-ios" style="width: 100%; background: #007aff; color: white; height: 50px; font-weight: bold; border-radius: 15px;">
+                Actualizar Cambios
+            </button>
+        </div>
     </div>
 </div>
+
+
+
 
     <script src="scriptCuentas.js"></script>
 </body>
