@@ -46,8 +46,8 @@ function cerrarNuevaCuentaModal() {
     // Resetear todo a modo "Nueva Cuenta"
     editandoId = null; 
     levMaterialesList = [];
-    document.getElementById('levFormNuevaCuenta').reset();
-    document.querySelector("#modalNuevaCuenta .modalGlass-title").innerText = "Nueva Cuenta";
+    document.getElementById('modalNuevaCuenta').reset();
+    document.getElementById("labelNumeroNota").innerText = "Nueva Cuenta";
     document.getElementById("btnGuardarCuenta").innerText = "Guardar Cuenta";
     actualizarTablaMateriales();
 }
@@ -856,7 +856,7 @@ async function prepararEdicion(id) {
         
         // 1. Abrir el modal y cambiar textos
         openNuevaCuenta(); 
-        document.querySelector(".modal-title").innerText = "Editar Cuenta " + (cuenta.numeroNota || "");
+        document.getElementById("labelNumeroNota").innerText = "Editar Cuenta " + (cuenta.numeroNota || "");
         document.getElementById("btnGuardarCuenta").innerText = "Actualizar Cambios";
 
         // 2. Llenar campos básicos
