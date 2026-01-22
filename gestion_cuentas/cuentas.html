@@ -264,13 +264,50 @@
             </div>
 
             <div class="lev-add-material-box">
-                <div class="lev-grid-container" style="grid-template-columns: 2fr 1fr 80px auto auto;">
-                    <input type="text" id="edit-prodNombre" placeholder="Producto">
-                    <input type="number" id="edit-prodCosto" placeholder="Precio">
-                    <input type="number" id="edit-prodCant" value="1">
-                    <input type="file" id="edit-prodFoto" style="display:none;" onchange="procesarFotoEdit(this)">
-                    <button type="button" onclick="document.getElementById('edit-prodFoto').click()" class="btn-foto">📷</button>
-                    <button type="button" onclick="agregarMaterialEdit()" class="btn-add">+</button>
+                <h4>Productos:</h4>
+                <div class="product-selection-container">
+                    <div class="lev-product-row" style="display: grid; grid-template-columns: 2fr 1fr 80px auto auto; gap: 10px;">
+                        <div style="display: flex; flex-direction: column;">
+                            <select id="edit-levInsumo" onchange="levMostrarCampoExtraEdit()" class="ios-select">
+                                <option value="" disabled selected>Seleccione un insumo</option>
+                                <optgroup label="Cable">
+                                    <option value="Cable">Cable</option>
+                                </optgroup>
+                                <optgroup label="Transceptor">
+                                    <option value="Transceptor">Transceptor</option>
+                                </optgroup>
+                                <optgroup label="Conectores">
+                                    <option value="Conector de corriente">Conector de corriente</option>
+                                </optgroup>
+                                <optgroup label="Fuente de poder 12V">
+                                    <option value="12vdc 1A">12vdc 1A</option>
+                                    <option value="12vdc 1.5A">12vdc 1.5A</option>
+                                    <option value="12vdc 2A">12vdc 2A</option>
+                                    <option value="12vdc 4.1A">12vdc 4.1A</option>
+                                    <option value="12vdc 5A">12vdc 5A</option>
+                                </optgroup>
+                                <optgroup label="Fuente centralizada">
+                                    <option value="Fuente de poder centralizada">Fuente de poder centralizada</option>
+                                </optgroup>
+                                <optgroup label="Cajas">
+                                    <option value="Caja estanca">Caja estanca</option>
+                                    <option value="Caja plástica 180x125x57">Caja plástica 180x125x57</option>
+                                    <option value="Caja plástica 190x290x140">Caja plástica 190x290x140</option>
+                                </optgroup>
+                                <optgroup label="Otro">
+                                    <option value="Otro">Otro (especificar)</option>
+                                </optgroup>
+                            </select>
+                            <input type="text" id="edit-levInsumoExtra" placeholder="¿Qué producto es?" style="display:none; margin-top:5px;" class="ios-input">
+                        </div>
+
+                        <input type="number" id="edit-prodCosto" placeholder="Precio">
+                        <input type="number" id="edit-prodCant" value="1">
+                        
+                        <input type="file" id="edit-prodFoto" style="display:none;" onchange="procesarFotoEdit(this)">
+                        <button type="button" onclick="document.getElementById('edit-prodFoto').click()" class="btn-foto">📷</button>
+                        <button type="button" onclick="agregarMaterialEdit()" class="btn-add">+</button>
+                    </div>
                 </div>
                 <div id="previewFotoEdit" style="margin-top: 10px; display: none; text-align: center;">
                     <img id="imgPreviewEdit" src="" style="width: 60px; height: 60px; border-radius: 10px; object-fit: cover; border: 2px solid #ff9f0a;">
@@ -324,7 +361,6 @@
         </form>
     </div>
 </div>
-
 
     <script src="scriptCuentas.js"></script>
 </body>
