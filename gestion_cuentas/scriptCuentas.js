@@ -891,7 +891,7 @@ async function prepararEdicion(id) {
         openNuevaCuenta(); // Abrir modal
 
         // Cambiar interfaz a modo edición
-        document.querySelector("#modalNuevaCuenta .modalGlass-title").innerText = "Editar Nota";
+        document.getElementById("labelNumeroNota").innerText = "Editar Nota";
         document.getElementById("btnGuardarCuenta").innerText = "Actualizar Cambios";
         document.getElementById("labelNumeroNota").innerText = cuenta.numeroNota || "";
 
