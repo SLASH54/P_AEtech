@@ -1056,3 +1056,59 @@ input:checked + .slider:before { transform: translateX(18px); }
     .tabla th:nth-child(2) { width: 40%; } /* Nombre */
     .tabla th:nth-child(3) { width: 20%; } /* Cantidad */
 }
+
+/* Contenedor de acciones en la tabla */
+.tabla td .acciones-container {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+/* Base del botón estilo iOS Glass */
+.btn-tabla-ios {
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border-radius: 10px; /* Bordes redondeados suaves */
+    padding: 6px 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Botón Ver (Azul) */
+.btn-ver-ios {
+    background: rgba(0, 122, 255, 0.15);
+    color: #007aff;
+}
+.btn-ver-ios:hover { background: rgba(0, 122, 255, 0.3); transform: scale(1.1); }
+
+/* Botón Editar (Naranja) */
+.btn-edit-ios {
+    background: rgba(255, 159, 10, 0.15);
+    color: #ff9f0a;
+}
+.btn-edit-ios:hover { background: rgba(255, 159, 10, 0.3); transform: scale(1.1); }
+
+/* Botón PDF (Gris/Negro) */
+.btn-pdf-ios {
+    background: rgba(142, 142, 147, 0.15);
+    color: #8e8e93;
+}
+.btn-pdf-ios:hover { background: rgba(142, 142, 147, 0.3); transform: scale(1.1); }
+
+/* Botón Eliminar (Rojo) */
+.btn-eliminar-ios {
+    background: rgba(255, 59, 48, 0.15);
+    color: #ff3b30;
+}
+.btn-eliminar-ios:hover { background: rgba(255, 59, 48, 0.3); transform: scale(1.1); }
+
+/* Efecto de pulsación */
+.btn-tabla-ios:active {
+    transform: scale(0.9);
+}

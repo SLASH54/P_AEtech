@@ -652,11 +652,13 @@ async function cargarCuentasTabla() {
                 <td>$${parseFloat(c.total).toFixed(2)}</td>
                 <td>${fecha}</td>
                 <td>
-                    <button onclick="verDetalleCuenta(${c.id})" class="btn-ver">👁️</button>
-                    <button onclick="prepararEdicion(${c.id})" class="btn-edit" style="background: rgba(255,165,0,0.2); color: orange; border-radius:10px; border:1px solid orange; cursor:pointer;">✏️</button>
-                    <button onclick="descargarPDFCuenta(${c.id})" class="btn-pdf">PDF</button>
-                    <button onclick="eliminarCuenta(${c.id})" class="btn-eliminar" style="background: #ff3b30; border: none; border-radius: 5px; cursor: pointer;">🗑️</button>
-                </td>
+    <div class="acciones-container">
+        <button onclick="verDetalleCuenta(${c.id})" class="btn-tabla-ios btn-ver-ios" title="Ver">👁️</button>
+        <button onclick="prepararEdicion(${c.id})" class="btn-tabla-ios btn-edit-ios" title="Editar">✏️</button>
+        <button onclick="descargarPDFCuenta(${c.id})" class="btn-tabla-ios btn-pdf-ios" title="Descargar PDF">PDF</button>
+        <button onclick="eliminarCuenta(${c.id})" class="btn-tabla-ios btn-eliminar-ios" title="Eliminar">🗑️</button>
+    </div>
+</td>
             `;
             tbody.appendChild(tr);
         });
@@ -870,6 +872,7 @@ async function prepararEdicion(id) {
         // Llenar campos principales
         document.getElementById("labelNumeroNotaEdit").innerText = cuenta.numeroNota;
         document.getElementById("levAnticipoEdit").value = cuenta.anticipo;
+        
         
         // Llenar campos de IVA y Factura
         document.getElementById("chkIvaEdit").checked = cuenta.iva || false;
