@@ -11,12 +11,19 @@ cloudinary.config({
 // En cuentaController.js
 exports.obtenerCuentaPorIdPublica = async (req, res) => {
     try {
-        const cuenta = await Cuenta.findById(req.params.id); // O la lógica que uses para buscar por ID
+        const { id } = req.params;
+        // En Sequelize usamos findByPk y cargamos los materiales de una vez
+        const cuenta = await Cuenta.findByPk(id, {
+            include: [{ model: CuentaMaterial, as: 'materiales' }]
+        });
+
         if (!cuenta) {
             return res.status(404).json({ mensaje: "Nota no encontrada" });
         }
+
         res.json(cuenta);
     } catch (error) {
+        console.error("Error en ruta pública:", error);
         res.status(500).json({ mensaje: "Error al obtener la nota" });
     }
 };

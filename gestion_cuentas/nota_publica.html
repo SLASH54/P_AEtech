@@ -37,26 +37,42 @@
         async function cargarNotaPublica() {
             const urlParams = new URLSearchParams(window.location.search);
             const id = urlParams.get('id');
-            
             if(!id) return;
 
             try {
-                // Apuntamos a la nueva ruta pública que creamos
                 const res = await fetch(`${API_BASE_URL}/cuentas/publica/${id}`); 
-                
                 if (!res.ok) {
-                    document.getElementById('pub-detalle').innerHTML = "<h1>Nota no disponible</h1>";
+                    document.getElementById('pub-detalle').innerHTML = "<h2>Nota no disponible</h2>";
                     return;
                 }
 
                 const c = await res.json();
 
-                // Llenas los campos como ya lo tenías...
-                document.getElementById('pub-nota-num').innerText = c.numeroNota;
+                // Llenar textos
+                document.getElementById('pub-nota-num').innerText = c.numeroNota || "Sin Número";
                 document.getElementById('pub-cliente').innerText = c.clienteNombre;
-                // ... etc
+                document.getElementById('pub-total').innerText = `$${parseFloat(c.total).toFixed(2)}`;
+                document.getElementById('pub-anticipo').innerText = `$${parseFloat(c.anticipo).toFixed(2)}`;
+                document.getElementById('pub-saldo').innerText = `$${parseFloat(c.saldo).toFixed(2)}`;
+
+                // Render de materiales (Checa que el nombre coincida con tu modelo)
+                let htmlMat = '';
+                const materiales = c.materiales || []; 
+                
+                materiales.forEach(m => {
+                    htmlMat += `
+                        <div style="display:flex; justify-content:space-between; align-items:center; padding: 12px 0; border-bottom: 0.5px solid #eee;">
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <img src="${m.fotoUrl || 'img/default.png'}" width="40" height="40" style="border-radius:8px; object-fit:cover;">
+                                <span><b>${m.cantidad}</b> x ${m.nombre}</span>
+                            </div>
+                            <b>$${parseFloat(m.costo * m.cantidad).toFixed(2)}</b>
+                        </div>`;
+                });
+                document.getElementById('pub-lista-materiales').innerHTML = htmlMat || "<p>No hay materiales registrados.</p>";
+
             } catch (e) {
-                console.error(e);
+                console.error("Error:", e);
             }
         }
         cargarNotaPublica();
