@@ -45,7 +45,7 @@ exports.generarPDFCuenta = async (req, res) => {
         // --- RUTA AL LOGO LOCAL ---
         // Ajusta los ".." según dónde esté tu carpeta public
         //const RUTA_LOGO_LOCAL = path.join(__dirname, "..", "public", "img", "logoAEtech.png");
-        const RUTA_LOGO_LOCAL = "/img/logoAEtech.png";
+        const RUTA_LOGO_LOCAL = "img/logoAEtech.png";
 
         const doc = new PDFDocument({ size: "LETTER", margin: 40 });
         
@@ -56,7 +56,7 @@ exports.generarPDFCuenta = async (req, res) => {
 
         // --- ENCABEZADO ---
         doc.rect(0, 0, 612, 100).fill("#f0f0f0");
-        doc.image("/img/logoAEtech.png", 40, rowY, { width: 40, height: 40 })
+        doc.image("img/logoAEtech.png", 40, rowY, { width: 40, height: 40 })
         doc.fillColor("#000").fontSize(20).font("Helvetica-Bold").text("NOTA DE SERVICIO", 40, 40);
         doc.fontSize(12).text(cuenta.numeroNota, 40, 65);
         doc.fontSize(10).font("Helvetica").text(`Fecha: ${new Date(cuenta.fecha).toLocaleDateString()}`, 40, 80);
