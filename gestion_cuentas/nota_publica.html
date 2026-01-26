@@ -107,6 +107,11 @@ document.getElementById('pub-total').innerText = `$${total.toFixed(2)}`;
 document.getElementById('pub-anticipo').innerText = `$${anticipo.toFixed(2)}`;
 document.getElementById('pub-saldo').innerText = `$${saldo.toFixed(2)}`;
 
+                // Llenar textos
+                document.getElementById('pub-nota-num').innerText = c.numeroNota || "Sin Número";
+                document.getElementById('pub-cliente').innerText = c.clienteNombre;
+                
+
                 // Render de materiales (Checa que el nombre coincida con tu modelo)
                 let htmlMat = '';
                 const materiales = c.materiales || []; 
