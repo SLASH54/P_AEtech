@@ -55,6 +55,7 @@ exports.generarPDFCuenta = async (req, res) => {
         doc.moveTo(40, tableTop + 15).lineTo(570, tableTop + 15).stroke();
 
         let rowY = tableTop + 25;
+        const LOGOFOTO = "https://res.cloudinary.com/dngbc2icp/image/upload/v1768842144/aetech_levantamientos/xasjjj5bprdorstdgyte.webp";
 
         for (const mat of cuenta.materiales) {
             // Control de salto de página
@@ -70,7 +71,8 @@ exports.generarPDFCuenta = async (req, res) => {
                     doc.image(imgBuffer, 40, rowY, { width: 40 });
                 }
             } else {
-                doc.fontSize(8).text("Sin foto", 40, rowY + 15);
+                doc.image(LOGOFOTO, 40, rowY, { width: 40 });
+                //doc.fontSize(8).text("Sin foto", 40, rowY + 15);
             }
 
             doc.fillColor("black").fontSize(10).font("Helvetica");
