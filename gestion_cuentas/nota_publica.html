@@ -4,11 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalle de Nota | AEtech</title>
-    <link rel="stylesheet" href="cuentas.css"> <style>
-        body { background: #f2f2f7; display: flex; justify-content: center; padding: 20px; }
-        .public-card { background: white; width: 100%; max-width: 500px; border-radius: 30px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .badge-status { background: #34c759; color: white; padding: 5px 12px; border-radius: 10px; font-size: 12px; font-weight: bold; }
-    </style>
+    <link rel="stylesheet" href="cuentas.css"> 
+
+   <style>
+    body { 
+        background-color: #f2f2f7; 
+        font-family: -apple-system, sans-serif; 
+        margin: 0; padding: 20px;
+        display: flex; justify-content: center;
+    }
+    .public-card { 
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        width: 100%; max-width: 450px; 
+        border-radius: 28px; padding: 30px; 
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        border: 1px solid white;
+    }
+    header { text-align: center; margin-bottom: 25px; }
+    h2 { margin: 10px 0 5px; font-size: 22px; color: #000; }
+    
+    /* Badges de colores iOS */
+    .badge-ios {
+        padding: 5px 12px; border-radius: 10px; font-size: 11px; font-weight: 700;
+    }
+    .badge-factura { background: #007aff20; color: #007aff; }
+    .badge-iva { background: #34c75920; color: #34c759; }
+
+    /* Materiales */
+    .material-item {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 12px 0; border-bottom: 0.5px solid #00000010;
+    }
+    .material-img { width: 45px; height: 45px; border-radius: 10px; object-fit: cover; }
+
+    /* Totales */
+    .lev-totales-container {
+        background: #00000005; border-radius: 20px; padding: 18px; margin-top: 20px;
+    }
+    .lev-total-field { display: flex; justify-content: space-between; margin-bottom: 8px; }
+    .lev-total-field label { color: #8e8e93; font-size: 14px; }
+    .lev-total-field span { font-weight: 600; }
+</style>
+    
 </head>
 <body>
     <div class="public-card">
@@ -54,85 +93,101 @@
             </div>
         </div>
     </div>
+<script>
+    const API_BASE_URL = 'https://p-aetech.onrender.com/api';
+    
+    async function cargarNotaPublica() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('id');
+        if(!id) return;
 
-    <script>
-        const API_BASE_URL = 'https://p-aetech.onrender.com/api';
-        
-        async function cargarNotaPublica() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const id = urlParams.get('id');
-            if(!id) return;
-
-            try {
-                const res = await fetch(`${API_BASE_URL}/cuentas/publica/${id}`); 
-                if (!res.ok) {
-                    document.getElementById('pub-detalle').innerHTML = "<h2>Nota no disponible</h2>";
-                    return;
-                }
-
-                // Dentro de cargarNotaPublica() después de recibir el JSON 'c'
-const c = await res.json();
-
-// 1. Manejo de Badges (Factura y IVA)
-let badgesHtml = '';
-if (c.factura) {
-    badgesHtml += `<span style="background: #e1f5fe; color: #01579b; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; border: 1px solid #b3e5fc;">📝 REQUIERE FACTURA</span>`;
-}
-if (c.iva) {
-    badgesHtml += `<span style="background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; border: 1px solid #c8e6c9;">➕ IVA INCLUIDO</span>`;
-}
-document.getElementById('pub-badges').innerHTML = badgesHtml;
-
-// 2. Lógica de Totales
-const total = parseFloat(c.total);
-const anticipo = parseFloat(c.anticipo);
-const saldo = parseFloat(c.saldo);
-
-if (c.iva) {
-    const porcentaje = c.ivaPorcentaje || 16;
-    const subtotal = total / (1 + (porcentaje / 100));
-    const montoIva = total - subtotal;
-
-    document.getElementById('row-iva').style.display = 'flex';
-    document.getElementById('label-iva').innerText = `IVA (${porcentaje}%):`;
-    document.getElementById('pub-subtotal').innerText = `$${subtotal.toFixed(2)}`;
-    document.getElementById('pub-iva').innerText = `$${montoIva.toFixed(2)}`;
-} else {
-    document.getElementById('pub-subtotal').innerText = `$${total.toFixed(2)}`;
-    document.getElementById('row-iva').style.display = 'none';
-}
-
-// Llenar el resto
-document.getElementById('pub-total').innerText = `$${total.toFixed(2)}`;
-document.getElementById('pub-anticipo').innerText = `$${anticipo.toFixed(2)}`;
-document.getElementById('pub-saldo').innerText = `$${saldo.toFixed(2)}`;
-
-                // Llenar textos
-                document.getElementById('pub-nota-num').innerText = c.numeroNota || "Sin Número";
-                document.getElementById('pub-cliente').innerText = c.clienteNombre;
-                
-
-                // Render de materiales (Checa que el nombre coincida con tu modelo)
-                let htmlMat = '';
-                const materiales = c.materiales || []; 
-                
-                materiales.forEach(m => {
-                    htmlMat += `
-                        <div style="display:flex; justify-content:space-between; align-items:center; padding: 12px 0; border-bottom: 0.5px solid #eee;">
-                            <div style="display:flex; align-items:center; gap:10px;">
-                                <img src="${m.fotoUrl || 'img/logoAEtech.png'}" width="40" height="40" style="border-radius:8px; object-fit:cover;">
-                                <span><b>${m.cantidad}</b> x ${m.nombre}</span>
-                            </div>
-                            <b>$${parseFloat(m.costo * m.cantidad).toFixed(2)}</b>
-                        </div>`;
-                });
-                document.getElementById('pub-lista-materiales').innerHTML = htmlMat || "<p>No hay materiales registrados.</p>";
-
-            } catch (e) {
-                console.error("Error:", e);
+        try {
+            const res = await fetch(`${API_BASE_URL}/cuentas/publica/${id}`); 
+            if (!res.ok) {
+                document.getElementById('pub-detalle').innerHTML = "<h2>Nota no disponible</h2>";
+                return;
             }
+
+            const c = await res.json();
+
+            // 1. Manejo de Badges (Factura y IVA) - Usando clases CSS iOS
+            let badgesHtml = '';
+            if (c.factura) {
+                badgesHtml += `<span class="badge-ios badge-factura">📝 REQUIERE FACTURA</span> `;
+            }
+            if (c.iva) {
+                badgesHtml += `<span class="badge-ios badge-iva">➕ IVA INCLUIDO</span>`;
+            }
+            document.getElementById('pub-badges').innerHTML = badgesHtml;
+
+            // 2. Lógica de Totales (Mantenemos tus cálculos exactos)
+            const total = parseFloat(c.total) || 0;
+            const anticipo = parseFloat(c.anticipo) || 0;
+            const saldo = parseFloat(c.saldo) || 0;
+
+            if (c.iva) {
+                const porcentaje = c.ivaPorcentaje || 16;
+                const subtotal = total / (1 + (porcentaje / 100));
+                const montoIva = total - subtotal;
+
+                if(document.getElementById('row-iva')){
+                    document.getElementById('row-iva').style.display = 'flex';
+                    document.getElementById('label-iva').innerText = `IVA (${porcentaje}%):`;
+                    document.getElementById('pub-subtotal').innerText = `$${subtotal.toFixed(2)}`;
+                    document.getElementById('pub-iva').innerText = `$${montoIva.toFixed(2)}`;
+                }
+            } else {
+                if(document.getElementById('pub-subtotal')) 
+                    document.getElementById('pub-subtotal').innerText = `$${total.toFixed(2)}`;
+                if(document.getElementById('row-iva')) 
+                    document.getElementById('row-iva').style.display = 'none';
+            }
+
+            // Llenar Totales Principales
+            document.getElementById('pub-total').innerText = `$${total.toFixed(2)}`;
+            document.getElementById('pub-anticipo').innerText = `$${anticipo.toFixed(2)}`;
+            document.getElementById('pub-saldo').innerText = `$${saldo.toFixed(2)}`;
+
+            // 3. Llenar Información de Cabecera
+            document.getElementById('pub-nota-num').innerText = c.numeroNota || "Sin Número";
+            document.getElementById('pub-cliente').innerText = c.clienteNombre;
+            
+            // Si tiene folio de factura, lo agregamos abajito del nombre
+            if(c.factura && c.folioFactura) {
+                document.getElementById('pub-cliente').innerHTML += `<br><small style="color:#8e8e93; font-weight:normal;">Folio Factura: ${c.folioFactura}</small>`;
+            }
+
+            // 4. Render de materiales con el estilo chido
+            let htmlMat = '';
+            const materiales = c.materiales || []; 
+            
+            materiales.forEach(m => {
+                // Si no hay foto, usamos el logo de la empresa
+                const fotoAMostrar = m.fotoUrl && m.fotoUrl !== "" ? m.fotoUrl : 'img/logoAEtech.png';
+                
+                htmlMat += `
+                    <div class="material-item">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <img src="${fotoAMostrar}" class="material-img">
+                            <div style="display:flex; flex-direction:column;">
+                                <span style="font-weight:600; color:#1c1c1e;">${m.nombre}</span>
+                                <span style="font-size:12px; color:#8e8e93;">Cantidad: ${m.cantidad}</span>
+                            </div>
+                        </div>
+                        <b style="color:#1c1c1e;">$${parseFloat(m.costo * m.cantidad).toFixed(2)}</b>
+                    </div>`;
+            });
+            document.getElementById('pub-lista-materiales').innerHTML = htmlMat || "<p style='text-align:center; color:gray;'>No hay materiales registrados.</p>";
+
+        } catch (e) {
+            console.error("Error al cargar la nota:", e);
+            document.getElementById('pub-detalle').innerHTML = "<h2>Error al conectar con el servidor</h2>";
         }
-        cargarNotaPublica();
-    </script>
+    }
+
+    // Ejecutar carga
+    cargarNotaPublica();
+</script>
+
 </body>
 </html>
