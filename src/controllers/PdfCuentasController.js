@@ -117,7 +117,7 @@ exports.generarPDFCuenta = async (req, res) => {
 
         // IVA si aplica
         if (cuenta.iva) {
-            const montoIva = (parseFloat(subtotal) * cuenta.ivaPorcentaje) / 100;
+            const montoIva = (parseFloat(Subtotal) * cuenta.ivaPorcentaje) / 100;
             doc.text(`IVA (${cuenta.ivaPorcentaje}%):`, 350, rowY);
             doc.text(`$${montoIva.toFixed(2)}`, 450, rowY, { width: 100, align: 'right' });
             rowY += 20;
