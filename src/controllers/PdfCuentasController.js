@@ -54,11 +54,11 @@ exports.generarPDFCuenta = async (req, res) => {
         doc.rect(0, 0, 612, 100).fill("#f0f0f0");
         if (logoBuf) {
             const logo = doc.openImage(logoBuf);
-            doc.image(logo, 450, 20, { width: 110 });
+            doc.image(logo, 40, 20, { width: 110 });
         }
-        doc.fillColor("#000").fontSize(20).font("Helvetica-Bold").text("NOTA DE SERVICIO", 40, 40);
-        doc.fontSize(12).text(cuenta.numeroNota, 40, 65);
-        doc.fontSize(10).font("Helvetica").text(`Fecha: ${new Date(cuenta.fecha).toLocaleDateString()}`, 40, 80);
+        doc.fillColor("#000").fontSize(20).font("Helvetica-Bold").text("NOTA DE SERVICIO", 350, 40);
+        doc.fontSize(12).text(cuenta.numeroNota, 350, 65);
+        doc.fontSize(10).font("Helvetica").text(`Fecha: ${new Date(cuenta.fecha).toLocaleDateString()}`, 350, 80);
 
         // --- DATOS DEL CLIENTE ---
         doc.moveDown(4);
@@ -107,6 +107,11 @@ exports.generarPDFCuenta = async (req, res) => {
         // --- TOTALES ---
         rowY += 20;
         doc.fillColor("black").font("Helvetica-Bold");
+
+        const Subtotal = (parseFloat(cuenta.total) - montoIva);
+            doc.text("SUBTOTAL:", 350, rowY);
+            doc.text(`$${Subtotal.toFixed(2)}`, 450, rowY, { width: 100, align: 'right' });
+            rowY += 20;
 
         // IVA si aplica
         if (cuenta.iva) {
