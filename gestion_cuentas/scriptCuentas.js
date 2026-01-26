@@ -1113,6 +1113,20 @@ function filtrarNotasPorCliente() {
     });
 }
 
+
+function compartirNota(id) {
+    // Generamos la URL base (ajusta el nombre del archivo si es necesario)
+    const url = `${window.location.origin}/gestion_cuentas/nota_publica.html?id=${id}`;
+    
+    // Intentamos copiar al portapapeles
+    navigator.clipboard.writeText(url).then(() => {
+        alert("✅ ¡Link copiado! Ya puedes pegarlo en WhatsApp para el cliente.");
+    }).catch(err => {
+        // Por si el navegador bloquea el copiado automático
+        prompt("Copia este link para el cliente:", url);
+    });
+}
+
 // 3. Ejecutar al cargar la página (agrega esto al final de tu archivo o donde cargues las cuentas)
 document.addEventListener("DOMContentLoaded", cargarFiltroClientes);
 
@@ -1124,17 +1138,4 @@ function limpiarFiltroCliente() {
     // Opcional: un pequeño efecto visual de que se limpió
     select.style.boxShadow = "0 0 10px rgba(52, 199, 89, 0.5)";
     setTimeout(() => select.style.boxShadow = "none", 500);
-}
-
-function compartirNota(id) {
-    // Generamos la URL base (ajusta el nombre del archivo si es necesario)
-    const url = `${window.location.origin}/nota_publica.html?id=${id}`;
-    
-    // Intentamos copiar al portapapeles
-    navigator.clipboard.writeText(url).then(() => {
-        alert("✅ ¡Link copiado! Ya puedes pegarlo en WhatsApp para el cliente.");
-    }).catch(err => {
-        // Por si el navegador bloquea el copiado automático
-        prompt("Copia este link para el cliente:", url);
-    });
 }
