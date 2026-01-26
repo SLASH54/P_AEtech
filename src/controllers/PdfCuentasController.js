@@ -25,10 +25,13 @@ exports.generarPDFCuenta = async (req, res) => {
 
         if (!cuenta) return res.status(404).send("Cuenta no encontrada");
 
+        // --- DEFINE AQUÍ TU LOGO POR DEFECTO ---
+        // Usa la URL de tu logo en Cloudinary para que el PDF siempre la encuentre
+        const URL_LOGO_DEFAULT = src="https://res.cloudinary.com/dngbc2icp/image/upload/v1768842144/aetech_levantamientos/xasjjj5bprdorstdgyte.webp";
+
         const doc = new PDFDocument({ size: "LETTER", margin: 40 });
         
-        // Configurar respuesta del navegador
-        res.setHeader("Content-Type", "application/json");
+        res.setHeader("Content-Type", "application/pdf"); // Corregido de application/json a pdf
         res.setHeader("Content-Disposition", `inline; filename=Nota_${cuenta.numeroNota}.pdf`);
         doc.pipe(res);
 
@@ -57,20 +60,24 @@ exports.generarPDFCuenta = async (req, res) => {
         let rowY = tableTop + 25;
 
         for (const mat of cuenta.materiales) {
-            // Control de salto de página
             if (rowY > 650) {
                 doc.addPage();
                 rowY = 50;
             }
 
-            // Imagen del producto
-            if (mat.fotoUrl) {
-                const imgBuffer = await procesarImagen(mat.fotoUrl, 50, 50);
-                if (imgBuffer) {
-                    doc.image(imgBuffer, 40, rowY, { width: 40 });
-                }
+            // --- LÓGICA DE IMAGEN MEJORADA ---
+            // Si mat.fotoUrl existe y no está vacío usa esa, si no usa el logo
+            const urlAProcesar = (mat.fotoUrl && mat.fotoUrl.trim() !== "") 
+                ? mat.fotoUrl 
+                : URL_LOGO_DEFAULT;
+
+            const imgBuffer = await procesarImagen(urlAProcesar, 50, 50);
+            
+            if (imgBuffer) {
+                doc.image(imgBuffer, 40, rowY, { width: 40, height: 40 });
             } else {
-                doc.fontSize(8).text("Sin foto", 40, rowY + 15);
+                // Por si falla la descarga de ambas, un texto de respaldo
+                doc.fontSize(7).fillColor("#8e8e93").text("AEtech", 40, rowY + 15);
             }
 
             doc.fillColor("black").fontSize(10).font("Helvetica");
@@ -78,7 +85,7 @@ exports.generarPDFCuenta = async (req, res) => {
             doc.text(mat.cantidad.toString(), 350, rowY + 15, { width: 50, align: 'center' });
             doc.text(`$${parseFloat(mat.costo).toFixed(2)}`, 450, rowY + 15, { width: 100, align: 'right' });
 
-            rowY += 60; // Espacio entre filas
+            rowY += 60; 
             doc.moveTo(40, rowY - 5).lineTo(570, rowY - 5).strokeColor("#eee").stroke();
         }
 
@@ -86,7 +93,6 @@ exports.generarPDFCuenta = async (req, res) => {
         rowY += 20;
         doc.fillColor("black").font("Helvetica-Bold");
 
-        // IVA si aplica
         if (cuenta.iva) {
             const montoIva = (parseFloat(cuenta.total) * cuenta.ivaPorcentaje) / 100;
             doc.text(`IVA (${cuenta.ivaPorcentaje}%):`, 350, rowY);
@@ -102,7 +108,6 @@ exports.generarPDFCuenta = async (req, res) => {
         doc.text(`$${parseFloat(cuenta.anticipo).toFixed(2)}`, 450, rowY, { width: 100, align: 'right' });
         rowY += 25;
 
-        // Saldo Final (En negrita y resaltado)
         doc.fontSize(12).fillColor(cuenta.saldo > 0 ? "#d32f2f" : "#28a745");
         doc.text("POR LIQUIDAR:", 350, rowY);
         doc.text(`$${parseFloat(cuenta.saldo).toFixed(2)}`, 450, rowY, { width: 100, align: 'right' });
