@@ -23,10 +23,34 @@
             <hr style="opacity: 0.1;">
             <div id="pub-lista-materiales"></div>
             
-            <div class="lev-totales-container" style="background: rgba(0,0,0,0.03); margin-top: 20px;">
-                <div class="lev-total-field"><label>Total:</label> <span id="pub-total" style="font-weight: bold;"></span></div>
-                <div class="lev-total-field"><label style="color: #007aff;">Anticipo:</label> <span id="pub-anticipo"></span></div>
-                <div class="lev-total-field"><label style="color: #ff3b30;">Saldo:</label> <span id="pub-saldo" style="font-weight: 800; color: #ff3b30;"></span></div>
+            <div class="lev-totales-container" style="background: rgba(0,0,0,0.03); margin-top: 20px; border-radius: 15px; padding: 15px;">
+    
+                <div id="pub-badges" style="display: flex; gap: 8px; margin-bottom: 15px;"></div>
+
+                <div class="lev-total-field">
+                    <label>Subtotal:</label> 
+                    <span id="pub-subtotal"></span>
+                </div>
+
+                <div id="row-iva" class="lev-total-field" style="display: none;">
+                    <label id="label-iva">IVA (16%):</label> 
+                    <span id="pub-iva"></span>
+                </div>
+
+                <div class="lev-total-field">
+                    <label style="font-weight: 800;">Total:</label> 
+                    <span id="pub-total" style="font-weight: 800;"></span>
+                </div>
+
+                <div class="lev-total-field">
+                    <label style="color: #007aff;">Anticipo:</label> 
+                    <span id="pub-anticipo"></span>
+                </div>
+
+                <div class="lev-total-field">
+                    <label style="color: #ff3b30; font-weight: 800;">Saldo Pendiente:</label> 
+                    <span id="pub-saldo" style="font-weight: 800; color: #ff3b30;"></span>
+                </div>
             </div>
         </div>
     </div>
@@ -46,14 +70,42 @@
                     return;
                 }
 
-                const c = await res.json();
+                // Dentro de cargarNotaPublica() después de recibir el JSON 'c'
+const c = await res.json();
 
-                // Llenar textos
-                document.getElementById('pub-nota-num').innerText = c.numeroNota || "Sin Número";
-                document.getElementById('pub-cliente').innerText = c.clienteNombre;
-                document.getElementById('pub-total').innerText = `$${parseFloat(c.total).toFixed(2)}`;
-                document.getElementById('pub-anticipo').innerText = `$${parseFloat(c.anticipo).toFixed(2)}`;
-                document.getElementById('pub-saldo').innerText = `$${parseFloat(c.saldo).toFixed(2)}`;
+// 1. Manejo de Badges (Factura y IVA)
+let badgesHtml = '';
+if (c.factura) {
+    badgesHtml += `<span style="background: #e1f5fe; color: #01579b; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; border: 1px solid #b3e5fc;">📝 REQUIERE FACTURA</span>`;
+}
+if (c.iva) {
+    badgesHtml += `<span style="background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; border: 1px solid #c8e6c9;">➕ IVA INCLUIDO</span>`;
+}
+document.getElementById('pub-badges').innerHTML = badgesHtml;
+
+// 2. Lógica de Totales
+const total = parseFloat(c.total);
+const anticipo = parseFloat(c.anticipo);
+const saldo = parseFloat(c.saldo);
+
+if (c.iva) {
+    const porcentaje = c.ivaPorcentaje || 16;
+    const subtotal = total / (1 + (porcentaje / 100));
+    const montoIva = total - subtotal;
+
+    document.getElementById('row-iva').style.display = 'flex';
+    document.getElementById('label-iva').innerText = `IVA (${porcentaje}%):`;
+    document.getElementById('pub-subtotal').innerText = `$${subtotal.toFixed(2)}`;
+    document.getElementById('pub-iva').innerText = `$${montoIva.toFixed(2)}`;
+} else {
+    document.getElementById('pub-subtotal').innerText = `$${total.toFixed(2)}`;
+    document.getElementById('row-iva').style.display = 'none';
+}
+
+// Llenar el resto
+document.getElementById('pub-total').innerText = `$${total.toFixed(2)}`;
+document.getElementById('pub-anticipo').innerText = `$${anticipo.toFixed(2)}`;
+document.getElementById('pub-saldo').innerText = `$${saldo.toFixed(2)}`;
 
                 // Render de materiales (Checa que el nombre coincida con tu modelo)
                 let htmlMat = '';
