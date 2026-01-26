@@ -38,10 +38,6 @@ exports.generarPDFCuenta = async (req, res) => {
         doc.pipe(res);
 
         // --- ENCABEZADO ---
-        if (logoBuf) {
-    const logo = doc.openImage(logoBuf);
-    doc.image(logo, 40, 20, { width: 110 });
-  }
         doc.rect(0, 0, 612, 100).fill("#f0f0f0");
         doc.fillColor("#000").fontSize(20).font("Helvetica-Bold").text("NOTA DE SERVICIO", 40, 40);
         doc.fontSize(12).text(cuenta.numeroNota, 40, 65);
