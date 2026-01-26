@@ -108,6 +108,8 @@ exports.generarPDFCuenta = async (req, res) => {
         rowY += 20;
         doc.fillColor("black").font("Helvetica-Bold");
 
+        const montoIva = (parseFloat(cuenta.total) * cuenta.ivaPorcentaje) / 100;
+
         const Subtotal = (parseFloat(cuenta.total) - montoIva);
             doc.text("SUBTOTAL:", 350, rowY);
             doc.text(`$${Subtotal.toFixed(2)}`, 450, rowY, { width: 100, align: 'right' });
