@@ -28,8 +28,8 @@ function openNuevaCuenta() {
     // Limpiar el estado de edición por si acaso
     editandoId = null; 
     levMaterialesList = [];
-    document.getElementById("lev-listaMateriales").innerHTML = "";
-    document.getElementById("formNuevaCuenta").reset();
+    document.getElementById("levListaMateriales").innerHTML = "";
+    //document.getElementById("formNuevaCuenta").reset();
 
     cargarClientesSelect(); 
     setFechaHoraActual();
@@ -48,19 +48,22 @@ function openNuevaCuenta() {
 //CERRAR MODAL NUEVA CUENTA//
 
 function cerrarNuevaCuentaModal() {
-    document.getElementById('modalNuevaCuenta').style.display = 'none';
-    document.body.style.overflow = 'auto';
-
-    // Resetear todo a modo "Nueva Cuenta"
-    // RESETEAR ESTADO
-    editandoId = null; 
+    document.getElementById("modalNuevaCuenta").style.display = "none";
+    document.body.style.overflow = "auto";
+    
+    // RESET TOTAL de variables de control
+    editandoId = null;
     levMaterialesList = [];
-    document.getElementById('levFormNuevaCuenta').reset();
-    document.getElementById("labelNumeroNota").innerText = "Nueva Cuenta";
-    document.getElementById("btnGuardarCuenta").innerText = "Guardar Cuenta";
-    levRenderMateriales();
+    tempFotoEdit = null;
+    
+    // Limpiar visualmente
+    document.getElementById("levListaMateriales").innerHTML = "";
+    //document.getElementById("formNuevaCuenta").reset();
+    
+    // Resetear el título del modal y botones por si se quedaron en modo "Editar"
+    document.querySelector("#modalNuevaCuenta h2").innerText = "Nueva Cuenta";
+    document.querySelector(".btn-add-ios").innerText = "+ Agregar Insumo";
 }
-
 
 
 //productos 
