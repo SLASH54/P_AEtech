@@ -3,6 +3,20 @@ const PDFDocument = require("pdfkit");
 const axios = require("axios");
 const sharp = require("sharp");
 
+async function cargarImagen(urlOrPath) {
+  try {
+    if (urlOrPath.startsWith("http")) {
+      const res = await axios.get(urlOrPath, { responseType: "arraybuffer" });
+      return res.data;
+    } else {
+      return fs.readFileSync(urlOrPath);
+    }
+  } catch (err) {
+    console.log("⚠ Error cargando imagen:", urlOrPath, err.message);
+    return null;
+  }
+}
+
 // Función para procesar las imágenes de Cloudinary para el PDF
 async function procesarImagen(url, maxW, maxH) {
     try {
