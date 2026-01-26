@@ -38,9 +38,9 @@ function openNuevaCuenta() {
     // Contamos las filas reales de la tabla para dar el siguiente
     const filas = document.querySelectorAll(".tabla tbody tr");
     const siguienteNumero = filas.length + 1;
-    proximoNumeroNota = `Nota #${siguienteNumero}`;
+    proximoNoNota = `Nota #${siguienteNumero}`;
     
-    document.getElementById('labelNumeroNota').innerText = proximoNumeroNota;
+    document.getElementById('labelNumeroNota').innerText = proximoNoNota;
     
     modal.style.display = "flex";
 }
