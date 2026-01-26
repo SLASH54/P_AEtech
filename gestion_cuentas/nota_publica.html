@@ -37,31 +37,27 @@
         async function cargarNotaPublica() {
             const urlParams = new URLSearchParams(window.location.search);
             const id = urlParams.get('id');
-            if(!id) return alert("Link no válido");
+            
+            if(!id) return;
 
             try {
-                const res = await fetch(`${API_BASE_URL}/cuentas`);
-                const cuentas = await res.json();
-                const c = cuentas.find(nota => nota.id == id);
-
-                if(c) {
-                    document.getElementById('pub-nota-num').innerText = c.numeroNota;
-                    document.getElementById('pub-cliente').innerText = c.clienteNombre;
-                    document.getElementById('pub-total').innerText = `$${parseFloat(c.total).toFixed(2)}`;
-                    document.getElementById('pub-anticipo').innerText = `$${parseFloat(c.anticipo).toFixed(2)}`;
-                    document.getElementById('pub-saldo').innerText = `$${(c.total - c.anticipo).toFixed(2)}`;
-                    
-                    // Render de materiales simple
-                    let htmlMat = '';
-                    c.materiales.forEach(m => {
-                        htmlMat += `<div style="display:flex; justify-content:space-between; padding: 8px 0; border-bottom: 0.5px solid #eee;">
-                            <span>${m.cantidad}x ${m.nombre}</span>
-                            <b>$${parseFloat(m.costo).toFixed(2)}</b>
-                        </div>`;
-                    });
-                    document.getElementById('pub-lista-materiales').innerHTML = htmlMat;
+                // Apuntamos a la nueva ruta pública que creamos
+                const res = await fetch(`${API_BASE_URL}/cuentas/publica/${id}`); 
+                
+                if (!res.ok) {
+                    document.getElementById('pub-detalle').innerHTML = "<h1>Nota no disponible</h1>";
+                    return;
                 }
-            } catch (e) { console.error(e); }
+
+                const c = await res.json();
+
+                // Llenas los campos como ya lo tenías...
+                document.getElementById('pub-nota-num').innerText = c.numeroNota;
+                document.getElementById('pub-cliente').innerText = c.clienteNombre;
+                // ... etc
+            } catch (e) {
+                console.error(e);
+            }
         }
         cargarNotaPublica();
     </script>

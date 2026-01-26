@@ -4,6 +4,10 @@ const cuentaController = require('../controllers/cuentaController');
 const { protect } = require('../middleware/authMiddleware');
 const pdfController = require('../controllers/PdfCuentasController'); // Asegúrate que el nombre coincida
 
+// NUEVA RUTA PÚBLICA (Agrégala antes de las que tienen 'protect')
+// Esta ruta no lleva el middleware "protect"
+router.get('/publica/:id', cuentaController.obtenerCuentaPorIdPublica); 
+
 // POST /api/cuentas -> Crear
 router.post('/', protect, cuentaController.crearCuenta);
 

@@ -8,6 +8,19 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
+// En cuentaController.js
+exports.obtenerCuentaPorIdPublica = async (req, res) => {
+    try {
+        const cuenta = await Cuenta.findById(req.params.id); // O la lógica que uses para buscar por ID
+        if (!cuenta) {
+            return res.status(404).json({ mensaje: "Nota no encontrada" });
+        }
+        res.json(cuenta);
+    } catch (error) {
+        res.status(500).json({ mensaje: "Error al obtener la nota" });
+    }
+};
+
 exports.crearCuenta = async (req, res) => {
     try {
         // 1. PRIMERO extraemos los datos del req.body
