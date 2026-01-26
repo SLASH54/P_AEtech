@@ -20,24 +20,29 @@ let tempFotoEdit = null;     // Para guardar la foto que subas EN EL MOMENTO de 
 
 
 //ABRIR MODAL NUEVA CUENTA//
+
+
 function openNuevaCuenta() {
-    //const LevClienteSelect = document.getElementById('lev-clienteSelect');
     const modal = document.getElementById("modalNuevaCuenta");
+    
+    // Limpiar el estado de edición por si acaso
+    editandoId = null; 
+    levMaterialesList = [];
+    document.getElementById("lev-listaMateriales").innerHTML = "";
+    document.getElementById("formNuevaCuenta").reset();
+
     cargarClientesSelect(); 
     setFechaHoraActual();
 
-    // 💡 Lógica para el número de nota
-    const totalFilas = document.querySelectorAll(".tabla tbody tr").length;
-    proximoNumeroNota = `Nota #${totalFilas + 1}`;
+    // 💡 Lógica corregida para el número de nota
+    // Contamos las filas reales de la tabla para dar el siguiente
+    const filas = document.querySelectorAll(".tabla tbody tr");
+    const siguienteNumero = filas.length + 1;
+    proximoNumeroNota = `Nota #${siguienteNumero}`;
     
     document.getElementById('labelNumeroNota').innerText = proximoNumeroNota;
     
-    console.log("Generando:", proximoNumeroNota); // Para que veas en consola si cuenta bien
-
-    //modal.classList.add("active");
     modal.style.display = "flex";
-    document.body.style.overflow = 'hidden';
-
 }
 
 //CERRAR MODAL NUEVA CUENTA//
@@ -933,7 +938,7 @@ function agregarMaterialEdit() {
     const cant = parseInt(cantInput.value) || 1;
 
     if (!nombre || isNaN(costo)) {
-        return alert("Carnal, selecciona un producto y ponle precio.");
+        return alert("selecciona un producto y ponle precio.");
     }
 
     materialesEditList.push({
@@ -1044,7 +1049,7 @@ async function actualizarCuentaFinal() {
             alert("No se pudo actualizar");
         }
     } catch (e) { 
-        alert("Error de conexión"); 
+        //alert("Error de conexión"); 
     } finally { 
         document.getElementById("loader").style.display = "none"; 
     }
