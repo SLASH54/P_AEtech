@@ -44,7 +44,8 @@ exports.generarPDFCuenta = async (req, res) => {
 
         // --- RUTA AL LOGO LOCAL ---
         // Ajusta los ".." según dónde esté tu carpeta public
-        const RUTA_LOGO_LOCAL = path.join(__dirname, "..", "public", "img", "logoAEtech.png");
+        //const RUTA_LOGO_LOCAL = path.join(__dirname, "..", "public", "img", "logoAEtech.png");
+        const RUTA_LOGO_LOCAL = "/img/logoAEtech.png";
 
         const doc = new PDFDocument({ size: "LETTER", margin: 40 });
         
