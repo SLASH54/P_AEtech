@@ -2,29 +2,14 @@ const { Cuenta, CuentaMaterial } = require("../models/cuentasRelations");
 const PDFDocument = require("pdfkit");
 const axios = require("axios");
 const sharp = require("sharp");
-const path = require("path"); // 👈 Agregado para rutas locales
-const fs = require("fs");     // 👈 Agregado para leer archivos
 
-// --- FUNCIÓN HÍBRIDA (Cloudinary + Local) ---
-async function procesarImagen(fuente, maxW, maxH) {
+
+
+// Función para procesar las imágenes de Cloudinary para el PDF
+async function procesarImagen(url, maxW, maxH) {
     try {
-        let data;
-        
-        // Si la fuente empieza con http, la descargamos (Cloudinary)
-        if (fuente.startsWith('http')) {
-            const res = await axios.get(fuente, { responseType: "arraybuffer" });
-            data = res.data;
-        } else {
-            // Si no, la leemos del disco duro (Local)
-            if (fs.existsSync(fuente)) {
-                data = fs.readFileSync(fuente);
-            } else {
-                console.error("No se encontró el archivo local:", fuente);
-                return null;
-            }
-        }
-
-        return await sharp(data)
+        const res = await axios.get(url, { responseType: "arraybuffer" });
+        return await sharp(res.data)
             .resize({ width: maxW, height: maxH, fit: "inside" })
             .toBuffer();
     } catch (err) {
@@ -32,6 +17,7 @@ async function procesarImagen(fuente, maxW, maxH) {
         return null;
     }
 }
+
 
 exports.generarPDFCuenta = async (req, res) => {
     try {
@@ -42,14 +28,10 @@ exports.generarPDFCuenta = async (req, res) => {
 
         if (!cuenta) return res.status(404).send("Cuenta no encontrada");
 
-        // --- RUTA AL LOGO LOCAL ---
-        // Ajusta los ".." según dónde esté tu carpeta public
-        const RUTA_LOGO_LOCAL = path.join(__dirname, "..", "public", "img", "logoAEtech.png");
-
         const doc = new PDFDocument({ size: "LETTER", margin: 40 });
         
-        // Corregido el header a PDF
-        res.setHeader("Content-Type", "application/pdf");
+        // Configurar respuesta del navegador
+        res.setHeader("Content-Type", "application/json");
         res.setHeader("Content-Disposition", `inline; filename=Nota_${cuenta.numeroNota}.pdf`);
         doc.pipe(res);
 
@@ -78,22 +60,20 @@ exports.generarPDFCuenta = async (req, res) => {
         let rowY = tableTop + 25;
 
         for (const mat of cuenta.materiales) {
+            // Control de salto de página
             if (rowY > 650) {
                 doc.addPage();
                 rowY = 50;
             }
 
-            // LÓGICA DE IMAGEN: Si no hay fotoUrl, usamos la RUTA_LOGO_LOCAL
-            const fuenteAUsar = (mat.fotoUrl && mat.fotoUrl.trim() !== "") 
-                ? mat.fotoUrl 
-                : RUTA_LOGO_LOCAL;
-
-            const imgBuffer = await procesarImagen(fuenteAUsar, 40, 40);
-            
-            if (imgBuffer) {
-                doc.image(imgBuffer, 40, rowY, { width: 40, height: 40 });
+            // Imagen del producto
+            if (mat.fotoUrl) {
+                const imgBuffer = await procesarImagen(mat.fotoUrl, 50, 50);
+                if (imgBuffer) {
+                    doc.image(imgBuffer, 40, rowY, { width: 40 });
+                }
             } else {
-                doc.fontSize(8).fillColor("#8e8e93").text("Sin imagen", 40, rowY + 15);
+                doc.fontSize(8).text("Sin foto", 40, rowY + 15);
             }
 
             doc.fillColor("black").fontSize(10).font("Helvetica");
@@ -101,7 +81,7 @@ exports.generarPDFCuenta = async (req, res) => {
             doc.text(mat.cantidad.toString(), 350, rowY + 15, { width: 50, align: 'center' });
             doc.text(`$${parseFloat(mat.costo).toFixed(2)}`, 450, rowY + 15, { width: 100, align: 'right' });
 
-            rowY += 60; 
+            rowY += 60; // Espacio entre filas
             doc.moveTo(40, rowY - 5).lineTo(570, rowY - 5).strokeColor("#eee").stroke();
         }
 
@@ -109,9 +89,10 @@ exports.generarPDFCuenta = async (req, res) => {
         rowY += 20;
         doc.fillColor("black").font("Helvetica-Bold");
 
+        // IVA si aplica
         if (cuenta.iva) {
-            const montoIva = (parseFloat(cuenta.total) * (cuenta.ivaPorcentaje || 16)) / 100;
-            doc.text(`IVA (${cuenta.ivaPorcentaje || 16}%):`, 350, rowY);
+            const montoIva = (parseFloat(cuenta.total) * cuenta.ivaPorcentaje) / 100;
+            doc.text(`IVA (${cuenta.ivaPorcentaje}%):`, 350, rowY);
             doc.text(`$${montoIva.toFixed(2)}`, 450, rowY, { width: 100, align: 'right' });
             rowY += 20;
         }
@@ -124,6 +105,7 @@ exports.generarPDFCuenta = async (req, res) => {
         doc.text(`$${parseFloat(cuenta.anticipo).toFixed(2)}`, 450, rowY, { width: 100, align: 'right' });
         rowY += 25;
 
+        // Saldo Final (En negrita y resaltado)
         doc.fontSize(12).fillColor(cuenta.saldo > 0 ? "#d32f2f" : "#28a745");
         doc.text("POR LIQUIDAR:", 350, rowY);
         doc.text(`$${parseFloat(cuenta.saldo).toFixed(2)}`, 450, rowY, { width: 100, align: 'right' });
