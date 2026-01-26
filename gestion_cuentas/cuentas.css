@@ -599,6 +599,14 @@ input:checked + .slider:before { transform: translateX(18px); }
     align-items: center;
 }
 
+#facturaInputContainer {
+    background: white;
+    padding: 2px 8px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+}
+
 .status-pagado {
     background-color: #d4edda;
     color: #155724;
@@ -920,7 +928,7 @@ input:checked + .slider:before { transform: translateX(18px); }
     border: none !important;
     background: transparent !important;
     text-align: right !important;
-    width: 130px !important;
+    /*width: 130px !important;*/
     outline: none !important;
 }
 

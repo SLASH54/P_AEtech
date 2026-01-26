@@ -1047,7 +1047,7 @@ async function actualizarCuentaFinal() {
         if (res.ok) {
             alert("✅ ¡Listo! Nota actualizada.");
             cerrarModalEditar();
-            cargarCuentas();
+            cargarCuentasTabla();
         } else {
             alert("No se pudo actualizar");
         }
