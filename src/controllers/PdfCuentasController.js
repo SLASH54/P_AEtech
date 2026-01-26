@@ -32,7 +32,7 @@ async function procesarImagen(url, maxW, maxH) {
 
 
 exports.generarPDFCuenta = async (req, res) => {
-    const logoURL = "https://p-aetech.onrender.com/public/logo1.png";
+    const logoURL = "https://p-aetech.onrender.com/public/logo.png";
     const logoBuf = await cargarImagen(logoURL);
 
     try {
