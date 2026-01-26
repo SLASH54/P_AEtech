@@ -56,22 +56,28 @@ exports.generarPDFCuenta = async (req, res) => {
 
         let rowY = tableTop + 25;
 
-        for (const mat of cuenta.materiales) {
-            // Control de salto de página
-            if (rowY > 650) {
-                doc.addPage();
-                rowY = 50;
-            }
+        // DENTRO DE PdfCuentasController.js
+// Define la URL de tu logo por defecto (usa la de Cloudinary o una pública)
+const LOGO_DEFAULT = "https://res.cloudinary.com/dngbc2icp/image/upload/v1768842144/aetech_levantamientos/xasjjj5bprdorstdgyte.webp"; 
 
-            // Imagen del producto
-            if (mat.fotoUrl) {
-                const imgBuffer = await procesarImagen(mat.fotoUrl, 50, 50);
-                if (imgBuffer) {
-                    doc.image(imgBuffer, 40, rowY, { width: 40 });
-                }
-            } else {
-                doc.fontSize(8).text("Sin foto", 40, rowY + 15);
-            }
+for (const mat of cuenta.materiales) {
+    // Si mat.fotoUrl no existe, usamos el logo
+    let imgBuffer = null;
+    const urlImagen = (mat.fotoUrl && mat.fotoUrl.trim() !== "") ? mat.fotoUrl : LOGO_DEFAULT;
+
+    imgBuffer = await procesarImagen(urlImagen, 50, 50);
+
+    if (imgBuffer) {
+        doc.image(imgBuffer, 45, rowY, { width: 50, height: 50 });
+    } else {
+        // Si por alguna razón falla la carga, un espacio en blanco o texto
+        doc.fontSize(8).text("Sin imagen", 45, rowY + 20);
+    }
+    
+    // ... resto de tu código de texto (nombre, cantidad, etc.)
+
+
+        
 
             doc.fillColor("black").fontSize(10).font("Helvetica");
             doc.text(mat.nombre, 120, rowY + 15);

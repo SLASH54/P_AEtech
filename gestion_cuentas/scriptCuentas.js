@@ -703,7 +703,7 @@ async function verDetalleCuenta(id) {
         cuenta.materiales.forEach(mat => {
             const tr = document.createElement('tr');
             tr.style.color = "black"; 
-            const imgSource = mat.fotoUrl || 'img/no-image.png'; 
+            const imgSource = mat.fotoUrl || 'img/logoAEtech.png'; 
             
             tr.innerHTML = `
                 <td>
