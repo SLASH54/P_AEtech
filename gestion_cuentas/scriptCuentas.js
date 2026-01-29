@@ -911,10 +911,8 @@ async function prepararEdicion(id) {
     // Quitamos cualquier repetición de "Nota #" o "#" para dejar solo el número puro
     let numeroLimpio = nNota.toString().replace(/Nota /g, "").replace(/#/g, "").trim();
     
-    // Ahora lo pintamos una sola vez con el formato correcto
     document.getElementById("labelNumeroNotaEdit").innerText = `Nota #${numeroLimpio}`;
 
-    // --- CONTINÚA TU LÓGICA DE ESTATUS ---
     const badgeEdit = document.getElementById('editEstatusBadge');
         
         const esPagado = (cuenta.saldo <= 0 || cuenta.estatus === 'Pagado');
