@@ -669,6 +669,8 @@ async function cargarCuentasTabla() {
         <button onclick="descargarPDFCuenta(${c.id})" class="btn-tabla-ios btn-pdf-ios" title="Descargar PDF">PDF</button>
         <button onclick="eliminarCuenta(${c.id})" class="btn-tabla-ios btn-eliminar-ios" title="Eliminar">🗑️</button>
         <button onclick="compartirNota(${c.id})" class="btn-tabla-ios" style="background: rgba(50, 215, 255, 0.15); color: #00bcd4;" title="Compartir Link">🔗</button>
+        ${c.status !== 'Pagado' ? `<button onclick="liquidarCuenta(${c.id})">💰 Liquidar</button>` : '<span>✅ Pagada</span>'}
+        
     </div>
 </td>
             `;
@@ -682,7 +684,25 @@ async function cargarCuentasTabla() {
 // Llamar a la función al cargar la página
 document.addEventListener("DOMContentLoaded", cargarCuentasTabla);
 
+async function liquidarCuenta(id) {
+    if (!confirm("¿Estás seguro de marcar esta cuenta como PAGADA? El saldo pasará a $0.")) return;
 
+    try {
+        const res = await fetch(`${API_BASE_URL}/cuentas/liquidar/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (res.ok) {
+            alert("✅ ¡Cuenta pagada!");
+            location.reload(); // Recargamos para ver los cambios
+        } else {
+            alert("❌ Error al liquidar");
+        }
+    } catch (error) {
+        console.error("Error:", error);
+    }
+}
 
 //ver cuenta
 async function verDetalleCuenta(id) {

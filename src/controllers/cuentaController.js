@@ -223,3 +223,25 @@ exports.editarCuenta = async (req, res) => {
         res.status(500).json({ message: "Error al editar la cuenta" });
     }
 };
+
+// Agrega esto a tu controlador
+exports.liquidarCuenta = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const cuenta = await Cuenta.findByPk(id);
+        
+        if (!cuenta) return res.status(404).send("Cuenta no encontrada");
+
+        // Actualizamos saldo a 0 y status a Pagado
+        await cuenta.update({
+            anticipo: cuenta.total, // El anticipo ahora es igual al total
+            saldo: 0,
+            estatus: 'Pagado'
+        });
+
+        res.json({ message: "Cuenta liquidada con éxito", cuenta });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error al liquidar");
+    }
+};
