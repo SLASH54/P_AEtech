@@ -54,6 +54,11 @@ const Cuenta = sequelize.define('Cuenta', {
     estatus: {
         type: DataTypes.ENUM('Pendiente', 'Pagado', 'Cancelado'),
         defaultValue: 'Pendiente'
+    },
+    // En tu modelo de Cuenta
+    fechaLiquidacion: {
+        type: DataTypes.DATE,
+        allowNull: true
     }
 }, {
     timestamps: true

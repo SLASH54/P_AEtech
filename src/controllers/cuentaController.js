@@ -232,11 +232,11 @@ exports.liquidarCuenta = async (req, res) => {
         
         if (!cuenta) return res.status(404).send("Cuenta no encontrada");
 
-        // Actualizamos saldo a 0 y status a Pagado
         await cuenta.update({
-            anticipo: cuenta.total, // El anticipo ahora es igual al total
+            anticipo: cuenta.total,
             saldo: 0,
-            estatus: 'Pagado'
+            estatus: 'Pagado',
+            fechaLiquidacion: new Date() // 👈 Guardamos el momento exacto
         });
 
         res.json({ message: "Cuenta liquidada con éxito", cuenta });

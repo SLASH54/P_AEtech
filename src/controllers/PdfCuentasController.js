@@ -150,6 +150,21 @@ exports.generarPDFCuenta = async (req, res) => {
         const statusNota = cuenta.estatus ? cuenta.estatus.toUpperCase() : "PENDIENTE";
         let colorStatus = "#f39c12"; // Naranja/Amarillo por defecto (Pendiente)
 
+        if (statusNota === "PAGADO" && cuenta.fechaLiquidacion) {
+    rowY += 25; // Bajamos un poco
+    doc.fillColor("#8e8e93").fontSize(9).font("Helvetica");
+    
+    const fLiq = new Date(cuenta.fechaLiquidacion).toLocaleDateString('es-MX', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+
+    doc.text(`Liquidado el: ${fLiq}`, 400, rowY, { width: 150, align: 'center' });
+}
+
         if (statusNota === "PAGADO") {
             colorStatus = "#28a745"; // Verde
         } else if (statusNota === "CANCELADO") {
