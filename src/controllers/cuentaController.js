@@ -170,12 +170,13 @@ exports.eliminarCuenta = async (req, res) => {
 exports.editarCuenta = async (req, res) => {
     try {
         const { id } = req.params;
-        const { clienteNombre, total, anticipo, iva, ivaPorcentaje, factura, folioFactura, materiales } = req.body;
+        const { clienteNombre, subtotal, total, anticipo, iva, ivaPorcentaje, factura, folioFactura, materiales } = req.body;
 
         const cuenta = await Cuenta.findByPk(id);
         if (!cuenta) return res.status(404).json({ message: "Cuenta no encontrada" });
 
         // 1. Recalcular saldo y estatus
+        const nSubtotal = parseFloat(subtotal) || 0;
         const nTotal = parseFloat(total) || 0;
         const nAnticipo = parseFloat(anticipo) || 0;
         const saldoCalculado = nTotal - nAnticipo;
@@ -183,7 +184,10 @@ exports.editarCuenta = async (req, res) => {
 
         // 2. Actualizar cabecera
         await cuenta.update({
-            clienteNombre, total: nTotal, anticipo: nAnticipo,
+            clienteNombre,
+            subtotal : nSubtotal, 
+            total: nTotal, 
+            anticipo: nAnticipo,
             saldo: saldoCalculado, iva, ivaPorcentaje,
             factura, folioFactura, estatus: nuevoEstatus
         });

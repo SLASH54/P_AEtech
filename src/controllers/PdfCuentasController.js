@@ -35,6 +35,7 @@ exports.generarPDFCuenta = async (req, res) => {
     const logoURL = "https://p-aetech.onrender.com/public/logo1.png";
     const logoBuf = await cargarImagen(logoURL);
 
+
     try {
         const { id } = req.params;
         const cuenta = await Cuenta.findByPk(id, {
@@ -92,6 +93,10 @@ exports.generarPDFCuenta = async (req, res) => {
                     doc.image(imgBuffer, 40, rowY, { width: 40 });
                 }
             } else {
+                if (logoBuf) {
+                    const logo = doc.openImage(logoBuf);
+                    doc.image(logo, 40, rowY, { width: 40 });
+                }
                 doc.fontSize(8).text("Sin foto", 40, rowY + 15);
             }
 
