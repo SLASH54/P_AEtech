@@ -35,6 +35,9 @@ exports.generarPDFCuenta = async (req, res) => {
     const logoURL = "https://p-aetech.onrender.com/public/logo1.png";
     const logoBuf = await cargarImagen(logoURL);
 
+    const noimgURL = "https://p-aetech.onrender.com/public/logo.png";
+    const noimgBuf = await cargarImagen(noimgURL);
+
 
     try {
         const { id } = req.params;
@@ -93,11 +96,11 @@ exports.generarPDFCuenta = async (req, res) => {
                     doc.image(imgBuffer, 40, rowY, { width: 40 });
                 }
             } else {
-                if (logoBuf) {
-                    const logo = doc.openImage(logoBuf);
+                if (noimgBufBuf) {
+                    const logo = doc.openImage(noimgBufBuf);
                     doc.image(logo, 40, rowY, { width: 40 });
                 }
-                doc.fontSize(8).text("Sin foto", 40, rowY + 15);
+                //doc.fontSize(8).text("Sin foto", 40, rowY + 15);
             }
 
             doc.fillColor("black").fontSize(10).font("Helvetica");

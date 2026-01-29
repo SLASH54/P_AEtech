@@ -739,7 +739,7 @@ async function verDetalleCuenta(id) {
             infoFactura.style.color = "black";
 
             const porcentaje = cuenta.ivaPorcentaje || 16;
-            const montoIva = (parseFloat(cuenta.total) * porcentaje) / 100;
+            const montoIva = (parseFloat(cuenta.subtotal) * porcentaje) / 100;
 
             if (cuenta.iva) badgesContainer.innerHTML += `<span class="badge badge-iva">CON IVA</span>`;
             if (cuenta.factura) badgesContainer.innerHTML += `<span class="badge badge-factura">FACTURADO</span>`;
