@@ -173,8 +173,6 @@ exports.generarPDFCuenta = async (req, res) => {
                 day: '2-digit',
                 month: '2-digit',
                 year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
             });
 
             doc.text(`Liquidado el: ${fLiq}`, 400, rowY, { width: 150, align: 'center' });
