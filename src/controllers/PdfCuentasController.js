@@ -62,7 +62,7 @@ exports.generarPDFCuenta = async (req, res) => {
         }
         doc.fillColor("#000").fontSize(20).font("Helvetica-Bold").text("NOTA DE SERVICIO", 350, 40);
         doc.fontSize(12).text(cuenta.numeroNota, 350, 65);
-        doc.fontSize(10).font("Helvetica").text(`Fecha: ${new Date(cuenta.fecha).toLocaleDateString()}`, 350, 80);
+        doc.fontSize(10).font("Helvetica").text(`Fecha: ${new Date(cuenta.fecha).toLocaleDateString('es-MX')}`, 350, 80);
 
         // --- DATOS DEL CLIENTE ---
         doc.moveDown(4);
@@ -143,6 +143,25 @@ exports.generarPDFCuenta = async (req, res) => {
         doc.fontSize(12).fillColor(cuenta.saldo > 0 ? "#d32f2f" : "#28a745");
         doc.text("POR LIQUIDAR:", 350, rowY);
         doc.text(`$${parseFloat(cuenta.saldo).toFixed(2)}`, 450, rowY, { width: 100, align: 'right' });
+
+        // --- AQUÍ AGREGAMOS EL STATUS ---
+        rowY += 20; // Bajamos un poco después del saldo
+
+        const statusNota = cuenta.status ? cuenta.status.toUpperCase() : "PENDIENTE";
+        let colorStatus = "#f39c12"; // Naranja/Amarillo por defecto (Pendiente)
+
+        if (statusNota === "PAGADO") {
+            colorStatus = "#28a745"; // Verde
+        } else if (statusNota === "CANCELADO") {
+            colorStatus = "#d32f2f"; // Rojo
+        }
+
+        // Dibujamos un pequeño rectángulo redondeado de fondo para el status
+        doc.roundedRect(400, rowY, 150, 20, 5).fill(colorStatus);
+
+        // Texto del Status sobre el rectángulo
+        doc.fillColor("#FFFFFF").fontSize(10).font("Helvetica-Bold");
+        doc.text(statusNota, 400, rowY + 5, { width: 150, align: 'center' });
 
         doc.end();
     } catch (error) {
