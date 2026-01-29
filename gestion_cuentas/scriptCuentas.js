@@ -903,26 +903,35 @@ async function prepararEdicion(id) {
         const cuentas = await response.json();
         const cuenta = cuentas.find(c => c.id === id);
 
+        if (!cuenta) {
+            alert("No se encontró la nota");
+            return;
+        }
 
-    if (!cuenta) return;
-
-    // --- LÓGICA DE LIMPIEZA PARA EL NÚMERO DE NOTA ---
-    let nNota = cuenta.numeroNota || "0";
-    // Quitamos cualquier repetición de "Nota #" o "#" para dejar solo el número puro
-    let numeroLimpio = nNota.toString().replace(/Nota /g, "").replace(/#/g, "").trim();
-    
-    document.getElementById("labelNumeroNotaEdit").innerText = `Nota #${numeroLimpio}`;
-
-    const badgeEdit = document.getElementById('editEstatusBadge');
+        // 1. Mostrar el modal primero que nada
+        document.getElementById("modalEditarCuenta").style.display = "flex";
         
-        const esPagado = (cuenta.saldo <= 0 || cuenta.estatus === 'Pagado');
+        await cargarClientesSelectEdit(cuenta.clienteNombre);
+
+        // 2. Lógica de limpieza segura para el número de nota
+        let valorNota = cuenta.numeroNota ? cuenta.numeroNota.toString() : "S/N";
+        
+        // Limpiamos solo si contiene "Nota" o "#", si no, lo dejamos igual
+        let numeroSolo = valorNota.replace(/Nota /g, "").replace(/#/g, "").trim();
+        
+        document.getElementById("labelNumeroNotaEdit").innerText = `Nota #${numeroSolo}`;
+        
+        // 3. Estatus
+        const badgeEdit = document.getElementById('editEstatusBadge');
+        const esPagado = (parseFloat(cuenta.saldo) <= 0 || cuenta.estatus === 'Pagado');
         
         if (badgeEdit) {
             badgeEdit.innerText = esPagado ? "PAGADO" : "PENDIENTE";
             badgeEdit.className = `badge-status-tabla ${esPagado ? 'status-pagado' : 'status-pendiente'}`;
         }
 
-        document.getElementById("levAnticipoEdit").value = cuenta.anticipo;
+        // 4. Llenar campos numéricos
+        document.getElementById("levAnticipoEdit").value = cuenta.anticipo || 0;
         document.getElementById("chkIvaEdit").checked = cuenta.iva || false;
         document.getElementById("levIvaPorcentajeEdit").value = cuenta.ivaPorcentaje || 16;
         document.getElementById("chkFacturaEdit").checked = cuenta.factura || false;
@@ -930,22 +939,26 @@ async function prepararEdicion(id) {
         
         toggleFacturaEdit(); 
 
-        // Mapear materiales
+        // 5. Cargar materiales
         materialesEditList = (cuenta.materiales || []).map(m => ({
             nombre: m.nombre,
             cantidad: m.cantidad,
-            costo: parseFloat(m.costo),
+            costo: parseFloat(m.costo) || 0,
             fotoUrl: m.fotoUrl,
             foto: null 
         }));
 
         renderMaterialesEdit();
+
     } catch (e) { 
-        console.error("Error al preparar:", e); 
+        console.error("Error al abrir edición:", e);
+        alert("Hubo un error al cargar los datos del modal.");
     } finally { 
         document.getElementById("loader").style.display = "none"; 
     }
 }
+
+
 // 2. FUNCIÓN PARA CARGAR CLIENTES DESDE LA API (La que faltaba)
 async function cargarClientesSelectEdit(clienteActual) {
     const select = document.getElementById("edit-clienteSelect");
