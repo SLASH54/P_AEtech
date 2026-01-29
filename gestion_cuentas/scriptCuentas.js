@@ -669,8 +669,7 @@ async function cargarCuentasTabla() {
         <button onclick="descargarPDFCuenta(${c.id})" class="btn-tabla-ios btn-pdf-ios" title="Descargar PDF">PDF</button>
         <button onclick="eliminarCuenta(${c.id})" class="btn-tabla-ios btn-eliminar-ios" title="Eliminar">🗑️</button>
         <button onclick="compartirNota(${c.id})" class="btn-tabla-ios" style="background: rgba(50, 215, 255, 0.15); color: #00bcd4;" title="Compartir Link">🔗</button>
-        ${c.status !== 'Pagado' ? `<button onclick="liquidarCuenta(${c.id})">💰 Liquidar</button>` : '<span>✅ Pagada</span>'}
-        
+        ${c.estatus !== 'Pagado' ? `<button onclick="liquidarCuenta(${c.id})" class="btn-tabla-ios" style="background: rgba(58, 205, 0, 0.39); color: #00bcd4;" title="Liquidar Nota">💰</button>` : '<span>✅ Pagada</span>'}
     </div>
 </td>
             `;
