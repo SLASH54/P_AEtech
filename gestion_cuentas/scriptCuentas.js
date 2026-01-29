@@ -754,6 +754,7 @@ async function verDetalleCuenta(id) {
 
         // --- TOTALES, ANTICIPO Y SALDO (NEGRO) ---
         // Asegúrate de tener estos IDs en tu HTML
+        document.getElementById('detSubtotal').value = parseFloat(cuenta.subtotal).toFixed(2);
         document.getElementById('detTotal').value = parseFloat(cuenta.total).toFixed(2);
         document.getElementById('detTotal').style.color = "black";
 
@@ -974,7 +975,7 @@ function renderMaterialesEdit() {
     tbody.innerHTML = "";
     
     materialesEditList.forEach((item, index) => {
-        const img = item.foto || item.fotoUrl || 'img/no-image.png';
+        const img = item.foto || item.fotoUrl || 'img/logoAEtech.png';
         tbody.innerHTML += `
             <tr style="background: white;">
                 <td style="text-align:center;"><img src="${img}" style="width:45px; height:45px; border-radius:8px; object-fit:cover;"></td>
