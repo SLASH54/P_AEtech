@@ -815,13 +815,12 @@ input:checked + .slider:before { transform: translateX(18px); }
 }
 
 #modalEditarCuenta .modalGlass-content {
-    background: rgba(255, 255, 255, 0.9) !important;
+    background: #00cbcd42 !important;
     border-radius: 25px;
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    border: 1px solid #007aff;
+    box-shadow: 0 20px 40px #30f2fff0;
     padding: 30px;
 }
-
 /* Inputs estilo Apple */
 .glass-input-ios {
     background: #f2f2f7 !important; /* Gris clarito de iOS */
