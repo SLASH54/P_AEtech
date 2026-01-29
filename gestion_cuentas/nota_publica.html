@@ -67,29 +67,31 @@
     background-color: #ff3b30; /* Rojo iOS */
     color: white;
 }
-/* Badge de Estatus Dinámico */
-.status-badge-public {
+
+
+/* Badges de Estatus para Nota Pública */
+.pub-status-badge {
     display: inline-block;
-    padding: 8px 20px;
-    border-radius: 25px;
-    font-size: 14px;
-    font-weight: 800;
-    margin-top: 12px;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 13px;
+    margin-top: 5px;
+    text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
-.status-pagado-public {
-    background-color: #34c759; /* Verde éxito */
-    color: white;
-    box-shadow: 0 4px 10px rgba(52, 199, 89, 0.3);
+.pub-status-pagado {
+    background-color: #34c75920; /* Verde clarito */
+    color: #34c759;             /* Verde fuerte */
+    border: 1px solid #34c759;
 }
 
-.status-pendiente-public {
-    background-color: #ff3b30; /* Rojo alerta */
-    color: white;
-    box-shadow: 0 4px 10px rgba(255, 59, 48, 0.3);
+.pub-status-pendiente {
+    background-color: #ff3b3020; /* Rojo clarito */
+    color: #ff3b30;             /* Rojo fuerte */
+    border: 1px solid #ff3b30;
 }
-
 
 
 </style>
@@ -100,7 +102,7 @@
         <header style="text-align: center; margin-bottom: 20px; background: transparent;">
             <img src="img/logoAEtech.png" width="80">
             <h2 id="pub-nota-num" style="color: #1c1c1e; margin-top: 10px;">Cargando...</h2>
-        <div id="pub-estatus-badge"></div>
+<div id="pub-status-container"></div>
         </header>
 
         <div id="pub-detalle">
@@ -155,6 +157,23 @@
             }
 
             const c = await res.json();
+
+
+            // --- Lógica de Estatus Dinámico (Basado en saldo y estatus) ---
+const containerEstatus = document.getElementById('pub-status-container');
+const saldoNum = parseFloat(c.saldo) || 0;
+const estatusOriginal = c.estatus;
+
+// Si el saldo es 0 o menos, o el estatus ya dice Pagado
+const esPagado = (saldoNum <= 0 || estatusOriginal === 'Pagado');
+
+if (containerEstatus) {
+    if (esPagado) {
+        containerEstatus.innerHTML = `<span class="pub-status-badge pub-status-pagado">PAGADO</span>`;
+    } else {
+        containerEstatus.innerHTML = `<span class="pub-status-badge pub-status-pendiente">PENDIENTE</span>`;
+    }
+}
 
             // 1. Manejo de Badges (Factura y IVA) - Usando clases CSS iOS
             let badgesHtml = '';
@@ -231,19 +250,8 @@
         }
 
 
- // --- Lógica de Estatus Dinámico ---
-const badgeContainer = document.getElementById('pub-estatus-badge');
-const saldoNum = parseFloat(c.saldo) || 0;
-const estatusTexto = c.estatus;
 
-// Consideramos pagado si el saldo es 0 o si el estatus dice 'Pagado'
-const esPagado = (saldoNum <= 0 || estatusTexto === 'Pagado');
 
-if (esPagado) {
-    badgeContainer.innerHTML = `<span class="status-badge-public status-pagado-public">PAGADO ✅</span>`;
-} else {
-    badgeContainer.innerHTML = `<span class="status-badge-public status-pendiente-public">PAGO PENDIENTE ⏳</span>`;
-}
     }
 
     // Ejecutar carga
