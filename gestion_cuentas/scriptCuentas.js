@@ -648,30 +648,38 @@ async function cargarCuentasTabla() {
 
         tbody.innerHTML = ""; // Limpiar tabla
 
-        cuentas.forEach(c => {
+        // AGREGAMOS EL "index" aquí en el forEach
+        cuentas.forEach((c, index) => {
             const fecha = new Date(c.createdAt).toLocaleDateString();
             const tr = document.createElement("tr");
             
-            // Si el saldo es 0, ponemos un badge de "Pagado"
-            const statusClass = c.saldo <= 0 ? "status-pagado" : "status-pendiente";
-            const statusText = c.saldo <= 0 ? "Pagado" : "Pendiente";
+            // Usamos el index + 1 para que la primera fila sea 1, la segunda 2, etc.
+            const numeroConsecutivo = index + 1;
+
+            // Determinamos el estatus basado en el saldo y el campo estatus
+            const esPagado = c.saldo <= 0 || c.estatus === 'Pagado';
+            const statusClass = esPagado ? "status-pagado" : "status-pendiente";
+            const statusText = esPagado ? "Pagado" : "Pendiente";
 
             tr.innerHTML = `
-                <td><strong>${c.numeroNota || 'S/N'}</strong></td>
+                <td style="text-align: center; font-weight: bold; color: #007aff;">${numeroConsecutivo}</td>
                 <td>${c.clienteNombre}</td>
-                <td><span class="${statusClass}">${statusText}</span></td>
-                <td>$${parseFloat(c.total).toFixed(2)}</td>
+                <td><span class="badge-status-tabla ${statusClass}">${statusText}</span></td>
+                <td style="font-weight: bold;">$${parseFloat(c.total).toLocaleString('es-MX', {minimumFractionDigits:2})}</td>
                 <td>${fecha}</td>
                 <td>
-    <div class="acciones-container">
-        <button onclick="verDetalleCuenta(${c.id})" class="btn-tabla-ios btn-ver-ios" title="Ver">👁️</button>
-        <button onclick="prepararEdicion(${c.id})" class="btn-tabla-ios btn-edit-ios" title="Editar">✏️</button>
-        <button onclick="descargarPDFCuenta(${c.id})" class="btn-tabla-ios btn-pdf-ios" title="Descargar PDF">PDF</button>
-        <button onclick="eliminarCuenta(${c.id})" class="btn-tabla-ios btn-eliminar-ios" title="Eliminar">🗑️</button>
-        <button onclick="compartirNota(${c.id})" class="btn-tabla-ios" style="background: rgba(50, 215, 255, 0.15); color: #00bcd4;" title="Compartir Link">🔗</button>
-        ${c.estatus !== 'Pagado' ? `<button onclick="liquidarCuenta(${c.id})" class="btn-tabla-ios" style="background: rgba(58, 205, 0, 0.39); color: #00bcd4;" title="Liquidar Nota">💰</button>` : ''}
-    </div>
-</td>
+                    <div class="acciones-container">
+                        <button onclick="verDetalleCuenta(${c.id})" class="btn-tabla-ios btn-ver-ios" title="Ver">👁️</button>
+                        <button onclick="prepararEdicion(${c.id})" class="btn-tabla-ios btn-edit-ios" title="Editar">✏️</button>
+                        <button onclick="descargarPDFCuenta(${c.id})" class="btn-tabla-ios btn-pdf-ios" title="PDF">PDF</button>
+                        <button onclick="eliminarCuenta(${c.id})" class="btn-tabla-ios btn-eliminar-ios" title="Eliminar">🗑️</button>
+                        <button onclick="compartirNota(${c.id})" class="btn-tabla-ios" style="background: rgba(50, 215, 255, 0.15); color: #00bcd4;" title="Compartir Link">🔗</button>
+                        ${!esPagado ? 
+                            `<button onclick="liquidarCuenta(${c.id})" class="btn-tabla-ios" style="background: rgba(58, 205, 0, 0.39); color: #000;" title="Liquidar Nota">💰</button>` : 
+                            '<span style="font-size: 1.2rem;">✅</span>'
+                        }
+                    </div>
+                </td>
             `;
             tbody.appendChild(tr);
         });
@@ -679,6 +687,7 @@ async function cargarCuentasTabla() {
         console.error("Error cargando cuentas:", error);
     }
 }
+
 
 // Llamar a la función al cargar la página
 document.addEventListener("DOMContentLoaded", cargarCuentasTabla);

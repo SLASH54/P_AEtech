@@ -1267,3 +1267,14 @@ input:checked + .slider:before { transform: translateX(18px); }
 .contenedor-img-detalle img:hover {
     transform: scale(1.1);
 }
+
+
+.badge-status-tabla {
+    padding: 5px 12px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+.status-pagado { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+.status-pendiente { background: #fff3e0; color: #ef6c00; border: 1px solid #ffe0b2; }
