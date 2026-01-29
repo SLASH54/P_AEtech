@@ -437,6 +437,7 @@ function calcularSaldo() {
     
     const chkIva = document.getElementById('chkIva');
     const inputPorcentaje = document.getElementById('levIvaPorcentaje');
+    const inputSubtotal = document.getElementById('levSubtotal');
     const inputTotal = document.getElementById('levTotal');
     const inputAnticipo = document.getElementById('levAnticipo');
     const inputLiquidar = document.getElementById('levPorLiquidar');
@@ -450,6 +451,7 @@ function calcularSaldo() {
     }
 
     // Ponemos los valores en los cuadros
+    inputSubtotal.value = subtotal.toFixed(2);
     inputTotal.value = montoConIva.toFixed(2);
     
     const anticipo = parseFloat(inputAnticipo.value) || 0;
