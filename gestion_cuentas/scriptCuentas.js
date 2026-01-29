@@ -903,17 +903,20 @@ async function prepararEdicion(id) {
         const cuentas = await response.json();
         const cuenta = cuentas.find(c => c.id === id);
 
-        if (!cuenta) return;
 
-        document.getElementById("modalEditarCuenta").style.display = "flex";
-        
-        await cargarClientesSelectEdit(cuenta.clienteNombre);
+    if (!cuenta) return;
 
-        // Llenar número de nota
-        document.getElementById("labelNumeroNotaEdit").innerText = `Nota #${cuenta.numeroNota || 'S/N'}`;
+    // --- LÓGICA DE LIMPIEZA PARA EL NÚMERO DE NOTA ---
+    let nNota = cuenta.numeroNota || "0";
+    // Quitamos cualquier repetición de "Nota #" o "#" para dejar solo el número puro
+    let numeroLimpio = nNota.toString().replace(/Nota /g, "").replace(/#/g, "").trim();
+    
+    // Ahora lo pintamos una sola vez con el formato correcto
+    document.getElementById("labelNumeroNotaEdit").innerText = `Nota #${numeroLimpio}`;
+
+    // --- CONTINÚA TU LÓGICA DE ESTATUS ---
+    const badgeEdit = document.getElementById('editEstatusBadge');
         
-        // --- LÓGICA DEL BADGE DE ESTATUS ---
-        const badgeEdit = document.getElementById('editEstatusBadge');
         const esPagado = (cuenta.saldo <= 0 || cuenta.estatus === 'Pagado');
         
         if (badgeEdit) {
@@ -1070,7 +1073,11 @@ function calcularSaldoEdit() {
 async function actualizarCuentaFinal() {
     if (materialesEditList.length === 0) return alert("La nota no puede estar vacía");
 
+    // Leemos el número que está puesto en el label para reenviarlo
+    const numeroActual = document.getElementById("labelNumeroNotaEdit").innerText;
+
     const datos = {
+        numeroNota: numeroActual, // 👈 Aseguramos que se mantenga el nombre correcto
         clienteNombre: document.getElementById("edit-clienteSelect").value,
         anticipo: parseFloat(document.getElementById("levAnticipoEdit").value) || 0,
         subtotal: parseFloat(document.getElementById("levSubtotalEdit").value) || 0,
