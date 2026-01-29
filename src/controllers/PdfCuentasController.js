@@ -147,12 +147,12 @@ exports.generarPDFCuenta = async (req, res) => {
         // --- AQUÍ AGREGAMOS EL STATUS ---
         rowY += 20; // Bajamos un poco después del saldo
 
-        const statusNota = cuenta.estatus ? cuenta.estatus.toUpperCase() : "Pendiente";
+        const statusNota = cuenta.estatus ? cuenta.estatus.toUpperCase() : "PENDIENTE";
         let colorStatus = "#f39c12"; // Naranja/Amarillo por defecto (Pendiente)
 
-        if (statusNota === "Pagado") {
+        if (statusNota === "PAGADO") {
             colorStatus = "#28a745"; // Verde
-        } else if (statusNota === "Cancelado") {
+        } else if (statusNota === "CANCELADO") {
             colorStatus = "#d32f2f"; // Rojo
         }
 
