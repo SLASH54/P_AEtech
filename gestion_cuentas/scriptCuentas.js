@@ -914,15 +914,21 @@ async function prepararEdicion(id) {
 
         document.getElementById("modalEditarCuenta").style.display = "flex";
         
-        // 🔥 AQUÍ ESTÁ TU FUNCIÓN DE CLIENTES, YA NO SE VA
         await cargarClientesSelectEdit(cuenta.clienteNombre);
 
-        // Llenar campos principales
-        document.getElementById("labelNumeroNotaEdit").innerText = cuenta.numeroNota;
+        // Llenar número de nota
+        document.getElementById("labelNumeroNotaEdit").innerText = `Nota #${cuenta.numeroNota || 'S/N'}`;
+        
+        // --- LÓGICA DEL BADGE DE ESTATUS ---
+        const badgeEdit = document.getElementById('editEstatusBadge');
+        const esPagado = (cuenta.saldo <= 0 || cuenta.estatus === 'Pagado');
+        
+        if (badgeEdit) {
+            badgeEdit.innerText = esPagado ? "PAGADO" : "PENDIENTE";
+            badgeEdit.className = `badge-status-tabla ${esPagado ? 'status-pagado' : 'status-pendiente'}`;
+        }
+
         document.getElementById("levAnticipoEdit").value = cuenta.anticipo;
-        
-        
-        // Llenar campos de IVA y Factura
         document.getElementById("chkIvaEdit").checked = cuenta.iva || false;
         document.getElementById("levIvaPorcentajeEdit").value = cuenta.ivaPorcentaje || 16;
         document.getElementById("chkFacturaEdit").checked = cuenta.factura || false;
@@ -930,8 +936,8 @@ async function prepararEdicion(id) {
         
         toggleFacturaEdit(); 
 
-        // Cargar materiales existentes
-        materialesEditList = cuenta.materiales.map(m => ({
+        // Mapear materiales
+        materialesEditList = (cuenta.materiales || []).map(m => ({
             nombre: m.nombre,
             cantidad: m.cantidad,
             costo: parseFloat(m.costo),
@@ -946,7 +952,6 @@ async function prepararEdicion(id) {
         document.getElementById("loader").style.display = "none"; 
     }
 }
-
 // 2. FUNCIÓN PARA CARGAR CLIENTES DESDE LA API (La que faltaba)
 async function cargarClientesSelectEdit(clienteActual) {
     const select = document.getElementById("edit-clienteSelect");
@@ -1029,13 +1034,10 @@ function renderMaterialesEdit() {
 // 5. CÁLCULOS DE IVA Y SALDO (Actualizado para el orden: Total, Anticipo, Saldo)
 function calcularSaldoEdit() {
     let totalMateriales = 0;
-    
-    // 1. Sumamos el costo de todos los materiales
     materialesEditList.forEach(item => {
         totalMateriales += (item.cantidad * item.costo);
     });
 
-    // 2. Revisamos si lleva IVA
     const llevaIva = document.getElementById("chkIvaEdit").checked;
     const porcentajeIva = parseFloat(document.getElementById("levIvaPorcentajeEdit").value) || 0;
     
@@ -1044,19 +1046,32 @@ function calcularSaldoEdit() {
         totalFinal += (totalMateriales * (porcentajeIva / 100));
     }
 
-    // 3. Obtenemos el anticipo del campo que está EN MEDIO
     const anticipo = parseFloat(document.getElementById("levAnticipoEdit").value) || 0;
-    
-    // 4. Calculamos el saldo final
     const saldo = totalFinal - anticipo;
 
-    // 5. Insertamos los valores en los IDs correspondientes de tu HTML
+    // Actualizar Inputs
     document.getElementById("levSubtotalEdit").value = totalMateriales.toFixed(2);
     document.getElementById("levTotalEdit").value = totalFinal.toFixed(2);
-    document.getElementById("levSaldoEdit").value = saldo.toFixed(2);
+    
+    const inputSaldo = document.getElementById("levSaldoEdit");
+    inputSaldo.value = saldo.toFixed(2);
+
+    // --- ACTUALIZAR BADGE Y COLOR DE SALDO EN TIEMPO REAL ---
+    const badgeEdit = document.getElementById('editEstatusBadge');
+    if (saldo <= 0) {
+        inputSaldo.style.color = "#28a745"; // Verde
+        if(badgeEdit) {
+            badgeEdit.innerText = "PAGADO";
+            badgeEdit.className = "badge-status-tabla status-pagado";
+        }
+    } else {
+        inputSaldo.style.color = "#ff3b30"; // Rojo
+        if(badgeEdit) {
+            badgeEdit.innerText = "PENDIENTE";
+            badgeEdit.className = "badge-status-tabla status-pendiente";
+        }
+    }
 }
-
-
 
 // 6. GUARDAR CAMBIOS (PUT)
 async function actualizarCuentaFinal() {
