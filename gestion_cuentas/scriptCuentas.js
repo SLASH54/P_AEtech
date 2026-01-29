@@ -24,26 +24,28 @@ let tempFotoEdit = null;     // Para guardar la foto que subas EN EL MOMENTO de 
 
 function openNuevaCuenta() {
     const modal = document.getElementById("modalNuevaCuenta");
-    
-    // Limpiar el estado de edición por si acaso
     editandoId = null; 
     levMaterialesList = [];
     document.getElementById("levListaMateriales").innerHTML = "";
-    //document.getElementById("formNuevaCuenta").reset();
 
     cargarClientesSelect(); 
     setFechaHoraActual();
 
-    // 💡 Lógica corregida para el número de nota
-    // Contamos las filas reales de la tabla para dar el siguiente
-    const filas = document.querySelectorAll(".tabla tbody tr");
-    const siguienteNumero = filas.length + 1;
-    proximoNumeroNota = `Nota #${siguienteNumero}`;
-    
-    document.getElementById('labelNumeroNota').innerText = proximoNumeroNota;
+    // 💡 Buscamos el número más alto en la tabla para dar el siguiente
+    const celdas = document.querySelectorAll(".tabla tbody tr td:first-child");
+    let max = 0;
+    celdas.forEach(td => {
+        const num = parseInt(td.innerText.replace(/[^0-9]/g, '')) || 0;
+        if (num > max) max = num;
+    });
+
+    const siguiente = max + 1;
+    // Guardamos el texto exacto en el label del modal
+    document.getElementById('labelNumeroNota').innerText = `Nota #${siguiente}`;
     
     modal.style.display = "flex";
 }
+
 
 //CERRAR MODAL NUEVA CUENTA//
 
@@ -489,23 +491,21 @@ function prepararDatosCuenta() {
 
 async function guardarCuentaFinal() {
     const btnGuardar = document.getElementById("btnGuardarCuenta");
-    
-    // 1. Validaciones iniciales
     const selectCliente = document.getElementById('lev-clienteSelect');
-    if (!selectCliente.value) return alert("Selecciona un cliente primero.");
-
-    // 2. EVITAR DOBLE CLIC: Desactivar botón inmediatamente
-    if (btnGuardar.disabled) return; // Si ya está desactivado, no hacer nada
     
+    if (!selectCliente.value) return alert("Selecciona un cliente primero.");
+    if (btnGuardar.disabled) return; 
+
     btnGuardar.disabled = true;
     btnGuardar.style.opacity = "0.5";
     btnGuardar.innerText = "Guardando...";
 
-    const nombreCliente = selectCliente.options[selectCliente.selectedIndex].text;
-    
+    // 🔥 CAPTURA DIRECTA DEL MODAL (Esto asegura que no vaya vacío)
+    const textoNota = document.getElementById('labelNumeroNota').innerText;
+
     const datos = {
-        numeroNota: proximoNumeroNota,
-        clienteNombre: nombreCliente,
+        numeroNota: textoNota, // <--- Aquí ya va "Nota #5" por ejemplo
+        clienteNombre: selectCliente.options[selectCliente.selectedIndex].text,
         subtotal: parseFloat(document.getElementById('levSubtotal').value) || 0,
         total: parseFloat(document.getElementById('levTotal').value) || 0,
         anticipo: parseFloat(document.getElementById('levAnticipo').value) || 0,
@@ -518,7 +518,6 @@ async function guardarCuentaFinal() {
 
     try {
         document.getElementById("loader").style.display = "flex";
-
         const response = await fetch(`${API_BASE_URL}/cuentas`, {
             method: 'POST',
             headers: {
@@ -529,28 +528,22 @@ async function guardarCuentaFinal() {
         });
 
         if (response.ok) {
-            alert("✅ Cuenta guardada correctamente");
-            location.reload(); // Recarga para limpiar todo
+            alert("✅ Nota guardada: " + textoNota);
+            location.reload(); 
         } else {
-            const resultado = await response.json();
-            alert("❌ Error: " + resultado.message);
-            // Re-activar si hubo error para que el usuario pueda corregir
+            const res = await response.json();
+            alert("❌ Error: " + res.message);
             btnGuardar.disabled = false;
             btnGuardar.style.opacity = "1";
-            btnGuardar.innerText = "Guardar Cuenta";
         }
     } catch (error) {
-        console.error("Error al guardar:", error);
-        alert("Hubo un fallo en la conexión.");
+        console.error("Error:", error);
         btnGuardar.disabled = false;
         btnGuardar.style.opacity = "1";
-        btnGuardar.innerText = "Guardar Cuenta";
     } finally {
         document.getElementById("loader").style.display = "none";
     }
 }
-
-
 
 // Variable para guardar la foto del material que se está agregando actualmente
 let fotoMaterialTemporal = null;
