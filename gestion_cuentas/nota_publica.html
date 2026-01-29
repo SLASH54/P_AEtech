@@ -67,6 +67,29 @@
     background-color: #ff3b30; /* Rojo iOS */
     color: white;
 }
+/* Badge de Estatus Dinámico */
+.status-badge-public {
+    display: inline-block;
+    padding: 8px 20px;
+    border-radius: 25px;
+    font-size: 14px;
+    font-weight: 800;
+    margin-top: 12px;
+    letter-spacing: 0.5px;
+}
+
+.status-pagado-public {
+    background-color: #34c759; /* Verde éxito */
+    color: white;
+    box-shadow: 0 4px 10px rgba(52, 199, 89, 0.3);
+}
+
+.status-pendiente-public {
+    background-color: #ff3b30; /* Rojo alerta */
+    color: white;
+    box-shadow: 0 4px 10px rgba(255, 59, 48, 0.3);
+}
+
 
 
 </style>
@@ -77,7 +100,7 @@
         <header style="text-align: center; margin-bottom: 20px; background: transparent;">
             <img src="img/logoAEtech.png" width="80">
             <h2 id="pub-nota-num" style="color: #1c1c1e; margin-top: 10px;">Cargando...</h2>
-        <div id="pub-estatus-container"></div>
+        <div id="pub-estatus-badge"></div>
         </header>
 
         <div id="pub-detalle">
@@ -208,20 +231,18 @@
         }
 
 
-        // ... dentro de cargarNotaPublica, después de recibir la constante 'c'
+ // --- Lógica de Estatus Dinámico ---
+const badgeContainer = document.getElementById('pub-estatus-badge');
+const saldoNum = parseFloat(c.saldo) || 0;
+const estatusTexto = c.estatus;
 
-// Lógica de Estatus para la Nota Pública
-const estatusContainer = document.getElementById('pub-estatus-container');
-const saldoActual = parseFloat(c.saldo) || 0;
-// Si el saldo es 0 o menor, o el estatus dice 'Pagado'
-const estaLiquidada = (saldoActual <= 0 || c.estatus === 'Pagado');
+// Consideramos pagado si el saldo es 0 o si el estatus dice 'Pagado'
+const esPagado = (saldoNum <= 0 || estatusTexto === 'Pagado');
 
-if (estatusContainer) {
-    if (estaLiquidada) {
-        estatusContainer.innerHTML = `<span class="status-badge-public status-pagado-public">PAGADO ✅</span>`;
-    } else {
-        estatusContainer.innerHTML = `<span class="status-badge-public status-pendiente-public">PAGO PENDIENTE ⏳</span>`;
-    }
+if (esPagado) {
+    badgeContainer.innerHTML = `<span class="status-badge-public status-pagado-public">PAGADO ✅</span>`;
+} else {
+    badgeContainer.innerHTML = `<span class="status-badge-public status-pendiente-public">PAGO PENDIENTE ⏳</span>`;
 }
     }
 
