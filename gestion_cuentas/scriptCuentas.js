@@ -638,18 +638,23 @@ async function cargarCuentasTabla() {
             headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` }
         });
         const cuentas = await response.json();
+        
+        // Ordenamos las cuentas por ID de la más reciente a la más antigua
+        // (Esto asegura que el index 0 sea la última nota creada)
+        cuentas.sort((a, b) => b.id - a.id);
+        
         const totalCuentas = cuentas.length;
-
         tbody.innerHTML = ""; 
 
         cuentas.forEach((c, index) => {
             const fecha = new Date(c.createdAt).toLocaleDateString();
             const tr = document.createElement("tr");
             
-            // Numeración de abajo hacia arriba
+            // Numeración descendente: la de arriba tiene el número más alto
             const numeroConsecutivo = totalCuentas - index;
 
-            const esPagado = (c.saldo <= 0 || c.estatus === 'Pagado');
+            // Lógica de estatus
+            const esPagado = (parseFloat(c.saldo) <= 0 || c.estatus === 'Pagado');
             const statusClass = esPagado ? "status-pagado" : "status-pendiente";
             const statusText = esPagado ? "Pagado" : "Pendiente";
 
@@ -657,7 +662,7 @@ async function cargarCuentasTabla() {
                 <td style="text-align: center; font-weight: bold; color: #007aff;">${numeroConsecutivo}</td>
                 <td>${c.clienteNombre}</td>
                 <td><span class="badge-status-tabla ${statusClass}">${statusText}</span></td>
-                <td style="font-weight: bold;">$${parseFloat(c.total).toLocaleString('es-MX', {minimumFractionDigits:2})}</td>
+                <td style="font-weight: bold;">$${parseFloat(c.total).toFixed(2)}</td>
                 <td>${fecha}</td>
                 <td>
                     <div class="acciones-container">
@@ -666,21 +671,24 @@ async function cargarCuentasTabla() {
                         <button onclick="descargarPDFCuenta(${c.id})" class="btn-tabla-ios btn-pdf-ios" title="Descargar PDF">PDF</button>
                         <button onclick="eliminarCuenta(${c.id})" class="btn-tabla-ios btn-eliminar-ios" title="Eliminar">🗑️</button>
                         
-                        <button onclick="compartirNota(${id})" class="btn-tabla-ios" style="background: rgba(50, 215, 255, 0.15); color: #00bcd4;" title="Compartir Link">🔗</button>
+                        <button onclick="compartirNota(${c.id})" class="btn-tabla-ios" style="background: rgba(50, 215, 255, 0.15); color: #00bcd4;" title="Compartir Link">🔗</button>
                         
                         ${!esPagado ? 
                             `<button onclick="liquidarCuenta(${c.id})" class="btn-tabla-ios" style="background: rgba(58, 205, 0, 0.39); color: #000;" title="Liquidar Nota">💰</button>` : 
-                            '<span style="font-size: 1.2rem; margin-left: 10px;">✅</span>'
+                            '<span style="font-size: 1.2rem; margin-left: 5px;" title="Pagado">✅</span>'
                         }
                     </div>
                 </td>
             `;
+            
             tbody.appendChild(tr);
         });
     } catch (error) {
         console.error("Error cargando cuentas:", error);
     }
 }
+
+
 // Llamar a la función al cargar la página
 document.addEventListener("DOMContentLoaded", cargarCuentasTabla);
 
