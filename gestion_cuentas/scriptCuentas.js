@@ -638,22 +638,18 @@ async function cargarCuentasTabla() {
             headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` }
         });
         const cuentas = await response.json();
+        const totalCuentas = cuentas.length;
 
         tbody.innerHTML = ""; 
-
-        // Guardamos el total de cuentas para la resta
-        const totalCuentas = cuentas.length;
 
         cuentas.forEach((c, index) => {
             const fecha = new Date(c.createdAt).toLocaleDateString();
             const tr = document.createElement("tr");
             
-            // --- AQUÍ ESTÁ EL CAMBIO ---
-            // Si hay 10 cuentas, la primera (index 0) será: 10 - 0 = 10
-            // La segunda (index 1) será: 10 - 1 = 9... y así hasta llegar a 1
+            // Numeración de abajo hacia arriba
             const numeroConsecutivo = totalCuentas - index;
 
-            const esPagado = c.saldo <= 0 || c.estatus === 'Pagado';
+            const esPagado = (c.saldo <= 0 || c.estatus === 'Pagado');
             const statusClass = esPagado ? "status-pagado" : "status-pendiente";
             const statusText = esPagado ? "Pagado" : "Pendiente";
 
@@ -667,11 +663,14 @@ async function cargarCuentasTabla() {
                     <div class="acciones-container">
                         <button onclick="verDetalleCuenta(${c.id})" class="btn-tabla-ios btn-ver-ios" title="Ver">👁️</button>
                         <button onclick="prepararEdicion(${c.id})" class="btn-tabla-ios btn-edit-ios" title="Editar">✏️</button>
-                        <button onclick="descargarPDFCuenta(${c.id})" class="btn-tabla-ios btn-pdf-ios" title="PDF">PDF</button>
+                        <button onclick="descargarPDFCuenta(${c.id})" class="btn-tabla-ios btn-pdf-ios" title="Descargar PDF">PDF</button>
                         <button onclick="eliminarCuenta(${c.id})" class="btn-tabla-ios btn-eliminar-ios" title="Eliminar">🗑️</button>
+                        
+                        <button onclick="compartirNota(${id})" class="btn-tabla-ios" style="background: rgba(50, 215, 255, 0.15); color: #00bcd4;" title="Compartir Link">🔗</button>
+                        
                         ${!esPagado ? 
-                            `<button onclick="liquidarCuenta(${c.id})" class="btn-tabla-ios" style="background: rgba(58, 205, 0, 0.39); color: black;" title="Liquidar Nota">💰</button>` : 
-                            '<span style="font-size: 1.2rem;">✅</span>'
+                            `<button onclick="liquidarCuenta(${c.id})" class="btn-tabla-ios" style="background: rgba(58, 205, 0, 0.39); color: #000;" title="Liquidar Nota">💰</button>` : 
+                            '<span style="font-size: 1.2rem; margin-left: 10px;">✅</span>'
                         }
                     </div>
                 </td>
@@ -682,7 +681,6 @@ async function cargarCuentasTabla() {
         console.error("Error cargando cuentas:", error);
     }
 }
-
 // Llamar a la función al cargar la página
 document.addEventListener("DOMContentLoaded", cargarCuentasTabla);
 
