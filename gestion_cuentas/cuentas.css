@@ -1247,3 +1247,23 @@ input:checked + .slider:before { transform: translateX(18px); }
     background: rgba(255, 255, 255, 0.4) !important;
     transform: scale(1.1);
 }
+
+
+/* Estatus de ver*/
+
+.badge {
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 800;
+    color: white;
+}
+.badge-iva { background: #007aff; } /* Azul iOS */
+.badge-factura { background: #5856d6; } /* Morado iOS */
+
+.contenedor-img-detalle img {
+    transition: transform 0.2s;
+}
+.contenedor-img-detalle img:hover {
+    transform: scale(1.1);
+}

@@ -719,77 +719,82 @@ async function verDetalleCuenta(id) {
             return;
         }
 
-        // --- ENCABEZADO (NEGRO) ---
+        // --- ENCABEZADO ---
         document.getElementById('detNumeroNota').innerText = cuenta.numeroNota || `Nota #${cuenta.id}`;
-        const txtCliente = document.getElementById('detCliente');
-        txtCliente.innerText = `Cliente: ${cuenta.clienteNombre}`;
-        txtCliente.style.color = "black"; 
-        txtCliente.style.fontWeight = "bold";
+        document.getElementById('detCliente').innerText = `Cliente: ${cuenta.clienteNombre}`;
 
-        // --- TABLA DE PRODUCTOS (NEGRO) ---
-        const tbody = document.getElementById('detListaProductos');
-        tbody.innerHTML = "";
-
-        cuenta.materiales.forEach(mat => {
-            const tr = document.createElement('tr');
-            tr.style.color = "black"; 
-            const imgSource = mat.fotoUrl || 'img/logoAEtech.png'; 
-            
-            tr.innerHTML = `
-                <td>
-                    <div class="contenedor-img-detalle">
-                        <img src="${imgSource}" onclick="window.open('${imgSource}', '_blank')">
-                    </div>
-                </td>
-                <td style="font-weight: 500;">${mat.nombre}</td>
-                <td style="text-align: center;">${mat.cantidad}</td>
-                <td style="text-align: right;">$${parseFloat(mat.costo).toLocaleString('es-MX', {minimumFractionDigits:2})}</td>
-            `;
-            tbody.appendChild(tr);
-        });
-
-        // --- DESGLOSE DE IVA Y FACTURA (NEGRO) ---
-        const infoFactura = document.getElementById('infoFacturaExtra');
+        // --- LÓGICA DE BADGES (ESTATUS) ---
         const badgesContainer = document.getElementById('detBadges');
         badgesContainer.innerHTML = "";
+        const fechaPagoCont = document.getElementById('detFechaPagoCont');
+        
+        // Badge de Estatus (Pendiente/Pagado)
+        const estatusActual = (cuenta.estatus || 'Pendiente').toUpperCase();
+        const colorEstatus = estatusActual === 'PAGADO' ? '#2e7d32' : '#f39c12';
+        const bgEstatus = estatusActual === 'PAGADO' ? '#e8f5e9' : '#fff3e0';
 
+        badgesContainer.innerHTML += `
+            <span style="background: ${bgEstatus}; color: ${colorEstatus}; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 12px; border: 1px solid ${colorEstatus}44;">
+                ${estatusActual}
+            </span>
+        `;
+
+        // Mostrar fecha de liquidación si está pagado
+        if (estatusActual === 'PAGADO' && cuenta.fechaLiquidacion) {
+            fechaPagoCont.style.display = "block";
+            const fLiq = new Date(cuenta.fechaLiquidacion).toLocaleString('es-MX', {
+                day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+            });
+            document.getElementById('detFechaPagoTexto').innerHTML = `<b>Pagado el:</b> ${fLiq}`;
+        } else {
+            fechaPagoCont.style.display = "none";
+        }
+
+        // Badges de IVA/Factura
+        if (cuenta.iva) badgesContainer.innerHTML += `<span class="badge badge-iva">CON IVA</span>`;
+        if (cuenta.factura) badgesContainer.innerHTML += `<span class="badge badge-factura">FACTURADO</span>`;
+
+        // --- TABLA DE PRODUCTOS ---
+        const tbody = document.getElementById('detListaProductos');
+        tbody.innerHTML = "";
+        cuenta.materiales.forEach(mat => {
+            const imgSource = mat.fotoUrl || 'img/logoAEtech.png'; 
+            tbody.innerHTML += `
+                <tr style="color: black; border-bottom: 0.5px solid #eee;">
+                    <td style="padding: 10px 0;">
+                        <div class="contenedor-img-detalle">
+                            <img src="${imgSource}" style="width: 45px; height: 45px; border-radius: 8px; object-fit: cover; cursor: pointer;" onclick="window.open('${imgSource}', '_blank')">
+                        </div>
+                    </td>
+                    <td style="font-weight: 500;">${mat.nombre}</td>
+                    <td style="text-align: center;">${mat.cantidad}</td>
+                    <td style="text-align: right;">$${parseFloat(mat.costo).toLocaleString('es-MX', {minimumFractionDigits:2})}</td>
+                </tr>
+            `;
+        });
+
+        // --- INFO EXTRA E IVA ---
+        const infoFactura = document.getElementById('infoFacturaExtra');
         if (cuenta.iva || cuenta.factura) {
             infoFactura.style.display = "block";
-            infoFactura.style.color = "black";
-
             const porcentaje = cuenta.ivaPorcentaje || 16;
             const montoIva = (parseFloat(cuenta.subtotal) * porcentaje) / 100;
-
-            if (cuenta.iva) badgesContainer.innerHTML += `<span class="badge badge-iva">CON IVA</span>`;
-            if (cuenta.factura) badgesContainer.innerHTML += `<span class="badge badge-factura">FACTURADO</span>`;
-
             infoFactura.innerHTML = `
                 <p style="margin: 5px 0;"><strong>Folio Factura:</strong> ${cuenta.folioFactura || "N/A"}</p>
-                <p style="margin: 5px 0; color: black;"><strong>Monto IVA (${porcentaje}%):</strong> $${montoIva.toFixed(2)}</p>
+                <p style="margin: 5px 0;"><strong>Monto IVA (${porcentaje}%):</strong> $${montoIva.toLocaleString('es-MX', {minimumDigits:2})}</p>
             `;
         } else {
             infoFactura.style.display = "none";
         }
 
-        // --- TOTALES, ANTICIPO Y SALDO (NEGRO) ---
-        // Asegúrate de tener estos IDs en tu HTML
+        // --- TOTALES ---
         document.getElementById('detSubtotal').value = parseFloat(cuenta.subtotal).toFixed(2);
         document.getElementById('detTotal').value = parseFloat(cuenta.total).toFixed(2);
-        document.getElementById('detTotal').style.color = "black";
-
-        // AGREGAMOS EL ANTICIPO AQUÍ
-        const inputAnticipo = document.getElementById('detAnticipo');
-        if (inputAnticipo) {
-            inputAnticipo.value = parseFloat(cuenta.anticipo || 0).toFixed(2);
-            inputAnticipo.style.color = "black";
-            inputAnticipo.style.fontWeight = "bold";
-        }
-
+        document.getElementById('detAnticipo').value = parseFloat(cuenta.anticipo || 0).toFixed(2);
+        
         const inputSaldo = document.getElementById('detSaldo');
         inputSaldo.value = parseFloat(cuenta.saldo).toFixed(2);
-        // Si el saldo es mayor a 0, lo ponemos en rojo para que resalte la deuda
         inputSaldo.style.color = (cuenta.saldo > 0) ? "#d32f2f" : "#2e7d32";
-        inputSaldo.style.fontWeight = "bold";
 
         // Abrir Modal
         document.getElementById('modalDetalleCuenta').style.display = 'flex';
@@ -802,6 +807,7 @@ async function verDetalleCuenta(id) {
         document.getElementById("loader").style.display = "none";
     }
 }
+
 
 // Función auxiliar para cerrar
 function cerrarDetalleModal() {
