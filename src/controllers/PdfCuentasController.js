@@ -96,8 +96,8 @@ exports.generarPDFCuenta = async (req, res) => {
                     doc.image(imgBuffer, 40, rowY, { width: 40 });
                 }
             } else {
-                if (noimgBufBuf) {
-                    const logo = doc.openImage(noimgBufBuf);
+                if (noimgBuf) {
+                    const logo = doc.openImage(noimgBuf);
                     doc.image(logo, 40, rowY, { width: 40 });
                 }
                 //doc.fontSize(8).text("Sin foto", 40, rowY + 15);
