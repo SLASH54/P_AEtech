@@ -1282,37 +1282,3 @@ input:checked + .slider:before { transform: translateX(18px); }
 
 
 
-/* BOTÓN DE ACTUALIZAR ESTILO APPLE */
-.glass-btn-ios {
-    background: #007aff !important; /* Azul iOS */
-    color: white !important;
-    border: none !important;
-    border-radius: 16px !important;
-    padding: 16px 20px !important;
-    font-size: 17px !important;
-    font-weight: 600 !important;
-    width: 100%;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3);
-    margin-top: 20px;
-}
-
-.glass-btn-ios:hover {
-    background: #0063cc !important;
-    transform: translateY(-2px);
-    box-shadow: 0 12px 25px rgba(0, 122, 255, 0.4);
-}
-
-.glass-btn-ios:active {
-    transform: scale(0.98); /* Efecto de click hundido */
-    box-shadow: 0 4px 10px rgba(0, 122, 255, 0.2);
-}
-
-.glass-text {
-    letter-spacing: -0.2px;
-}
