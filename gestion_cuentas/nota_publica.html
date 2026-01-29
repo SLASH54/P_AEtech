@@ -46,6 +46,29 @@
     .lev-total-field { display: flex; justify-content: space-between; margin-bottom: 8px; }
     .lev-total-field label { color: #8e8e93; font-size: 14px; }
     .lev-total-field span { font-weight: 600; }
+
+
+
+    /* Estilos para el Estatus en la Nota Pública */
+.status-badge-public {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: bold;
+    margin-top: 10px;
+    text-transform: uppercase;
+}
+.status-pagado-public {
+    background-color: #34c759; /* Verde iOS */
+    color: white;
+}
+.status-pendiente-public {
+    background-color: #ff3b30; /* Rojo iOS */
+    color: white;
+}
+
+
 </style>
     
 </head>
@@ -54,7 +77,7 @@
         <header style="text-align: center; margin-bottom: 20px; background: transparent;">
             <img src="img/logoAEtech.png" width="80">
             <h2 id="pub-nota-num" style="color: #1c1c1e; margin-top: 10px;">Cargando...</h2>
-            <span class="badge-status">Nota Oficial</span>
+        <div id="pub-estatus-container"></div>
         </header>
 
         <div id="pub-detalle">
@@ -183,6 +206,23 @@
             console.error("Error al cargar la nota:", e);
             document.getElementById('pub-detalle').innerHTML = "<h2>Error al conectar con el servidor</h2>";
         }
+
+
+        // ... dentro de cargarNotaPublica, después de recibir la constante 'c'
+
+// Lógica de Estatus para la Nota Pública
+const estatusContainer = document.getElementById('pub-estatus-container');
+const saldoActual = parseFloat(c.saldo) || 0;
+// Si el saldo es 0 o menor, o el estatus dice 'Pagado'
+const estaLiquidada = (saldoActual <= 0 || c.estatus === 'Pagado');
+
+if (estatusContainer) {
+    if (estaLiquidada) {
+        estatusContainer.innerHTML = `<span class="status-badge-public status-pagado-public">PAGADO ✅</span>`;
+    } else {
+        estatusContainer.innerHTML = `<span class="status-badge-public status-pendiente-public">PAGO PENDIENTE ⏳</span>`;
+    }
+}
     }
 
     // Ejecutar carga
