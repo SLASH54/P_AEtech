@@ -33,7 +33,8 @@ exports.crearCuenta = async (req, res) => {
         // 1. PRIMERO extraemos los datos del req.body
         const { 
             numeroNota,
-            clienteNombre, 
+            clienteNombre,
+            subtotal, 
             total, 
             anticipo, 
             iva, 
@@ -44,6 +45,7 @@ exports.crearCuenta = async (req, res) => {
         } = req.body;
 
         // 2. AHORA SÍ calculamos (convertimos a número por seguridad)
+        const nSubtotal = parseFloat(subtotal) || 0;
         const nTotal = parseFloat(total) || 0;
         const nAnticipo = parseFloat(anticipo) || 0;
         const saldoCalculado = nTotal - nAnticipo;
@@ -57,6 +59,7 @@ exports.crearCuenta = async (req, res) => {
         const nuevaCuenta = await Cuenta.create({
             numeroNota,
             clienteNombre,
+            subtotal: nSubtotal,
             total: nTotal,
             anticipo: nAnticipo,
             saldo: saldoCalculado,

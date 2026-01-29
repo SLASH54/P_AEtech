@@ -506,6 +506,7 @@ async function guardarCuentaFinal() {
     const datos = {
         numeroNota: proximoNumeroNota,
         clienteNombre: nombreCliente,
+        subtotal: parseFloat(document.getElementById('levSubtotal').value) || 0,
         total: parseFloat(document.getElementById('levTotal').value) || 0,
         anticipo: parseFloat(document.getElementById('levAnticipo').value) || 0,
         iva: document.getElementById('chkIva').checked,

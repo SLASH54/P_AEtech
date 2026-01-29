@@ -15,6 +15,10 @@ const Cuenta = sequelize.define('Cuenta', {
         type: DataTypes.STRING,
         allowNull: false
     },
+    subtotal: {
+        type: DataTypes.DECIMAL(10, 2),
+        defaultValue : 0.00
+    },
     total: {
         type: DataTypes.DECIMAL(10, 2),
         defaultValue: 0.00
