@@ -284,133 +284,115 @@
 
 
 
-<div id="modalEditarCuenta" class="modalGlass" style="display: none;">
-    <div class="modalGlass-content" style="max-width: 800px;">
+<div id="modalEditarCuenta" class="modalGlass">
+    <div class="modalGlass-content">
         <span class="modalGlass-close" onclick="cerrarModalEditar()">×</span>
         <h2 class="modalGlass-title">Editar Nota de Servicio</h2>
         
-      <div style="text-align: center; margin-bottom: 15px; display: flex; justify-content: center; gap: 10px; align-items: center;">
-    <span id="labelNumeroNotaEdit" style="background: #ff9f0a; color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold;"></span>
-    <span id="editEstatusBadge" class="badge-status-tabla" style="font-size: 12px; padding: 5px 12px;">PENDIENTE</span>
-</div>
+        <div class="modal-header-badges">
+            <span id="labelNumeroNotaEdit"></span>
+            <span id="editEstatusBadge" class="badge-status-tabla">PENDIENTE</span>
+        </div>
 
         <form id="levFormEditarCuenta">
-            <div class="lev-grid-container">
-                <div class="lev-input-group">
-                    <label>Cliente:</label>
-                    <select id="edit-clienteSelect" class="lev-select-custom"></select>
-                </div>
-                
+            <div class="lev-input-group">
+                <label>Cliente</label>
+                <select id="edit-clienteSelect" class="glass-select-ios"></select>
             </div>
 
             <div class="lev-add-material-box">
-                <h4>Productos:</h4>
-                <div class="product-selection-container">
-                    <div class="lev-product-row" style="display: grid; grid-template-columns: 2fr 1fr 80px auto auto; gap: 10px;">
-                        <div style="display: flex; flex-direction: column;">
-                            <select id="edit-levInsumo" onchange="levMostrarCampoExtraEdit()" class="ios-select">
-                                <option value="" disabled selected>Seleccione un insumo</option>
-                                <optgroup label="Cable">
-                                    <option value="Cable">Cable</option>
-                                </optgroup>
-                                <optgroup label="Transceptor">
-                                    <option value="Transceptor">Transceptor</option>
-                                </optgroup>
-                                <optgroup label="Conectores">
-                                    <option value="Conector de corriente">Conector de corriente</option>
-                                </optgroup>
-                                <optgroup label="Fuente de poder 12V">
-                                    <option value="12vdc 1A">12vdc 1A</option>
-                                    <option value="12vdc 1.5A">12vdc 1.5A</option>
-                                    <option value="12vdc 2A">12vdc 2A</option>
-                                    <option value="12vdc 4.1A">12vdc 4.1A</option>
-                                    <option value="12vdc 5A">12vdc 5A</option>
-                                </optgroup>
-                                <optgroup label="Fuente centralizada">
-                                    <option value="Fuente de poder centralizada">Fuente de poder centralizada</option>
-                                </optgroup>
-                                <optgroup label="Cajas">
-                                    <option value="Caja estanca">Caja estanca</option>
-                                    <option value="Caja plástica 180x125x57">Caja plástica 180x125x57</option>
-                                    <option value="Caja plástica 190x290x140">Caja plástica 190x290x140</option>
-                                </optgroup>
-                                <optgroup label="Otro">
-                                    <option value="Otro">Otro (especificar)</option>
-                                </optgroup>
-                            </select>
-                            <input type="text" id="edit-levInsumoExtra" placeholder="¿Qué producto es?" style="display:none; margin-top:5px;" class="ios-input">
-                        </div>
+                <h4>Agregar Producto</h4>
+                <div class="product-selection-grid">
+                    <div class="input-col">
+                        <select id="edit-levInsumo" onchange="levMostrarCampoExtraEdit()" class="glass-select-ios">
+                            <option value="" disabled selected>Seleccione un insumo</option>
+                            <optgroup label="Cámaras">
+                                <option value="Cámara Bala">Cámara Bala</option>
+                                <option value="Cámara Domo">Cámara Domo</option>
+                            </optgroup>
+                            <optgroup label="Fuentes de poder 12V">
+                                <option value="12vdc 1A">12vdc 1A</option>
+                                <option value="12vdc 2A">12vdc 2A</option>
+                            </optgroup>
+                            <optgroup label="Otro">
+                                <option value="Otro">Otro (especificar)</option>
+                            </optgroup>
+                        </select>
+                        <input type="text" id="edit-levInsumoExtra" placeholder="Nombre del producto" class="glass-input-ios" style="display:none;">
+                    </div>
 
-                        <input type="number" id="edit-prodCosto" placeholder="Precio">
-                        <input type="number" id="edit-prodCant" value="1">
-                        
+                    <input type="number" id="edit-prodCosto" placeholder="Precio" class="glass-input-ios">
+                    <input type="number" id="edit-prodCant" value="1" class="glass-input-ios">
+                    
+                    <div class="action-buttons">
                         <input type="file" id="edit-prodFoto" style="display:none;" onchange="procesarFotoEdit(this)">
-                        <button type="button" onclick="document.getElementById('edit-prodFoto').click()" class="btn-foto">📷</button>
-                        <button type="button" onclick="agregarMaterialEdit()" class="btn-add">+</button>
+                        <button type="button" onclick="document.getElementById('edit-prodFoto').click()" class="btn-foto-ios">📷</button>
+                        <button type="button" onclick="agregarMaterialEdit()" class="btn-add-ios">+</button>
                     </div>
                 </div>
-                <div id="previewFotoEdit" style="margin-top: 10px; display: none; text-align: center;">
-                    <img id="imgPreviewEdit" src="" style="width: 60px; height: 60px; border-radius: 10px; object-fit: cover; border: 2px solid #ff9f0a;">
+                
+                <div id="previewFotoEdit" class="photo-preview-container" style="display: none;">
+                    <img id="imgPreviewEdit" src="">
                 </div>
             </div>
 
-            <div class="table-responsive">
-                <table id="tablaMaterialesEdit" class="tablaEdit">
+            <div class="table-responsive-ios">
+                <table id="tablaMaterialesEdit" class="tabla">
                     <thead>
                         <tr>
                             <th>Imagen</th>
                             <th>Producto</th>
                             <th>Cant.</th>
                             <th>Precio</th>
-                            <th>Eliminar</th>
+                            <th>Acción</th>
                         </tr>
                     </thead>
-                    <tbody style="color: black !important;"></tbody>
+                    <tbody></tbody>
                 </table>
             </div>
 
-            <div class="lev-tax-section" style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; margin-top: 15px;">
-                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-                    <div class="lev-checkbox-group">
-                        <label style="color: black;"><input type="checkbox" id="chkIvaEdit" onchange="calcularSaldoEdit()"> ¿Lleva IVA?</label>
-                        <input type="number" id="levIvaPorcentajeEdit" value="16" style="width: 50px; margin-left: 5px;" oninput="calcularSaldoEdit()"> %
-                    </div>
-                    <div class="lev-checkbox-group">
-                        <label style="color: black;"><input type="checkbox" id="chkFacturaEdit" onchange="toggleFacturaEdit()"> ¿Requiere Factura?</label>
-                        <input type="text" id="levFolioFacturaEdit" placeholder="Folio Factura" style="display: none; margin-left: 10px;">
-                    </div>
+            <div class="lev-tax-section">
+                <div class="tax-row">
+                    <label class="ios-switch">
+                        <input type="checkbox" id="chkIvaEdit" onchange="calcularSaldoEdit()">
+                        <span>¿Lleva IVA?</span>
+                    </label>
+                    <input type="number" id="levIvaPorcentajeEdit" value="16" class="glass-input-ios small-input"> %
+                </div>
+                <div class="tax-row">
+                    <label class="ios-switch">
+                        <input type="checkbox" id="chkFacturaEdit" onchange="toggleFacturaEdit()">
+                        <span>¿Requiere Factura?</span>
+                    </label>
+                    <input type="text" id="levFolioFacturaEdit" placeholder="Folio" class="glass-input-ios" style="display: none;">
                 </div>
             </div>
 
-         <div class="lev-totales-container" style="display: flex; flex-direction: column; gap: 10px; background: #f9f9f9; padding: 15px; border-radius: 10px;">
-    
-    <div class="lev-total-field" style="display: flex; justify-content: space-between; align-items: center;">
-        <label style="font-weight: bold; color: black;">Subtotal:</label>
-        <input type="text" id="levSubtotalEdit" readonly="" style="border: none; background: transparent; text-align: right; font-weight: bold; width: 100px;">
-    </div>
+            <div class="lev-totales-container">
+                <div class="lev-total-field">
+                    <label>Subtotal</label>
+                    <input type="text" id="levSubtotalEdit" readonly>
+                </div>
 
-    <div class="lev-total-field" style="display: flex; justify-content: space-between; align-items: center;">
-        <label style="font-weight: bold; color: black;">Total:</label>
-        <input type="text" id="levTotalEdit" readonly style="border: none; background: transparent; text-align: right; font-weight: bold; width: 100px;">
-    </div>
+                <div class="lev-total-field">
+                    <label>Total</label>
+                    <input type="text" id="levTotalEdit" readonly>
+                </div>
 
-    <div class="lev-total-field" style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #ddd; border-bottom: 1px solid #ddd; padding: 5px 0;">
-        <label style="font-weight: bold; color: #28a745;">Anticipo:</label>
-        <input type="number" id="levAnticipoEdit" oninput="calcularSaldoEdit()" style="width: 100px; text-align: right; border: 1px solid #ccc; border-radius: 5px; padding: 3px;">
-    </div>
+                <div class="lev-total-field highlight-field">
+                    <label>Anticipo</label>
+                    <input type="number" id="levAnticipoEdit" oninput="calcularSaldoEdit()">
+                </div>
 
-    <div class="lev-total-field" style="display: flex; justify-content: space-between; align-items: center;">
-        <label style="font-weight: bold; color: #ff3b30;">Saldo (Por liquidar):</label>
-        <input type="text" id="levSaldoEdit" readonly style="border: none; background: transparent; text-align: right; font-weight: bold; color: #ff3b30; width: 100px;">
-    </div>
-
-</div>
-
-            <div class="lev-button-center" style="margin-top: 20px;">
-                <button type="button" onclick="actualizarCuentaFinal()" class="glass-btn-ios" style="background: #007aff; width: 100%;">
-                    <span class="glass-text">Actualizar Cambios</span>
-                </button>
+                <div class="lev-total-field saldo-field">
+                    <label>Saldo por Liquidar</label>
+                    <input type="text" id="levSaldoEdit" readonly>
+                </div>
             </div>
+
+            <button type="button" onclick="actualizarCuentaFinal()" class="btn-save-ios">
+                Actualizar Cambios
+            </button>
         </form>
     </div>
 </div>
