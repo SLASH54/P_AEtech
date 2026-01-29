@@ -1015,6 +1015,7 @@ function calcularSaldoEdit() {
     const saldo = totalFinal - anticipo;
 
     // 5. Insertamos los valores en los IDs correspondientes de tu HTML
+    document.getElementById("levSubtotalEdit").value = totalMateriales.toFixed(2);
     document.getElementById("levTotalEdit").value = totalFinal.toFixed(2);
     document.getElementById("levSaldoEdit").value = saldo.toFixed(2);
 }
@@ -1028,6 +1029,7 @@ async function actualizarCuentaFinal() {
     const datos = {
         clienteNombre: document.getElementById("edit-clienteSelect").value,
         anticipo: parseFloat(document.getElementById("levAnticipoEdit").value) || 0,
+        subtotal: parseFloat(document.getElementById("levSubtotalEdit").value) || 0,
         total: parseFloat(document.getElementById("levTotalEdit").value) || 0,
         iva: document.getElementById("chkIvaEdit").checked,
         ivaPorcentaje: parseFloat(document.getElementById("levIvaPorcentajeEdit").value) || 0,

@@ -62,8 +62,8 @@ exports.generarPDFCuenta = async (req, res) => {
 
         // --- DATOS DEL CLIENTE ---
         doc.moveDown(4);
-        doc.fillColor("black").fontSize(12).font("Helvetica-Bold").text("CLIENTE:");
-        doc.font("Helvetica").text(cuenta.clienteNombre);
+        doc.fillColor("black").fontSize(12).font("Helvetica-Bold").text("CLIENTE:", 40, 120);
+        doc.font("Helvetica").text(cuenta.clienteNombre, 40, 130);
         doc.moveDown();
 
         // --- TABLA DE PRODUCTOS ---
