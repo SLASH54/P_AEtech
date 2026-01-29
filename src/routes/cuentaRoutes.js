@@ -22,4 +22,6 @@ router.delete('/:id', protect, cuentaController.eliminarCuenta);
 
 router.put('/:id', protect, cuentaController.editarCuenta);
 
+router.put('/liquidar/:id', cuentaController.liquidarCuenta);
+
 module.exports = router;
