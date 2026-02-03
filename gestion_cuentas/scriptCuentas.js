@@ -687,7 +687,7 @@ async function cargarCuentasTabla() {
         console.error("Error cargando cuentas:", error);
     }
 }
-
+//
 
 // Llamar a la función al cargar la página
 document.addEventListener("DOMContentLoaded", cargarCuentasTabla);
