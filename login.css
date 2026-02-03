@@ -48,9 +48,13 @@ header {
 }
 
 header button{
-    display: flex;
+    /*display: flex;*/
     flex-direction: column;
 
+}
+
+.btnLogo{
+    background-color: #a52a2a00;
 }
 
 .btnLogo{
