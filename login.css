@@ -53,6 +53,10 @@ header button{
 
 }
 
+.btnLogo{
+    background-color: #a52a2a00;
+}
+
 header h1 {
     margin: 0;
 }
