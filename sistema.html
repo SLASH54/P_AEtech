@@ -1813,7 +1813,6 @@ async function cargarTablaLevantamientos() {
       
       if (l.fecha) {
           const d = new Date(l.fecha);
-          // Usamos solo toLocaleDateString para ignorar la hora
           fechaMostrada = d.toLocaleDateString("es-MX", {
               timeZone: "America/Mexico_City",
               day: '2-digit',
@@ -1822,10 +1821,21 @@ async function cargarTablaLevantamientos() {
           });
       }
 
+      // --- 📍 LÓGICA PARA LINK DE GOOGLE MAPS ---
+      const direccionTexto = l.direccion || 'Sin dirección';
+      // Generamos el enlace de búsqueda de Google Maps
+      const googleMapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(direccionTexto)}`;
+
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${l.cliente_nombre || 'Sin nombre'}</td>
-        <td>${l.direccion || 'Sin dirección'}</td>
+        
+        <td>
+          <a href="${googleMapsLink}" target="_blank" style="text-decoration: none; color: #004b85; font-weight: bold;">
+            ${direccionTexto} 📍
+          </a>
+        </td>
+
         <td>${l.personal || 'N/A'}</td>
         <td>${fechaMostrada}</td> 
         
@@ -1842,8 +1852,6 @@ async function cargarTablaLevantamientos() {
     console.error("Error cargando tabla:", error);
   }
 }
-
-
 cargarTablaLevantamientos();
 
 //obtener necesidades 
