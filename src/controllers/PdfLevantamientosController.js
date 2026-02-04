@@ -3,13 +3,13 @@ const PDFDocument = require("pdfkit");
 const axios = require("axios");
 const sharp = require("sharp");
 
-// 1. Función para procesar imágenes con alta calidad (como en tus reportes)
+// 1. Función para procesar imágenes con alta calidad
 async function procesarImagenLev(url, maxW, maxH) {
     try {
         const res = await axios.get(url, { responseType: "arraybuffer" });
         return await sharp(res.data)
-            .rotate() // Corregir orientación automática
-            .jpeg({ quality: 90 }) // Alta calidad
+            .rotate() 
+            .jpeg({ quality: 90 }) 
             .resize({ width: maxW, height: maxH, fit: "inside" })
             .toBuffer();
     } catch (err) {
@@ -26,13 +26,7 @@ async function cargarFondo(url) {
     } catch (err) { return null; }
 }
 
-
-// =========================================================
-//   GENERAR REPORTE PDF
-// =========================================================
-
 exports.generateLevantamientoPDF = async (req, res) => {
-    // Margen para que el texto caiga justo en el área blanca de tu plantilla
     const MARGIN_TOP = 175; 
     const MARGIN_LEFT = 55;
 
@@ -41,7 +35,6 @@ exports.generateLevantamientoPDF = async (req, res) => {
         const lev = await Levantamiento.findByPk(id);
         if (!lev) return res.status(404).json({ msg: "No encontrado" });
 
-        // URL de tu plantilla que ya tiene el logo
         const plantillaURL = "https://p-aetech.onrender.com/public/plantillas/plantilla_reporte.jpg";
         const plantillaBuf = await cargarFondo(plantillaURL);
 
@@ -50,26 +43,35 @@ exports.generateLevantamientoPDF = async (req, res) => {
         res.setHeader("Content-Disposition", `attachment; filename=Levantamiento_${id}.pdf`);
         doc.pipe(res);
 
-        // Función para aplicar el fondo sin logos extras
         const nuevaPaginaConFondo = () => {
             if (plantillaBuf) {
                 doc.image(plantillaBuf, 0, 0, { width: doc.page.width, height: doc.page.height });
             }
-            doc.y = MARGIN_TOP; // Bajamos el cursor al área blanca
+            doc.y = MARGIN_TOP; 
         };
 
         // --- PRIMERA PÁGINA ---
         nuevaPaginaConFondo();
 
-        // Título limpio
         doc.fontSize(20).fillColor("#004b85").text("REPORTE DE LEVANTAMIENTO", MARGIN_LEFT, doc.y, { align: 'center' });
         doc.moveDown(1.5);
 
-        // Datos del Cliente (Sin Folio LEV-48)
+        // --- 🕒 AQUÍ ESTÁ EL CAMBIO DE FECHA ---
+        const fechaFormateada = new Date(lev.fecha).toLocaleDateString('es-MX', {
+            timeZone: 'America/Mexico_City',
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+
+        // Datos del Cliente
         doc.fontSize(12).fillColor("black");
         doc.font('Helvetica-Bold').text("Cliente: ", { continued: true }).font('Helvetica').text(lev.cliente_nombre);
         doc.font('Helvetica-Bold').text("Dirección: ", { continued: true }).font('Helvetica').text(lev.direccion);
-        doc.font('Helvetica-Bold').text("Fecha: ", { continued: true }).font('Helvetica').text(new Date(lev.fecha).toLocaleDateString());
+        
+        // Usamos la variable formateada aquí 👇
+        doc.font('Helvetica-Bold').text("Fecha: ", { continued: true }).font('Helvetica').text(fechaFormateada);
+        
         doc.font('Helvetica-Bold').text("Técnico: ", { continued: true }).font('Helvetica').text(lev.personal);
         
         doc.moveDown(2);
@@ -82,15 +84,12 @@ exports.generateLevantamientoPDF = async (req, res) => {
 
         if (lev.necesidades) {
             for (const nec of lev.necesidades) {
-                // Control de salto de página
                 if (doc.y > 600) {
                     doc.addPage();
                     nuevaPaginaConFondo();
                 }
-
                 doc.fontSize(11).fillColor("#333").font('Helvetica-Bold').text(`• ${nec.descripcion}`);
                 doc.moveDown(0.5);
-                
                 if (nec.imagen) {
                     const imgBuffer = await procesarImagenLev(nec.imagen, 400, 300);
                     if (imgBuffer) {
@@ -107,7 +106,6 @@ exports.generateLevantamientoPDF = async (req, res) => {
             nuevaPaginaConFondo();
             doc.fontSize(16).fillColor("#00938f").text(" MATERIALES REQUERIDOS");
             doc.moveDown();
-
             lev.materiales.forEach(m => {
                 doc.fontSize(11).fillColor("black")
                    .text(`${m.insumo} — Cantidad: ${m.cantidad} ${m.unidad}`, { indent: 20 });
