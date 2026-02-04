@@ -1808,30 +1808,18 @@ async function cargarTablaLevantamientos() {
     data.forEach(l => {
       const idReal = l.id || l.id_levantamiento; 
 
-      // --- 🕒 FORMATEO DE HORA MÉXICO (SOLO VISUAL) ---
+      // --- 📅 FORMATEO DE SOLO FECHA (MÉXICO) ---
       let fechaMostrada = 'Sin fecha';
       
       if (l.fecha) {
           const d = new Date(l.fecha);
-          const opciones = { timeZone: "America/Mexico_City" };
-          
-          // Extraemos partes de la fecha
-          const dia = d.toLocaleDateString("es-MX", { ...opciones, day: '2-digit' });
-          const mes = d.toLocaleDateString("es-MX", { ...opciones, month: '2-digit' });
-          const anio = d.toLocaleDateString("es-MX", { ...opciones, year: 'numeric' });
-          
-          // Extraemos la hora en formato 12h y limpiamos el AM/PM
-          let horaFinal = d.toLocaleTimeString("es-MX", { 
-              ...opciones, 
-              hour: '2-digit', 
-              minute: '2-digit', 
-              hour12: true 
+          // Usamos solo toLocaleDateString para ignorar la hora
+          fechaMostrada = d.toLocaleDateString("es-MX", {
+              timeZone: "America/Mexico_City",
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric'
           });
-
-          // Quitamos puntos (a.m. -> AM) y pasamos a mayúsculas
-          horaFinal = horaFinal.replace(/\./g, '').toUpperCase();
-
-          fechaMostrada = `${dia}/${mes}/${anio} ${horaFinal}`;
       }
 
       const tr = document.createElement("tr");
@@ -1854,6 +1842,7 @@ async function cargarTablaLevantamientos() {
     console.error("Error cargando tabla:", error);
   }
 }
+
 
 cargarTablaLevantamientos();
 
