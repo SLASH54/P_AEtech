@@ -4233,7 +4233,7 @@ h3 {
 
 .lev-field input,
 .lev-field select {
-  width: 100%;
+  width: 90%;
   padding: 8px 10px;
   border-radius: 10px;
   border: 1px solid #ddd;
