@@ -1,4 +1,4 @@
-const { Levantamiento } = require("../models");
+const { Levantamiento, Cliente } = require("../models");
 const cloudinary = require('cloudinary').v2;
 
 // ☁️ Configuración de Cloudinary (Usa tus variables de .env)

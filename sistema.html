@@ -1024,26 +1024,29 @@
         <span class="modalGlass-close" onclick="closeNuevoLevantamiento()">✖</span>
 <div class="lev-form-grid">
 
-    <div class="lev-field">
-        <label>Cliente</label>
-        <select id="lev-clienteSelect"></select>
-
-       <button type="button" 
-                id="btnLinkARegistro" 
-                title="Registrar nuevo cliente"
-                style="padding: 5px 12px; cursor: pointer; border-radius: 8px; border: none; background: #007bffd4; color: white; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.3);">
-
-                + <span style="font-weight: bold;">Registrar Cliente</span>
-        </button>
+    <div class="lev-grid-container">
+    <div class="lev-input-group">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <label>Cliente:</label>
+            <button type="button" onclick="toggleRegistroExpress()" id="btn-express" class="badge-ios" style="background: #007aff20; color: #007aff; border:none; cursor:pointer; font-size:10px;">
+                + REGISTRO EXPRESS
+            </button>
+        </div>
         
+        <div id="wrapper-cliente">
+            <select id="lev-clienteSelect" class="lev-select-custom" onchange="cargarDireccionesLev()"></select>
+            <input type="text" id="express-cliente-nombre" class="glass-input-ios" placeholder="Nombre completo del cliente" style="display: none;">
+        </div>
     </div>
 
-    <div class="lev-field">
+    <div class="lev-input-group">
         <label>Dirección:</label>
-    <select id="lev-direccionesLevantamientos" class="form-control">
-        <option value="">Seleccione una dirección</option>
-    </select>
+        <div id="wrapper-direccion">
+            <select id="lev-direccionSelect" class="lev-select-custom"></select>
+            <input type="text" id="express-cliente-direccion" class="glass-input-ios" placeholder="Dirección del servicio" style="display: none;">
+        </div>
     </div>
+</div>
 
     <div class="lev-field">
         <label>Personal</label>
@@ -1351,18 +1354,34 @@ function setPersonalActual() {
    let editandoId = null; 
 
 async function guardarLevantamiento() {
+    // Referencias a elementos
     const selectCliente = document.getElementById("lev-clienteSelect");
-    const clienteId = selectCliente.value;
-    const clienteNombre = selectCliente.options[selectCliente.selectedIndex]?.text || "";
-
     const selectDireccion = document.getElementById("lev-direccionesLevantamientos");
-    
-    // 🚨 CAMBIO AQUÍ: Obtenemos el TEXTO (la dirección real) y no el ID numérico
-    const direccionTexto = selectDireccion.options[selectDireccion.selectedIndex]?.text || "";
+    const inputExpressNombre = document.getElementById("express-cliente-nombre");
+    const inputExpressDir = document.getElementById("express-cliente-direccion");
 
-    if (!clienteId || !direccionTexto || direccionTexto.includes("-- Seleccione")) {
-        alert("selecciona cliente y dirección.");
-        return;
+    let clienteId, clienteNombre, direccionTexto;
+
+    if (isExpressMode) {
+        // --- MODO EXPRESS ---
+        clienteId = null; // No hay ID porque es nuevo
+        clienteNombre = inputExpressNombre.value.trim();
+        direccionTexto = inputExpressDir.value.trim();
+
+        if (!clienteNombre || !direccionTexto) {
+            alert("⚠️ Por favor escribe el nombre del cliente y la dirección express.");
+            return;
+        }
+    } else {
+        // --- MODO NORMAL ---
+        clienteId = selectCliente.value;
+        clienteNombre = selectCliente.options[selectCliente.selectedIndex]?.text || "";
+        direccionTexto = selectDireccion.options[selectDireccion.selectedIndex]?.text || "";
+
+        if (!clienteId || !direccionTexto || direccionTexto.includes("-- Seleccione")) {
+            alert("⚠️ Selecciona cliente y dirección.");
+            return;
+        }
     }
 
     document.getElementById("loader").style.display = "flex";
@@ -1370,14 +1389,13 @@ async function guardarLevantamiento() {
     const data = {
         cliente_id: clienteId,
         cliente_nombre: clienteNombre,
-        direccion: direccionTexto, // 👈 Ahora enviamos "Calle Falsa 123" en lugar de un ID
+        direccion: direccionTexto,
         personal: document.getElementById("lev-personal").value,
         fecha: document.getElementById("lev-fechaHora").value,
         necesidades: obtenerNecesidadesLev(), 
-        materiales: levMaterialesList 
+        materiales: levMaterialesList,
+        es_express: isExpressMode // 👈 Avisamos al servidor que es un registro rápido
     };
-
-    // ... (el resto de tu fetch queda igual)
 
     const url = editandoId 
         ? `${API_BASE_URL}/levantamientos/${editandoId}` 
@@ -1411,7 +1429,6 @@ async function guardarLevantamiento() {
         document.getElementById("loader").style.display = "none";
     }
 }
-
 
 
 //LIMPIAR FORMULARIO 
