@@ -4022,40 +4022,7 @@ async function cargarLevantamientosTabla() {
     });
 }
 
-let isExpressMode = false;
 
-function toggleRegistroExpress() {
-    isExpressMode = !isExpressMode;
-    
-    const selectCliente = document.getElementById('lev-clienteSelect');
-    const inputCliente = document.getElementById('express-cliente-nombre');
-    const selectDir = document.getElementById('lev-direccionSelect');
-    const inputDir = document.getElementById('express-cliente-direccion');
-    const btn = document.getElementById('btn-express');
-
-    if (isExpressMode) {
-        // Modo Escritura
-        selectCliente.style.display = 'none';
-        selectDir.style.display = 'none';
-        inputCliente.style.display = 'block';
-        inputDir.style.display = 'block';
-        
-        btn.innerText = "← VOLVER A LISTA";
-        btn.style.color = "#ff9f0a";
-        btn.style.background = "#ff9f0a20";
-        inputCliente.focus();
-    } else {
-        // Modo Selección
-        selectCliente.style.display = 'block';
-        selectDir.style.display = 'block';
-        inputCliente.style.display = 'none';
-        inputDir.style.display = 'none';
-        
-        btn.innerText = "+ REGISTRO EXPRESS";
-        btn.style.color = "#007aff";
-        btn.style.background = "#007aff20";
-    }
-}
 
 /* ---------- EVENTOS (UNO SOLO) ---------- */
 document.addEventListener("DOMContentLoaded", () => {
