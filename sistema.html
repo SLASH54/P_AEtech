@@ -1284,9 +1284,9 @@ async function cargarClientesLev() {
 function cargarDireccionesLevantamiento(clienteId) {
     console.log("Ejecutando cargarDireccionesCliente para cliente:", clienteId);
 
-    const selectDireccion = document.getElementById("lev-direccionesLevantamientos");
+    const selectDireccion = document.getElementById("lev-direccionSelect");
     if (!selectDireccion) {
-        console.error("❌ No se encontró el select lev-direccionesLevantamientos");
+        console.error("❌ No se encontró el select lev-direccionSelect");
         return;
     }
 
