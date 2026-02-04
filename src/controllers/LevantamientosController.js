@@ -15,6 +15,10 @@ cloudinary.config({
 // ===============================
 // 1. CREAR LEVANTAMIENTO (CON SOPORTE EXPRESS)
 // ===============================
+// Asegúrate de que los modelos estén bien importados al inicio
+const { Levantamiento, ClienteNegocio, ClienteDireccion } = require("../models");
+const cloudinary = require('cloudinary').v2;
+
 exports.createLevantamiento = async (req, res) => {
   try {
     const { 
@@ -30,37 +34,51 @@ exports.createLevantamiento = async (req, res) => {
 
     let finalClienteId = cliente_id;
 
-    // 🚀 LÓGICA EXPRESS CORREGIDA
+    // 🚀 LÓGICA EXPRESS CORREGIDA PARA TUS MODELOS
     if (es_express) {
-      console.log("Iniciando creación express...");
+      console.log("Creando cliente y dirección express...");
       
       // 1. Crear el Negocio (Tabla ClientesNegocio)
       const nuevoNegocio = await ClienteNegocio.create({
         nombre: cliente_nombre,
-        email: `express_${Date.now()}@aetech.com`,
+        email: `express_${Date.now()}@aetech.com`, // Email único temporal
         telefono: "0000000000"
       });
 
-      // 2. Crear la Dirección vinculada (Tabla ClientesDirecciones)
-      // Usamos valores genéricos para estado/municipio para que no truene la DB
+      // 2. Crear la Dirección (Tabla ClientesDirecciones)
+      // OJO: estado y municipio son obligatorios (allowNull: false) en tu modelo
       await ClienteDireccion.create({
         clienteId: nuevoNegocio.id,
-        estado: "N/A",
+        estado: "N/A", 
         municipio: "N/A",
         direccion: direccion,
-        alias: "Dirección Express"
+        alias: "Registro Express"
       });
 
       finalClienteId = nuevoNegocio.id;
-      console.log("Registro express completado. ID:", finalClienteId);
     }
 
-    // ... (El resto de tu código de Cloudinary y Levantamiento.create sigue igual)
-    
+    // --- PROCESAMIENTO DE IMÁGENES (Tu lógica de Cloudinary) ---
+    const necesidadesProcesadas = [];
+    if (necesidades && necesidades.length > 0) {
+      for (const nec of necesidades) {
+        let finalUrl = nec.imagen;
+        if (nec.imagen && nec.imagen.startsWith('data:image')) {
+          const result = await cloudinary.uploader.upload(nec.imagen, {
+            folder: 'aetech_levantamientos',
+            resource_type: 'auto'
+          });
+          finalUrl = result.secure_url;
+        }
+        necesidadesProcesadas.push({ descripcion: nec.descripcion, imagen: finalUrl });
+      }
+    }
+
+    // 3. Crear el Levantamiento vinculado al ID final
     const nuevoLevantamiento = await Levantamiento.create({
       cliente_id: finalClienteId,
       cliente_nombre,
-      direccion, // Guardamos el texto de la dirección directamente
+      direccion,
       personal,
       fecha,
       necesidades: necesidadesProcesadas,
@@ -68,9 +86,13 @@ exports.createLevantamiento = async (req, res) => {
     });
 
     res.status(201).json(nuevoLevantamiento);
+
   } catch (error) {
-    console.error("Error crítico en controlador:", error);
-    res.status(500).json({ msg: "Fallo el registro express", error: error.message });
+    console.error("Error detallado:", error);
+    res.status(500).json({ 
+      msg: "Error en el servidor al procesar levantamiento", 
+      error: error.message 
+    });
   }
 };
 
