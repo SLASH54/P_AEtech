@@ -1606,19 +1606,12 @@ function setFechaHoraActual() {
     if (!input) return;
 
     const now = new Date();
-
-    // Formato YYYY-MM-DDTHH:MM
-    const fechaHora =
-        now.getFullYear() + "-" +
-        String(now.getMonth() + 1).padStart(2, "0") + "-" +
-        String(now.getDate()).padStart(2, "0") + "T" +
-        String(now.getHours()).padStart(2, "0") + ":" +
-        String(now.getMinutes()).padStart(2, "0");
-
-    input.value = fechaHora;
+    // Esta línea ajusta la zona horaria del navegador para que coincida con el input
+    const offset = now.getTimezoneOffset() * 60000;
+    const localISOTime = (new Date(now - offset)).toISOString().slice(0, 16);
+    
+    input.value = localISOTime;
 }
-
-
 
 //materiales 
 
