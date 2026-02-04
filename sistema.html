@@ -1790,12 +1790,11 @@ function levMostrarCampoExtra() {
 
 
 //cargar tabla 
-
 async function cargarTablaLevantamientos() {
   try {
     const res = await fetch(`${API_BASE_URL}/levantamientos`, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}` // 👈 Verifica que sea accessToken
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`
       }
     });
 
@@ -1809,24 +1808,38 @@ async function cargarTablaLevantamientos() {
     data.forEach(l => {
       const idReal = l.id || l.id_levantamiento; 
 
-      // 🕒 CORRECCIÓN DE HORA PARA MÉXICO:
-      // Forzamos a que el navegador interprete la fecha en la zona horaria de MX
-      const fechaCorrecta = l.fecha ? new Date(l.fecha).toLocaleString("es-MX", {
-          timeZone: "America/Mexico_City",
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: true
-      }) : 'Sin fecha';
+      // --- 🕒 FORMATEO DE HORA MÉXICO (SOLO VISUAL) ---
+      let fechaMostrada = 'Sin fecha';
+      
+      if (l.fecha) {
+          const d = new Date(l.fecha);
+          const opciones = { timeZone: "America/Mexico_City" };
+          
+          // Extraemos partes de la fecha
+          const dia = d.toLocaleDateString("es-MX", { ...opciones, day: '2-digit' });
+          const mes = d.toLocaleDateString("es-MX", { ...opciones, month: '2-digit' });
+          const anio = d.toLocaleDateString("es-MX", { ...opciones, year: 'numeric' });
+          
+          // Extraemos la hora en formato 12h y limpiamos el AM/PM
+          let horaFinal = d.toLocaleTimeString("es-MX", { 
+              ...opciones, 
+              hour: '2-digit', 
+              minute: '2-digit', 
+              hour12: true 
+          });
+
+          // Quitamos puntos (a.m. -> AM) y pasamos a mayúsculas
+          horaFinal = horaFinal.replace(/\./g, '').toUpperCase();
+
+          fechaMostrada = `${dia}/${mes}/${anio} ${horaFinal}`;
+      }
 
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${l.cliente_nombre || 'Sin nombre'}</td>
         <td>${l.direccion || 'Sin dirección'}</td>
         <td>${l.personal || 'N/A'}</td>
-        <td>${fechaCorrecta}</td> 
+        <td>${fechaMostrada}</td> 
         
         <td class="acciones">
           <button class="btn-editar" onclick="editarLevantamiento('${idReal}')">Editar</button>
@@ -1841,7 +1854,6 @@ async function cargarTablaLevantamientos() {
     console.error("Error cargando tabla:", error);
   }
 }
-
 
 cargarTablaLevantamientos();
 
