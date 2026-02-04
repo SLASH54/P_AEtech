@@ -1391,10 +1391,15 @@ function toggleRegistroExpress() {
 async function guardarLevantamiento() {
     // Referencias a elementos
     const selectCliente = document.getElementById("lev-clienteSelect");
-    const selectDireccion = document.getElementById("lev-direccionesLevantamientos");
+    
+    // ❌ ANTES: "lev-direccionesLevantamientos"
+    // ✅ AHORA: "lev-direccionSelect" (O el ID real que tengas en tu HTML)
+    const selectDireccion = document.getElementById("lev-direccionSelect"); 
+    
     const inputExpressNombre = document.getElementById("express-cliente-nombre");
     const inputExpressDir = document.getElementById("express-cliente-direccion");
 
+    // ... el resto de tu código sigue igual
     let clienteId, clienteNombre, direccionTexto;
 
     if (isExpressMode) {
