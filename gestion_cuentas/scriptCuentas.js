@@ -194,18 +194,20 @@ function setFechaHoraActual() {
     const input = document.getElementById("lev-fechaHora");
     if (!input) return;
 
-    const now = new Date();
+    const ahora = new Date();
+    
+    // Formateamos manualmente: YYYY-MM-DDTHH:mm
+    const anio = ahora.getFullYear();
+    const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+    const dia = String(ahora.getDate()).padStart(2, '0');
+    const hora = String(ahora.getHours()).padStart(2, '0');
+    const min = String(ahora.getMinutes()).padStart(2, '0');
 
-    // Formato YYYY-MM-DDTHH:MM
-    const fechaHora =
-        now.getFullYear() + "-" +
-        String(now.getMonth() + 1).padStart(2, "0") + "-" +
-        String(now.getDate()).padStart(2, "0") + "T" +
-        String(now.getHours()).padStart(2, "0") + ":" +
-        String(now.getMinutes()).padStart(2, "0");
-
-    input.value = fechaHora;
+    const fechaHoraLocal = `${anio}-${mes}-${dia}T${hora}:${min}`;
+    input.value = fechaHoraLocal;
 }
+
+
 
 //LLENAR SELECT CLIENTES
 

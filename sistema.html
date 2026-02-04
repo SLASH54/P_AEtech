@@ -1792,39 +1792,56 @@ function levMostrarCampoExtra() {
 //cargar tabla 
 
 async function cargarTablaLevantamientos() {
-  const res = await fetch(`${API_BASE_URL}/levantamientos`, {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("userToken")}`
-    }
-  });
+  try {
+    const res = await fetch(`${API_BASE_URL}/levantamientos`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}` // 👈 Verifica que sea accessToken
+      }
+    });
 
-  const data = await res.json();
-  levantamientosCache = data;
+    const data = await res.json();
+    levantamientosCache = data;
 
-  const tbody = document.getElementById("tablaLevantamientos");
-  tbody.innerHTML = "";
+    const tbody = document.getElementById("tablaLevantamientos");
+    if (!tbody) return;
+    tbody.innerHTML = "";
 
-  data.forEach(l => {
-    // 💡 PostgreSQL a veces usa 'id', asegúrate que el campo existe
-    const idReal = l.id || l.id_levantamiento; 
+    data.forEach(l => {
+      const idReal = l.id || l.id_levantamiento; 
 
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${l.cliente_nombre || 'Sin nombre'}</td>
-      <td>${l.direccion}</td>
-      <td>${l.personal}</td>
-      <td>${new Date(l.fecha).toLocaleString()}</td>
-      
-      <td class="acciones">
-        <button onclick="editarLevantamiento('${idReal}')">Editar</button>
-        <button onclick="eliminarLevantamiento('${idReal}')">Eliminar</button>
-        <button onclick="verLevantamiento('${idReal}')">Ver</button>
-        <button onclick="pdfLevantamiento('${idReal}')">PDF</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
+      // 🕒 CORRECCIÓN DE HORA PARA MÉXICO:
+      // Forzamos a que el navegador interprete la fecha en la zona horaria de MX
+      const fechaCorrecta = l.fecha ? new Date(l.fecha).toLocaleString("es-MX", {
+          timeZone: "America/Mexico_City",
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true
+      }) : 'Sin fecha';
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${l.cliente_nombre || 'Sin nombre'}</td>
+        <td>${l.direccion || 'Sin dirección'}</td>
+        <td>${l.personal || 'N/A'}</td>
+        <td>${fechaCorrecta}</td> 
+        
+        <td class="acciones">
+          <button class="btn-editar" onclick="editarLevantamiento('${idReal}')">Editar</button>
+          <button class="btn-eliminar" onclick="eliminarLevantamiento('${idReal}')">Eliminar</button>
+          <button class="btn-ver" onclick="verLevantamiento('${idReal}')">Ver</button>
+          <button class="btn-pdf" onclick="pdfLevantamiento('${idReal}')">PDF</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (error) {
+    console.error("Error cargando tabla:", error);
+  }
 }
+
 
 cargarTablaLevantamientos();
 
