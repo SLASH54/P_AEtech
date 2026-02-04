@@ -15,9 +15,6 @@ cloudinary.config({
 // ===============================
 // 1. CREAR LEVANTAMIENTO (CON SOPORTE EXPRESS)
 // ===============================
-// Asegúrate de que los modelos estén bien importados al inicio
-const { Levantamiento, ClienteNegocio, ClienteDireccion } = require("../models");
-const cloudinary = require('cloudinary').v2;
 
 exports.createLevantamiento = async (req, res) => {
   try {
