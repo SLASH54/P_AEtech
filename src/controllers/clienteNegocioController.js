@@ -2,72 +2,40 @@
 const ClienteNegocio = require('../models/ClienteNegocio');
 const ClienteDireccion = require('../models/ClienteDireccion');
 
-// Al inicio de tu LevantamientosController.js asegúrate de tener:
-const { Levantamiento, Cliente } = require("../models"); // Importamos Cliente también
+exports.createClienteNegocio = async (req, res) => {
+    try {
+        const { nombre, email, telefono, alias = [], estado = [], municipio = [], direccion = [], maps = []} = req.body;
 
-// ===============================
-// 1. CREAR LEVANTAMIENTO (CON SOPORTE EXPRESS)
-// ===============================
-exports.createLevantamiento = async (req, res) => {
-  try {
-    const { 
-      cliente_id, 
-      cliente_nombre, 
-      direccion, 
-      personal, 
-      fecha, 
-      necesidades, 
-      materiales,
-      es_express // <--- Recibimos la bandera express
-    } = req.body;
+        // limpiar email vacío
+        const emailFinal = email?.trim() === "" ? null : email;
 
-    let finalClienteId = cliente_id;
+        // ➤ Crear cliente
+        const cliente = await ClienteNegocio.create({
+            nombre,
+            email: emailFinal,
+            telefono
+        });
 
-    // 🚀 LÓGICA EXPRESS: Si es nuevo, lo creamos primero
-    if (es_express) {
-      const nuevoCliente = await Cliente.create({
-        nombre: cliente_nombre,
-        direccion_principal: direccion, // O el campo que uses en tu tabla Clientes
-        telefono: "S/N", // Datos temporales
-        correo: "express@aetech.com",
-        notas: "Cliente registrado vía Levantamiento Express"
-      });
-      finalClienteId = nuevoCliente.id; // Asignamos el ID recién creado
-    }
-    
-    const necesidadesProcesadas = [];
+        // ➤ Guardar múltiples direcciones
+        const aliasArray = Array.isArray(alias) ? alias : [alias];
 
-    // Procesamiento de imágenes en Cloudinary (tu código actual...)
-    if (necesidades && necesidades.length > 0) {
-      for (const nec of necesidades) {
-        let finalUrl = nec.imagen;
-        if (nec.imagen && nec.imagen.startsWith('data:image')) {
-          const result = await cloudinary.uploader.upload(nec.imagen, {
-            folder: 'aetech_levantamientos',
-            resource_type: 'auto'
-          });
-          finalUrl = result.secure_url;
+        for (let i = 0; i < direccion.length; i++) {
+            await ClienteDireccion.create({
+                clienteId: cliente.id,
+                estado: estado[i],
+                municipio: municipio[i],
+                direccion: direccion[i],
+                maps: maps[i] || null,
+                alias: aliasArray[i] || null
+            });
         }
-        necesidadesProcesadas.push({ descripcion: nec.descripcion, imagen: finalUrl });
-      }
+
+
+        res.status(201).json({ message: "Cliente registrado con éxito", cliente });
+    } catch (error) {
+        console.error("Error al registrar cliente:", error);
+        res.status(500).json({ message: "Error interno al crear cliente." });
     }
-
-    // Guardar el levantamiento con el ID real (sea el seleccionado o el nuevo express)
-    const nuevoLevantamiento = await Levantamiento.create({
-      cliente_id: finalClienteId,
-      cliente_nombre,
-      direccion,
-      personal,
-      fecha,
-      necesidades: necesidadesProcesadas,
-      materiales
-    });
-
-    res.status(201).json(nuevoLevantamiento);
-  } catch (error) {
-    console.error("Error al crear levantamiento:", error);
-    res.status(500).json({ msg: "Error al crear el levantamiento" });
-  }
 };
 
 

@@ -11,13 +11,40 @@ cloudinary.config({
 // ===============================
 // 1. CREAR LEVANTAMIENTO
 // ===============================
+
+// ===============================
+// 1. CREAR LEVANTAMIENTO (CON SOPORTE EXPRESS)
+// ===============================
 exports.createLevantamiento = async (req, res) => {
   try {
-    // 🚨 CAMBIO AQUÍ: Usamos cliente_id y cliente_nombre (con guion bajo)
-    const { cliente_id, cliente_nombre, direccion, personal, fecha, necesidades, materiales } = req.body;
+    const { 
+      cliente_id, 
+      cliente_nombre, 
+      direccion, 
+      personal, 
+      fecha, 
+      necesidades, 
+      materiales,
+      es_express // <--- Recibimos la bandera express
+    } = req.body;
+
+    let finalClienteId = cliente_id;
+
+    // 🚀 LÓGICA EXPRESS: Si es nuevo, lo creamos primero
+    if (es_express) {
+      const nuevoCliente = await Cliente.create({
+        nombre: cliente_nombre,
+        direccion_principal: direccion, // O el campo que uses en tu tabla Clientes
+        telefono: "S/N", // Datos temporales
+        correo: "express@aetech.com",
+        notas: "Cliente registrado vía Levantamiento Express"
+      });
+      finalClienteId = nuevoCliente.id; // Asignamos el ID recién creado
+    }
     
     const necesidadesProcesadas = [];
 
+    // Procesamiento de imágenes en Cloudinary (tu código actual...)
     if (necesidades && necesidades.length > 0) {
       for (const nec of necesidades) {
         let finalUrl = nec.imagen;
@@ -32,19 +59,21 @@ exports.createLevantamiento = async (req, res) => {
       }
     }
 
-    const nuevo = await Levantamiento.create({
-      cliente_id,     // 👈 Ahora sí coincide
-      cliente_nombre, // 👈 Ahora sí coincide
+    // Guardar el levantamiento con el ID real (sea el seleccionado o el nuevo express)
+    const nuevoLevantamiento = await Levantamiento.create({
+      cliente_id: finalClienteId,
+      cliente_nombre,
       direccion,
       personal,
       fecha,
       necesidades: necesidadesProcesadas,
       materiales
     });
-    res.status(201).json(nuevo);
+
+    res.status(201).json(nuevoLevantamiento);
   } catch (error) {
-    console.error("Error al crear:", error);
-    res.status(500).json({ msg: "Error al crear levantamiento" });
+    console.error("Error al crear levantamiento:", error);
+    res.status(500).json({ msg: "Error al crear el levantamiento" });
   }
 };
 // ===============================
