@@ -3777,6 +3777,34 @@ h3 {
     height: 36px;
 }
 
+.lev-select-custom{
+    display: block;
+    height: 36px;
+    width: 90%;
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 1px solid rgb(221, 221, 221);
+}
+
+.glass-input-ios{
+    display: block;
+    height: 36px;
+    width: 90%;
+    padding: 0px 10px;
+    border-radius: 10px;
+    border: 1px solid rgb(221, 221, 221);
+}
+
+
+.lev-material-container input,
+.lev-material-container select{
+        height: 36px;
+    width: auto;
+    padding: 0px 10px;
+    border-radius: 10px;
+    border: 1px solid rgb(221, 221, 221);
+}
+
 
 @media (max-width: 600px) {
     .lev-form-grid {
