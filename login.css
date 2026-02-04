@@ -4197,7 +4197,7 @@ h3 {
 }
 
 .modalGlass-content {
-  background: rgba(255,255,255,.92);
+  background: rgb(233 30 99 / 12%);
   backdrop-filter: blur(16px);
   width: 95%;
   max-width: 760px;
