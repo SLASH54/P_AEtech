@@ -1820,12 +1820,12 @@ async function cargarTablaLevantamientos() {
           });
       }
 
-      // --- 📍 LÓGICA IGUAL A TAREAS (CORREGIDA) ---
+      // --- 📍 LÓGICA DE UBICACIÓN (CORREGIDA E IGUAL A TAREAS) ---
       const direccionTexto = l.direccion || 'Sin dirección';
       
-      // Si l.maps tiene datos, lo usa; si no, crea el link de búsqueda
-      // NOTA: Asegúrate de que l.maps venga en tu respuesta del servidor
-      const googleMapsLink = l.maps 
+      // Si l.maps tiene el link guardado, úsalo. Si no, fabrícalo con la dirección.
+      // IMPORTANTE: Nota el signo "$" antes de la llave en el encode.
+      const googleMapsLink = (l.maps && l.maps.trim() !== "") 
           ? l.maps 
           : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(direccionTexto)}`;
 
@@ -1855,6 +1855,10 @@ async function cargarTablaLevantamientos() {
     console.error("Error cargando tabla:", error);
   }
 }
+
+
+
+
 
 //prueba xd 
 cargarTablaLevantamientos();
