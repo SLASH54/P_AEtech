@@ -1808,24 +1808,22 @@ async function cargarTablaLevantamientos() {
     data.forEach(l => {
       const idReal = l.id || l.id_levantamiento; 
 
-      // --- 📅 FORMATEO DE FECHA ---
+      // --- 📅 FECHA ---
       let fechaMostrada = 'Sin fecha';
       if (l.fecha) {
           const d = new Date(l.fecha);
           fechaMostrada = d.toLocaleDateString("es-MX", {
               timeZone: "America/Mexico_City",
-              day: '2-digit',
-              month: '2-digit',
-              year: 'numeric'
+              day: '2-digit', month: '2-digit', year: 'numeric'
           });
       }
 
-      // --- 📍 LÓGICA DE UBICACIÓN (FORZANDO EL PIN) ---
-      const direccionTexto = l.direccion || 'Sin dirección';
+      // --- 📍 UBICACIÓN EXACTA (CORRECCIÓN DEFINITIVA) ---
+      const direccionTexto = l.direccion || '';
       
-      // ✅ ESTA URL ES LA QUE SIEMPRE SUELTA EL PIN:
-      // Usamos 'search' con la API v1. El '0' que tenías antes estorbaba.
-      const googleMapsLink = (l.maps && l.maps.trim() !== "" && l.maps.startsWith('http'))
+      // ✅ IMPORTANTE: Cambiamos la URL a /maps/search/ e incluimos el "$" antes de la llave
+      // Esto hace que Google Maps busque el texto exacto y suelte el PIN ROJO
+      const googleMapsLink = (l.maps && l.maps.includes('http')) 
           ? l.maps 
           : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(direccionTexto)}`;
 
@@ -1834,8 +1832,8 @@ async function cargarTablaLevantamientos() {
         <td>${l.cliente_nombre || 'Sin nombre'}</td>
         
         <td>
-          <a href="${googleMapsLink}" target="_blank" style="text-decoration: none; color: #004b85; font-weight: bold; display: flex; align-items: center; gap: 5px;">
-            ${direccionTexto} <i class="fas fa-map-marker-alt" style="color: #ff3b30;"></i>
+          <a href="${googleMapsLink}" target="_blank" style="text-decoration: none; color: #004b85; font-weight: bold;">
+            ${direccionTexto} 📍
           </a>
         </td>
 
