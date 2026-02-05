@@ -143,7 +143,9 @@
                     <label style="color: #ff3b30; font-weight: 800;">Saldo Pendiente:</label> 
                     <span id="pub-saldo" style="font-weight: 800; color: #ff3b30;"></span>
                 </div>
-                <button class="bttnPDF" style="border-radius: 10px;height: 30px;background-color: #ff3b30;color: #ffffff;border: 1px solid #ff3b30;font-weight: bold;transition: all 0.2s ease;">DESCARGAR PDF</button>
+                <button id="btnDescargarPDF" class="bttnPDF" style="width: 100%; border-radius: 10px; height: 40px; background-color: #ff3b30; color: #ffffff; border: 1px solid #ff3b30; font-weight: bold; transition: all 0.2s ease; cursor: pointer; margin-top: 15px;">
+                    DESCARGAR PDF
+                </button>
             </div>
         </div>
     </div>
@@ -249,6 +251,37 @@ if (containerEstatus) {
                     </div>`;
             });
             document.getElementById('pub-lista-materiales').innerHTML = htmlMat || "<p style='text-align:center; color:gray;'>No hay materiales registrados.</p>";
+
+            // --- LÓGICA PARA DESCARGAR EL PDF ---
+            const btnPDF = document.getElementById('btnDescargarPDF');
+            if (btnPDF) {
+                btnPDF.onclick = async () => {
+                    try {
+                        btnPDF.innerText = "GENERANDO...";
+                        btnPDF.disabled = true;
+
+                        // Llamamos al endpoint de PDF de cuentas (ajusta la ruta según tu API)
+                        const response = await fetch(`${API_BASE_URL}/cuentas/publica/${id}/pdf`);
+                        
+                        if (!response.ok) throw new Error("Error al generar PDF");
+
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `Nota_${c.numeroNota || id}.pdf`;
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                    } catch (err) {
+                        console.error("Error descarga:", err);
+                        alert("No se pudo descargar el PDF en este momento.");
+                    } finally {
+                        btnPDF.innerText = "DESCARGAR PDF";
+                        btnPDF.disabled = false;
+                    }
+                };
+            }
 
         } catch (e) {
             console.error("Error al cargar la nota:", e);

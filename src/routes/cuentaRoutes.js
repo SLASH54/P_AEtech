@@ -8,6 +8,9 @@ const pdfController = require('../controllers/PdfCuentasController'); // Asegúr
 // Esta ruta no lleva el middleware "protect"
 router.get('/publica/:id', cuentaController.obtenerCuentaPorIdPublica); 
 
+// 📄 NUEVA RUTA PARA DESCARGA PÚBLICA DE PDF (Sin 'protect')
+router.get('/publica/:id/pdf', pdfController.generarPDFCuenta);
+
 // POST /api/cuentas -> Crear
 router.post('/', protect, cuentaController.crearCuenta);
 
