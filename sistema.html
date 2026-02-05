@@ -1820,12 +1820,12 @@ async function cargarTablaLevantamientos() {
           });
       }
 
-      // --- 📍 LÓGICA DE UBICACIÓN (CORREGIDA E IGUAL A TAREAS) ---
+      // --- 📍 LÓGICA DE UBICACIÓN (FORZANDO EL PIN) ---
       const direccionTexto = l.direccion || 'Sin dirección';
       
-      // Si l.maps tiene el link guardado, úsalo. Si no, fabrícalo con la dirección.
-      // IMPORTANTE: Nota el signo "$" antes de la llave en el encode.
-      const googleMapsLink = (l.maps && l.maps.trim() !== "") 
+      // ✅ ESTA URL ES LA QUE SIEMPRE SUELTA EL PIN:
+      // Usamos 'search' con la API v1. El '0' que tenías antes estorbaba.
+      const googleMapsLink = (l.maps && l.maps.trim() !== "" && l.maps.startsWith('http'))
           ? l.maps 
           : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(direccionTexto)}`;
 
@@ -1834,8 +1834,8 @@ async function cargarTablaLevantamientos() {
         <td>${l.cliente_nombre || 'Sin nombre'}</td>
         
         <td>
-          <a href="${googleMapsLink}" target="_blank" style="text-decoration: none; color: #004b85; font-weight: bold;">
-            ${direccionTexto} 📍
+          <a href="${googleMapsLink}" target="_blank" style="text-decoration: none; color: #004b85; font-weight: bold; display: flex; align-items: center; gap: 5px;">
+            ${direccionTexto} <i class="fas fa-map-marker-alt" style="color: #ff3b30;"></i>
           </a>
         </td>
 
@@ -1855,6 +1855,7 @@ async function cargarTablaLevantamientos() {
     console.error("Error cargando tabla:", error);
   }
 }
+
 
 
 
