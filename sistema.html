@@ -1820,11 +1820,14 @@ async function cargarTablaLevantamientos() {
           });
       }
 
-      // --- 📍 LÓGICA DE GOOGLE MAPS CORREGIDA ---
+      // --- 📍 LÓGICA IGUAL A TAREAS (CORREGIDA) ---
       const direccionTexto = l.direccion || 'Sin dirección';
       
-      // ✅ Esta URL usa la API oficial de búsqueda para forzar el pin rojo en el lugar exacto
-      const googleMapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(direccionTexto)}`;
+      // Si l.maps tiene datos, lo usa; si no, crea el link de búsqueda
+      // NOTA: Asegúrate de que l.maps venga en tu respuesta del servidor
+      const googleMapsLink = l.maps 
+          ? l.maps 
+          : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(direccionTexto)}`;
 
       const tr = document.createElement("tr");
       tr.innerHTML = `
@@ -1852,8 +1855,6 @@ async function cargarTablaLevantamientos() {
     console.error("Error cargando tabla:", error);
   }
 }
-
-
 
 //prueba xd 
 cargarTablaLevantamientos();
