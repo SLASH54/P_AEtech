@@ -72,12 +72,25 @@ function cerrarNuevaCuentaModal() {
 //CALCULAR CAMPO POR LIQUIDAR//
 // Agrega esto al final de tu scriptCuentas.js
 function calcularSaldo() {
+    // Leemos el total que ya tiene el IVA incluido
     const total = parseFloat(document.getElementById('levTotal').value) || 0;
-    const anticipo = parseFloat(document.getElementById('levAnticipo').value) || 0;
+    
+    // Leemos el anticipo (en tu HTML usaste levAnticipoEdit, asegúrate que el ID sea correcto)
+    const inputAnticipo = document.getElementById('levAnticipo') || document.getElementById('levAnticipoEdit');
+    const anticipo = parseFloat(inputAnticipo.value) || 0;
+    
     const saldo = total - anticipo;
     
-    document.getElementById('levPorLiquidar').value = saldo.toFixed(2);
+    // Mostramos el resultado en el campo de Saldo
+    const campoSaldo = document.getElementById('levSaldo') || document.getElementById('levSaldoEdit');
+    if (campoSaldo) {
+        campoSaldo.value = saldo.toFixed(2);
+    }
 }
+
+
+
+
 
 // Escuchadores para el cálculo en tiempo real
 document.getElementById('levTotal')?.addEventListener('input', calcularSaldo);
@@ -352,25 +365,36 @@ function levRenderMateriales() {
     const ul = document.getElementById("levListaMateriales");
     ul.innerHTML = "";
 
+    let subtotalCalculado = 0; // Variable para sumar los precios
     const grupos = {};
 
+    // Agrupamos y sumamos el subtotal
     levMaterialesList.forEach(mat => {
         if (!grupos[mat.categoria]) grupos[mat.categoria] = [];
         grupos[mat.categoria].push(mat);
+        
+        // Sumamos al subtotal: (precio * cantidad)
+        subtotalCalculado += (parseFloat(mat.precio) || 0) * (parseFloat(mat.cantidad) || 0);
     });
 
+    // Dibujamos la lista en el HTML
     Object.keys(grupos).sort().forEach(cat => {
-
         const header = document.createElement("li");
         header.innerHTML = `<strong>${cat}</strong>`;
         header.style.marginTop = "10px";
+        header.style.listStyle = "none";
+        header.style.color = "#004b85";
         ul.appendChild(header);
 
         grupos[cat].forEach(mat => {
             const li = document.createElement("li");
+            li.style.display = "flex";
+            li.style.justifyContent = "space-between";
+            li.style.marginBottom = "5px";
+            
             li.innerHTML = `
-                ${mat.insumo} – ${mat.cantidad} ${mat.unidad}
-                <button class="levBtnEliminarMat">❌</button>
+                <span>${mat.insumo} – ${mat.cantidad} ${mat.unidad} ($${parseFloat(mat.precio).toFixed(2)})</span>
+                <button class="levBtnEliminarMat" style="background:none; border:none; cursor:pointer;">❌</button>
             `;
 
             li.querySelector(".levBtnEliminarMat").onclick = () => {
@@ -383,8 +407,19 @@ function levRenderMateriales() {
             ul.appendChild(li);
         });
     });
-}
 
+    // --- LÓGICA DE TOTALES (NUEVO ORDEN) ---
+    const ivaCalculado = subtotalCalculado * 0.16;
+    const totalFinal = subtotalCalculado + ivaCalculado;
+
+    // Insertamos los valores en los campos que pusiste en el HTML
+    document.getElementById("levSubtotal").value = subtotalCalculado.toFixed(2);
+    document.getElementById("levIva").value = ivaCalculado.toFixed(2);
+    document.getElementById("levTotal").value = totalFinal.toFixed(2);
+
+    // Llamamos a calcular saldo para que se actualice si ya hay un anticipo escrito
+    calcularSaldo();
+}
 
 
 // 👁️ MOSTRAR CAMPOS EXTRA
