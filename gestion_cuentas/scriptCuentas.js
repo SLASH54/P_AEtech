@@ -596,7 +596,7 @@ async function addMaterial() {
     const fotoInput = document.getElementById('lev-material-foto');
 
     if (!nombre || !costo) {
-        alert("Amiko, el nombre y el costo son obligatorios.");
+        alert("el nombre y el costo son obligatorios.");
         return;
     }
 
