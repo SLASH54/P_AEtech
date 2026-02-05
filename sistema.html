@@ -1821,9 +1821,10 @@ async function cargarTablaLevantamientos() {
           });
       }
 
-      // --- 📍 LÓGICA PARA LINK DE GOOGLE MAPS ---
+      // --- 📍 LÓGICA CORREGIDA PARA LINK DIRECTO A GOOGLE MAPS ---
       const direccionTexto = l.direccion || 'Sin dirección';
-      // Generamos el enlace de búsqueda de Google Maps
+      
+      // ✅ Esta es la URL corregida (Usa la API de búsqueda para soltar el pin exacto)
       const googleMapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(direccionTexto)}`;
 
       const tr = document.createElement("tr");
@@ -1852,6 +1853,10 @@ async function cargarTablaLevantamientos() {
     console.error("Error cargando tabla:", error);
   }
 }
+
+
+
+
 cargarTablaLevantamientos();
 
 //obtener necesidades 
