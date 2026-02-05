@@ -41,10 +41,18 @@ h3{
 /* Estilos para la cabecera */
 header {
     background-color: #cfe6ff;
-    color: white;
-    padding: auto;
     grid-column: 1 / span 2;
-    text-align: center;
+    /* height: 80px; */
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    position: relative;
+}
+
+header::before {
+    content: "";
+    flex: 1;
 }
 
 header button{
@@ -54,11 +62,20 @@ header button{
 }
 
 .btnLogo{
-    background-color: #a52a2a00;
+    position: absolute;
+    left: 50%;
+    top: 45%;
+    transform: translate(-50%, -50%);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
 }
 
 .btnLogo:hover{
     background-color: #a52a2a00;
+    transform: translate(-50%, -52%)
 }
 
 header h1 {
@@ -101,6 +118,7 @@ nav {
     list-style: none;
     padding: 0;
     margin: 0;
+    width: 95%;
     /* En escritorio, la lista está visible por defecto (display: block implícito) */
 }
 
@@ -213,6 +231,7 @@ nav li.active button {
     /* Ajuste visual para ítems desplegados */
     #main-menu li {
         border-bottom: 1px solid #4a5c7a;
+        width: 98%;
     }
 }
 
