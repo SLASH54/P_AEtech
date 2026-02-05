@@ -79,10 +79,6 @@ function calcularSaldo() {
     document.getElementById('levPorLiquidar').value = saldo.toFixed(2);
 }
 
-
-
-
-
 // Escuchadores para el cálculo en tiempo real
 document.getElementById('levTotal')?.addEventListener('input', calcularSaldo);
 document.getElementById('levAnticipo')?.addEventListener('input', calcularSaldo);
@@ -600,7 +596,7 @@ async function addMaterial() {
     const fotoInput = document.getElementById('lev-material-foto');
 
     if (!nombre || !costo) {
-        alert("el nombre y el costo son obligatorios.");
+        alert("Amiko, el nombre y el costo son obligatorios.");
         return;
     }
 
