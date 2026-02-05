@@ -1808,9 +1808,8 @@ async function cargarTablaLevantamientos() {
     data.forEach(l => {
       const idReal = l.id || l.id_levantamiento; 
 
-      // --- 📅 FORMATEO DE SOLO FECHA (MÉXICO) ---
+      // --- 📅 FORMATEO DE FECHA ---
       let fechaMostrada = 'Sin fecha';
-      
       if (l.fecha) {
           const d = new Date(l.fecha);
           fechaMostrada = d.toLocaleDateString("es-MX", {
@@ -1821,10 +1820,10 @@ async function cargarTablaLevantamientos() {
           });
       }
 
-      // --- 📍 LÓGICA CORREGIDA PARA LINK DIRECTO A GOOGLE MAPS ---
+      // --- 📍 LÓGICA DE GOOGLE MAPS CORREGIDA ---
       const direccionTexto = l.direccion || 'Sin dirección';
       
-      // ✅ Esta es la URL corregida (Usa la API de búsqueda para soltar el pin exacto)
+      // ✅ Esta URL usa la API oficial de búsqueda para forzar el pin rojo en el lugar exacto
       const googleMapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(direccionTexto)}`;
 
       const tr = document.createElement("tr");
@@ -1853,8 +1852,6 @@ async function cargarTablaLevantamientos() {
     console.error("Error cargando tabla:", error);
   }
 }
-
-
 
 
 cargarTablaLevantamientos();
