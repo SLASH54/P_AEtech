@@ -172,7 +172,7 @@ exports.eliminarCuenta = async (req, res) => {
 exports.editarCuenta = async (req, res) => {
     try {
         const { id } = req.params;
-        const { clienteNombre, subtotal, total, anticipo, iva, ivaPorcentaje, factura, folioFactura, materiales } = req.body;
+        const { clienteNombre, subtotal, total, anticipo, iva, ivaPorcentaje, factura, folioFactura, materiales, fechaLiquidacion } = req.body;
 
         const cuenta = await Cuenta.findByPk(id);
         if (!cuenta) return res.status(404).json({ message: "Cuenta no encontrada" });
@@ -191,7 +191,8 @@ exports.editarCuenta = async (req, res) => {
             total: nTotal, 
             anticipo: nAnticipo,
             saldo: saldoCalculado, iva, ivaPorcentaje,
-            factura, folioFactura, estatus: nuevoEstatus
+            factura, folioFactura, estatus: nuevoEstatus,
+            fechaLiquidacion
         });
 
         // 3. Manejar materiales (Eliminar anteriores y crear nuevos)

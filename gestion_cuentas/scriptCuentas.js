@@ -1118,6 +1118,7 @@ async function actualizarCuentaFinal() {
         numeroNota: numeroActual, // 👈 Aseguramos que se mantenga el nombre correcto
         clienteNombre: document.getElementById("edit-clienteSelect").value,
         anticipo: parseFloat(document.getElementById("levAnticipoEdit").value) || 0,
+        fecha_anticipo: document.getElementById("levFechaAnticipoEdit").value,
         subtotal: parseFloat(document.getElementById("levSubtotalEdit").value) || 0,
         total: parseFloat(document.getElementById("levTotalEdit").value) || 0,
         iva: document.getElementById("chkIvaEdit").checked,

@@ -407,8 +407,9 @@
         <input type="text" id="levTotalEdit" readonly style="border: none; background: transparent; text-align: right; font-weight: bold; width: 100px;">
     </div>
 
-    <div class="lev-total-field" style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #ddd; border-bottom: 1px solid #ddd; padding: 5px 0;">
+    <div class="lev-total-field" style="display: GRID;GRID-TEMPLATE-COLUMNS: 6FR 0FR 0FR;margin-bottom: 20px;justify-content: space-between;align-items: center;border-top: 1px solid #ddd;border-bottom: 1px solid #ddd;padding: 5px 0;flex-direction: row;flex-wrap: nowrap;align-content: center;">
         <label style="font-weight: bold; color: #28a745;">Anticipo:</label>
+        <input type="date" id="levFechaAnticipoEdit" style="width: 20px;">
         <input type="number" id="levAnticipoEdit" oninput="calcularSaldoEdit()" style="width: 100px; text-align: right; border: 1px solid #ccc; border-radius: 5px; padding: 3px;">
     </div>
 
