@@ -312,13 +312,12 @@
 
 
 
-                     <div>
-                        <label for="tareaClienteId" class="block text-sm font-medium text-gray-700">Cliente
-                            Asociado</label>
-                        <select id="tareaClienteId" name="clienteId" required
-                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                     <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700">Cliente Asociado</label>
+                        <select id="tareaClienteId" name="clienteId" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
                             <option value="" disabled selected>-- Seleccione Cliente --</option>
                         </select>
+                        <input type="text" id="expressClienteNombre" placeholder="Nombre del nuevo cliente" class="mt-1 block w-full border border-blue-400 rounded-md p-2" style="display: none;">
                     </div>
 
 
@@ -373,24 +372,21 @@
 
              
 
-                                  <div class="mb-4">
-                                    
-    <label for="tareaDireccionCliente" class="block text-sm font-medium text-gray-700">
-        Dirección del Cliente
-    </label>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Dirección del Cliente</label>
+                <select id="tareaDireccionCliente" name="direccionCliente" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                    <option value="">-- Seleccione Dirección --</option>
+                </select>
+                <input type="text" id="expressDireccion" placeholder="Dirección completa" class="mt-1 block w-full border border-blue-400 rounded-md p-2" style="display: none;">
+            </div>
 
-    <select id="tareaDireccionCliente" name="direccionCliente"
-        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
-        <option value="">-- Seleccione Dirección --</option>
-    </select>
-
-    <button type="button" id="btnRegistroExpress" 
-        style="width: 100%; background-color: #3b82f6; color: white; font-weight: 600; padding: 10px; border-radius: 8px; border: none; cursor: pointer; transition: background 0.3s;"
-        onmouseover="this.style.backgroundColor='#2563eb'" 
-        onmouseout="this.style.backgroundColor='#3b82f6'">
-        ⚡ Registro Express
+    <div class="mb-4">
+    <button type="button" id="btnRegistroExpress" onclick="activarRegistroExpress()"
+        style="width: 100%; background-color: #3b82f6; color: white; font-weight: 600; padding: 10px; border-radius: 8px; border: none; cursor: pointer;">
+        ⚡ Activar Registro Express
     </button>
 </div>
+
 
 
                 <div class="mb-4">
