@@ -309,7 +309,33 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-4 mb-4">
+
+
+
+                     <div>
+                        <label for="tareaClienteId" class="block text-sm font-medium text-gray-700">Cliente
+                            Asociado</label>
+                        <select id="tareaClienteId" name="clienteId" required
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="" disabled selected>-- Seleccione Cliente --</option>
+                        </select>
+                    </div>
+
+                                    <div class="mb-4">
+    <label for="tareaDireccionCliente" class="block text-sm font-medium text-gray-700">
+        Dirección del Cliente
+    </label>
+
                     <div>
+                        <label for="tareaFechaLimite" class="block text-sm font-medium text-gray-700">Fecha
+                            Límite</label>
+                        <input type="date" id="tareaFechaLimite" name="fechaLimite" required
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                </div>
+
+
+  <div>
                         <label for="tareaAsignadoA" class="block text-sm font-medium text-gray-700">Asignar a
                             Usuario</label>
 
@@ -319,26 +345,9 @@
                             <!-- Opciones cargadas dinámicamente -->
                         </select>
                     </div>
-                    <div>
-                        <label for="tareaClienteId" class="block text-sm font-medium text-gray-700">Cliente
-                            Asociado</label>
-                        <select id="tareaClienteId" name="clienteId" required
-                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            <option value="" disabled selected>-- Seleccione Cliente --</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="tareaFechaLimite" class="block text-sm font-medium text-gray-700">Fecha
-                            Límite</label>
-                        <input type="date" id="tareaFechaLimite" name="fechaLimite" required
-                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
-                    </div>
-                </div>
 
-                <div class="mb-4">
-    <label for="tareaDireccionCliente" class="block text-sm font-medium text-gray-700">
-        Dirección del Cliente
-    </label>
+
+
 
     <select id="tareaDireccionCliente" name="direccionCliente"
         class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
