@@ -805,8 +805,8 @@ async function verDetalleCuenta(id) {
         if (cuenta.iva) {
             const porcentaje = cuenta.ivaPorcentaje || 16;
             const montoIva = (parseFloat(cuenta.subtotal) * porcentaje) / 100;
-            detIVA.value = parseFloat(cuenta.subtotal).toFixed(2);
-            //detIVA.innerHTML = `${montoIva.toLocaleString('es-MX', {minimumDigits:2})}`
+            //detIVA.value = parseFloat(cuenta.subtotal).toFixed(2);
+            detIVA.value = `${montoIva.toLocaleString('es-MX', {minimumDigits:2})}`
         } else {
             divDetIVA.style.display = "none";
         }
