@@ -738,6 +738,8 @@ async function verDetalleCuenta(id) {
         const badgesContainer = document.getElementById('detBadges');
         badgesContainer.innerHTML = "";
         const fechaPagoCont = document.getElementById('detFechaPagoCont');
+        const divDetIVA = document.getElementById('divDetIVA');
+        const detIVA = document.getElementById('detIVA');
         
         // Badge de Estatus (Pendiente/Pagado)
         const estatusActual = (cuenta.estatus || 'Pendiente').toUpperCase();
@@ -800,6 +802,13 @@ async function verDetalleCuenta(id) {
 
         // --- TOTALES ---
         document.getElementById('detSubtotal').value = parseFloat(cuenta.subtotal).toFixed(2);
+        if (cuenta.iva) {
+            const porcentaje = cuenta.ivaPorcentaje || 16;
+            const montoIva = (parseFloat(cuenta.subtotal) * porcentaje) / 100;
+            detIVA.innerHTML = `${montoIva.toLocaleString('es-MX', {minimumDigits:2})}`
+        } else {
+            divDetIVA.style.display = "none";
+        }
         document.getElementById('detTotal').value = parseFloat(cuenta.total).toFixed(2);
         document.getElementById('detAnticipo').value = parseFloat(cuenta.anticipo || 0).toFixed(2);
         
