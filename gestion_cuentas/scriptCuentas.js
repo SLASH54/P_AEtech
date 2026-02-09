@@ -1069,6 +1069,7 @@ function calcularSaldoEdit() {
     let totalFinal = totalMateriales;
     if (llevaIva) {
         totalFinal += (totalMateriales * (porcentajeIva / 100));
+        const montoIva = (totalMateriales * (porcentajeIva / 100));
     }
 
     const anticipo = parseFloat(document.getElementById("levAnticipoEdit").value) || 0;
@@ -1076,6 +1077,11 @@ function calcularSaldoEdit() {
 
     // Actualizar Inputs
     document.getElementById("levSubtotalEdit").value = totalMateriales.toFixed(2);
+    if (llevaIva) {
+        document.getElementById("levIVAEdit").value = montoIva.toFixed(2)
+    } else {
+        document.getElementById("DivIVAEdit").style.display = "none";
+    }
     document.getElementById("levTotalEdit").value = totalFinal.toFixed(2);
     
     const inputSaldo = document.getElementById("levSaldoEdit");
