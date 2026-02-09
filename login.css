@@ -2010,6 +2010,35 @@ button:disabled {
     border-radius: 14px !important;
 }
 
+
+
+/* Botón Registro Express Estilo iOS */
+.btn-express {
+    grid-column: span 2; /* Para que ocupe todo el ancho igual que la dirección */
+    background: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(5px);
+    border: 1px dashed rgba(59, 130, 246, 0.6) !important;
+    color: #3b82f6 !important;
+    padding: 10px !important;
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase;
+    font-size: 0.75rem !important;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease !important;
+    margin-top: -5px; /* Para que se pegue un poquito al campo de arriba */
+}
+
+.btn-express:hover {
+    background: rgba(59, 130, 246, 0.1) !important;
+    border-style: solid !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+
+
 @media 
 (max-width: 1023px)
 {
