@@ -1919,102 +1919,95 @@ button:disabled {
 }
 
 /* Contenedor del Modal */
-/* --- FONDO DEL MODAL (OVERLAY) --- */
+/* --- CONTENEDOR PRINCIPAL --- */
 #tareaModal {
-    background-color: rgba(0, 0, 0, 0.4) !important; /* Fondo oscuro sutil */
-    backdrop-filter: blur(12px) saturate(180%); /* El efecto borroso de iOS */
-    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    background-color: rgba(0, 0, 0, 0.4) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 }
 
-/* --- LA TARJETA PRINCIPAL --- */
+/* --- LA TARJETA (ORGANIZACIÓN GRID) --- */
 #tareaModal .bg-white {
-    /* Convertimos el fondo blanco en cristal */
-    background: rgba(255, 255, 255, 0.7) !important; 
+    background: rgba(255, 255, 255, 0.75) !important;
     backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    
     border: 1px solid rgba(255, 255, 255, 0.4) !important;
-    border-radius: 24px !important; /* Bordes redondeados elegantes */
-    
-    /* Sombra con brillo neón azul AEtech */
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 
-                0 0 20px rgba(59, 130, 246, 0.4) !important; 
+    border-radius: 24px !important;
+    max-width: 700px !important; /* Un poco más ancho para las 2 columnas */
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 0 20px rgba(59, 130, 246, 0.3) !important;
 }
 
-/* --- TÍTULO --- */
-#tareaModalTitle {
-    color: #000 !important;
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
-    font-weight: 700 !important;
-    letter-spacing: -0.5px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+/* --- FORZAR GRID EN EL FORMULARIO --- */
+#tareaForm {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Dos columnas iguales */
+    gap: 15px; /* Espacio entre campos */
 }
 
-/* --- ETIQUETAS (LABELS) --- */
+/* --- CAMPOS QUE OCUPAN TODO EL ANCHO (1 COLUMNA COMPLETA) --- */
+#tareaModalTitle, 
+.mb-4:has(#tareaTitulo), 
+.mb-4:has(#tareaDescripcion), 
+.flex.justify-end {
+    grid-column: span 2; /* Estos ocupan las dos columnas */
+}
+
+/* --- ESTILO DE LOS CAMPOS (iOS STYLE) --- */
 #tareaForm label {
-    color: #444 !important;
-    font-weight: 600 !important;
-    font-size: 0.8rem !important;
-    margin-left: 4px;
+    color: #333 !important;
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    margin-bottom: 5px;
+    display: block;
 }
 
-/* --- INPUTS, SELECTS Y TEXTAREA --- */
 #tareaForm input, 
 #tareaForm textarea, 
 #tareaForm select {
-    background: rgba(255, 255, 255, 0.4) !important; /* Fondo semi-transparente */
+    width: 100% !important;
+    background: rgba(255, 255, 255, 0.5) !important;
     border: 1px solid rgba(0, 0, 0, 0.1) !important;
     border-radius: 12px !important;
+    padding: 10px !important;
     color: #000 !important;
-    padding: 10px 12px !important;
-    transition: all 0.3s ease !important;
-    font-size: 0.95rem !important;
+    transition: all 0.3s ease;
 }
 
-/* Efecto Focus: Brillo neón azul al dar clic */
+/* Brillo neón al enfocar */
 #tareaForm input:focus, 
 #tareaForm textarea:focus, 
 #tareaForm select:focus {
     background: rgba(255, 255, 255, 0.8) !important;
     border-color: #3b82f6 !important;
     box-shadow: 0 0 10px rgba(59, 130, 246, 0.5) !important;
-    outline: none !important;
 }
 
 /* --- BOTONES --- */
+.flex.justify-end {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 10px;
+}
 
-/* Botón Guardar (Verde -> Azul Neón iOS) */
+/* Botón Guardar */
 #tareaForm button[type="submit"] {
     background: linear-gradient(135deg, #007AFF, #00C6FF) !important;
+    color: white !important;
     border: none !important;
+    padding: 12px 25px !important;
     border-radius: 14px !important;
     font-weight: 600 !important;
     box-shadow: 0 8px 15px rgba(0, 122, 255, 0.3) !important;
-}
-
-#tareaForm button[type="submit"]:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 20px rgba(0, 122, 255, 0.4) !important;
 }
 
 /* Botón Cancelar */
 #closeTareaModal {
     background: rgba(0, 0, 0, 0.05) !important;
     color: #444 !important;
-    border-radius: 14px !important;
     border: none !important;
-    transition: background 0.2s !important;
-}
-
-#closeTareaModal:hover {
-    background: rgba(0, 0, 0, 0.1) !important;
-}
-
-/* Ajuste para las rejillas de Tailwind */
-.grid.grid-cols-2.gap-4 {
-    gap: 1.25rem !important;
+    padding: 12px 25px !important;
+    border-radius: 14px !important;
 }
 
 @media 
