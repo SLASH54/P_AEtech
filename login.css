@@ -1919,88 +1919,102 @@ button:disabled {
 }
 
 /* Contenedor del Modal */
+/* --- FONDO DEL MODAL (OVERLAY) --- */
 #tareaModal {
-    background-color: rgba(0, 0, 0, 0.6); /* Fondo semitransparente oscuro */
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Fuente moderna y legible */
+    background-color: rgba(0, 0, 0, 0.4) !important; /* Fondo oscuro sutil */
+    backdrop-filter: blur(12px) saturate(180%); /* El efecto borroso de iOS */
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
 }
 
-/* Contenido del Modal */
-#tareaModal .modal-content {
-    background-color: #aae9fa; /* Un celeste muy claro para el fondo del contenido */
-    border-radius: 0.75rem; /* Bordes redondeados más pronunciados */
-    box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.3); /* Sombra sutil */
-    max-width: 90%; /* El modal ocupa hasta el 90% del ancho en pantallas grandes */
-    margin: 2rem auto; /* Centrado vertical y horizontal */
-    padding: 1.5rem; /* Espaciado interno reducido */
+/* --- LA TARJETA PRINCIPAL --- */
+#tareaModal .bg-white {
+    /* Convertimos el fondo blanco en cristal */
+    background: rgba(255, 255, 255, 0.7) !important; 
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    border-radius: 24px !important; /* Bordes redondeados elegantes */
+    
+    /* Sombra con brillo neón azul AEtech */
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 
+                0 0 20px rgba(59, 130, 246, 0.4) !important; 
 }
 
-/* Título del Modal */
+/* --- TÍTULO --- */
 #tareaModalTitle {
-    color: #0c0f18; /* Azul oscuro para el título */
-    font-size: 1.75rem; /* Tamaño del título */
-    font-weight: 600; /* Negrita */
-    margin-bottom: 1.25rem; /* Espacio debajo del título */
-    border-bottom: 2px solid #94a3b8; /* Línea debajo del título */
-    padding-bottom: 0.75rem; /* Espacio debajo de la línea */
+    color: #000 !important;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+    font-weight: 700 !important;
+    letter-spacing: -0.5px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
 }
 
-/* Etiquetas de los campos */
+/* --- ETIQUETAS (LABELS) --- */
 #tareaForm label {
-    color: #ffffff; /* Gris oscuro para las etiquetas */
-    font-size: 0.9rem; /* Tamaño de la fuente */
-    font-weight: 500; /* Semibold */
-    margin-bottom: 0.3rem; /* Espacio debajo de las etiquetas */
-    display: block; /* Asegura que las etiquetas ocupen todo el ancho */
+    color: #444 !important;
+    font-weight: 600 !important;
+    font-size: 0.8rem !important;
+    margin-left: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
-/* Campos de texto, textarea, select */
-#tareaForm input[type="text"],
-#tareaForm input[type="date"],
-#tareaForm textarea,
+/* --- INPUTS, SELECTS Y TEXTAREA --- */
+#tareaForm input, 
+#tareaForm textarea, 
 #tareaForm select {
-    width: 100%; /* Ocupan todo el ancho */
-    padding: 0.6rem; /* Espaciado interno */
-    border: 1px solid #9cc1e7; /* Borde gris claro */
-    border-radius: 0.5rem; /* Bordes redondeados */
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08); /* Sombra interna sutil */
-    font-size: 0.85rem; /* Tamaño de la fuente */
-    color: #000000; /* Color del texto */
-    margin-bottom: 1rem; /* Espacio debajo de los campos */
+    background: rgba(255, 255, 255, 0.4) !important; /* Fondo semi-transparente */
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    border-radius: 12px !important;
+    color: #000 !important;
+    padding: 10px 12px !important;
+    transition: all 0.3s ease !important;
+    font-size: 0.95rem !important;
 }
 
-/* Estilos específicos para el textarea */
-#tareaForm textarea {
-    resize: vertical; /* Permite redimensionar verticalmente */
-    min-height: 5rem; /* Altura mínima */
+/* Efecto Focus: Brillo neón azul al dar clic */
+#tareaForm input:focus, 
+#tareaForm textarea:focus, 
+#tareaForm select:focus {
+    background: rgba(255, 255, 255, 0.8) !important;
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.5) !important;
+    outline: none !important;
 }
 
-/* Estilos para los botones */
-#tareaForm .flex.justify-end button {
-    background-color: #3b82f6; /* Azul */
-    color: white; /* Texto blanco */
-    padding: 0.5rem 1rem; /* Espaciado interno */
-    border: none; /* Sin borde */
-    border-radius: 0.5rem; /* Bordes redondeados */
-    font-size: 0.8rem; /* Tamaño de la fuente */
-    font-weight: 500; /* Semibold */
-    cursor: pointer;
-    transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out; /* Transiciones suaves */
+/* --- BOTONES --- */
+
+/* Botón Guardar (Verde -> Azul Neón iOS) */
+#tareaForm button[type="submit"] {
+    background: linear-gradient(135deg, #007AFF, #00C6FF) !important;
+    border: none !important;
+    border-radius: 14px !important;
+    font-weight: 600 !important;
+    box-shadow: 0 8px 15px rgba(0, 122, 255, 0.3) !important;
 }
 
-/* Hover para los botones */
-#tareaForm .flex.justify-end button:hover {
-    background-color: #2563eb; /* Azul más oscuro al pasar el mouse */
-    transform: translateY(-1px); /* Ligero efecto de elevación */
-    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.2); /* Sombra más pronunciada */
+#tareaForm button[type="submit"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 20px rgba(0, 122, 255, 0.4) !important;
 }
 
-/* Estilo específico para el botón "Cancelar" */
-#tareaForm .flex.justify-end button:first-child {
-    background-color: #64748b; /* Gris azulado para "Cancelar" */
+/* Botón Cancelar */
+#closeTareaModal {
+    background: rgba(0, 0, 0, 0.05) !important;
+    color: #444 !important;
+    border-radius: 14px !important;
+    border: none !important;
+    transition: background 0.2s !important;
 }
 
-#tareaForm .flex.justify-end button:first-child:hover {
-    background-color: #475569; /* Gris más oscuro al pasar el mouse */
+#closeTareaModal:hover {
+    background: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Ajuste para las rejillas de Tailwind */
+.grid.grid-cols-2.gap-4 {
+    gap: 1.25rem !important;
 }
 
 @media 
