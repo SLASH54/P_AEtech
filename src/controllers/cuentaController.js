@@ -41,7 +41,8 @@ exports.crearCuenta = async (req, res) => {
             ivaPorcentaje, 
             factura, 
             folioFactura, 
-            materiales 
+            materiales,
+            fechaLiquidacion 
         } = req.body;
 
         // 2. AHORA SÍ calculamos (convertimos a número por seguridad)
@@ -68,7 +69,8 @@ exports.crearCuenta = async (req, res) => {
             factura,
             folioFactura,
             estatus: estatusInicial,
-            usuarioId: req.user.id 
+            usuarioId: req.user.id,
+            fechaLiquidacion: fechaLiquidacion || new Date()
         });
 
         // 4. Procesar Materiales y fotos

@@ -1,4 +1,4 @@
-const { DataTypes } = require('sequelize');
+const { DataTypes, STRING } = require('sequelize');
 const { sequelize } = require('../config/database');
 
 const Cuenta = sequelize.define('Cuenta', {
@@ -26,6 +26,10 @@ const Cuenta = sequelize.define('Cuenta', {
     anticipo: {
         type: DataTypes.DECIMAL(10, 2),
         defaultValue: 0.00
+    },
+    fecha_anticipo: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
     },
     saldo: {
         type: DataTypes.DECIMAL(10, 2),

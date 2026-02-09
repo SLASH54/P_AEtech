@@ -511,6 +511,7 @@ async function guardarCuentaFinal() {
         subtotal: parseFloat(document.getElementById('levSubtotal').value) || 0,
         total: parseFloat(document.getElementById('levTotal').value) || 0,
         anticipo: parseFloat(document.getElementById('levAnticipo').value) || 0,
+        fecha_anticipo: document.getElementById("levFechaAnticipo").value,
         iva: document.getElementById('chkIva').checked,
         ivaPorcentaje: parseInt(document.getElementById('levIvaPorcentaje').value) || 16,
         factura: document.getElementById('chkFactura').checked,
