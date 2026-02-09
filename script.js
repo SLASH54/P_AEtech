@@ -1732,6 +1732,35 @@ function formatearFechaLocal(fecha) {
   return `${day}/${month}/${year}`;
 }
 
+let modoExpress = false;
+
+function activarRegistroExpress() {
+    modoExpress = !modoExpress; // Cambia entre true y false
+    
+    const selectCliente = document.getElementById("tareaClienteId");
+    const inputCliente = document.getElementById("expressClienteNombre");
+    const selectDireccion = document.getElementById("tareaDireccionCliente");
+    const inputDireccion = document.getElementById("expressDireccion");
+    const btn = document.getElementById("btnRegistroExpress");
+
+    if (modoExpress) {
+        // Mostramos inputs, ocultamos selects
+        selectCliente.style.display = "none";
+        selectDireccion.style.display = "none";
+        inputCliente.style.display = "block";
+        inputDireccion.style.display = "block";
+        btn.innerText = "❌ Cancelar Registro Express";
+        btn.style.backgroundColor = "#ef4444"; // Rojo para cancelar
+    } else {
+        // Volvemos a la normalidad
+        selectCliente.style.display = "block";
+        selectDireccion.style.display = "block";
+        inputCliente.style.display = "none";
+        inputDireccion.style.display = "none";
+        btn.innerText = "⚡ Activar Registro Express";
+        btn.style.backgroundColor = "#3b82f6";
+    }
+}
 
 
 /**
@@ -1762,6 +1791,30 @@ function setupTareaModal() {
         const endpoint = tareaId 
             ? `https://p-aetech.onrender.com/api/tareas/${tareaId}` 
             : 'https://p-aetech.onrender.com/api/tareas';
+
+        let clienteId, clienteNombre, direccionTexto;
+
+    if (isExpressModeTarea) {
+        clienteId = null;
+        clienteNombre = document.getElementById("express-tarea-cliente").value.trim();
+        direccionTexto = document.getElementById("express-tarea-direccion").value.trim();
+
+        if (!clienteNombre || !direccionTexto) {
+            alert("⚠️ Escribe el nombre y dirección para el registro express.");
+            return;
+        }
+    } else {
+        const selectC = document.getElementById("tareaClienteId");
+        const selectD = document.getElementById("tareaDireccionCliente");
+        clienteId = selectC.value;
+        clienteNombre = selectC.options[selectC.selectedIndex]?.text;
+        direccionTexto = selectD.options[selectD.selectedIndex]?.text;
+
+        if (!clienteId || !direccionTexto) {
+            alert("⚠️ Selecciona un cliente y dirección.");
+            return;
+        }
+    }
         
         // Recolección de Datos del Formulario con NOMBRES DE BACKEND
         const data = {
@@ -1775,7 +1828,8 @@ function setupTareaModal() {
     fechaLimite: document.getElementById('tareaFechaLimite').value,
     estado: document.getElementById('tareaEstado').value,
     prioridad : 'Normal',
-    direccionCliente: document.getElementById('tareaDireccionCliente').value
+    direccionCliente: document.getElementById('tareaDireccionCliente').value,
+    es_express: isExpressModeTarea // 👈 Esto activa la magia en tu controller
 };
 
 
@@ -1800,35 +1854,6 @@ function setupTareaModal() {
     }
 }
 
-let modoExpress = false;
-
-function activarRegistroExpress() {
-    modoExpress = !modoExpress; // Cambia entre true y false
-    
-    const selectCliente = document.getElementById("tareaClienteId");
-    const inputCliente = document.getElementById("expressClienteNombre");
-    const selectDireccion = document.getElementById("tareaDireccionCliente");
-    const inputDireccion = document.getElementById("expressDireccion");
-    const btn = document.getElementById("btnRegistroExpress");
-
-    if (modoExpress) {
-        // Mostramos inputs, ocultamos selects
-        selectCliente.style.display = "none";
-        selectDireccion.style.display = "none";
-        inputCliente.style.display = "block";
-        inputDireccion.style.display = "block";
-        btn.innerText = "❌ Cancelar Registro Express";
-        btn.style.backgroundColor = "#ef4444"; // Rojo para cancelar
-    } else {
-        // Volvemos a la normalidad
-        selectCliente.style.display = "block";
-        selectDireccion.style.display = "block";
-        inputCliente.style.display = "none";
-        inputDireccion.style.display = "none";
-        btn.innerText = "⚡ Activar Registro Express";
-        btn.style.backgroundColor = "#3b82f6";
-    }
-}
 
 /**
 /**
