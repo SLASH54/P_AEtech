@@ -797,7 +797,7 @@ async function verDetalleCuenta(id) {
                 <p style="margin: 5px 0;"><strong>Monto IVA (${porcentaje}%):</strong> $${montoIva.toLocaleString('es-MX', {minimumDigits:2})}</p>
             `;
         } else {
-            infoFactura.style.display = "none";
+            infoFactura.style.display = "none" ;
         }
 
         // --- TOTALES ---
