@@ -373,19 +373,24 @@
 
              
 
-                                    <div class="mb-4">
+                                  <div class="mb-4">
     <label for="tareaDireccionCliente" class="block text-sm font-medium text-gray-700">
         Dirección del Cliente
     </label>
     <select id="tareaDireccionCliente" name="direccionCliente"
-        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
         <option value="">-- Seleccione Dirección --</option>
     </select>
 </div>
 
-<button type="button" id="btnRegistroExpress" class="btn-express">
-    ⚡ Registro Express
-</button>
+<div class="mb-4">
+    <button type="button" id="btnRegistroExpress" 
+        style="width: 100%; background-color: #3b82f6; color: white; font-weight: 600; padding: 10px; border-radius: 8px; border: none; cursor: pointer; transition: background 0.3s;"
+        onmouseover="this.style.backgroundColor='#2563eb'" 
+        onmouseout="this.style.backgroundColor='#3b82f6'">
+        ⚡ Registro Express
+    </button>
+</div>
 
 
                 <div class="mb-4">
