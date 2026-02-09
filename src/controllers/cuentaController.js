@@ -42,7 +42,7 @@ exports.crearCuenta = async (req, res) => {
             factura, 
             folioFactura, 
             materiales,
-            fechaLiquidacion 
+            fecha_anticipo, 
         } = req.body;
 
         // 2. AHORA SÍ calculamos (convertimos a número por seguridad)
@@ -70,7 +70,7 @@ exports.crearCuenta = async (req, res) => {
             folioFactura,
             estatus: estatusInicial,
             usuarioId: req.user.id,
-            fechaLiquidacion: fechaLiquidacion || new Date()
+            fecha_anticipo: fecha_anticipo || new Date()
         });
 
         // 4. Procesar Materiales y fotos
@@ -172,7 +172,7 @@ exports.eliminarCuenta = async (req, res) => {
 exports.editarCuenta = async (req, res) => {
     try {
         const { id } = req.params;
-        const { clienteNombre, subtotal, total, anticipo, iva, ivaPorcentaje, factura, folioFactura, materiales, fechaLiquidacion } = req.body;
+        const { clienteNombre, subtotal, total, anticipo, iva, ivaPorcentaje, factura, folioFactura, materiales, fecha_anticipo } = req.body;
 
         const cuenta = await Cuenta.findByPk(id);
         if (!cuenta) return res.status(404).json({ message: "Cuenta no encontrada" });
@@ -192,7 +192,7 @@ exports.editarCuenta = async (req, res) => {
             anticipo: nAnticipo,
             saldo: saldoCalculado, iva, ivaPorcentaje,
             factura, folioFactura, estatus: nuevoEstatus,
-            fechaLiquidacion
+            fecha_anticipo
         });
 
         // 3. Manejar materiales (Eliminar anteriores y crear nuevos)
