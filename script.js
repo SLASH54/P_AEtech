@@ -1732,6 +1732,41 @@ function formatearFechaLocal(fecha) {
   return `${day}/${month}/${year}`;
 }
 
+
+let isExpressModeTarea = false;
+
+function toggleRegistroExpressTarea() {
+    isExpressModeTarea = !isExpressModeTarea;
+    
+    const selectCliente = document.getElementById('tareaClienteId');
+    const inputCliente = document.getElementById('expressClienteNombre');
+    const selectDir = document.getElementById('tareaDireccionCliente');
+    const inputDir = document.getElementById('expressDireccion');
+    const btn = document.getElementById('btnRegistroExpress');
+
+    if (isExpressModeTarea) {
+        selectCliente.style.display = 'none';
+        selectDir.style.display = 'none';
+        inputCliente.style.display = 'block';
+        inputDir.style.display = 'block';
+        
+        btn.innerText = "← VOLVER A LISTA";
+        btn.style.color = "#ff9f0a";
+        btn.style.background = "#ff9f0a20";
+        inputCliente.focus();
+    } else {
+        selectCliente.style.display = 'block';
+        selectDir.style.display = 'block';
+        inputCliente.style.display = 'none';
+        inputDir.style.display = 'none';
+        
+        btn.innerText = "+ REGISTRO EXPRESS";
+        btn.style.color = "#89ff00";
+        btn.style.background = "#4caf5069";
+    }
+}
+
+
 let modoExpress = false;
 
 function activarRegistroExpress() {
