@@ -1082,7 +1082,7 @@ function calcularSaldoEdit() {
         montoIva = (totalMateriales * (porcentajeIva/100));
         document.getElementById("levIVAEdit").value = montoIva.toFixed(2)
     } else {
-        document.getElementById("DivIVAEdit").style.display = "none";
+        document.getElementById("levIVAEdit").value = montoIva.toFixed(2)
     }
     document.getElementById("levTotalEdit").value = totalFinal.toFixed(2);
     
