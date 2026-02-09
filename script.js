@@ -1767,35 +1767,6 @@ function toggleRegistroExpressTarea() {
 }
 
 
-let modoExpress = false;
-
-function activarRegistroExpress() {
-    modoExpress = !modoExpress; // Cambia entre true y false
-    
-    const selectCliente = document.getElementById("tareaClienteId");
-    const inputCliente = document.getElementById("expressClienteNombre");
-    const selectDireccion = document.getElementById("tareaDireccionCliente");
-    const inputDireccion = document.getElementById("expressDireccion");
-    const btn = document.getElementById("btnRegistroExpress");
-
-    if (modoExpress) {
-        // Mostramos inputs, ocultamos selects
-        selectCliente.style.display = "none";
-        selectDireccion.style.display = "none";
-        inputCliente.style.display = "block";
-        inputDireccion.style.display = "block";
-        btn.innerText = "❌ Cancelar Registro Express";
-        btn.style.backgroundColor = "#ef4444"; // Rojo para cancelar
-    } else {
-        // Volvemos a la normalidad
-        selectCliente.style.display = "block";
-        selectDireccion.style.display = "block";
-        inputCliente.style.display = "none";
-        inputDireccion.style.display = "none";
-        btn.innerText = "⚡ Activar Registro Express";
-        btn.style.backgroundColor = "#3b82f6";
-    }
-}
 
 
 /**
