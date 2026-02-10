@@ -768,10 +768,10 @@ async function verDetalleCuenta(id) {
         //FECHA DE ANTICIPO
         if (cuenta.fecha_anticipo) {
             fechaAnticipoCont.style.display = "block";
-            const fLiq = new Date(cuenta.fecha_anticipo).toLocaleString('es-MX', {
+            const fAnt = new Date(cuenta.fecha_anticipo).toLocaleString('es-MX', {
                 day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
             });
-            document.getElementById('detFechaPagoTexto').innerHTML = `<b>Pagado el:</b> ${fLiq}`;
+            document.getElementById('detFechaAnticipoTexto').innerHTML = `<b>Pagado el:</b> ${fAnt}`;
         } else {
             fechaAnticipoCont.style.display = "none";
         }
