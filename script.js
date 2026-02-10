@@ -1836,6 +1836,7 @@ function setupTareaModal() {
     prioridad : 'Normal',
     direccionCliente: document.getElementById('tareaDireccionCliente').value,
     cliente_Nombre: clienteNombre,
+    direccion: direccionTexto,
     es_express: isExpressModeTarea // 👈 Esto activa la magia en tu controller
 };
 
