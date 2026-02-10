@@ -172,7 +172,7 @@ exports.createTarea = async (req, res) => {
 
         
         // Validación de campos obligatorios
-        if (!nombre || !usuarioAsignadoId || !actividadId || !sucursalId || !clienteNegocioId) {
+        if (!nombre || !usuarioAsignadoId || !actividadId || !sucursalId) {
             return res.status(400).json({ 
                 message: 'Faltan campos requeridos (nombre, asignado, actividad, sucursal o cliente).' 
             });
