@@ -739,6 +739,7 @@ async function verDetalleCuenta(id) {
         const badgesContainer = document.getElementById('detBadges');
         badgesContainer.innerHTML = "";
         const fechaPagoCont = document.getElementById('detFechaPagoCont');
+        const fechaAnticipoCont = document.getElementById('detFechaAnticipoCont')
         const divDetIVA = document.getElementById('divDetIVA');
         const detIVA = document.getElementById('detIVA');
         
@@ -762,6 +763,17 @@ async function verDetalleCuenta(id) {
             document.getElementById('detFechaPagoTexto').innerHTML = `<b>Pagado el:</b> ${fLiq}`;
         } else {
             fechaPagoCont.style.display = "none";
+        }
+
+        //FECHA DE ANTICIPO
+        if (cuenta.fecha_anticipo) {
+            fechaAnticipoCont.style.display = "block";
+            const fLiq = new Date(cuenta.fecha_anticipo).toLocaleString('es-MX', {
+                day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+            });
+            document.getElementById('detFechaPagoTexto').innerHTML = `<b>Pagado el:</b> ${fLiq}`;
+        } else {
+            fechaAnticipoCont.style.display = "none";
         }
 
         // Badges de IVA/Factura

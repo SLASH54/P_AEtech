@@ -139,6 +139,20 @@ exports.generarPDFCuenta = async (req, res) => {
         doc.text(`$${parseFloat(cuenta.anticipo).toFixed(2)}`, 450, rowY, { width: 100, align: 'right' });
         rowY += 25;
 
+        if (cuenta.fecha_anticipo) {
+            rowY += 25; // Espacio hacia abajo
+            doc.fillColor("#444444").fontSize(10).font("Helvetica-Bold");
+            doc.text("FECHA DE ANTICIPO:", 380, rowY);
+
+            const fAnticipo = new Date(cuenta.fecha_anticipo).toLocaleDateString('es-MX', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+
+            doc.font("Helvetica").text(fAnticipo, 500, rowY);
+        }
+
         // Saldo Final (En negrita y resaltado)
         doc.fontSize(12).fillColor(cuenta.saldo > 0 ? "#d32f2f" : "#28a745");
         doc.text("POR LIQUIDAR:", 350, rowY);
@@ -176,20 +190,6 @@ exports.generarPDFCuenta = async (req, res) => {
             });
 
             doc.text(`Liquidado el: ${fLiq}`, 400, rowY, { width: 150, align: 'center' });
-        }
-
-        if (cuenta.fecha_anticipo) {
-            rowY += 25; // Espacio hacia abajo
-            doc.fillColor("#444444").fontSize(10).font("Helvetica-Bold");
-            doc.text("FECHA DE ANTICIPO:", 380, rowY);
-
-            const fAnticipo = new Date(cuenta.fecha_anticipo).toLocaleDateString('es-MX', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-            });
-
-            doc.font("Helvetica").text(fAnticipo, 500, rowY);
         }
 
         doc.end();
