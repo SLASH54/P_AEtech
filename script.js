@@ -1802,8 +1802,8 @@ function setupTareaModal() {
 
     if (isExpressModeTarea) {
         clienteId = null;
-        clienteNombre = document.getElementById("express-tarea-cliente").value.trim();
-        direccionTexto = document.getElementById("express-tarea-direccion").value.trim();
+        clienteNombre = document.getElementById("expressClienteNombre").value.trim();
+        direccionTexto = document.getElementById("expressDireccion").value.trim();
 
         if (!clienteNombre || !direccionTexto) {
             alert("⚠️ Escribe el nombre y dirección para el registro express.");
