@@ -1,5 +1,5 @@
 // src/controllers/tareaController.js
-const { Tarea, Usuario, Actividad, Sucursal, ClienteNegocio, Notificacion } = require('../models/relations');
+const { Tarea, Usuario, Actividad, Sucursal, ClienteNegocio, ClienteDireccion, Notificacion } = require('../models/relations');
 const { sequelize } = require('../config/database');
 const { sendPushToUser } = require('../utils/push');
 const admin = require("../config/firebaseadmin");
@@ -137,8 +137,38 @@ exports.createTarea = async (req, res) => {
     try {
        const { 
     nombre, descripcion, usuarioAsignadoId, actividadId, 
-    sucursalId, clienteNegocioId, direccionClienteId, fechaLimite, prioridad 
+    sucursalId, clienteNegocioId, direccionClienteId, fechaLimite, prioridad,
+      direccion,      // Texto si es express
+      es_express
 } = req.body;
+
+    let finalClienteId = clienteNegocioId;
+    let finalDireccionId = direccionClienteId; // El ID que venga por defecto
+
+    // 🚀 LÓGICA EXPRESS: Si el cliente no existe, lo creamos ahorita
+    if (es_express) {
+      console.log("🛠 Creando cliente y dirección express para Tarea...");
+      
+      // 1. Crear el Negocio/Cliente
+      const nuevoNegocio = await ClienteNegocio.create({
+        nombre: cliente_nombre,
+        email: `express_${Date.now()}@aetech.com`, // Email único temporal
+        telefono: "0000000000"
+        // Puedes agregar campos por defecto si tu modelo los pide
+      });
+
+      // 2. Crear la Dirección asociada a ese nuevo negocio
+      const nuevaDireccion = await ClienteDireccion.create({
+        clienteId: nuevoNegocio.id,
+        estado: "N/A", 
+        municipio: "N/A",
+        direccion: direccion,
+        alias: "Registro Express"
+      });
+
+      finalClienteId = nuevoNegocio.id;
+      finalDireccionId = nuevaDireccion.id;
+    }
 
         
         // Validación de campos obligatorios
@@ -155,8 +185,8 @@ exports.createTarea = async (req, res) => {
     usuarioAsignadoId,
     actividadId,
     sucursalId,
-    clienteNegocioId,
-    direccionClienteId,
+    clienteNegocioId: finalClienteId,
+    direccionClienteId: finalDireccionId,
     fechaLimite,
     prioridad
 });
