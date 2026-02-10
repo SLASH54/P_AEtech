@@ -138,7 +138,7 @@ exports.createTarea = async (req, res) => {
        const { 
     nombre, descripcion, usuarioAsignadoId, actividadId, 
     sucursalId, clienteNegocioId, direccionClienteId, fechaLimite, prioridad,
-      direccion, cliente_nombre,      // Texto si es express
+      direccion, cliente_Nombre,      // Texto si es express
       es_express
 } = req.body;
 
@@ -151,7 +151,7 @@ exports.createTarea = async (req, res) => {
       
       // 1. Crear el Negocio/Cliente
       const nuevoNegocio = await ClienteNegocio.create({
-        nombre: cliente_nombre,
+        nombre: cliente_Nombre,
         email: `express_${Date.now()}@aetech.com`, // Email único temporal
         telefono: "0000000000"
         // Puedes agregar campos por defecto si tu modelo los pide
