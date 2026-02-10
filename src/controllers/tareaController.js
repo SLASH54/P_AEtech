@@ -138,7 +138,7 @@ exports.createTarea = async (req, res) => {
        const { 
     nombre, descripcion, usuarioAsignadoId, actividadId, 
     sucursalId, clienteNegocioId, direccionClienteId, fechaLimite, prioridad,
-      direccion,      // Texto si es express
+      direccion,cliente_nombre,      // Texto si es express
       es_express
 } = req.body;
 
