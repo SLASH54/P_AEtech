@@ -1835,6 +1835,7 @@ function setupTareaModal() {
     estado: document.getElementById('tareaEstado').value,
     prioridad : 'Normal',
     direccionCliente: document.getElementById('tareaDireccionCliente').value,
+    cliente_Nombre: clienteNombre,
     es_express: isExpressModeTarea // 👈 Esto activa la magia en tu controller
 };
 
