@@ -1209,6 +1209,14 @@ main {
 .form-group a:hover {
   text-decoration: underline;
 }
+
+
+
+
+
+
+/* a qui esta el css de inicio ajajajajaj */
+
 /* Estilos para el contenedor del logo dentro del formulario */
 .logo-container {
     
@@ -1309,6 +1317,7 @@ main {
     align-items: center;
     padding: 10px;
 }
+
 
 /* Contenedor del menú de login */
 .login-menu {
