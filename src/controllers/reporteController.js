@@ -248,7 +248,7 @@ const primerasDos = evidencias.slice(0, 2);
 
 for (let i = 0; i < primerasDos.length; i++) {
   const ev = primerasDos[i];
-  const imgBuffer = await procesarImagen(ev.archivoUrl, MAX_W, MAX_H);
+  const imgBuffer = await procesarImagen(ev.archivoUrl, 1000, 1000, false);
   if (!imgBuffer) continue;
 
   const img = doc.openImage(imgBuffer);
