@@ -171,66 +171,109 @@ const MARGIN_BOTTOM = 120;
 
 
 
-
-// ... (Tu código anterior de consulta de tarea)
-
+    
     if (!tarea) return res.status(404).json({ error: "Tarea no encontrada" });
 
-    // ✅ ORDENAMOS LAS EVIDENCIAS: De la más antigua a la más reciente (ASC)
-    // Usamos el campo createdAt para que el orden sea real
-    const evidenciasRaw = tarea.Evidencia || [];
-    const evidencias = evidenciasRaw.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    const evidencias = tarea.Evidencia || [];
 
-    // ✅ SEPARAMOS FIRMAS DE FOTOS
-    // Para que la firma no se cuele en medio de las evidencias de trabajo
-    const fotosEvidencia = evidencias.filter(e => e.archivoUrl && !e.firmaClienteUrl);
+    const logoURL = "https://p-aetech.onrender.com/public/logo.png";
+    const watermarkURL = "https://p-aetech.onrender.com/public/watermark.png";
+    const plantillaURL = "https://p-aetech.onrender.com/public/plantillas/plantilla_reporte.jpg";
 
 
-    // ... (Tu código de cargar logos y plantillas)
+    const logoBuf = await cargarImagen(logoURL);
+    const watermarkBuf = await cargarImagen(watermarkURL);
+    const plantillaBuf = await cargarImagen(plantillaURL);
 
-    // =============================================================
-    // EVIDENCIAS EN LA PRIMERA PÁGINA (SOLO 2 PRIMERAS)
-    // =============================================================
-    const MAX_W = 250, MAX_H = 0;
-    const GAP = 30;
-    doc.moveDown(1);
+
+    const doc = new PDFDocument({ margin: 40, bufferPages: true });
+
+doc.pipe(res);
+
+// Área útil
+const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
+
+// 1. Buscamos la dirección en los datos traídos
+
+//disque error del pdf de tareas
+//me dijo gemini que lo borrara sin miedo y que me fueera a dormir y que solo era eso de codigo 
+
+
+let textoDireccion = "No especificada";
+if (tarea.DireccionEspecifica) {
+    textoDireccion = tarea.DireccionEspecifica.alias || tarea.DireccionEspecifica.direccion;
+}
+
+
+
+    // Primera página
+    // Primera página con plantilla
+    fondoPlantilla(doc, plantillaBuf);
+
+    doc.moveDown(7);
 
     doc.fontSize(20)
-        .fillColor("#00938f")
-        .text("EVIDENCIAS", MARGIN_LEFT);
+      .fillColor("#00938f")
+      .text("INFORMACION DEL SERVICIO", MARGIN_LEFT, doc.y);
 
     doc.moveDown(1);
 
-    let yPrimera = MARGIN_TOP + 250;  
-    let xLeft = MARGIN_LEFT;
-    let xRight = doc.page.width / 2 - 20;
+    doc.fontSize(12).fillColor("#000");
 
-    // ✅ Ahora usamos 'fotosEvidencia' que ya está filtrado y ordenado
-    const primerasDos = fotosEvidencia.slice(0, 2);
-
-    for (let i = 0; i < primerasDos.length; i++) {
-        const ev = primerasDos[i];
-        const imgBuffer = await procesarImagen(ev.archivoUrl, MAX_W, MAX_H);
-        if (!imgBuffer) continue;
-
-        const img = doc.openImage(imgBuffer);
-        const x = i === 0 ? xLeft : xRight;
-
-        doc.image(imgBuffer, x, yPrimera, {
-            width: img.width,
-            height: img.height,
-        });
-
-        doc.fontSize(12)
-           .fillColor("#000")
-           .text(ev.titulo || "Evidencia", x, yPrimera + img.height + 5);
-    }
+    doc.text(`Cliente: ${tarea.ClienteNegocio.nombre}`, MARGIN_LEFT);
+    doc.text(`Dirección del Cliente: ${textoDireccion}`, MARGIN_LEFT, doc.y);
+    doc.text(`Sucursal: ${tarea.Sucursal.nombre}`, MARGIN_LEFT);
+    doc.text(`Dirección de Sucursal: ${tarea.Sucursal.direccion}`, MARGIN_LEFT);
+    doc.text(`Actividad: ${tarea.Actividad.nombre}`, MARGIN_LEFT);
+    doc.text(`Asignado a: ${tarea.AsignadoA.nombre}`, MARGIN_LEFT);
+    doc.text(`Fecha límite: ${tarea.fechaLimite}`, MARGIN_LEFT);
 
     // =============================================================
-    // RESTO DE EVIDENCIAS (A PARTIR DE PÁGINA 2)
+// EVIDENCIAS EN LA PRIMERA PÁGINA (SOLO 2 PRIMERAS)
+// =============================================================
+const MAX_W = 250, MAX_H = 0;
+const GAP = 30;
+doc.moveDown(1);
+
+doc.fontSize(20)
+    .fillColor("#00938f")
+    .text("EVIDENCIAS", MARGIN_LEFT);
+
+  doc.moveDown(1);
+
+// Punto EXACTO donde empieza el hueco blanco:
+let yPrimera = MARGIN_TOP + 250;  
+let xLeft = MARGIN_LEFT;
+let xRight = doc.page.width / 2 - 20;
+
+// Tomar SOLO las primeras dos
+const primerasDos = evidencias.slice(0, 2);
+
+for (let i = 0; i < primerasDos.length; i++) {
+  const ev = primerasDos[i];
+  const imgBuffer = await procesarImagen(ev.archivoUrl, MAX_W, MAX_H);
+  if (!imgBuffer) continue;
+
+  const img = doc.openImage(imgBuffer);
+
+  // Izquierda o derecha
+  const x = i === 0 ? xLeft : xRight;
+
+  doc.image(imgBuffer, x, yPrimera, {
+    width: img.width,
+    height: img.height,
+  });
+
+  doc.fontSize(12)
+     .fillColor("#000")
+     .text(ev.titulo || "Evidencia", x, yPrimera + img.height + 5);
+}
+
+
     // =============================================================
-    const resto = fotosEvidencia.slice(2);
-    // ... (Sigue con el resto de tu lógica de bucle para 'resto')
+// RESTO DE EVIDENCIAS (A PARTIR DE PÁGINA 2)
+// =============================================================
+const resto = evidencias.slice(2);
 
 if (resto.length > 0) {
   nuevaPagina(doc, plantillaBuf);
