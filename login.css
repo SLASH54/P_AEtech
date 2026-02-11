@@ -1309,6 +1309,7 @@ main {
 
 
 
+
 /* Estilos para la sección de login */
 .login-section {
     position: relative;
@@ -1353,6 +1354,8 @@ main {
     border-radius: 5px;
     text-align: center; /* Centra el contenido horizontalmente */
 }
+
+
 
 /* Estilos para la información del perfil */
 .profile-info {

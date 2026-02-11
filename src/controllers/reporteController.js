@@ -41,13 +41,31 @@ async function procesarImagen(url, maxW, maxH, isSignature = false) {
   try {
     const res = await axios.get(url, { responseType: "arraybuffer" });
 
+    // 1. Iniciamos sharp
     let pipeline = sharp(res.data).rotate();
 
-    if (isSignature) pipeline = pipeline.png();
-    else pipeline = pipeline.jpeg({ quality: 90 });
+    // 2. CONFIGURACIÓN DE CALIDAD
+    if (isSignature) {
+      // Para firmas: PNG con máxima calidad para evitar bordes borrosos
+      pipeline = pipeline.png({ compressionLevel: 9, adaptiveFiltering: true });
+    } else {
+      // Para fotos: JPEG con calidad 95 y chromaSubsampling 4:4:4 (clave para nitidez)
+      pipeline = pipeline.jpeg({ 
+        quality: 95, 
+        chromaSubsampling: '4:4:4', 
+        force: true 
+      });
+    }
 
+    // 3. RESIZE Y SALIDA
+    // Tip: Asegúrate que maxW sea al menos 800 para evidencias
     return await pipeline
-      .resize({ width: maxW, height: maxH, fit: "inside" })
+      .resize({ 
+        width: maxW, 
+        height: maxH, 
+        fit: "inside",
+        withoutEnlargement: true // 👈 No estira imágenes pequeñas (evita pixeleado)
+      })
       .toBuffer();
   } catch (err) {
     console.log("⚠ Error procesando imagen:", url, err.message);
