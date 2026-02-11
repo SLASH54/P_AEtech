@@ -228,7 +228,7 @@ if (tarea.DireccionEspecifica) {
     // =============================================================
 // EVIDENCIAS EN LA PRIMERA PÁGINA (SOLO 2 PRIMERAS)
 // =============================================================
-const MAX_W = 400, MAX_H = 400;
+const MAX_W = 300, MAX_H = 300;
 const GAP = 30;
 doc.moveDown(1);
 
