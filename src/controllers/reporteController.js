@@ -228,7 +228,7 @@ if (tarea.DireccionEspecifica) {
     // =============================================================
 // EVIDENCIAS EN LA PRIMERA PÁGINA (SOLO 2 PRIMERAS)
 // =============================================================
-const MAX_W = 500, MAX_H = 500;
+const MAX_W = 400, MAX_H = 400;
 const GAP = 30;
 doc.moveDown(1);
 
@@ -248,7 +248,7 @@ const primerasDos = evidencias.slice(0, 2);
 
 for (let i = 0; i < primerasDos.length; i++) {
   const ev = primerasDos[i];
-  const imgBuffer = await procesarImagen(ev.archivoUrl, 1000, 1000, false);
+  const imgBuffer = await procesarImagen(ev.archivoUrl, MAX_W, MAX_H);
   if (!imgBuffer) continue;
 
   const img = doc.openImage(imgBuffer);
