@@ -1,143 +1,342 @@
+// ===============================================================
+//   REPORTE PDF AETECH – VERSIÓN MEJORADA (SIN PÁGINAS VACÍAS)
+// ===============================================================
+
 const PDFDocument = require("pdfkit");
 const axios = require("axios");
 const sharp = require("sharp");
-const { Tarea, Actividad, ClienteNegocio, Usuario, Evidencia, ClienteDireccion } = require("../models/relations");
+const fs = require("fs");
+const {
+  Tarea,
+  Actividad,
+  Sucursal,
+  ClienteNegocio,
+  Usuario,
+  Evidencia,
+  ClienteDireccion
+} = require("../models/relations");
 
-// 1. Procesamiento de imágenes de alta calidad
-async function procesarImagen(url, maxW, maxH, isSignature = false) {
-    try {
-        const res = await axios.get(url, { responseType: "arraybuffer" });
-        let pipeline = sharp(res.data).rotate();
 
-        if (isSignature) {
-            pipeline = pipeline.png({ compressionLevel: 9 });
-        } else {
-            pipeline = pipeline.jpeg({ 
-                quality: 95, 
-                chromaSubsampling: '4:4:4',
-                force: true 
-            });
-        }
-
-        return await pipeline
-            .resize({ width: maxW, height: maxH, fit: "inside", withoutEnlargement: true })
-            .toBuffer();
-    } catch (err) {
-        console.error("⚠ Error imagen:", err.message);
-        return null;
+// =========================================================
+//   Cargar imagen
+// =========================================================
+async function cargarImagen(urlOrPath) {
+  try {
+    if (urlOrPath.startsWith("http")) {
+      const res = await axios.get(urlOrPath, { responseType: "arraybuffer" });
+      return res.data;
+    } else {
+      return fs.readFileSync(urlOrPath);
     }
+  } catch (err) {
+    console.log("⚠ Error cargando imagen:", urlOrPath, err.message);
+    return null;
+  }
 }
 
-exports.generarPDFTarea = async (req, res) => {
-    const MARGIN_LEFT = 55;
-    const { id } = req.params;
+// =========================================================
+//   Procesar imagen
+// =========================================================
+async function procesarImagen(url, maxW, maxH, isSignature = false) {
+  try {
+    const res = await axios.get(url, { responseType: "arraybuffer" });
 
-    try {
-        // Consultar Tarea con Evidencias ORDENADAS por fecha
-        const tarea = await Tarea.findByPk(id, {
-            include: [
-                { model: Actividad, as: "actividad" },
-                { model: ClienteNegocio, as: "clienteNegocio" },
-                { model: ClienteDireccion, as: "clienteDireccion" },
-                { model: Usuario, as: "usuario" },
-                { 
-                    model: Evidencia, 
-                    as: "evidencias",
-                    separate: true,
-                    order: [['createdAt', 'ASC']] // <--- Aquí arreglamos el orden
-                }
-            ],
+    // 1. Iniciamos sharp
+    let pipeline = sharp(res.data).rotate();
+
+    // 2. CONFIGURACIÓN DE CALIDAD
+    if (isSignature) {
+      // Para firmas: PNG con máxima calidad para evitar bordes borrosos
+      pipeline = pipeline.png({ compressionLevel: 9, adaptiveFiltering: true });
+    } else {
+      // Para fotos: JPEG con calidad 95 y chromaSubsampling 4:4:4 (clave para nitidez)
+      pipeline = pipeline.jpeg({ 
+        quality: 95, 
+        chromaSubsampling: '4:4:4', 
+        force: true 
+      });
+    }
+
+    // 3. RESIZE Y SALIDA
+    // Tip: Asegúrate que maxW sea al menos 800 para evidencias
+    return await pipeline
+      .resize({ 
+        width: maxW, 
+        height: maxH, 
+        fit: "inside",
+        withoutEnlargement: true // 👈 No estira imágenes pequeñas (evita pixeleado)
+      })
+      .toBuffer();
+  } catch (err) {
+    console.log("⚠ Error procesando imagen:", url, err.message);
+    return null;
+  }
+}
+
+// =========================================================
+//   Marca de agua
+// =========================================================
+function aplicarMarcaAgua(doc, watermarkBuf) {
+  try {
+    const wm = doc.openImage(watermarkBuf);
+    doc.save();
+    doc.opacity(0.25);
+    const w = 620;
+    const x = (doc.page.width - w) / 2;
+    const y = 120;
+    doc.image(wm, x, y, { width: w });
+    doc.opacity(1);
+    doc.restore();
+  } catch (err) {
+    console.log("⚠ Error pintando marca de agua:", err.message);
+  }
+}
+
+// =========================================================
+//   Footer (por página)
+// =========================================================
+function footer(doc) {
+  doc.fontSize(10).fillColor("#555");
+  doc.text(
+    `AE TECH · Reporte oficial · Página ${doc.page.number}`,
+    40,
+    doc.page.height - 30, // 🔥 Más abajo aún
+    { width: doc.page.width - 80, align: "center" }
+  );
+}
+ 
+// =========================================================
+//   Encabezado cada página
+// =========================================================
+function encabezado(doc, logoBuf, watermarkBuf) {
+  aplicarMarcaAgua(doc, watermarkBuf);
+
+  if (logoBuf) {
+    const logo = doc.openImage(logoBuf);
+    doc.image(logo, 40, 20, { width: 110 });
+  }
+
+  doc.fontSize(28).fillColor("#004b85").text("AE TECH", 170, 30);
+  doc.fontSize(12).fillColor("#444").text("Reporte oficial de servicio", 170, 63);
+
+  doc.moveTo(40, 90).lineTo(doc.page.width - 40, 90).stroke("#CCCCCC");
+  doc.moveDown(2);
+}
+
+// =========================================================
+//   Plantilla de fondo PDF (por página)
+// =========================================================
+function fondoPlantilla(doc, plantillaBuf) {
+  try {
+    const bg = doc.openImage(plantillaBuf);
+    doc.image(bg, 0, 0, {
+      width: doc.page.width,
+      height: doc.page.height
+    });
+    doc.y = MARGIN_TOP; // 👈 AQUI COLOCAMOS EL CURSOR EN LA ZONA BLANCA
+  } catch (err) {
+    //console.log("⚠ Error aplicando plantilla:", err.message);
+  }
+}
+
+
+// =========================================================
+//   Nueva página sin páginas vacías
+// =========================================================
+function nuevaPagina(doc, plantillaBuf) {
+  doc.addPage();
+  fondoPlantilla(doc, plantillaBuf); // plantilla + posicionamiento correcto
+}
+
+
+// =========================================================
+//   GENERAR REPORTE PDF
+// =========================================================
+exports.generateReportePDF = async (req, res) => {
+  // Margenes reales según la plantilla PDF
+const MARGIN_TOP = 180;
+const MARGIN_LEFT = 50;
+const MARGIN_RIGHT = 50;
+const MARGIN_BOTTOM = 120;
+
+
+  const { tareaId } = req.params;
+
+  try {
+
+    const tarea = await Tarea.findOne({
+      where: { id: tareaId },
+      include: [ Actividad, Sucursal, ClienteNegocio, { model: ClienteDireccion, as: 'DireccionEspecifica' }, { model: Usuario, as: "AsignadoA" }, Evidencia ]
+    });
+
+
+
+
+// ... (Tu código anterior de consulta de tarea)
+
+    if (!tarea) return res.status(404).json({ error: "Tarea no encontrada" });
+
+    // ✅ ORDENAMOS LAS EVIDENCIAS: De la más antigua a la más reciente (ASC)
+    // Usamos el campo createdAt para que el orden sea real
+    const evidenciasRaw = tarea.Evidencia || [];
+    const evidencias = evidenciasRaw.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
+    // ✅ SEPARAMOS FIRMAS DE FOTOS
+    // Para que la firma no se cuele en medio de las evidencias de trabajo
+    const fotosEvidencia = evidencias.filter(e => e.archivoUrl && !e.firmaClienteUrl);
+
+
+    // ... (Tu código de cargar logos y plantillas)
+
+    // =============================================================
+    // EVIDENCIAS EN LA PRIMERA PÁGINA (SOLO 2 PRIMERAS)
+    // =============================================================
+    const MAX_W = 250, MAX_H = 0;
+    const GAP = 30;
+    doc.moveDown(1);
+
+    doc.fontSize(20)
+        .fillColor("#00938f")
+        .text("EVIDENCIAS", MARGIN_LEFT);
+
+    doc.moveDown(1);
+
+    let yPrimera = MARGIN_TOP + 250;  
+    let xLeft = MARGIN_LEFT;
+    let xRight = doc.page.width / 2 - 20;
+
+    // ✅ Ahora usamos 'fotosEvidencia' que ya está filtrado y ordenado
+    const primerasDos = fotosEvidencia.slice(0, 2);
+
+    for (let i = 0; i < primerasDos.length; i++) {
+        const ev = primerasDos[i];
+        const imgBuffer = await procesarImagen(ev.archivoUrl, MAX_W, MAX_H);
+        if (!imgBuffer) continue;
+
+        const img = doc.openImage(imgBuffer);
+        const x = i === 0 ? xLeft : xRight;
+
+        doc.image(imgBuffer, x, yPrimera, {
+            width: img.width,
+            height: img.height,
         });
 
-        if (!tarea) return res.status(404).send("Tarea no encontrada");
-
-        const doc = new PDFDocument({ size: "LETTER", margin: 0 });
-        res.setHeader("Content-Type", "application/pdf");
-        res.setHeader("Content-Disposition", `attachment; filename=Reporte_Tarea_${id}.pdf`);
-        doc.pipe(res);
-
-        // --- ENCABEZADO ESTILO LEVANTAMIENTOS ---
-        doc.rect(0, 0, 612, 120).fill("#00938f");
-        doc.fillColor("white").fontSize(22).text("REPORTE DE TAREA", MARGIN_LEFT, 45);
-        doc.fontSize(10).text(`FOLIO: T-${tarea.id.toString().padStart(4, '0')}`, MARGIN_LEFT, 75);
-
-        // --- BLOQUE DE INFORMACIÓN GENERAL ---
-        doc.fillColor("black").fontSize(14).text("DATOS GENERALES", MARGIN_LEFT, 140);
-        doc.rect(MARGIN_LEFT, 160, 500, 2).fill("#00938f");
-        
-        doc.moveDown(2);
-        doc.fillColor("#333").fontSize(11);
-        
-        const infoY = 180;
-        doc.font('Helvetica-Bold').text("Cliente:", MARGIN_LEFT, infoY);
-        doc.font('Helvetica').text(tarea.clienteNegocio?.nombre || "N/A", MARGIN_LEFT + 70, infoY);
-        
-        doc.font('Helvetica-Bold').text("Fecha:", MARGIN_LEFT + 300, infoY);
-        doc.font('Helvetica').text(new Date(tarea.createdAt).toLocaleDateString(), MARGIN_LEFT + 350, infoY);
-
-        doc.font('Helvetica-Bold').text("Dirección:", MARGIN_LEFT, infoY + 20);
-        doc.font('Helvetica').text(tarea.clienteDireccion?.nombre || "Sin dirección", MARGIN_LEFT + 70, infoY + 20);
-
-        doc.font('Helvetica-Bold').text("Técnico:", MARGIN_LEFT, infoY + 40);
-        doc.font('Helvetica').text(tarea.usuario?.nombre || "No asignado", MARGIN_LEFT + 70, infoY + 40);
-
-        // --- DESCRIPCIÓN ---
-        doc.moveDown(4);
-        doc.fontSize(14).fillColor("#00938f").text("DESCRIPCIÓN DEL TRABAJO");
-        doc.moveDown(0.5);
-        doc.fillColor("#000").fontSize(11).font('Helvetica').text(tarea.descripcion || "Sin descripción.", { align: 'justify', width: 500 });
-
-        // --- SECCIÓN DE EVIDENCIAS (FOTOS) ---
-        const fotosEvidencia = tarea.evidencias.filter(e => e.fotoUrl && !e.firmaClienteUrl);
-        
-        if (fotosEvidencia.length > 0) {
-            doc.addPage();
-            // Encabezado de página de fotos
-            doc.rect(0, 0, 612, 50).fill("#00938f");
-            doc.fillColor("white").fontSize(16).text("EVIDENCIAS FOTOGRÁFICAS", MARGIN_LEFT, 18);
-
-            doc.moveDown(3);
-            
-            for (const foto of fotosEvidencia) {
-                if (doc.y > 500) { // Si ya no cabe, nueva página
-                    doc.addPage();
-                    doc.rect(0, 0, 612, 50).fill("#00938f");
-                    doc.fillColor("white").fontSize(16).text("EVIDENCIAS FOTOGRÁFICAS (CONT.)", MARGIN_LEFT, 18);
-                    doc.moveDown(3);
-                }
-
-                const imgBuffer = await procesarImagen(foto.fotoUrl, 450, 300);
-                if (imgBuffer) {
-                    doc.image(imgBuffer, { fit: [450, 250], align: 'center' });
-                    if (foto.comentario) {
-                        doc.moveDown(0.5);
-                        doc.fillColor("#666").fontSize(10).italic().text(`Nota: ${foto.comentario}`, { align: 'center' });
-                    }
-                    doc.moveDown(2);
-                }
-            }
-        }
-
-        // --- SECCIÓN DE FIRMA ---
-        const firma = tarea.evidencias.find(e => e.firmaClienteUrl);
-        if (firma) {
-            doc.addPage();
-            doc.rect(0, 0, 612, 50).fill("#00938f");
-            doc.fillColor("white").fontSize(16).text("VALIDACIÓN Y FIRMA", MARGIN_LEFT, 18);
-            
-            doc.moveDown(8);
-            const firmaBuf = await procesarImagen(firma.firmaClienteUrl, 300, 200, true);
-            if (firmaBuf) {
-                doc.image(firmaBuf, { fit: [300, 150], align: 'center' });
-                doc.moveDown(1);
-                doc.fillColor("black").fontSize(12).text("__________________________", { align: 'center' });
-                doc.text("Firma de Conformidad", { align: 'center' });
-            }
-        }
-
-        doc.end();
-    } catch (err) {
-        console.error("Error PDF:", err);
-        res.status(500).send("Error al generar el reporte");
+        doc.fontSize(12)
+           .fillColor("#000")
+           .text(ev.titulo || "Evidencia", x, yPrimera + img.height + 5);
     }
+
+    // =============================================================
+    // RESTO DE EVIDENCIAS (A PARTIR DE PÁGINA 2)
+    // =============================================================
+    const resto = fotosEvidencia.slice(2);
+    // ... (Sigue con el resto de tu lógica de bucle para 'resto')
+
+if (resto.length > 0) {
+  nuevaPagina(doc, plantillaBuf);
+
+  let col = 0;
+  let y = MARGIN_TOP + 20;
+
+  for (const ev of resto) {
+    const imgBuffer = await procesarImagen(ev.archivoUrl, MAX_W, MAX_H);
+    if (!imgBuffer) continue;
+
+    const img = doc.openImage(imgBuffer);
+
+    const x = col === 0
+      ? MARGIN_LEFT
+      : doc.page.width / 2 - 20;
+
+    // Salto de página si se acerca al footer
+    if (y + img.height > doc.page.height - 180) {
+      nuevaPagina(doc, plantillaBuf);
+      y = MARGIN_TOP + 60;
+    }
+
+    doc.image(imgBuffer, x, y, { width: img.width });
+
+    doc.fontSize(12)
+      .fillColor("#000")
+      .text(ev.titulo || "Evidencia", x, y + img.height + 5);
+
+    if (col === 0) col = 1;
+    else {
+      col = 0;
+      y += img.height + GAP;
+    }
+  }
+}
+
+    // Firma
+    const evFirma = evidencias.find(e => e.firmaClienteUrl);
+
+    if (evFirma) {
+      nuevaPagina(doc, plantillaBuf);
+      doc.moveDown(7);
+
+      doc.fontSize(20)
+        .fillColor("#00938f")
+        .text("FIRMA DEL CLIENTE", MARGIN_LEFT);
+
+      doc.moveDown(2);
+
+      const firmaBuf = await procesarImagen(evFirma.firmaClienteUrl, 380, 220, true);
+
+      if (firmaBuf) {
+        const img = doc.openImage(firmaBuf);
+        const x = (doc.page.width - img.width) / 2;
+        doc.image(firmaBuf, x, doc.y);
+      } else {
+        doc.fillColor("red").text("⚠ No se pudo cargar la firma.");
+      }
+    }
+
+    // Materiales
+    const materiales = evidencias[0]?.materiales || [];
+
+    if (materiales.length > 0) {
+      nuevaPagina(doc, plantillaBuf);
+      doc.moveDown(5);
+
+      doc.fontSize(20)
+        .fillColor("#00938f")
+        .text("MATERIAL OCUPADO", MARGIN_LEFT);
+
+      doc.moveDown(1);
+
+      const grupos = {};
+      materiales.forEach(m => {
+        if (!grupos[m.categoria]) grupos[m.categoria] = [];
+        grupos[m.categoria].push(m);
+      });
+
+      for (const cat of Object.keys(grupos)) {
+        doc.fontSize(16).fillColor("#004b85").text(`• ${cat}`);
+        doc.moveDown(0.3);
+
+        grupos[cat].forEach(m => {
+          doc.fontSize(12).fillColor("#000").text(
+            `${m.insumo} — ${m.cantidad} ${m.unidad}`,
+            { indent: 20 }
+          );
+        });
+
+        doc.moveDown(1);
+      }
+    }
+
+    // ================= FOOTER EN TODAS LAS PÁGINAS =================
+//const pages = doc.bufferedPageRange();
+//for (let i = 0; i < pages.count; i++) {
+//  doc.switchToPage(i);
+//  footer(doc);
+//}
+
+doc.end();
+
+  } catch (error) {
+    console.error("❌ Error generando PDF:", error);
+    return res.status(500).json({ error: "No se pudo generar el PDF" });
+  }
 };
