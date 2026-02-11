@@ -769,7 +769,7 @@ async function verDetalleCuenta(id) {
         if (cuenta.fecha_anticipo) {
             fechaAnticipoCont.style.display = "block";
             const fAnt = new Date(cuenta.fecha_anticipo).toLocaleString('es-MX', {
-                day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                day: '2-digit', month: '2-digit', year: 'numeric'
             });
             document.getElementById('detFechaAnticipoTexto').innerHTML = `<b>Anticipo dado el:</b> ${fAnt}`;
         } else {

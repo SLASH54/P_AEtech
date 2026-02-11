@@ -140,7 +140,7 @@ exports.generarPDFCuenta = async (req, res) => {
         rowY += 25;
 
         if (cuenta.fecha_anticipo) {
-            rowY += 25; // Espacio hacia abajo
+            //rowY += 25; // Espacio hacia abajo
             doc.fillColor("#444444").fontSize(10).font("Helvetica-Bold");
             doc.text("FECHA DE ANTICIPO:", 380, rowY);
 
@@ -151,6 +151,7 @@ exports.generarPDFCuenta = async (req, res) => {
             });
 
             doc.font("Helvetica").text(fAnticipo, 500, rowY);
+            rowY += 25;
         }
 
         // Saldo Final (En negrita y resaltado)
