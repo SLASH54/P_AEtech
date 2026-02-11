@@ -169,9 +169,6 @@ const MARGIN_BOTTOM = 120;
       include: [ Actividad, Sucursal, ClienteNegocio, { model: ClienteDireccion, as: 'DireccionEspecifica' }, { model: Usuario, as: "AsignadoA" }, Evidencia ]
     });
 
-
-
-    
     if (!tarea) return res.status(404).json({ error: "Tarea no encontrada" });
 
     const evidencias = tarea.Evidencia || [];
@@ -231,7 +228,7 @@ if (tarea.DireccionEspecifica) {
     // =============================================================
 // EVIDENCIAS EN LA PRIMERA PÁGINA (SOLO 2 PRIMERAS)
 // =============================================================
-const MAX_W = 250, MAX_H = 0;
+const MAX_W = 250, MAX_H = 250;
 const GAP = 30;
 doc.moveDown(1);
 
