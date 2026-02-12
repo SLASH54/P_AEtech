@@ -84,7 +84,7 @@ exports.eliminarNotificacion = async (req, res) => {
 // 🧹 Limpieza deshabilitada (la dejamos igual)
 exports.cleanOrphanNotificaciones = async (req, res) => {
   try {
-    console.log('🧹 Limpieza de notificaciones deshabilitada temporalmente.');
+    //console.log('🧹 Limpieza de notificaciones deshabilitada temporalmente.');
     return res.json({
       message: 'Limpieza de notificaciones deshabilitada temporalmente.',
       eliminadas: 0,
