@@ -17,36 +17,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-async function solicitarPermisoNotificaciones() {
-  firebase.initializeApp(firebaseConfig);
-  const messaging = firebase.messaging();
-    try {
-      const permission = await Notification.requestPermission();
-      if (permission === "granted") {
-        const tokenFCM = await messaging.getToken({
-          vapidKey: "BOTEAlz-7hYedgFy9YSbo3txG_14XJaf0tt4qCCwS3ifs67umn8UDn5fLirfmTmSh17P5r_cUMhrL8uDnZsiWys"
-        });
-        console.log("✅ Token FCM generado:", tokenFCM);
-
-        const jwt = localStorage.getItem("accessToken");
-        if (jwt && tokenFCM) {
-          await fetch(`${API_BASE_URL}/users/me/fcm-token`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${jwt}`,
-            },
-            body: JSON.stringify({ fcmToken: tokenFCM }),
-          });
-          console.log("📩 Token FCM guardado en backend");
-        }
-      } else {
-        console.warn("❌ Permiso denegado por el usuario");
-      }
-    } catch (err) {
-      console.error("⚠️ Error al solicitar permiso de notificación:", err);
-    }
-  }
 
 // Función para desplegar/ocultar el menú en móviles
 function toggleMenu() {
