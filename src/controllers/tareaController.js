@@ -54,19 +54,12 @@ exports.solicitarTareaExpress = async (req, res) => {
         // Buscamos a los admins para enviarles la notificación
         const admins = await Usuario.findAll({ where: { rol: 'Admin' } });
 
-        sendPushToUser(
-    "e0MwhbxnPA8Am0s8hzTxL0:APA91bEsGQlWhVhkEwpWZ7NrB89zmXWo8XTVuHwnAgvexokxSGdFArNo4zKbmTScosjRmgf1MAbe5CuczpZgjqkZICQkcV25KFf4jvJPi9JRLgXItiP8-Rs",
-    'Test Notificacion Titulo',
-    `Test Notificacion Descripcion`,
-    //{ tareaId: String(tarea.id) }
-  );
-  
         
         // Dentro de solicitarTareaExpress en tareaController.js
         admins.forEach(async (adminUser) => {
             // 1. Enviar Push (ya lo tienes)
-            if (adminUser.pushToken) { 
-                sendPushToUser(adminUser.pushToken, {
+            if (adminUser.fcmToken) { 
+                sendPushToUser(adminUser.fcmToken, {
                     title: "Nueva Solicitud de Tarea",
                     body: `${req.user.nombre} solicita crear la tarea: ${nombre}`,
                     data: { tareaId: nuevaTarea.id.toString(), type: "AUTH_REQUIRED" }
