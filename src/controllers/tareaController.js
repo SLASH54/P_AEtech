@@ -95,7 +95,7 @@ exports.solicitarTareaExpress = async (req, res) => {
             await Notificacion.create({
                 usuarioId: adminUser.id,
                 tareaId: nuevaTarea.id,
-                mensaje: `Nueva Solicitud de tarea express de ${nombreSolicitante}: ${nombre}`,
+                mensaje: `Nueva solicitud de tarea express de ${nombreSolicitante}: ${nombre}`,
                 leida: false
             });
         });
