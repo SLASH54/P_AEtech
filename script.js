@@ -1697,7 +1697,7 @@ const clienteMapsLink = clienteMaps
                       </button>`
                   }
                 
-                  <button onclick="enviarRecordatorio(tarea.id)" class="btn-recordatorio">
+                  <button onclick="enviarRecordatorio(${tarea.id})" class="btn-recordatorio">
                     <i class="fas fa-bell"></i> Recordar
                   </button>
 
