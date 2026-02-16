@@ -123,6 +123,13 @@ exports.autorizarTarea = async (req, res) => {
 
         res.json({ message: 'Tarea autorizada correctamente.', tarea });
 
+        await Notificacion.create({
+      usuarioId: usuarioAsignadoId,
+      tareaId: tarea.id,
+      mensaje: `Tienes una nueva tarea: ${tarea.nombre}`,
+      leida: false
+    });
+
         sendPushToUser(
           tarea.usuarioAsignadoId,
           'Tarea Autorizada',
@@ -149,12 +156,6 @@ exports.autorizarTarea = async (req, res) => {
       console.error("❌ Error enviando notificación FCM:", error);
     }
 
-    await Notificacion.create({
-      usuarioId: usuarioAsignadoId,
-      tareaId: tarea.id,
-      mensaje: `Tienes una nueva tarea: ${tarea.nombre}`,
-      leida: false
-    });
 
     } catch (error) {
         res.status(500).json({ message: 'Error al autorizar tarea.' });
