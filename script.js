@@ -2517,8 +2517,8 @@ function initEvidencias(tareaId) {
     return;
   }
 
-  container.innerHTML = ''; // limpia el contenido anterior
-  for (let i = 0; i < 2; i++) agregarCampo();
+  //container.innerHTML = ''; // limpia el contenido anterior
+  //for (let i = 0; i < 2; i++) agregarCampo();
 
   addBtn.onclick = agregarCampo;
 
