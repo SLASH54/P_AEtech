@@ -17,31 +17,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-async function solicitarPermisoNotificaciones() {
-    try {
-        // Pedir permiso al navegador (Esto lanza el cuadrito de "Permitir" en iOS)
-        const permission = await Notification.requestPermission();
-        
-        if (permission === "granted") {
-            console.log("✅ Permiso concedido");
-            
-            // Aquí llamas a tu función que ya tienes para obtener el Token de FCM
-            // Supongamos que se llama obtenerTokenFirebase()
-            const token = await obtenerTokenFirebase(); 
-            
-            if (token) {
-                // Guardar el token en tu base de datos para que el backend sepa a quién mandarle push
-                await guardarTokenEnBD(token);
-                alert("🚀 ¡Notificaciones activadas con éxito amiko!");
-                document.getElementById("notif-banner").style.display = "none";
-            }
-        } else {
-            alert("❌ No podremos avisarte de nuevas tareas si bloqueas los permisos.");
-        }
-    } catch (error) {
-        console.error("Error al activar notificaciones:", error);
-    }
-}
 
 // Función para desplegar/ocultar el menú en móviles
 function toggleMenu() {
