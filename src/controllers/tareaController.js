@@ -50,6 +50,13 @@ exports.solicitarTareaExpress = async (req, res) => {
             
         });
 
+         await Notificacion.create({
+      usuarioId: usuarioAsignadoId,
+      tareaId: nuevaTarea.id,
+      mensaje: `Tienes una nueva tarea: ${nuevaTarea.nombre}`,
+      leida: false
+    });
+
         // LÓGICA DE NOTIFICACIÓN PUSH AL ADMIN
         // Buscamos a los admins para enviarles la notificación
         const admins = await Usuario.findAll({ where: { rol: 'Admin' } });
@@ -123,12 +130,6 @@ exports.autorizarTarea = async (req, res) => {
 
         res.json({ message: 'Tarea autorizada correctamente.', tarea });
 
-        await Notificacion.create({
-      usuarioId: usuarioAsignadoId,
-      tareaId: tarea.id,
-      mensaje: `Tienes una nueva tarea: ${tarea.nombre}`,
-      leida: false
-    });
 
         sendPushToUser(
           tarea.usuarioAsignadoId,
