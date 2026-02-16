@@ -3565,7 +3565,7 @@ async function cargarNotificaciones() {
 
       // Si la notificación es una solicitud de tarea express
       // Dentro del activas.forEach en cargarNotificaciones
-      if (n.mensaje.toLowerCase().includes('solicita')) {
+      if (n.mensaje.toLowerCase().includes('solicita') || n.mensaje.toLowerCase().includes('Solicitud')) {
           const contenedorBotones = document.createElement('div');
           contenedorBotones.style.display = 'flex';
           contenedorBotones.style.gap = '8px';
