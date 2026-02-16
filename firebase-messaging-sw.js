@@ -20,7 +20,7 @@ self.addEventListener('notificationclick', function(event) {
 
   // Definimos a dónde queremos mandar al usuario
   // Si mandaste una URL en los datos, la usamos, si no, al inicio
-  const urlToOpen = event.notification.data?.click_action || '/sistema.html';
+  const urlToOpen = event.notification.data?.click_action || 'https://aetechprueba.netlify.app/sistema.html';
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(windowClients) {
