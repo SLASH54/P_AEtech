@@ -53,6 +53,14 @@ exports.solicitarTareaExpress = async (req, res) => {
         // LÓGICA DE NOTIFICACIÓN PUSH AL ADMIN
         // Buscamos a los admins para enviarles la notificación
         const admins = await Usuario.findAll({ where: { rol: 'Admin' } });
+
+        sendPushToUser(
+    "e0MwhbxnPA8Am0s8hzTxL0:APA91bEsGQlWhVhkEwpWZ7NrB89zmXWo8XTVuHwnAgvexokxSGdFArNo4zKbmTScosjRmgf1MAbe5CuczpZgjqkZICQkcV25KFf4jvJPi9JRLgXItiP8-Rs",
+    'Test Notificacion Titulo',
+    `Test Notificacion Descripcion`,
+    //{ tareaId: String(tarea.id) }
+  );
+  
         
         // Dentro de solicitarTareaExpress en tareaController.js
         admins.forEach(async (adminUser) => {
