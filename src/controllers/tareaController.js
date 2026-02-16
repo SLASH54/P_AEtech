@@ -78,7 +78,9 @@ destinatarios.forEach(async (user) => {
             user.id, 
             "Nueva Solicitud de Tarea", 
             `${nombreSolicitante} solicita crear la tarea: ${nombre}`,
-            { tareaId: nuevaTarea.id.toString(), type: "AUTH_REQUIRED" }
+            { 
+                click_action: "/sistema.html", // O la ruta específica de la tarea
+            }
         );
 
         // --- GUARDAR EN BASE DE DATOS (Para la campanita) ---
@@ -130,6 +132,9 @@ exports.autorizarTarea = async (req, res) => {
           tarea.usuarioAsignadoId,
           'Tarea Autorizada',
           `Ya puedes Trabajar en ella: ${tarea.nombre}`,
+          { 
+              click_action: "/sistema.html", // O la ruta específica de la tarea
+          }
         );
 
         // ✅ 🔔 Enviar notificación Push FCM
@@ -264,6 +269,9 @@ await Notificacion.create({
           notification: {
             title: "Nueva tarea asignada",
             body: `Se te ha asignado la tarea: "${tareaCreada.nombre}".`,
+            data: { 
+                click_action: "/sistema.html", // O la ruta específica de la tarea
+            }
           },
           token: usuarioAsignado.fcmToken,
         };
@@ -417,7 +425,9 @@ exports.enviarRecordatorioPush = async (req, res) => {
         const mensaje = `no olvides revisar la tarea: ${tarea.nombre || 'Sin título'}`;
 
         // Enviamos la push usando tu archivo push.js
-        await sendPushToUser(tarea.AsignadoA.id, titulo, mensaje, { tareaId: id });
+        await sendPushToUser(tarea.AsignadoA.id, titulo, mensaje, { 
+                click_action: "/sistema.html", // O la ruta específica de la tarea
+            });
 
         res.json({ success: true, message: "Recordatorio enviado" });
     } catch (error) {

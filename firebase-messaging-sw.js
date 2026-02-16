@@ -14,33 +14,41 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-// ✅ 1. Manejador de clics (VITAL para iOS)
-// Si no pones esto, el usuario toca la notificación y no pasa nada.
+// ✅ ESTO ES LO QUE FALTA: Manejar el click
 self.addEventListener('notificationclick', function(event) {
-  event.notification.close(); // Cerramos la notificación
-  
-  // Abrimos la app o la enfocamos si ya está abierta
+  event.notification.close(); // Cierra el globito de la notificación
+
+  // Definimos a dónde queremos mandar al usuario
+  // Si mandaste una URL en los datos, la usamos, si no, al inicio
+  const urlToOpen = event.notification.data?.click_action || '/sistema.html';
+
   event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
-      if (clientList.length > 0) {
-        return clientList[0].focus();
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(windowClients) {
+      // Si la app ya está abierta, solo le damos foco
+      for (var i = 0; i < windowClients.length; i++) {
+        var client = windowClients[i];
+        if (client.url.includes(urlToOpen) && 'focus' in client) {
+          return client.focus();
+        }
       }
-      return clients.openWindow('/'); // Cambia '/' por tu URL si es necesario
+      // Si no está abierta, la abrimos
+      if (clients.openWindow) {
+        return clients.openWindow(urlToOpen);
+      }
     })
   );
 });
 
-// 📩 Recibir notificaciones en segundo plano
+// Recibir en segundo plano
 messaging.onBackgroundMessage(function (payload) {
-  console.log('🔔 [Service Worker] Notificación recibida:', payload);
-
   const notificationTitle = payload.notification.title;
   const notificationOptions = {
     body: payload.notification.body,
     icon: '/img/logoAEtech.png',
-    badge: '/img/logoAEtech.png', // Icono pequeño para la barra de estado
-    vibrate: [200, 100, 200],     // Vibración para Android
-    data: payload.data,           // Guardamos los datos extra (como tareaId)
+    data: {
+        // Guardamos la URL aquí para que el evento de arriba la lea
+        click_action: payload.data?.click_action || '/sistema.html'
+    }
   };
 
   return self.registration.showNotification(notificationTitle, notificationOptions);
