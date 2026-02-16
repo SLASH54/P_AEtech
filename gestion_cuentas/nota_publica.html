@@ -108,6 +108,12 @@
             <img src="img/logoAEtech.png" width="80">
             <h2 id="pub-nota-num" style="color: #1c1c1e; margin-top: 10px;">Cargando...</h2>
 <div id="pub-status-container"></div>
+            <div id="detFechaPagoCont" style="display: none; text-align: center; margin-bottom: 15px; font-size: 0.85rem; color: #666; background: #f0f0f5; padding: 5px; border-radius: 10px;">
+    <span id="detFechaPagoTexto"></span>
+</div>
+<div id="detFechaAnticipoCont" style="display: none; text-align: center; margin-bottom: 15px; font-size: 0.85rem; color: #666; background: #f0f0f5; padding: 5px; border-radius: 10px;">
+    <span id="detFechaAnticipoTexto"></span>
+</div>
         </header>
 
         <div id="pub-detalle">
@@ -182,6 +188,34 @@ if (containerEstatus) {
         containerEstatus.innerHTML = `<span class="pub-status-badge pub-status-pendiente">PENDIENTE</span>`;
     }
 }
+
+
+const fechaPagoCont = document.getElementById('detFechaPagoCont');
+const fechaAnticipoCont = document.getElementById('detFechaAnticipoCont')
+
+const estatusActual = (cuenta.estatus || 'Pendiente').toUpperCase();
+
+ // Mostrar fecha de liquidación si está pagado
+        if (estatusActual === 'PAGADO' && cuenta.fechaLiquidacion) {
+            fechaPagoCont.style.display = "block";
+            const fLiq = new Date(cuenta.fechaLiquidacion).toLocaleString('es-MX', {
+                day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+            });
+            document.getElementById('detFechaPagoTexto').innerHTML = `<b>Pagado el:</b> ${fLiq}`;
+        } else {
+            fechaPagoCont.style.display = "none";
+        }
+
+        //FECHA DE ANTICIPO
+        if (cuenta.fecha_anticipo) {
+            fechaAnticipoCont.style.display = "block";
+            const fAnt = new Date(cuenta.fecha_anticipo).toLocaleString('es-MX', {
+                day: '2-digit', month: '2-digit', year: 'numeric'
+            });
+            document.getElementById('detFechaAnticipoTexto').innerHTML = `<b>Anticipo dado el:</b> ${fAnt}`;
+        } else {
+            fechaAnticipoCont.style.display = "none";
+        }
 
             // 1. Manejo de Badges (Factura y IVA) - Usando clases CSS iOS
             let badgesHtml = '';
