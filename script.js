@@ -2517,8 +2517,44 @@ function initEvidencias(tareaId) {
     return;
   }
 
-  //container.innerHTML = ''; // limpia el contenido anterior
-  //for (let i = 0; i < 2; i++) agregarCampo();
+  container.innerHTML = ''; // limpia el contenido anterior
+  for (let i = 0; i < 2; i++) agregarCampo();
+
+    evidenciasList.forEach((ev, index) => {
+        const div = document.createElement("div");
+        div.className = "evidencia-item p-3 border rounded mb-2 bg-gray-50";
+
+        // LÓGICA PARA LA PRIMERA FOTO
+        const esPrimera = (index === 0);
+        const valorTitulo = esPrimera ? "Foto de confirmación de Ubicación" : (ev.titulo || "");
+        const readOnlyAttr = esPrimera ? "readonly" : "";
+        const bgInput = esPrimera ? "bg-gray-200 color-gray-600" : "bg-white";
+
+        div.innerHTML = `
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-xs font-bold text-gray-500">EVIDENCIA #${index + 1}</span>
+                ${!esPrimera ? `<button onclick="eliminarEvidencia(${index})" class="text-red-500 text-xs">Eliminar</button>` : ''}
+            </div>
+            
+            <input type="text" 
+                placeholder="Título de la evidencia" 
+                class="w-full border p-2 rounded mb-2 ${bgInput}" 
+                value="${valorTitulo}" 
+                ${readOnlyAttr}
+                onchange="actualizarEvidencia(${index}, 'titulo', this.value)">
+            
+            <input type="file" 
+                accept="image/*" 
+                class="w-full text-sm" 
+                onchange="actualizarEvidencia(${index}, 'archivo', this.files[0])">
+        `;
+        contenedor.appendChild(div);
+
+        // Si es la primera y no tenía título, se lo asignamos al objeto de una vez
+        if (esPrimera && !ev.titulo) {
+            ev.titulo = "Foto de confirmación de Ubicación";
+        }
+    });
 
   addBtn.onclick = agregarCampo;
 
