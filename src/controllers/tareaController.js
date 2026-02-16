@@ -63,7 +63,7 @@ exports.solicitarTareaExpress = async (req, res) => {
         const mensaje = {
           notification: {
             title: "Nueva Solicitud de Tarea",
-            body: `${req.usuarioAsignadoId.nombre} solicita crear la tarea: ${nombre}`,
+            body: `${req.user.nombre} solicita crear la tarea: ${nombre}`,
           },
           token: adminUser.fcmToken,
         };
@@ -79,7 +79,7 @@ exports.solicitarTareaExpress = async (req, res) => {
             if (adminUser.fcmToken) { 
                 sendPushToUser(adminUser.fcmToken, {
                     title: "Nueva Solicitud de Tarea",
-                    body: `${req.usuarioAsignadoId.nombre} solicita crear la tarea: ${nombre}`,
+                    body: `${req.user.nombre} solicita crear la tarea: ${nombre}`,
                     data: { tareaId: nuevaTarea.id.toString(), type: "AUTH_REQUIRED" }
                 }); 
             }
