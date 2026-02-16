@@ -52,19 +52,33 @@ exports.solicitarTareaExpress = async (req, res) => {
 
         // LÓGICA DE NOTIFICACIÓN PUSH AL ADMIN
         // Buscamos a los admins para enviarles la notificación
-        const admins = await Usuario.findAll({ where: { rol: 'Admin' } });
+        
 
         
         // Dentro de solicitarTareaExpress en tareaController.js
-        admins.forEach(async (adminUser) => {
+        
             // 1. Enviar Push (ya lo tienes)
-            if (adminUser.fcmToken) { 
-                sendPushToUser(adminUser.fcmToken, {
-                    title: "Nueva Solicitud de Tarea",
-                    body: `${req.user.nombre} solicita crear la tarea: ${nombre}`,
-                    data: { tareaId: nuevaTarea.id.toString(), type: "AUTH_REQUIRED" }
-                }); 
-            }
+            // ✅ 🔔 Enviar notificación Push FCM
+    try {
+     const admins = await Usuario.findAll({ where: { rol: 'Admin' } });
+
+      if (admins && admins.fcmToken) {
+        const mensaje = {
+          notification: {
+            title: "Nueva Solicitud de Tarea",
+            body: `${req.user.nombre} solicita crear la tarea: ${nombre}`,
+          },
+          token: admins.fcmToken,
+        };
+        await admin.messaging().send(mensaje);
+        console.log("✅ Notificación FCM enviada a:", admins.nombre);
+      } else {
+        console.warn("⚠️ Usuario sin token FCM o no encontrado");
+      }
+    } catch (error) {
+      console.error("❌ Error enviando notificación FCM:", error);
+    };
+            
             
             // 2. AGREGAR ESTO: Guardar en la tabla Notificacions para que aparezca en la campana
             await Notificacion.create({
@@ -73,7 +87,6 @@ exports.solicitarTareaExpress = async (req, res) => {
                 mensaje: `Nueva tarea express de ${nombreSolicitante}: ${nombre}`,
                 leida: false
             });
-        });
 
         // Una vez creada la tarea, podemos intentar enviar las notificaciones
         // (Te recomiendo descomentarlas una por una para ver cuál falla)
@@ -104,12 +117,6 @@ exports.autorizarTarea = async (req, res) => {
         await tarea.save();
 
         res.json({ message: 'Tarea autorizada correctamente.', tarea });
-
-        sendPushToUser(
-          tarea.usuarioAsignadoId,
-          'Tarea Autorizada',
-          `Ya puedes Trabajar en ella: ${tarea.nombre}`,
-        );
 
         // ✅ 🔔 Enviar notificación Push FCM
     try {
