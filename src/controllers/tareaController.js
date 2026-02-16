@@ -60,45 +60,40 @@ exports.solicitarTareaExpress = async (req, res) => {
         // LÓGICA DE NOTIFICACIÓN PUSH AL ADMIN
         // Buscamos a los admins para enviarles la notificación
         const admins = await Usuario.findAll({ where: { rol: 'Admin' } });
+        // 2. Buscamos específicamente a Denisse (ID 37) por si no es Admin
+        const denisse = await Usuario.findByPk(37);
 
         
-        // Dentro de solicitarTareaExpress en tareaController.js
-        admins.forEach(async (adminUser) => {
-          // ✅ 🔔 Enviar notificación Push FCM
+        // 3. Juntamos a todos en una lista única (usamos Map para no repetir si el Admin ya es Denisse)
+const destinatarios = new Map();
+admins.forEach(a => destinatarios.set(a.id, a));
+if (denisse) destinatarios.set(denisse.id, denisse);
+
+// 4. Enviamos a cada uno (Solo una vez)
+destinatarios.forEach(async (user) => {
     try {
-      if (adminUser && adminUser.fcmToken) {
-        const mensaje = {
-          notification: {
-            title: "Nueva Solicitud de Tarea",
-            body: `${nombreSolicitante} solicita crear la tarea: ${nombre}`,
-          },
-          token: adminUser.fcmToken,
-        };
-        await admin.messaging().send(mensaje);
-        console.log("✅ Notificación FCM enviada a:", adminUser.nombre);
-      } else {
-        console.warn("⚠️ Usuario sin token FCM o no encontrado");
-      }
-    } catch (error) {
-      console.error("❌ Error enviando notificación FCM:", error);
-    }
-            // 1. Enviar Push (ya lo tienes)
-            if (adminUser.fcmToken) { 
-                sendPushToUser(adminUser.fcmToken, {
-                    title: "Nueva Solicitud de Tarea",
-                    body: `${nombreSolicitante} solicita crear la tarea: ${nombre}`,
-                    data: { tareaId: nuevaTarea.id.toString(), type: "AUTH_REQUIRED" }
-                }); 
-            }
-            
-            // 2. AGREGAR ESTO: Guardar en la tabla Notificacions para que aparezca en la campana
-            await Notificacion.create({
-                usuarioId: adminUser.id,
-                tareaId: nuevaTarea.id,
-                mensaje: `Nueva solicitud de tarea express de ${nombreSolicitante}: ${nombre}`,
-                leida: false
-            });
+        // --- ENVÍO PUSH ---
+        // Usamos tu función centralizada de push.js que ya maneja el token internamente
+        await sendPushToUser(
+            user.id, 
+            "Nueva Solicitud de Tarea", 
+            `${nombreSolicitante} solicita crear la tarea: ${nombre}`,
+            { tareaId: nuevaTarea.id.toString(), type: "AUTH_REQUIRED" }
+        );
+
+        // --- GUARDAR EN BASE DE DATOS (Para la campanita) ---
+        await Notificacion.create({
+            usuarioId: user.id,
+            tareaId: nuevaTarea.id,
+            mensaje: `Nueva solicitud de tarea express de ${nombreSolicitante}: ${nombre}`,
+            leida: false
         });
+
+        console.log(`✅ Notificación y registro creado para: ${user.nombre}`);
+    } catch (error) {
+        console.error(`❌ Error con usuario ${user.id}:`, error);
+    }
+});
 
         // Una vez creada la tarea, podemos intentar enviar las notificaciones
         // (Te recomiendo descomentarlas una por una para ver cuál falla)
