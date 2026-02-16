@@ -18,6 +18,8 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function solicitarPermisoNotificaciones() {
+  firebase.initializeApp(firebaseConfig);
+  const messaging = firebase.messaging();
     try {
       const permission = await Notification.requestPermission();
       if (permission === "granted") {
