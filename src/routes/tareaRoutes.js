@@ -7,6 +7,8 @@ const router = express.Router();
 
 const rolesGestion = ['Admin', 'Ingeniero'];
 
+//RECORDATORIO
+router.post('/:id/recordatorio', authMiddleware, tareaController.enviarRecordatorioPush);
 
 // TAREA EXPRESS
 // Ruta para que el usuario solicite (Cualquier rol logueado)
@@ -14,7 +16,6 @@ router.post('/express', protect, tareaController.solicitarTareaExpress);
 
 // Ruta para que el admin autorice (Solo Admin)
 router.put('/autorizar/:id', protect, rol(['Admin']), tareaController.autorizarTarea);
-
 
 
 // Rutas Generales de Asignación y Consulta

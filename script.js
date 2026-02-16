@@ -1697,7 +1697,9 @@ const clienteMapsLink = clienteMaps
                       </button>`
                   }
                 
-
+                  <button onclick="enviarRecordatorio(tarea.id)" class="btn-recordatorio">
+                    <i class="fas fa-bell"></i> Recordar
+                  </button>
 
             </td>
         `;
@@ -1721,7 +1723,28 @@ function renderTareasConAnimacion(tareas) {
   }, 200);
 }
 
+async function enviarRecordatorio(tareaId) {
+    try {
+        const token = localStorage.getItem("accessToken");
+        const res = await fetch(`${API_BASE_URL}/tareas/${tareaId}/recordatorio`, {
+            method: 'POST',
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            }
+        });
 
+        const data = await res.json();
+        if (res.ok) {
+            alert("🔔 Recordatorio enviado al técnico");
+        } else {
+            alert("⚠ Error: " + data.error);
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Amiko, no se pudo enviar la notificación.");
+    }
+}
 
 
 

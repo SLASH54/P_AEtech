@@ -63,7 +63,7 @@ exports.solicitarTareaExpress = async (req, res) => {
         const mensaje = {
           notification: {
             title: "Nueva Solicitud de Tarea",
-            body: `${req.user.nombre} solicita crear la tarea: ${nombre}`,
+            body: `${req.userId.nombre} solicita crear la tarea: ${nombre}`,
           },
           token: adminUser.fcmToken,
         };
@@ -79,7 +79,7 @@ exports.solicitarTareaExpress = async (req, res) => {
             if (adminUser.fcmToken) { 
                 sendPushToUser(adminUser.fcmToken, {
                     title: "Nueva Solicitud de Tarea",
-                    body: `${req.user.nombre} solicita crear la tarea: ${nombre}`,
+                    body: `${req.userId.nombre} solicita crear la tarea: ${nombre}`,
                     data: { tareaId: nuevaTarea.id.toString(), type: "AUTH_REQUIRED" }
                 }); 
             }
@@ -382,6 +382,31 @@ exports.deleteTarea = async (req, res) => {
   }
 };
 
+
+exports.enviarRecordatorioPush = async (req, res) => {
+    const { id } = req.params; // ID de la tarea
+
+    try {
+        // Buscamos la tarea y el usuario asignado
+        const tarea = await Tarea.findByPk(id, {
+            include: [{ model: Usuario, as: "AsignadoA" }]
+        });
+
+        if (!tarea || !tarea.AsignadoA) {
+            return res.status(404).json({ error: "No hay un técnico asignado a esta tarea" });
+        }
+
+        const titulo = "📌 Recordatorio de Tarea";
+        const mensaje = `no olvides revisar la tarea: ${tarea.titulo || 'Sin título'}`;
+
+        // Enviamos la push usando tu archivo push.js
+        await sendPushToUser(tarea.AsignadoA.id, titulo, mensaje, { tareaId: id });
+
+        res.json({ success: true, message: "Recordatorio enviado" });
+    } catch (error) {
+        res.status(500).json({ error: "Error al enviar el recordatorio" });
+    }
+};
 
 
 // ===============================
