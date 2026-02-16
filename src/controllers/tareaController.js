@@ -63,7 +63,7 @@ exports.solicitarTareaExpress = async (req, res) => {
         const mensaje = {
           notification: {
             title: "Nueva Solicitud de Tarea",
-            body: `${req.user.nombre} solicita crear la tarea: ${nombre}`,
+            body: `${nombreSolicitante} solicita crear la tarea: ${nombre}`,
           },
           token: adminUser.fcmToken,
         };
@@ -79,7 +79,7 @@ exports.solicitarTareaExpress = async (req, res) => {
             if (adminUser.fcmToken) { 
                 sendPushToUser(adminUser.fcmToken, {
                     title: "Nueva Solicitud de Tarea",
-                    body: `${req.user.nombre} solicita crear la tarea: ${nombre}`,
+                    body: `${nombreSolicitante} solicita crear la tarea: ${nombre}`,
                     data: { tareaId: nuevaTarea.id.toString(), type: "AUTH_REQUIRED" }
                 }); 
             }
@@ -130,7 +130,24 @@ exports.autorizarTarea = async (req, res) => {
         );
 
         // ✅ 🔔 Enviar notificación Push FCM
-    
+        try {
+      const usuarioAsignado = await Usuario.findByPk(usuarioAsignadoId);
+      if (usuarioAsignado && usuarioAsignado.fcmToken) {
+        const mensaje = {
+          notification: {
+            title: "Tarea Autorizada",
+            body: `Ya puedes Trabajar en la tarea: "${tarea.nombre}".`,
+          },
+          token: usuarioAsignado.fcmToken,
+        };
+        await admin.messaging().send(mensaje);
+        console.log("✅ Notificación FCM enviada a:", usuarioAsignado.nombre);
+      } else {
+        console.warn("⚠️ Usuario sin token FCM o no encontrado");
+      }
+    } catch (error) {
+      console.error("❌ Error enviando notificación FCM:", error);
+    }
 
     } catch (error) {
         res.status(500).json({ message: 'Error al autorizar tarea.' });
@@ -397,7 +414,7 @@ exports.enviarRecordatorioPush = async (req, res) => {
         }
 
         const titulo = "📌 Recordatorio de Tarea";
-        const mensaje = `no olvides revisar la tarea: ${tarea.titulo || 'Sin título'}`;
+        const mensaje = `no olvides revisar la tarea: ${tarea.nombre || 'Sin título'}`;
 
         // Enviamos la push usando tu archivo push.js
         await sendPushToUser(tarea.AsignadoA.id, titulo, mensaje, { tareaId: id });
