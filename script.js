@@ -1821,6 +1821,10 @@ function setupTareaModal() {
             return;
         }
     }
+
+    
+    // Mostrar loader
+    loader.style.display = 'flex';
         
         // Recolección de Datos del Formulario con NOMBRES DE BACKEND
         const data = {
@@ -1853,6 +1857,9 @@ function setupTareaModal() {
 
         }
     };
+
+    // Ocultar loader
+    loader.style.display = 'none';
     
     // Función para manejar el cierre al hacer clic fuera
     window.onclick = function(event) {
