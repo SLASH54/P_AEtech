@@ -27,6 +27,8 @@ const firebaseConfig = {
     appId: "1:742322294289:web:5bd9e894ad92dbef4dabb0"
 };
 
+
+
 // 2. Inicializar
 let messaging;
 
@@ -49,6 +51,9 @@ function inicializarPush() {
 }
 
 inicializarPush();
+
+
+
 
 // 3. Registrar Service Worker (Vital para iOS/Android)
 if ('serviceWorker' in navigator) {
