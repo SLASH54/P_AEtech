@@ -4621,7 +4621,7 @@ div#tareaExpressModal {
 
 /* css btn regresaer a tareas*/
 .btn-regresar-neon {
-    background: rgba(0, 255, 255, 0.1); /* Fondo transparente tipo cristal */
+  
     color: #00ffff; /* Color "awa" neón */
     border: 2px solid #00ffff;
     padding: 10px 20px;
