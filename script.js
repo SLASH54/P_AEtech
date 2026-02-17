@@ -4137,6 +4137,24 @@ async function cargarLevantamientosTabla() {
     });
 }
 
+// --- 2. TU NUEVA FUNCIÓN NEÓN (Regresar al menú) ---
+function regresarAlMenu() {
+    console.log("Intentando regresar...");
+    
+    // Ocultamos Actividades
+    const seccionActividades = document.getElementById("Actividades");
+    if(seccionActividades) seccionActividades.classList.remove("show");
+
+    // Mostramos el Menú (ID 'Usuarios' según tu index.html)
+    const seccionMenu = document.getElementById("Taras");
+    if(seccionMenu) {
+        seccionMenu.classList.add("show");
+    } else {
+        // Si no existe 'Usuarios', intentamos con la clase del contenedor
+        document.querySelector(".form-container")?.style.setProperty("display", "block");
+    }
+}
+
 
 
 /* ---------- EVENTOS (UNO SOLO) ---------- */
