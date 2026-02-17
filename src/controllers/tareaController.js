@@ -269,10 +269,10 @@ await Notificacion.create({
           notification: {
             title: "Nueva tarea asignada",
             body: `Se te ha asignado la tarea: "${tareaCreada.nombre}".`,
-            data: { 
-                click_action: "https://aetechprueba.netlify.app/sistema.html", // O la ruta específica de la tarea
-            }
           },
+          data: { 
+                click_action: "https://aetechprueba.netlify.app/sistema.html", // O la ruta específica de la tarea
+            },
           token: usuarioAsignado.fcmToken,
         };
         await admin.messaging().send(mensaje);
