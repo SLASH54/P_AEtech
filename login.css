@@ -939,7 +939,7 @@ main {
 }
 
 /* Estilo general sección organizador */
-#organizador-tareas {
+#organizadortareas {
     font-family: Arial, sans-serif;
     background: #fafafa;
     padding: 15px;
@@ -950,13 +950,13 @@ main {
 }
 
 /* Título */
-#organizador-tareas h2 {
+#organizadortareas h2 {
     margin-bottom: 15px;
     color: #333;
 }
 
 /* Controles: filtro y botón */
-#organizador-tareas > div:first-child {
+#organizadortareas > div:first-child {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -2624,7 +2624,7 @@ button:disabled {
 
 /* Responsivo del usuario (Teléfonos + Tabletas) */
 @media (max-width: 1180px) {
-    #organizador-tareas {
+    #organizadortareas {
         padding: 1rem;
     }
 

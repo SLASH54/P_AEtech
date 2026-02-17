@@ -881,7 +881,7 @@ function mostrarContenido(seccionId) {
 
 
     // 🔑 CLAVE: Agregar la inicialización de Tareas
-    if (seccionId === 'organizador-tareas') {
+    if (seccionId === 'organizadortareas') {
         initTareas();
     }
 
@@ -1384,7 +1384,7 @@ document.addEventListener('DOMContentLoaded', function () {
 // ... Asumiendo que tus funciones loginUser, checkAuth, logout, fetchData, mostrarContenido, initAdminPanel, y openEditModal (para el modal de admin) ya están aquí.
 
 // =========================================================================
-// GESTIÓN DE TAREAS (ID: organizador-tareas)
+// GESTIÓN DE TAREAS (ID: organizadortareas)
 // =========================================================================
 
 /**
@@ -4146,7 +4146,7 @@ function regresarAlMenu() {
     if(seccionActividades) seccionActividades.classList.remove("show");
 
     // Mostramos el Menú (ID 'Usuarios' según tu index.html)
-    const seccionMenu = document.getElementById("organizador-tareas");
+    const seccionMenu = document.getElementById("organizadortareas");
     if(seccionMenu) {
         seccionMenu.classList.add("show");
     } else {
