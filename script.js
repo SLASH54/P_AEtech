@@ -28,8 +28,27 @@ const firebaseConfig = {
 };
 
 // 2. Inicializar
-firebase.initializeApp(firebaseConfig);
-const messaging = firebase.messaging();
+let messaging;
+
+// Función para inicializar cuando todo esté listo
+function inicializarPush() {
+    if (typeof firebase !== 'undefined') {
+        firebase.initializeApp(firebaseConfig);
+        messaging = firebase.messaging();
+        console.log("🔥 Firebase listo y conectado");
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/firebase-messaging-sw.js')
+                .then(reg => console.log('✅ Service Worker registrado'))
+                .catch(err => console.error('❌ Error SW:', err));
+        }
+    } else {
+        // Si no ha cargado, esperamos medio segundo y reintentamos
+        setTimeout(inicializarPush, 500);
+    }
+}
+
+inicializarPush();
 
 // 3. Registrar Service Worker (Vital para iOS/Android)
 if ('serviceWorker' in navigator) {
