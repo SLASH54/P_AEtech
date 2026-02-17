@@ -17,6 +17,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+// En tu script.js
+firebase.initializeApp(firebaseConfig);
+const messaging = firebase.messaging();
+
+// Escuchar mensajes (Frontend)
+messaging.onMessage((payload) => {
+    console.log("🔔 Mensaje recibido en primer plano, pero dejo que el SW lo muestre.");
+    // NO pongas new Notification() aquí para que no salga doble.
+});
 
 // Función para desplegar/ocultar el menú en móviles
 function toggleMenu() {
