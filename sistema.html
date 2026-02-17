@@ -826,6 +826,10 @@
 
 
 <section id="Actividades" class="main-content">
+ <button type="button" onclick="regresarAlMenu()" class="btn-regresar-neon">
+    <i class="fa-solid fa-chevron-left"></i> Volver
+</button>
+
   <h2 class="titulo-seccion">📸 Registro de Evidencias</h2>
 
   <div id="contenedor-evidencias" class="evidencias-grid">
@@ -886,6 +890,11 @@
   </div>
 </section>
 
+
+
+
+
+
   <div id="editModal" class="modal">
   <div class="modal-content">
     <span class="close-button" onclick="closeModal('editModal')">&times;</span>
@@ -932,6 +941,9 @@
   </div>
 </div>
    
+
+
+
     <script>
 
 
@@ -2310,6 +2322,17 @@ async function pdfLevantamiento(id) {
     }
 }
 
+//voton regresar evidencuas 
+function regresarAlMenu() {
+    // 1. Ocultas las fotos
+    document.getElementById("Actividades").classList.remove("show");
+    
+    // 2. Prendes el menú (en tu código el ID principal es 'Usuarios')
+    const menu = document.getElementById("Usuarios");
+    if (menu) {
+        menu.classList.add("show");
+    }
+}
 
 //si llegas a leer esto me aburri tanto que empece a poner cosas bien randoms por que me aburri y gemini me dijo que pusiera cosas clave xd 
 

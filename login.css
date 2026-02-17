@@ -4618,3 +4618,36 @@ div#tareaExpressModal {
     border-radius: 10px;
     background: white;
 }
+
+/* css btn regresaer a tareas*/
+.btn-regresar-neon {
+    background: rgba(0, 255, 255, 0.1); /* Fondo transparente tipo cristal */
+    color: #00ffff; /* Color "awa" neón */
+    border: 2px solid #00ffff;
+    padding: 10px 20px;
+    border-radius: 50px; /* Estilo iOS redondeado */
+    font-weight: bold;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+    
+    /* El brillo Neón (glow) */
+    box-shadow: 0 0 5px #00ffff, 0 0 15px rgba(0, 255, 255, 0.5);
+    transition: all 0.3s ease-in-out;
+}
+
+.btn-regresar-neon:hover {
+    background: #00ffff;
+    color: #000;
+    box-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff;
+    transform: translateY(-2px); /* Pequeño levante tipo iOS */
+}
+
+.btn-regresar-neon:active {
+    transform: scale(0.95); /* Efecto de presión al tocarlo */
+}
