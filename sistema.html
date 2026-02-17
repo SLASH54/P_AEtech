@@ -1225,6 +1225,79 @@
 
 <script>
 
+    
+// 1. Configuración de Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyBa6KYyhwI4scIblnOY_VKb-1kSwwO9_Ts",
+    authDomain: "aetech-notificaciones.firebaseapp.com",
+    projectId: "aetech-notificaciones",
+    storageBucket: "aetech-notificaciones.firebasestorage.app",
+    messagingSenderId: "742322294289",
+    appId: "1:742322294289:web:5bd9e894ad92dbef4dabb0"
+};
+
+// 2. Inicializar
+firebase.initializeApp(firebaseConfig);
+const messaging = firebase.messaging();
+
+// 3. Registrar Service Worker (Vital para iOS/Android)
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/firebase-messaging-sw.js')
+    .then(reg => console.log('✅ SW registrado'))
+    .catch(err => console.error('❌ Error SW:', err));
+}
+
+// 4. LA FUNCIÓN MÁGICA (Ahora sí es global)
+async function solicitarPermisoNotificaciones() {
+    try {
+        console.log("Solicitando permiso...");
+        const permission = await Notification.requestPermission();
+        
+        if (permission === "granted") {
+            // Obtenemos el token
+            const tokenFCM = await messaging.getToken({
+                vapidKey: "BOTEAlz-7hYedgFy9YSbo3txG_14XJaf0tt4qCCwS3ifs67umn8UDn5fLirfmTmSh17P5r_cUMhrL8uDnZsiWys"
+            });
+
+            if (tokenFCM) {
+                console.log("✅ Token FCM:", tokenFCM);
+                const jwt = localStorage.getItem("accessToken");
+                
+                // Guardamos en el backend
+                const response = await fetch(`${API_BASE_URL}/users/me/fcm-token`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${jwt}`
+                    },
+                    body: JSON.stringify({ fcmToken: tokenFCM })
+                });
+
+                if (response.ok) {
+                    alert("🔔 ¡Notificaciones activadas!");
+                    if(document.getElementById("notif-banner")) {
+                        document.getElementById("notif-banner").style.display = "none";
+                    }
+                }
+            }
+        } else {
+            alert("⚠️ Permiso denegado.");
+        }
+    } catch (err) {
+        console.error("⚠️ Error en push:", err);
+        alert("Error al activar notificaciones. Intenta desde Safari en iOS.");
+    }
+}
+
+// 5. Escuchar mensajes cuando la app está abierta
+messaging.onMessage((payload) => {
+    console.log("🔔 Mensaje recibido en primer plano:", payload);
+    const { title, body } = payload.notification;
+    // Mostrar notificación nativa si el navegador lo permite
+    new Notification(title, { body, icon: "/img/logoAEtech.png" });
+});
+
+
     let levantamientoEditando = null;
     let levantamientosCache = [];
 
