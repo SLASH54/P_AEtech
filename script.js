@@ -4146,7 +4146,7 @@ function regresarAlMenu() {
     if(seccionActividades) seccionActividades.classList.remove("show");
 
     // Mostramos el Menú (ID 'Usuarios' según tu index.html)
-    const seccionMenu = document.getElementById("Taras");
+    const seccionMenu = document.getElementById("organizador-tareas");
     if(seccionMenu) {
         seccionMenu.classList.add("show");
     } else {
