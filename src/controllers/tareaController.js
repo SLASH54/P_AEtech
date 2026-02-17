@@ -137,25 +137,7 @@ exports.autorizarTarea = async (req, res) => {
           }
         );
 
-        // ✅ 🔔 Enviar notificación Push FCM
-        try {
-      const usuarioAsignado = await Usuario.findByPk(usuarioAsignadoId);
-      if (usuarioAsignado && usuarioAsignado.fcmToken) {
-        const mensaje = {
-          notification: {
-            title: "Tarea Autorizada",
-            body: `Ya puedes Trabajar en la tarea: "${tarea.nombre}".`,
-          },
-          token: usuarioAsignado.fcmToken,
-        };
-        await admin.messaging().send(mensaje);
-        console.log("✅ Notificación FCM enviada a:", usuarioAsignado.nombre);
-      } else {
-        console.warn("⚠️ Usuario sin token FCM o no encontrado");
-      }
-    } catch (error) {
-      console.error("❌ Error enviando notificación FCM:", error);
-    }
+        
 
 
     } catch (error) {

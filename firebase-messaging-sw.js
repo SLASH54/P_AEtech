@@ -45,6 +45,8 @@ messaging.onBackgroundMessage(function (payload) {
   const notificationOptions = {
     body: payload.notification.body,
     icon: '/img/logoAEtech.png',
+    vibrate: [200, 100, 200, 100, 200], 
+    badge: '/img/logoAEtech.png',
     data: {
         // Guardamos la URL aquí para que el evento de arriba la lea
         click_action: payload.data?.click_action || '/sistema.html'
