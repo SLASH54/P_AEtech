@@ -3694,10 +3694,23 @@ script2.onload = () => {
     messagingSenderId: "742322294289",
     appId: "1:742322294289:web:5bd9e894ad92dbef4dabb0",
     measurementId: "G-ZLZ2LWQ1XE"
-  };
+};
 
-  firebase.initializeApp(firebaseConfig);
-  const messaging = firebase.messaging();
+// 🛡️ CONTROL DE INSTANCIA ÚNICA
+let messaging;
+
+if (!firebase.apps.length) {
+    // Si no hay ninguna app iniciada, la prendemos
+    firebase.initializeApp(firebaseConfig);
+    console.log("🔥 Firebase inicializado correctamente");
+} else {
+    // Si ya existe, usamos la que ya está en memoria
+    firebase.app();
+    console.log("✅ Firebase ya estaba activo, evitando duplicados");
+}
+
+// Inicializamos messaging después de verificar la app
+messaging = firebase.messaging();
 
   // Registrar el service worker antes de pedir permisos
 if ('serviceWorker' in navigator) {
