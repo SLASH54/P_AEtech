@@ -4682,83 +4682,101 @@ div#tareaExpressModal {
 
 
 
-/* --- CONFIGURACIÓN GENERAL PARA BOTONES DE TAREA --- */
-.container-acciones button, 
-button.text-red-600, 
-button.btn-recordatorio, 
-button.text-indigo-600, 
-button.text-green-600, 
-button.text-purple-600 {
-    /* Tamaño uniforme */
-    width: 110px; 
-    height: 38px;
-    margin: 5px;
-    border: none;
-    border-radius: 12px;
-    font-weight: 600;
-    font-size: 13px;
+/* --- ESTILO iOS GLASS (CRISTAL ESMERILADO) --- */
+button.text-red-600.hover\:text-red-900,
+button.btn-recordatorio,
+button.text-indigo-600.hover\:text-indigo-900.mr-3,
+button.text-green-600.hover\:text-green-900,
+button.inline-block.px-3.py-1.text-sm.rounded.bg-green-600.text-white,
+button.text-purple-600.hover\:text-purple-900.ml-2 {
+    
+    /* 📏 Tamaño y Forma tipo iOS Pill */
+    width: 120px !important;
+    height: 36px !important;
+    border-radius: 50px !important;
+    
+    /* 🍏 Base de Cristal */
+    border: 1px solid rgba(255, 255, 255, 0.3); /* Borde fino de cristal */
     cursor: pointer;
+    font-weight: 500; /* iOS usa fuentes más limpias y no tan pesadas */
+    font-size: 12px;
     color: white !important;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s ease;
-    
-    /* 💧 EFECTO AGUA/GLOSSY */
     position: relative;
     overflow: hidden;
-    box-shadow: inset 0 2px 5px rgba(255, 255, 255, 0.4), 
-                0 4px 10px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(4px);
+    
+    /* ✨ El secreto de iOS: Blur de fondo */
+    backdrop-filter: blur(10px); 
+    -webkit-backdrop-filter: blur(10px);
+    
+    /* Sombra muy suave */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Efecto de brillo de agua al pasar el mouse */
-.container-acciones button:hover {
-    transform: translateY(-2px);
-    box-shadow: inset 0 20px 20px rgba(255, 255, 255, 0.2), 
-                0 6px 15px rgba(0, 0, 0, 0.15);
-}
+/* 🎨 COLORES ESTILO iOS (Traslúcidos) */
 
-/* --- COLORES ELEGANTES Y VIBRANTES --- */
-
-/* Rojo Suave (Eliminar) */
+/* Rojo iOS (Eliminar) */
 button.text-red-600.hover\:text-red-900 {
-    background: linear-gradient(180deg, #ff7675 0%, #d63031 100%) !important;
+    background: rgba(255, 59, 48, 0.7) !important; /* Red */
 }
 
-/* Morado Eléctrico (Recordatorio) */
+/* Morado iOS (Recordatorio) */
 button.btn-recordatorio {
-    background: linear-gradient(180deg, #a29bfe 0%, #6c5ce7 100%) !important;
+    background: rgba(175, 82, 222, 0.7) !important; /* Purple */
 }
 
-/* Cian / Turquesa (Editar) */
+/* Azul iOS (Editar) */
 button.text-indigo-600.hover\:text-indigo-900.mr-3 {
-    background: linear-gradient(180deg, #81ecec 0%, #00cec9 100%) !important;
+    background: rgba(0, 122, 255, 0.7) !important; /* Blue */
 }
 
-/* Verde Esmeralda (Completar) */
+/* Verde iOS (Completar) */
 button.text-green-600.hover\:text-green-900 {
-    background: linear-gradient(180deg, #55efc4 0%, #00b894 100%) !important;
+    background: rgba(52, 199, 89, 0.7) !important; /* Green */
 }
 
-/* Naranja Atardecer (Express) */
-button.inline-block.px-3.py-1.text-sm.rounded.bg-green-600.text-white.hover\:bg-green-700.ml-2 {
-    background: linear-gradient(180deg, #fab1a0 0%, #e17055 100%) !important;
+/* Naranja iOS (Express) */
+button.inline-block.px-3.py-1.text-sm.rounded.bg-green-600.text-white {
+    background: rgba(255, 149, 0, 0.7) !important; /* Orange */
 }
 
-/* Rosa Orquídea (Detalles/Otros) */
+/* Rosa/Pink iOS (Detalles) */
 button.text-purple-600.hover\:text-purple-900.ml-2 {
-    background: linear-gradient(180deg, #fd79a8 0%, #e84393 100%) !important;
+    background: rgba(255, 45, 85, 0.7) !important; /* Pink */
 }
 
-/* Reflejo de luz superior para el efecto agua */
-.container-acciones button::before {
+/* 🧊 EFECTO DE LUZ (Reflejo de cristal) */
+button::after {
     content: "";
     position: absolute;
     top: 0;
-    left: 0;
+    left: -100%;
     width: 100%;
-    height: 50%;
-    background: linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%);
-    pointer-events: none;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+    );
+    transition: 0.5s;
+}
+
+/* ⚡️ INTERACCIÓN TIPO IPHONE */
+button:hover {
+    transform: scale(1.05);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+button:hover::after {
+    left: 100%; /* El destello cruza el botón */
+}
+
+button:active {
+    transform: scale(0.95); /* Efecto de presión al tocar */
+    filter: brightness(0.9);
 }
