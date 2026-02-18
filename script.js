@@ -4220,25 +4220,29 @@ function checkNuevaActividad(select) {
 }
 
 // 🕵️ Función para detectar acciones desde la URL (Notificaciones)
-function revisarAccionesUrl() {
+function detectarNotificacionTarea() {
     const urlParams = new URLSearchParams(window.location.search);
-    const accion = urlParams.get('action');
-
-    if (accion === 'abrirTareas') {
-        console.log("🚀 Acción detectada: Abriendo Organizador de Tareas...");
-        
-        // Usamos un pequeño delay para asegurar que el DOM esté listo
+    
+    if (urlParams.get('open') === 'tareas') {
         setTimeout(() => {
-            // Buscamos tu función mostrarContenido que ya usas en el menú
+            // Intentamos usar tu función oficial del sistema
             if (typeof mostrarContenido === "function") {
-                mostrarContenido('organizadortareas'); 
+                mostrarContenido('organizadortareas');
             } else {
-                // Si no tienes mostrarContenido global, simulamos el clic en el botón del menú
-                document.querySelector('[onclick*="organizadortareas"]')?.click();
+                // Si no, lo hacemos manual
+                // Ocultamos el Tablero que es lo que suele estar abierto
+                const tablero = document.getElementById('Tablero');
+                if (tablero) tablero.classList.remove('show');
+
+                const seccionTareas = document.getElementById('organizadortareas');
+                if (seccionTareas) {
+                    seccionTareas.classList.add('show');
+                }
             }
-        }, 1000); // 1 segundo de espera
+            // Limpia la URL para que no se abra solo al recargar
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }, 1000); 
     }
 }
 
-// Ejecutar cada vez que carga la página
-document.addEventListener("DOMContentLoaded", revisarAccionesUrl);
+window.addEventListener('load', detectarNotificacionTarea);

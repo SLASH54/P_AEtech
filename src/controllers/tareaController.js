@@ -248,19 +248,17 @@ try {
   const usuarioAsignado = await Usuario.findByPk(usuarioAsignadoId);
   if (usuarioAsignado && usuarioAsignado.fcmToken) {
 
-    const mensaje = {
-      notification: {
-        title: "Nueva tarea asignada",
-        body: `Se te ha asignado la tarea: "${tareaCreada.nombre}".`,
-      },
-      data: { 
-          // 🚩 ESTE ES EL CAMBIO CLAVE:
-          // Agregamos el parámetro ?action=abrirTareas a tu URL
-          click_action: "https://aetechprueba.netlify.app/sistema.html?action=abrirTareas",
-          tareaId: String(tareaCreada.id) 
-      },
-      token: usuarioAsignado.fcmToken,
-    };
+   const mensaje = {
+  notification: {
+    title: "Nueva tarea asignada",
+    body: `Se te ha asignado la tarea: "${tareaCreada.nombre}".`,
+  },
+  data: { 
+      // Enviamos la marca en la URL
+      click_action: "https://aetechprueba.netlify.app/sistema.html?open=tareas",
+  },
+  token: usuarioAsignado.fcmToken,
+};
 
     await admin.messaging().send(mensaje);
     console.log("✅ Notificación FCM enviada a:", usuarioAsignado.nombre);

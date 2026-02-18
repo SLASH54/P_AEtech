@@ -16,26 +16,26 @@ const messaging = firebase.messaging();
 
 // ✅ ESTO ES LO QUE FALTA: Manejar el click
 self.addEventListener('notificationclick', function(event) {
-  event.notification.close();
+    event.notification.close();
+    
+    // Si la data trae la URL, úsala
+    const urlToOpen = event.notification.data?.click_action || '/sistema.html?open=tareas';
 
-  // Lee la URL que mandamos desde el backend
-  const urlToOpen = event.notification.data?.click_action || 'https://aetechprueba.netlify.app/sistema.html';
-
-  event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(windowClients) {
-      // Si la pestaña ya está abierta, navega a la URL con el parámetro y dale foco
-      for (var i = 0; i < windowClients.length; i++) {
-        var client = windowClients[i];
-        if ('focus' in client) {
-          return client.navigate(urlToOpen).then(c => c.focus());
-        }
-      }
-      // Si no hay pestañas abiertas, abre una nueva
-      if (clients.openWindow) {
-        return clients.openWindow(urlToOpen);
-      }
-    })
-  );
+    event.waitUntil(
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(windowClients) {
+            for (var i = 0; i < windowClients.length; i++) {
+                var client = windowClients[i];
+                // Si ya está abierto el sistema, le mandamos la nueva URL con el parámetro
+                if ('focus' in client) {
+                    return client.navigate(urlToOpen).then(c => c.focus());
+                }
+            }
+            // Si está cerrado, abre una ventana nueva
+            if (clients.openWindow) {
+                return clients.openWindow(urlToOpen);
+            }
+        })
+    );
 });
 
 // Recibir en segundo plano
