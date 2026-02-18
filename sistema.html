@@ -340,15 +340,17 @@
 
 
    <div class="mb-4">
-                    <label>Actividad</label>
-<select id="task-actividad-select" onchange="checkNuevaActividad(this)">
-    <option value="">Selecciona una actividad...</option>
-    <option value="OTRA" style="color: #00ffff; font-weight: bold;">+ Agregar nueva actividad...</option>
-</select>
+                    <label for="tareaActividadId" class="block text-sm font-medium text-gray-700">Tipo de
+                        Actividad</label>
+                    <select id="tareaActividadId" name="actividad" required onchange="checkNuevaActividad(this)" >
+                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="" disabled selected>-- Seleccione Actividad --</option>
+                        <option value="OTRA" style="color: #00ffff; font-weight: bold;">+ Agregar nueva actividad...</option>
+                    </select>
 
-<div id="wrapper-nueva-actividad" style="display: none; margin-top: 10px;">
-    <input type="text" id="nueva-actividad-nombre" class="input-neon" placeholder="Escribe el nombre de la nueva actividad">
-</div>
+                    <div id="wrapper-nueva-actividad" style="display: none; margin-top: 10px;">
+                        <input type="text" id="nueva-actividad-nombre" class="input-neon" placeholder="Escribe el nombre de la nueva actividad">
+                    </div>
                 </div>
 
 
