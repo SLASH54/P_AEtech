@@ -4681,8 +4681,7 @@ div#tareaExpressModal {
 }
 
 
-/* --- BOTONES iOS CRYSTAL PILL (110x38px - SIEMPRE IGUALES) --- */
-.container-acciones button,
+/* --- ESTILO iOS GLASS PILL (TAMAÑO FIJO INAMOVIBLE) --- */
 button.text-red-600.hover\:text-red-900,
 button.btn-recordatorio,
 button.text-indigo-600.hover\:text-indigo-900.mr-3,
@@ -4690,104 +4689,73 @@ button.text-green-600.hover\:text-green-900,
 button.inline-block.px-3.py-1.text-sm.rounded.bg-green-600.text-white,
 button.text-purple-600.hover\:text-purple-900.ml-2 {
     
-    /* 📏 TAMAÑO EXACTO SOLICITADO */
-    width: 110px !important;
-    min-width: 110px !important;
-    max-width: 110px !important;
+    /* 📏 MEDIDAS FIJAS (No cambian con nada) */
+    width: 130px !important;
+    min-width: 130px !important;
+    max-width: 130px !important;
     height: 38px !important;
-    margin: 5px;
-    padding: 0 !important;
+    padding: 0 !important; /* Evita que el texto empuje los bordes */
     
-    /* 💊 FORMA REDONDEADA TOTAL (ESTILO PILL) */
+    /* 💊 Forma y Borde */
     border-radius: 50px !important;
-    
-    /* 🧊 GLASSMORPHISM iOS */
     border: 1px solid rgba(255, 255, 255, 0.4);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-
-    /* ✨ TEXTO ELEGANTE */
-    font-weight: 700;
-    font-size: 10px; /* Un poco más pequeña para que quepa bien en 110px */
+    
+    /* ✨ Tipografía iOS */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: white !important;
+    
+    /* 🧊 Glassmorphism */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
 }
 
-/* 🎨 COLORES iOS CON RESPLANDOR (GLOW) */
+/* 🎨 COLORES iOS TRASLÚCIDOS */
+button.text-red-600 { background: rgba(255, 59, 48, 0.6) !important; }      /* Rojo */
+button.btn-recordatorio { background: rgba(175, 82, 222, 0.6) !important; } /* Morado */
+button.text-indigo-600 { background: rgba(0, 122, 255, 0.6) !important; }   /* Azul */
+button.text-green-600 { background: rgba(52, 199, 89, 0.6) !important; }    /* Verde */
+button.bg-green-600.text-white { background: rgba(255, 149, 0, 0.6) !important; } /* Naranja */
+button.text-purple-600 { background: rgba(255, 45, 85, 0.6) !important; }   /* Rosa */
 
-/* Rojo (Eliminar) */
-button.text-red-600 { 
-    background: rgba(255, 59, 48, 0.6) !important;
-    box-shadow: 0 4px 12px rgba(255, 59, 48, 0.3);
+/* 🚫 ESTADO DESACTIVADO (Mantiene el tamaño pero se ve opaco) */
+button:disabled {
+    opacity: 0.4 !important;
+    cursor: not-allowed !important;
+    filter: grayscale(0.5); /* Se ve un poco más grisáceo */
+    transform: none !important; /* No se mueve al pasar el mouse */
 }
-button.text-red-600:hover { box-shadow: 0 0 15px rgba(255, 59, 48, 0.7); }
 
-/* Morado (Recordatorio) */
-button.btn-recordatorio { 
-    background: rgba(175, 82, 222, 0.6) !important;
-    box-shadow: 0 4px 12px rgba(175, 82, 222, 0.3);
+/* ⚡️ INTERACCIÓN (Solo si no está desactivado) */
+button:not(:disabled):hover {
+    transform: scale(1.03);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+   
+
 }
-button.btn-recordatorio:hover { box-shadow: 0 0 15px rgba(175, 82, 222, 0.7); }
 
-/* Azul (Editar) */
-button.text-indigo-600 { 
-    background: rgba(0, 122, 255, 0.6) !important;
-    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+button:not(:disabled):active {
+    transform: scale(0.96);
 }
-button.text-indigo-600:hover { box-shadow: 0 0 15px rgba(0, 122, 255, 0.7); }
 
-/* Verde (Completar) */
-button.text-green-600 { 
-    background: rgba(52, 199, 89, 0.6) !important;
-    box-shadow: 0 4px 12px rgba(52, 199, 89, 0.3);
-}
-button.text-green-600:hover { box-shadow: 0 0 15px rgba(52, 199, 89, 0.7); }
-
-/* Naranja (Express) */
-button.bg-green-600.text-white { 
-    background: rgba(255, 149, 0, 0.6) !important;
-    box-shadow: 0 4px 12px rgba(255, 149, 0, 0.3);
-}
-button.bg-green-600.text-white:hover { box-shadow: 0 0 15px rgba(255, 149, 0, 0.7); }
-
-/* Rosa (Otros/Detalles) */
-button.text-purple-600 { 
-    background: rgba(255, 45, 85, 0.6) !important;
-    box-shadow: 0 4px 12px rgba(255, 45, 85, 0.3);
-}
-button.text-purple-600:hover { box-shadow: 0 0 15px rgba(255, 45, 85, 0.7); }
-
-/* 💧 REFLEJO DE AGUA SUPERIOR */
+/* Reflejo de cristal superior */
 button::before {
     content: "";
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height: 50%;
-    background: linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, transparent 100%);
+    height: 100%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, transparent 50%);
+    border-radius: 50px;
     pointer-events: none;
-}
-
-/* ⚡️ EFECTO AL OCUPARLOS (CLICK) */
-button:active {
-    transform: scale(0.92) !important;
-    filter: brightness(1.3);
-    box-shadow: inset 0 0 8px rgba(255,255,255,0.6) !important;
-}
-
-/* 🚫 MANTENER TAMAÑO SI SE DESACTIVAN */
-button:disabled {
-    opacity: 0.4 !important;
-    cursor: not-allowed !important;
-    box-shadow: none !important;
-    transform: none !important;
 }
