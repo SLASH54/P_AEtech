@@ -1536,25 +1536,34 @@ async function loadActividadesForTareaSelect() {
     const actividadSelect = document.getElementById('tareaActividadId');
     if (!actividadSelect) return;
 
+    // 1. Mensaje temporal de carga
     actividadSelect.innerHTML = '<option value="" disabled selected>-- Cargando Actividades... --</option>';
 
     const actividades = await fetchData('/actividades'); 
     
+    // 2. Limpiamos y ponemos la opción por defecto
     actividadSelect.innerHTML = '<option value="" disabled selected>-- Seleccione Actividad --</option>';
 
     if (actividades && Array.isArray(actividades) && actividades.length > 0) {
         actividades.forEach(actividad => {
             const option = document.createElement('option');
-            option.value = actividad._id || actividad.id; // Asume que el ID es la clave
-            option.textContent = actividad.nombre; // O el campo que uses para el nombre de la actividad
+            option.value = actividad._id || actividad.id;
+            option.textContent = actividad.nombre;
             actividadSelect.appendChild(option);
         });
-    } else {
-        const errorMessage = (actividades === null) 
-            ? 'No tienes permisos para ver actividades.' 
-            : 'No se encontraron actividades.';
-            
-        actividadSelect.innerHTML = `<option value="" disabled selected>${errorMessage}</option>`;
+    }
+
+    // 3. ✨ LA CLAVE: Volvemos a inyectar la opción de "OTRA" al final de la lista
+    const optionOtra = document.createElement('option');
+    optionOtra.value = "OTRA";
+    optionOtra.textContent = "+ Agregar nueva actividad...";
+    optionOtra.style.color = "#00ffff"; // Tu estilo awa
+    optionOtra.style.fontWeight = "bold";
+    actividadSelect.appendChild(optionOtra);
+    
+    // Si hubo error de permisos, podrías avisar pero dejar el "OTRA" activo
+    if (!actividades) {
+        console.warn("No se pudieron cargar actividades del server.");
     }
 }
 
