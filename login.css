@@ -4681,9 +4681,7 @@ div#tareaExpressModal {
 }
 
 
-
-/* --- BOTONES iOS CRYSTAL PILL (110x38px - SIEMPRE IGUALES) --- */
-.container-acciones button,
+/* --- BOTONES iOS CRYSTAL GLOW (TAMAÑO FIJO E INAMOVIBLE) --- */
 button.text-red-600.hover\:text-red-900,
 button.btn-recordatorio,
 button.text-indigo-600.hover\:text-indigo-900.mr-3,
@@ -4691,98 +4689,103 @@ button.text-green-600.hover\:text-green-900,
 button.inline-block.px-3.py-1.text-sm.rounded.bg-green-600.text-white,
 button.text-purple-600.hover\:text-purple-900.ml-2 {
     
-    /* 📏 TAMAÑO EXACTO SOLICITADO */
-    width: 110px !important;
-    min-width: 110px !important;
-    max-width: 110px !important;
-    height: 38px !important;
-    margin: 5px;
+    /* 📏 MEDIDAS BLINDADAS */
+    width: 130px !important;
+    min-width: 130px !important;
+    max-width: 130px !important;
+    height: 40px !important;
     padding: 0 !important;
     
-    /* 💊 FORMA REDONDEADA TOTAL (ESTILO PILL) */
+    /* 💊 Forma iOS */
     border-radius: 50px !important;
-    
-    /* 🧊 GLASSMORPHISM iOS */
     border: 1px solid rgba(255, 255, 255, 0.4);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    
+    /* ✨ Tipografía */
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: white !important;
+    
+    /* 🧊 Base de Cristal */
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     position: relative;
     overflow: hidden;
     cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-
-    /* ✨ TEXTO ELEGANTE */
-    font-weight: 700;
-    font-size: 10px; /* Un poco más pequeña para que quepa bien en 110px */
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: white !important;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-/* 🎨 COLORES iOS CON RESPLANDOR (GLOW) */
+/* 🎨 COLORES CON RESPLANDOR (GLOW) */
 
-/* Rojo (Eliminar) */
+/* Rojo - Peligro/Eliminar */
 button.text-red-600 { 
     background: rgba(255, 59, 48, 0.6) !important;
-    box-shadow: 0 4px 12px rgba(255, 59, 48, 0.3);
+    box-shadow: 0 4px 15px rgba(255, 59, 48, 0.3);
 }
-button.text-red-600:hover { box-shadow: 0 0 15px rgba(255, 59, 48, 0.7); }
+button.text-red-600:hover { box-shadow: 0 0 20px rgba(255, 59, 48, 0.6); }
 
-/* Morado (Recordatorio) */
+/* Morado - Recordatorio */
 button.btn-recordatorio { 
     background: rgba(175, 82, 222, 0.6) !important;
-    box-shadow: 0 4px 12px rgba(175, 82, 222, 0.3);
+    box-shadow: 0 4px 15px rgba(175, 82, 222, 0.3);
 }
-button.btn-recordatorio:hover { box-shadow: 0 0 15px rgba(175, 82, 222, 0.7); }
+button.btn-recordatorio:hover { box-shadow: 0 0 20px rgba(175, 82, 222, 0.6); }
 
-/* Azul (Editar) */
+/* Azul - Editar */
 button.text-indigo-600 { 
     background: rgba(0, 122, 255, 0.6) !important;
-    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3);
 }
-button.text-indigo-600:hover { box-shadow: 0 0 15px rgba(0, 122, 255, 0.7); }
+button.text-indigo-600:hover { box-shadow: 0 0 20px rgba(0, 122, 255, 0.6); }
 
-/* Verde (Completar) */
+/* Verde - Completar */
 button.text-green-600 { 
     background: rgba(52, 199, 89, 0.6) !important;
-    box-shadow: 0 4px 12px rgba(52, 199, 89, 0.3);
+    box-shadow: 0 4px 15px rgba(52, 199, 89, 0.3);
 }
-button.text-green-600:hover { box-shadow: 0 0 15px rgba(52, 199, 89, 0.7); }
+button.text-green-600:hover { box-shadow: 0 0 20px rgba(52, 199, 89, 0.6); }
 
-/* Naranja (Express) */
+/* Naranja - Express */
 button.bg-green-600.text-white { 
     background: rgba(255, 149, 0, 0.6) !important;
-    box-shadow: 0 4px 12px rgba(255, 149, 0, 0.3);
+    box-shadow: 0 4px 15px rgba(255, 149, 0, 0.3);
 }
-button.bg-green-600.text-white:hover { box-shadow: 0 0 15px rgba(255, 149, 0, 0.7); }
+button.bg-green-600.text-white:hover { box-shadow: 0 0 20px rgba(255, 149, 0, 0.6); }
 
-/* Rosa (Otros/Detalles) */
+/* Rosa - Otros */
 button.text-purple-600 { 
     background: rgba(255, 45, 85, 0.6) !important;
-    box-shadow: 0 4px 12px rgba(255, 45, 85, 0.3);
+    box-shadow: 0 4px 15px rgba(255, 45, 85, 0.3);
 }
-button.text-purple-600:hover { box-shadow: 0 0 15px rgba(255, 45, 85, 0.7); }
+button.text-purple-600:hover { box-shadow: 0 0 20px rgba(255, 45, 85, 0.6); }
 
-/* 💧 REFLEJO DE AGUA SUPERIOR */
+/* 🌟 EFECTO DE RESPLANDOR INTERNO (AGUA) */
 button::before {
     content: "";
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 50%;
-    background: linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, transparent 100%);
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s;
     pointer-events: none;
 }
 
-/* ⚡️ EFECTO AL OCUPARLOS (CLICK) */
+button:hover::before {
+    opacity: 1;
+}
+
+/* ⚡️ INTERACCIÓN AL OCUPARLOS (CLICK) */
 button:active {
-    transform: scale(0.92) !important;
-    filter: brightness(1.3);
-    box-shadow: inset 0 0 8px rgba(255,255,255,0.6) !important;
+    transform: scale(0.92) !important; /* Se hunde al presionar */
+    filter: brightness(1.2);
+    box-shadow: inset 0 0 10px rgba(255,255,255,0.5) !important;
 }
 
 /* 🚫 MANTENER TAMAÑO SI SE DESACTIVAN */
