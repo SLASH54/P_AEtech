@@ -4679,3 +4679,30 @@ div#tareaExpressModal {
     width: 100%;
     box-shadow: 0 0 5px rgba(0, 255, 255, 0.2);
 }
+
+
+
+/* Estilo para botones de tareas */
+button.text-red-600.hover\:text-red-900 {
+    background: #ff4444;
+}
+
+button.btn-recordatorio {
+    background: #d244ffb5;
+}
+
+button.text-indigo-600.hover\:text-indigo-900.mr-3 {
+    background: #57d3e3;
+}
+
+button.text-green-600.hover\:text-green-900 {
+    background: #119b16cf;
+}
+
+button.inline-block.px-3.py-1.text-sm.rounded.bg-green-600.text-white.hover\:bg-green-700.ml-2 {
+    background: #ff5722b0;
+}
+
+button.text-purple-600.hover\:text-purple-900.ml-2 {
+    background: #e91e6385;
+}
