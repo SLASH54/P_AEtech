@@ -16,22 +16,21 @@ const messaging = firebase.messaging();
 
 // ✅ ESTO ES LO QUE FALTA: Manejar el click
 self.addEventListener('notificationclick', function(event) {
-  event.notification.close(); // Cierra el globito de la notificación
+  event.notification.close();
 
-  // Definimos a dónde queremos mandar al usuario
-  // Si mandaste una URL en los datos, la usamos, si no, al inicio
+  // Lee la URL que mandamos desde el backend
   const urlToOpen = event.notification.data?.click_action || 'https://aetechprueba.netlify.app/sistema.html';
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(windowClients) {
-      // Si la app ya está abierta, solo le damos foco
+      // Si la pestaña ya está abierta, navega a la URL con el parámetro y dale foco
       for (var i = 0; i < windowClients.length; i++) {
         var client = windowClients[i];
-        if (client.url.includes(urlToOpen) && 'focus' in client) {
-          return client.focus();
+        if ('focus' in client) {
+          return client.navigate(urlToOpen).then(c => c.focus());
         }
       }
-      // Si no está abierta, la abrimos
+      // Si no hay pestañas abiertas, abre una nueva
       if (clients.openWindow) {
         return clients.openWindow(urlToOpen);
       }

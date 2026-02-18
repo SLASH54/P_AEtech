@@ -4219,3 +4219,26 @@ function checkNuevaActividad(select) {
     }
 }
 
+// 🕵️ Función para detectar acciones desde la URL (Notificaciones)
+function revisarAccionesUrl() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const accion = urlParams.get('action');
+
+    if (accion === 'abrirTareas') {
+        console.log("🚀 Acción detectada: Abriendo Organizador de Tareas...");
+        
+        // Usamos un pequeño delay para asegurar que el DOM esté listo
+        setTimeout(() => {
+            // Buscamos tu función mostrarContenido que ya usas en el menú
+            if (typeof mostrarContenido === "function") {
+                mostrarContenido('organizadortareas'); 
+            } else {
+                // Si no tienes mostrarContenido global, simulamos el clic en el botón del menú
+                document.querySelector('[onclick*="organizadortareas"]')?.click();
+            }
+        }, 1000); // 1 segundo de espera
+    }
+}
+
+// Ejecutar cada vez que carga la página
+document.addEventListener("DOMContentLoaded", revisarAccionesUrl);

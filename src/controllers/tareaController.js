@@ -243,32 +243,31 @@ await Notificacion.create({
   leida: false
 });
 
-// ✅ 🔔 Enviar notificación Push FCM
-    try {
-      const usuarioAsignado = await Usuario.findByPk(usuarioAsignadoId);
-      if (usuarioAsignado && usuarioAsignado.fcmToken) {
+// ✅ 🔔 Enviar notificación Push FCM (Dentro de tu createTarea)
+try {
+  const usuarioAsignado = await Usuario.findByPk(usuarioAsignadoId);
+  if (usuarioAsignado && usuarioAsignado.fcmToken) {
 
-        
-        const mensaje = {
-          notification: {
-            title: "Nueva tarea asignada",
-            body: `Se te ha asignado la tarea: "${tareaCreada.nombre}".`,
-          },
-          data: { 
-                click_action: "https://aetechprueba.netlify.app/sistema.html", // O la ruta específica de la tarea
-            },
-          token: usuarioAsignado.fcmToken,
-        };
+    const mensaje = {
+      notification: {
+        title: "Nueva tarea asignada",
+        body: `Se te ha asignado la tarea: "${tareaCreada.nombre}".`,
+      },
+      data: { 
+          // 🚩 ESTE ES EL CAMBIO CLAVE:
+          // Agregamos el parámetro ?action=abrirTareas a tu URL
+          click_action: "https://aetechprueba.netlify.app/sistema.html?action=abrirTareas",
+          tareaId: String(tareaCreada.id) 
+      },
+      token: usuarioAsignado.fcmToken,
+    };
 
-
-        await admin.messaging().send(mensaje);
-        console.log("✅ Notificación FCM enviada a:", usuarioAsignado.nombre);
-      } else {
-        console.warn("⚠️ Usuario sin token FCM o no encontrado");
-      }
-    } catch (error) {
-      console.error("❌ Error enviando notificación FCM:", error);
-    }
+    await admin.messaging().send(mensaje);
+    console.log("✅ Notificación FCM enviada a:", usuarioAsignado.nombre);
+  }
+} catch (error) {
+  console.error("❌ Error enviando notificación FCM:", error);
+}
 
     // 🔹 Responder al frontend
     return res.status(201).json({

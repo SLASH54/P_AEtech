@@ -982,7 +982,22 @@
 
     </script>
     
-     
+        <!-- Firebase (Compat para FCM en web + SW) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
+
+    <!-- Tu configuración (rellena con tus valores reales) -->
+    <script>
+    window.FB_CONFIG = {
+        apiKey: "AIzaSyBa6KYyhwI4scIblnOY_VKb-1kSwwO9_Ts",
+        authDomain: "aetech-notificaciones.firebaseapp.com",
+        projectId: "aetech-notificaciones",
+        storageBucket: "aetech-notificaciones.firebasestorage.app",
+        messagingSenderId: "742322294289",
+        appId: "1:742322294289:web:5bd9e894ad92dbef4dabb0",
+        vapidKey: "BOTEAlz-7hYedgFy9YSbo3txG_14XJaf0tt4qCCwS3ifs67umn8UDn5fLirfmTmSh17P5r_cUMhrL8uDnZsiWys" // la que te dio Cloud Messaging
+    };
+    </script>
 
 
 
