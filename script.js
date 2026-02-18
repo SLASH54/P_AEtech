@@ -3689,33 +3689,36 @@ script2.onload = () => {
     measurementId: "G-ZLZ2LWQ1XE"
 };
 
-// 🛡️ CONTROL DE INSTANCIA ÚNICA
+// 🛡️ CONTROL DE INSTANCIA ÚNICA (Versión Reforzada)
 let messaging;
 
-if (!firebase.apps.length) {
-    // Si no hay ninguna app iniciada, la prendemos
-    firebase.initializeApp(firebaseConfig);
-    console.log("🔥 Firebase inicializado correctamente");
-} else {
-    // Si ya existe, usamos la que ya está en memoria
-    firebase.app();
-    console.log("✅ Firebase ya estaba activo, evitando duplicados");
+try {
+    // Verificamos si ya existe la app para no tronar
+    const app = !firebase.apps.length 
+        ? firebase.initializeApp(firebaseConfig) 
+        : firebase.app();
+
+    console.log("🔥 Firebase listo (Instancia única garantizada)");
+    
+    // Inicializamos messaging solo si no se ha hecho
+    messaging = firebase.messaging();
+} catch (error) {
+    if (error.code === 'app/duplicate-app') {
+        console.log("⚠️ Firebase ya estaba corriendo, recuperando instancia...");
+        messaging = firebase.messaging();
+    } else {
+        console.error("❌ Error real en Firebase:", error);
+    }
 }
 
-// Inicializamos messaging después de verificar la app
-messaging = firebase.messaging();
-
-  // Registrar el service worker antes de pedir permisos
+// Registrar el service worker solo si no hay uno activo
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/firebase-messaging-sw.js')
-    .then(reg => {
-      console.log('✅ Service Worker registrado correctamente:', reg);
-    })
-    .catch(err => {
-      console.error('❌ Error registrando Service Worker:', err);
-    });
+    navigator.serviceWorker.register('/firebase-messaging-sw.js', { scope: '/' })
+        .then(reg => {
+            console.log('✅ SW Activo en:', reg.scope);
+        })
+        .catch(err => console.error('❌ Fallo en SW:', err));
 }
-
 
   async function solicitarPermisoNotificaciones() {
     try {
