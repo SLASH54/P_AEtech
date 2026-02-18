@@ -4667,3 +4667,15 @@ div#tareaExpressModal {
 .btn-regresar-neon:hover i {
     transform: translateX(-4px); /* Movimiento sutil de la flecha */
 }
+
+
+
+.input-neon {
+    background: rgba(0, 255, 255, 0.05);
+    border: 1px solid #00ffff;
+    color: #00ffff;
+    padding: 10px;
+    border-radius: 8px;
+    width: 100%;
+    box-shadow: 0 0 5px rgba(0, 255, 255, 0.2);
+}

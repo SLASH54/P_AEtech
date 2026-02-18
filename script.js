@@ -1807,94 +1807,108 @@ function setupTareaModal() {
     const closeBtn = document.getElementById('closeTareaModal');
     const form = document.getElementById('tareaForm');
 
-
-    
-    // Abrir Modal
-    // 🔑 CLAVE: La función openTareaModal se llama con un objeto vacío y modo 'create'.
     openBtn.onclick = () => openTareaModal({}, 'create');
-
-    // Cerrar Modal
-    // 🛑 CORREGIDO: Usar 'none' para ocultar el modal
     closeBtn.onclick = () => modal.style.display = 'none';
     
-    // Enviar Formulario (Crear/Editar)
     form.onsubmit = async (e) => {
         e.preventDefault();
-        const tareaId = document.getElementById('tareaId').value;
-        const method = tareaId ? 'PUT' : 'POST';
-        // 🔑 NOTA: saveOrUpdateData necesita el endpoint completo, lo construimos aquí.
-        const endpoint = tareaId 
-            ? `https://p-aetech.onrender.com/api/tareas/${tareaId}` 
-            : 'https://p-aetech.onrender.com/api/tareas';
-
-        let clienteId, clienteNombre, direccionTexto;
-
-    if (isExpressModeTarea) {
-        clienteId = null;
-        clienteNombre = document.getElementById("expressClienteNombre").value.trim();
-        direccionTexto = document.getElementById("expressDireccion").value.trim();
-
-        if (!clienteNombre || !direccionTexto) {
-            alert("⚠️ Escribe el nombre y dirección para el registro express.");
-            return;
-        }
-    } else {
-        const selectC = document.getElementById("tareaClienteId");
-        const selectD = document.getElementById("tareaDireccionCliente");
-        clienteId = selectC.value;
-        clienteNombre = selectC.options[selectC.selectedIndex]?.text;
-        direccionTexto = selectD.options[selectD.selectedIndex]?.text;
-
-        if (!clienteId || !direccionTexto) {
-            alert("⚠️ Selecciona un cliente y dirección.");
-            return;
-        }
-    }
-
-    
-    // Mostrar loader
-    loader.style.display = 'flex';
         
-        // Recolección de Datos del Formulario con NOMBRES DE BACKEND
-        const data = {
-    nombre: document.getElementById('tareaTitulo').value, 
-    usuarioAsignadoId: document.getElementById('tareaAsignadoA').value, 
-    actividadId: document.getElementById('tareaActividadId').value, 
-    clienteNegocioId: document.getElementById('tareaClienteId').value,
-    direccionClienteId: document.getElementById('tareaDireccionCliente').value,
-    sucursalId: document.getElementById('tareaSucursalId')?.value || '1', 
-    descripcion: document.getElementById('tareaDescripcion').value,
-    fechaLimite: document.getElementById('tareaFechaLimite').value,
-    estado: document.getElementById('tareaEstado').value,
-    prioridad : 'Normal',
-    direccionCliente: document.getElementById('tareaDireccionCliente').value,
-    cliente_Nombre: clienteNombre,
-    direccion: direccionTexto,
-    es_express: isExpressModeTarea // 👈 Esto activa la magia en tu controller
-};
+        // 1. Mostrar loader al iniciar el proceso
+        loader.style.display = 'flex';
 
+        try {
+            const tareaId = document.getElementById('tareaId').value;
+            const method = tareaId ? 'PUT' : 'POST';
+            const endpoint = tareaId 
+                ? `https://p-aetech.onrender.com/api/tareas/${tareaId}` 
+                : 'https://p-aetech.onrender.com/api/tareas';
 
+            let actividadId = document.getElementById('tareaActividadId').value;
 
+            // --- ✨ MAGIA: REGISTRO DE ACTIVIDAD "OTRA" EN CHINGUISA ---
+            if (actividadId === "OTRA") {
+                const nuevoNombre = document.getElementById("nueva-actividad-nombre").value.trim();
+                
+                if (!nuevoNombre) {
+                    alert("⚠️ Por favor escribe el nombre de la nueva actividad.");
+                    loader.style.display = 'none';
+                    return;
+                }
 
-        const result = await saveOrUpdateData(endpoint, method, data);
-        if (result) {
-            // Se recomienda usar un modal personalizado en lugar de alert
-            alert('Tarea guardada exitosamente.'); 
-            modal.style.display = 'none'; 
-            initTareas(); // Recargar la lista de tareas
-            await cargarNotificaciones();
+                console.log("🚀 Creando nueva actividad...");
+                const resAct = await fetch(`https://p-aetech.onrender.com/api/actividades`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem("accessToken")}`
+                    },
+                    body: JSON.stringify({ 
+                        nombre: nuevoNombre, 
+                        descripcion: "Creada express desde Tareas",
+                        campos_evidencia: [] 
+                    })
+                });
 
+                const dataAct = await resAct.json();
+                if (!resAct.ok) throw new Error(dataAct.message || "No se pudo crear la actividad");
+
+                // Asignamos el ID recién creado para la tarea
+                actividadId = dataAct.actividad.id;
+                console.log("✅ Actividad creada con ID:", actividadId);
+            }
+
+            // --- RECOLECCIÓN DE DATOS DE CLIENTE ---
+            let clienteId, clienteNombre, direccionTexto;
+            if (isExpressModeTarea) {
+                clienteId = null;
+                clienteNombre = document.getElementById("expressClienteNombre").value.trim();
+                direccionTexto = document.getElementById("expressDireccion").value.trim();
+                if (!clienteNombre || !direccionTexto) throw new Error("Faltan datos express");
+            } else {
+                const selectC = document.getElementById("tareaClienteId");
+                const selectD = document.getElementById("tareaDireccionCliente");
+                clienteId = selectC.value;
+                clienteNombre = selectC.options[selectC.selectedIndex]?.text;
+                direccionTexto = selectD.options[selectD.selectedIndex]?.text;
+                if (!clienteId || !direccionTexto) throw new Error("Selecciona cliente y dirección");
+            }
+
+            // --- DATA FINAL PARA EL BACKEND ---
+            const data = {
+                nombre: document.getElementById('tareaTitulo').value, 
+                usuarioAsignadoId: document.getElementById('tareaAsignadoA').value, 
+                actividadId: actividadId, // 👈 Usamos el ID (el viejo o el nuevo)
+                clienteNegocioId: document.getElementById('tareaClienteId').value,
+                direccionClienteId: document.getElementById('tareaDireccionCliente').value,
+                sucursalId: document.getElementById('tareaSucursalId')?.value || '1', 
+                descripcion: document.getElementById('tareaDescripcion').value,
+                fechaLimite: document.getElementById('tareaFechaLimite').value,
+                estado: document.getElementById('tareaEstado').value,
+                prioridad : 'Normal',
+                cliente_Nombre: clienteNombre,
+                direccion: direccionTexto,
+                es_express: isExpressModeTarea 
+            };
+
+            const result = await saveOrUpdateData(endpoint, method, data);
+            
+            if (result) {
+                alert('✨ Tarea guardada exitosamente, master.'); 
+                modal.style.display = 'none'; 
+                initTareas(); 
+                await cargarNotificaciones();
+            }
+
+        } catch (error) {
+            console.error("🚨 Error:", error);
+            alert("Algo salió mal: " + error.message);
+        } finally {
+            loader.style.display = 'none'; // 👈 Se oculta pase lo que pase
         }
     };
 
-    // Ocultar loader
-    loader.style.display = 'none';
-    
-    // Función para manejar el cierre al hacer clic fuera
     window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
-        }
+        if (event.target == modal) modal.style.display = "none";
     }
 }
 
@@ -4177,4 +4191,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     cargarLevantamientosTabla();
 });
+
+
+// 1. Mostrar/Ocultar el input si elige "OTRA"
+function checkNuevaActividad(select) {
+    const wrapper = document.getElementById('wrapper-nueva-actividad');
+    if (select.value === "OTRA") {
+        wrapper.style.display = "block";
+    } else {
+        wrapper.style.display = "none";
+    }
+}
 
