@@ -1541,6 +1541,7 @@ async function loadActividadesForTareaSelect() {
     const actividades = await fetchData('/actividades'); 
     
     actividadSelect.innerHTML = '<option value="" disabled selected>-- Seleccione Actividad --</option>';
+    actividadSelect.innerHTML = '<option value="OTRA" style="color: #00ffff; font-weight: bold;">+ Agregar nueva actividad...</option>'
 
     if (actividades && Array.isArray(actividades) && actividades.length > 0) {
         actividades.forEach(actividad => {
@@ -1748,7 +1749,7 @@ async function enviarRecordatorio(tareaId) {
         }
     } catch (err) {
         console.error(err);
-        alert("Amiko, no se pudo enviar la notificación.");
+        alert("no se pudo enviar la notificación.");
     }
 }
 
@@ -1893,7 +1894,7 @@ function setupTareaModal() {
             const result = await saveOrUpdateData(endpoint, method, data);
             
             if (result) {
-                alert('✨ Tarea guardada exitosamente, master.'); 
+                alert('✨ Tarea guardada exitosamente'); 
                 modal.style.display = 'none'; 
                 initTareas(); 
                 await cargarNotificaciones();
