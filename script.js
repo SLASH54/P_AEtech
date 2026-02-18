@@ -260,14 +260,7 @@ const loginUser = async (e) => {
         //mostrarContenido('Tablero');
         window.location.href = "sistema.html";
 
-        // Llamar al iniciar sesión (para registrar FCM)
-setTimeout(() => {
-  if (typeof solicitarPermisoNotificaciones === "function") {
-    solicitarPermisoNotificaciones();
-  } else {
-    console.warn("⚠️ Firebase aún no se ha cargado, se intentará más tarde.");
-  }
-}, 4000);
+
 
         
     } catch (error) {
