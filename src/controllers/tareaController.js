@@ -247,6 +247,8 @@ await Notificacion.create({
     try {
       const usuarioAsignado = await Usuario.findByPk(usuarioAsignadoId);
       if (usuarioAsignado && usuarioAsignado.fcmToken) {
+
+        
         const mensaje = {
           notification: {
             title: "Nueva tarea asignada",
@@ -257,6 +259,8 @@ await Notificacion.create({
             },
           token: usuarioAsignado.fcmToken,
         };
+
+
         await admin.messaging().send(mensaje);
         console.log("✅ Notificación FCM enviada a:", usuarioAsignado.nombre);
       } else {

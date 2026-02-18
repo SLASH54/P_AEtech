@@ -3753,13 +3753,11 @@ if ('serviceWorker' in navigator) {
     }
   }
 
-  messaging.onMessage((payload) => {
-    console.log("🔔 Notificación recibida:", payload);
-    const { title, body } = payload.notification;
-    if (title || body) {
-      new Notification(title, { body, icon: "/img/logoAEtech.png" });
-    }
-  });
+messaging.onMessage((payload) => {
+    console.log("🔔 Notificación recibida en primer plano:", payload);
+    // 🛑 Quitamos el "new Notification" para que no se duplique con la del Service Worker
+    // Aquí puedes poner un alert visual dentro de la web si quieres, pero no una notificación de sistema.
+});
 
   setTimeout(() => {
     if (localStorage.getItem("accessToken")) {
