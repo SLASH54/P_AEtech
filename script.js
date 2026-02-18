@@ -4220,29 +4220,25 @@ function checkNuevaActividad(select) {
 }
 
 // 🕵️ Función para detectar acciones desde la URL (Notificaciones)
-function detectarNotificacionTarea() {
+function revisarAccionesUrl() {
     const urlParams = new URLSearchParams(window.location.search);
-    
-    if (urlParams.get('open') === 'tareas') {
-        setTimeout(() => {
-            // Intentamos usar tu función oficial del sistema
-            if (typeof mostrarContenido === "function") {
-                mostrarContenido('organizadortareas');
-            } else {
-                // Si no, lo hacemos manual
-                // Ocultamos el Tablero que es lo que suele estar abierto
-                const tablero = document.getElementById('Tablero');
-                if (tablero) tablero.classList.remove('show');
+    const accion = urlParams.get('action');
 
-                const seccionTareas = document.getElementById('organizadortareas');
-                if (seccionTareas) {
-                    seccionTareas.classList.add('show');
-                }
+    if (accion === 'abrirTareas') {
+        console.log("🚀 Acción detectada: Abriendo Organizador de Tareas...");
+        
+        // Usamos un pequeño delay para asegurar que el DOM esté listo
+        setTimeout(() => {
+            // Buscamos tu función mostrarContenido que ya usas en el menú
+            if (typeof mostrarContenido === "function") {
+                mostrarContenido('organizadortareas'); 
+            } else {
+                // Si no tienes mostrarContenido global, simulamos el clic en el botón del menú
+                document.querySelector('[onclick*="organizadortareas"]')?.click();
             }
-            // Limpia la URL para que no se abra solo al recargar
-            window.history.replaceState({}, document.title, window.location.pathname);
-        }, 1000); 
+        }, 1000); // 1 segundo de espera
     }
 }
 
-window.addEventListener('load', detectarNotificacionTarea);
+// Ejecutar cada vez que carga la página
+document.addEventListener("DOMContentLoaded", revisarAccionesUrl);
