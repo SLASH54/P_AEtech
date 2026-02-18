@@ -1541,7 +1541,7 @@ async function loadActividadesForTareaSelect() {
     const actividades = await fetchData('/actividades'); 
     
     actividadSelect.innerHTML = '<option value="" disabled selected>-- Seleccione Actividad --</option>';
-    actividadSelect.innerHTML = '<option value="OTRA" style="color: #00ffff; font-weight: bold;">+ Agregar nueva actividad...</option>'
+    actividadSelect.appendChild = '<option value="OTRA" style="color: #00ffff; font-weight: bold;">+ Agregar nueva actividad...</option>'
 
     if (actividades && Array.isArray(actividades) && actividades.length > 0) {
         actividades.forEach(actividad => {
