@@ -4681,7 +4681,7 @@ div#tareaExpressModal {
 }
 
 
-/* --- ESTILO iOS GLASS PILL (TAMAÑO FIJO INAMOVIBLE) --- */
+/* --- ESTILO iOS GLASS (CRISTAL ESMERILADO) --- */
 button.text-red-600.hover\:text-red-900,
 button.btn-recordatorio,
 button.text-indigo-600.hover\:text-indigo-900.mr-3,
@@ -4689,73 +4689,93 @@ button.text-green-600.hover\:text-green-900,
 button.inline-block.px-3.py-1.text-sm.rounded.bg-green-600.text-white,
 button.text-purple-600.hover\:text-purple-900.ml-2 {
     
-    /* 📏 MEDIDAS FIJAS (No cambian con nada) */
-    width: 130px !important;
-    min-width: 130px !important;
-    max-width: 130px !important;
-    height: 38px !important;
-    padding: 0 !important; /* Evita que el texto empuje los bordes */
-    
-    /* 💊 Forma y Borde */
+    /* 📏 Tamaño y Forma tipo iOS Pill */
+    width: 120px !important;
+    height: 36px !important;
     border-radius: 50px !important;
-    border: 1px solid rgba(255, 255, 255, 0.4);
     
-    /* ✨ Tipografía iOS */
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    /* 🍏 Base de Cristal */
+    border: 1px solid rgba(255, 255, 255, 0.3); /* Borde fino de cristal */
+    cursor: pointer;
+    font-weight: 500; /* iOS usa fuentes más limpias y no tan pesadas */
+    font-size: 12px;
     color: white !important;
-    
-    /* 🧊 Glassmorphism */
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    
+    /* ✨ El secreto de iOS: Blur de fondo */
+    backdrop-filter: blur(10px); 
+    -webkit-backdrop-filter: blur(10px);
+    
+    /* Sombra muy suave */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* 🎨 COLORES iOS TRASLÚCIDOS */
-button.text-red-600 { background: rgba(255, 59, 48, 0.6) !important; }      /* Rojo */
-button.btn-recordatorio { background: rgba(175, 82, 222, 0.6) !important; } /* Morado */
-button.text-indigo-600 { background: rgba(0, 122, 255, 0.6) !important; }   /* Azul */
-button.text-green-600 { background: rgba(52, 199, 89, 0.6) !important; }    /* Verde */
-button.bg-green-600.text-white { background: rgba(255, 149, 0, 0.6) !important; } /* Naranja */
-button.text-purple-600 { background: rgba(255, 45, 85, 0.6) !important; }   /* Rosa */
+/* 🎨 COLORES ESTILO iOS (Traslúcidos) */
 
-/* 🚫 ESTADO DESACTIVADO (Mantiene el tamaño pero se ve opaco) */
-button:disabled {
-    opacity: 0.4 !important;
-    cursor: not-allowed !important;
-    filter: grayscale(0.5); /* Se ve un poco más grisáceo */
-    transform: none !important; /* No se mueve al pasar el mouse */
+/* Rojo iOS (Eliminar) */
+button.text-red-600.hover\:text-red-900 {
+    background: rgba(255, 59, 48, 0.7) !important; /* Red */
 }
 
-/* ⚡️ INTERACCIÓN (Solo si no está desactivado) */
-button:not(:disabled):hover {
-    transform: scale(1.03);
-    border: 1px solid rgba(255, 255, 255, 0.7);
-   
-
+/* Morado iOS (Recordatorio) */
+button.btn-recordatorio {
+    background: rgba(175, 82, 222, 0.7) !important; /* Purple */
 }
 
-button:not(:disabled):active {
-    transform: scale(0.96);
+/* Azul iOS (Editar) */
+button.text-indigo-600.hover\:text-indigo-900.mr-3 {
+    background: rgba(0, 122, 255, 0.7) !important; /* Blue */
 }
 
-/* Reflejo de cristal superior */
-button::before {
+/* Verde iOS (Completar) */
+button.text-green-600.hover\:text-green-900 {
+    background: rgba(52, 199, 89, 0.7) !important; /* Green */
+}
+
+/* Naranja iOS (Express) */
+button.inline-block.px-3.py-1.text-sm.rounded.bg-green-600.text-white {
+    background: rgba(255, 149, 0, 0.7) !important; /* Orange */
+}
+
+/* Rosa/Pink iOS (Detalles) */
+button.text-purple-600.hover\:text-purple-900.ml-2 {
+    background: rgba(255, 45, 85, 0.7) !important; /* Pink */
+}
+
+/* 🧊 EFECTO DE LUZ (Reflejo de cristal) */
+button::after {
     content: "";
     position: absolute;
     top: 0;
-    left: 0;
+    left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, transparent 50%);
-    border-radius: 50px;
-    pointer-events: none;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+    );
+    transition: 0.5s;
+}
+
+/* ⚡️ INTERACCIÓN TIPO IPHONE */
+button:hover {
+    transform: scale(1.05);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+button:hover::after {
+    left: 100%; /* El destello cruza el botón */
+}
+
+button:active {
+    transform: scale(0.95); /* Efecto de presión al tocar */
+    filter: brightness(0.9);
 }
