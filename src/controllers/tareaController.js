@@ -150,6 +150,9 @@ exports.autorizarTarea = async (req, res) => {
 // CONFIGURACIÓN DE INCLUSIÓN
 // ===============================
 const includeConfig = [
+    // 🚀 AGREGA ESTA LÍNEA AQUÍ:
+    { model: Usuario, as: 'usuarios', attributes: ['id', 'nombre', 'rol'] },
+
     { model: Usuario, as: 'AsignadoA', attributes: ['id', 'nombre', 'rol'] },
     { model: Actividad, attributes: ['id', 'nombre', 'campos_evidencia'] },
     { model: Sucursal, attributes: ['id', 'nombre', 'direccion'] },
@@ -165,6 +168,7 @@ const includeConfig = [
         ]
     }
 ];
+
 
 
 // ===============================
@@ -312,19 +316,27 @@ exports.getAllTareas = async (req, res) => {
 // ===============================
 exports.getTareasAsignadas = async (req, res) => {
     try {
-        // req.user.id fue adjuntado por el middleware 'protect'
         const tareas = await Tarea.findAll({
-            where: { usuarioAsignadoId: req.user.id },
-            include: includeConfig,
+            include: [
+                {
+                    model: Usuario,
+                    as: 'usuarios',
+                    where: { id: req.user.id }, // <--- Esto filtra si el usuario está en la lista
+                    attributes: ['id', 'nombre']
+                },
+                // El resto de los modelos (puedes usar ...includeConfig si quieres)
+                { model: Actividad },
+                { model: Sucursal },
+                { model: ClienteNegocio }
+            ],
             order: [['prioridad', 'DESC'], ['fechaLimite', 'ASC']]
         });
         return res.json(tareas);
     } catch (error) {
         console.error('Error al obtener tareas asignadas:', error);
-        return res.status(500).json({ message: 'Error interno del servidor al obtener las tareas asignadas.' });
+        return res.status(500).json({ message: 'Error al obtener tareas.' });
     }
 };
-
 // ===============================
 // 4. ACTUALIZAR TAREA (PUT)
 // ===============================

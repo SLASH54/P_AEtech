@@ -1651,7 +1651,7 @@ const clienteMapsLink = clienteMaps
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 ${asignadoNombre}
             </td>
-            
+
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                <a href="${clienteMapsLink}" target="_blank" class="text-blue-600 hover:underline">
                   ${clienteDireccion} 📍
@@ -1728,6 +1728,7 @@ const clienteMapsLink = clienteMaps
     });
 }
 
+
 function renderTareasConAnimacion(tareas) {
   const body = document.getElementById('tareasBody');
   if (!body) return;
@@ -1742,6 +1743,8 @@ function renderTareasConAnimacion(tareas) {
     setTimeout(() => body.classList.remove('fade-in'), 350);
   }, 200);
 }
+
+
 
 async function enviarRecordatorio(tareaId) {
     try {
