@@ -1957,58 +1957,45 @@ function openTareaModal(tareaIdOrObject, mode) {
     const clienteSelect = document.getElementById('tareaClienteId');
     const busquedaInput = document.getElementById('busquedaCliente');
     const direccionSelect = document.getElementById('tareaDireccionCliente');
+    const fechaInput = document.getElementById('tareaFechaLimite');
 
     if (!modal) return;
 
-    // --- 🔍 LÓGICA DEL BUSCADOR (CORREGIDA PARA DIRECCIONES) ---
+    // --- 🔍 LÓGICA DEL BUSCADOR ---
     if (busquedaInput && clienteSelect) {
         busquedaInput.value = ""; 
-        
-        // 1. Guardar copia maestra si no existe
         if (!window.clientesBackup) {
             window.clientesBackup = Array.from(clienteSelect.options).map(o => ({
                 value: o.value,
                 text: o.text
             }));
         }
-
-        // 2. Restaurar lista completa al abrir
         clienteSelect.innerHTML = "";
-        window.clientesBackup.forEach(c => {
-            clienteSelect.add(new Option(c.text, c.value));
-        });
+        window.clientesBackup.forEach(c => clienteSelect.add(new Option(c.text, c.value)));
 
-        // 3. Filtrado en tiempo real
         busquedaInput.oninput = function() {
             const filtro = busquedaInput.value.toLowerCase();
             const filtrados = window.clientesBackup.filter(c => 
                 c.value === "" || c.text.toLowerCase().includes(filtro)
             );
-
             clienteSelect.innerHTML = "";
-            filtrados.forEach(c => {
-                clienteSelect.add(new Option(c.text, c.value));
-            });
+            filtrados.forEach(c => clienteSelect.add(new Option(c.text, c.value)));
             
-            // Re-vincular el evento de cambio para que al filtrar no se pierda la carga de direcciones
+            // Re-vincular onchange tras filtrar
             clienteSelect.onchange = () => {
-                if (typeof cargarDireccionesCliente === "function") {
-                    cargarDireccionesCliente(clienteSelect.value);
-                }
+                if (typeof cargarDireccionesCliente === "function") cargarDireccionesCliente(clienteSelect.value);
             };
         };
     }
 
-    // --- 📍 VINCULAR CARGA DE DIRECCIONES ---
+    // Evento de cambio de cliente (para direcciones)
     if (clienteSelect) {
         clienteSelect.onchange = () => {
-            if (typeof cargarDireccionesCliente === "function") {
-                cargarDireccionesCliente(clienteSelect.value);
-            }
+            if (typeof cargarDireccionesCliente === "function") cargarDireccionesCliente(clienteSelect.value);
         };
     }
 
-    // --- LÓGICA DE CARGA DE DATOS ---
+    // --- 📅 LÓGICA DE DATOS Y FECHA ---
     if (mode === 'edit') {
         title.textContent = "Editar Tarea";
         let tarea = (typeof tareaIdOrObject === "object") ? tareaIdOrObject : window.tareasList.find(t => t.id == tareaIdOrObject);
@@ -2018,19 +2005,21 @@ function openTareaModal(tareaIdOrObject, mode) {
             document.getElementById('tareaTitulo').value = tarea.nombre || "";
             document.getElementById('tareaDescripcion').value = tarea.descripcion || "";
             document.getElementById('tareaEstado').value = tarea.estado || "";
-            if (tarea.fechaLimite) document.getElementById('tareaFechaLimite').value = tarea.fechaLimite.split("T")[0];
+            
+            // Poner fecha de la tarea
+            if (tarea.fechaLimite && fechaInput) {
+                fechaInput.value = tarea.fechaLimite.split("T")[0];
+            }
             
             if (document.getElementById('tareaActividadId')) document.getElementById('tareaActividadId').value = tarea.actividadId || "";
-            
-            // Seleccionamos el cliente
             clienteSelect.value = tarea.clienteNegocioId || "";
 
-            // 🔥 FORZAMOS LA CARGA DE DIRECCIONES AL EDITAR
+            // Cargar direcciones al editar
             if (tarea.clienteNegocioId && typeof cargarDireccionesCliente === "function") {
                 cargarDireccionesCliente(tarea.clienteNegocioId);
                 setTimeout(() => { 
                     if (direccionSelect) direccionSelect.value = tarea.direccionClienteId || ""; 
-                }, 600); // Un pelín más de tiempo para seguridad
+                }, 600);
             }
 
             // Marcar técnicos
@@ -2044,10 +2033,20 @@ function openTareaModal(tareaIdOrObject, mode) {
             }
         }
     } else {
+        // --- MODO CREAR ---
         title.textContent = "Crear Nueva Tarea";
         if (form) form.reset();
         document.getElementById("tareaId").value = "";
+
+        // 🔥 ESTO PONE LA FECHA DE HOY AUTOMÁTICAMENTE
+        if (fechaInput) {
+            const hoy = new Date().toISOString().split('T')[0];
+            fechaInput.value = hoy;
+        }
+
         if (direccionSelect) direccionSelect.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
+        const selectAsignados = document.getElementById('tareaAsignadoA');
+        if (selectAsignados) Array.from(selectAsignados.options).forEach(opt => opt.selected = false);
     }
 
     modal.style.display = "flex";
