@@ -1705,9 +1705,16 @@ const clienteMapsLink = clienteMaps
                       </button>`
                   }
                 
-                  <button onclick="enviarRecordatorio(${tarea.id})" class="btn-recordatorio">
-                    <i class="fas fa-bell"></i> Recordar
-                  </button>
+                <!-- Botón Ver Evidencias (solo activo si la tarea está completada) -->
+                ${tarea.estado === 'Pendiente'
+                  ? `<button onclick="enviarRecordatorio(${tarea.id})" class="btn-recordatorio">
+                        <i class="fas fa-bell"></i> Recordar
+                      </button>`
+                  :`<button disabled title="Solo disponible cuando la tarea este Pendiente" 
+                      class="inline-block px-3 py-1 text-sm rounded bg-gray-300 text-gray-600 cursor-not-allowed ml-2">
+                        <i class="fas fa-bell"></i> Recordar
+                      </button>` 
+                  }
 
             </td>
         `;

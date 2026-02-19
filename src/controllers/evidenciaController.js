@@ -111,7 +111,7 @@ if (tarea?.usuarioAsignadoId) {
     });
 
     // 🧾 Generar PDF (ya con URLs de Cloudinary)
-    await generarReportePDFInterno(tareaId, usuarioId);
+    //await generarReportePDFInterno(tareaId, usuarioId);
   } catch (error) {
     console.error('❌ Error al subir evidencias:', error);
     res.status(500).json({ msg: 'Error interno al subir evidencias.' });
