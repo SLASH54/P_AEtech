@@ -82,8 +82,8 @@ connectDB()
     console.log('✅ Base de datos conectada correctamente');
 
     try {
-      // 🛠️ ESTE ES EL CAMBIO EN LA BASE DE DATOS:
-      // Creamos la tabla de unión manualmente para evitar el error "USING"
+      // 🛠️ ESTE ES EL COMANDO SQL QUE CAMBIA TODO:
+      // Crea la tabla "libreta" donde se anotan los múltiples usuarios por tarea
       await sequelize.query(`
         CREATE TABLE IF NOT EXISTS "TareaUsuarios" (
           "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -93,20 +93,17 @@ connectDB()
           PRIMARY KEY ("tareaId", "usuarioId")
         );
       `);
-      console.log('✅ Tabla TareaUsuarios lista (Cambio en DB exitoso)');
+      console.log('✅ Tabla TareaUsuarios lista para guardar múltiples técnicos');
     } catch (dbError) {
-      console.error('⚠️ Nota sobre la tabla:', dbError.message);
+      console.error('⚠️ Error al verificar tabla TareaUsuarios:', dbError.message);
     }
 
-    // Sincronización normal (SIN el alter: true que causó el error)
+    // Sync normal sin alter:true para evitar errores de ENUM
     await sequelize.sync(); 
-    console.log('🚀 Modelos sincronizados correctamente');
+    console.log('🚀 Servidor sincronizado y listo');
 
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
       console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
     });
-  })
-  .catch(err => {
-    console.error('❌ Error al iniciar el servidor:', err);
   });
