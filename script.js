@@ -2048,6 +2048,10 @@ function openTareaModal(tareaIdOrObject, mode) {
 
     modal.style.display = "flex";
 }
+
+
+
+
 /**
  * Envía una petición para eliminar una tarea.
  * @param {string} tareaId - El ID de la tarea a eliminar.
