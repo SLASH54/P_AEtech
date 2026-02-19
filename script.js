@@ -1952,19 +1952,25 @@ function setupTareaModal() {
  */
 function openTareaModal(tareaIdOrObject, mode) {
     const modal = document.getElementById('tareaModal');
-    const title = document.getElementById('tareaModalTitle');
-    const form = document.getElementById('tareaForm');
-
+    const busquedaInput = document.getElementById('busquedaCliente');
     const clienteSelect = document.getElementById('tareaClienteId');
-    const direccionSelect = document.getElementById('tareaDireccionCliente');
-    const busquedaInput = document.getElementById('busquedaCliente'); // El buscador
 
-    // 🔍 LIMPIEZA DEL BUSCADOR AL ABRIR EL MODAL
+    // ✨ LIMPIAR BÚSQUEDA ANTERIOR
     if (busquedaInput) {
-        busquedaInput.value = ""; // Limpiamos el texto escrito
-        // Nos aseguramos que todas las opciones del select vuelvan a ser visibles
-        Array.from(clienteSelect.options).forEach(opt => opt.style.display = "");
+        busquedaInput.value = ""; // Borra el texto
+        // Muestra todos los clientes de nuevo
+        if (clienteSelect) {
+            Array.from(clienteSelect.options).forEach(opt => {
+                opt.style.display = "";
+                opt.disabled = false;
+            });
+        }
     }
+
+    
+
+
+    
 
     // Asignar evento cada vez que se abre el modal
     clienteSelect.onchange = () => {
@@ -4299,22 +4305,31 @@ document.addEventListener("DOMContentLoaded", revisarAccionesUrl);
 
 
 
-//busqueda del cliente
-// Pon esto donde manejas los eventos del DOM o al final de tu script.js
-document.getElementById('busquedaCliente')?.addEventListener('input', function(e) {
-    const filtro = e.target.value.toLowerCase();
-    const select = document.getElementById('tareaClienteId');
-    const opciones = select.options;
+// 🔥 BUSCADOR DE CLIENTES (FUNCIONAL)
+document.addEventListener('input', function (e) {
+    // Verificamos que el usuario esté escribiendo en el input de búsqueda
+    if (e.target && e.target.id === 'busquedaCliente') {
+        const filtro = e.target.value.toLowerCase();
+        const select = document.getElementById('tareaClienteId');
+        
+        if (!select) return;
 
-    for (let i = 0; i < opciones.length; i++) {
-        const texto = opciones[i].text.toLowerCase();
-        // No filtramos la opción por defecto ("-- Seleccione Cliente --")
-        if (i === 0) continue; 
+        const opciones = select.options;
 
-        if (texto.includes(filtro)) {
-            opciones[i].style.display = ""; // Muestra
-        } else {
-            opciones[i].style.display = "none"; // Oculta
+        for (let i = 0; i < opciones.length; i++) {
+            // No filtramos la primera opción ("-- Seleccione Cliente --")
+            if (i === 0) continue; 
+
+            const nombreCliente = opciones[i].text.toLowerCase();
+            
+            // Si el nombre contiene lo que escribimos, se muestra; si no, se oculta
+            if (nombreCliente.includes(filtro)) {
+                opciones[i].style.display = ""; // Visible
+                opciones[i].disabled = false;
+            } else {
+                opciones[i].style.display = "none"; // Oculto
+                opciones[i].disabled = true;
+            }
         }
     }
 });
