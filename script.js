@@ -1960,35 +1960,44 @@ function openTareaModal(tareaIdOrObject, mode) {
 
     if (!modal) return;
 
-    // --- 🔍 LÓGICA DEL BUSCADOR (ESTA VERSIÓN NO FALLA) ---
+    // --- 🚀 BUSCADOR TIPO GOOGLE (RECONSTRUCCIÓN TOTAL) ---
     if (busquedaInput && clienteSelect) {
-        busquedaInput.value = ""; // Limpiar el texto al abrir
+        busquedaInput.value = ""; // Limpiar texto al abrir
         
-        // Guardamos todas las opciones originales la primera vez para no perderlas
-        if (!window.misClientesOriginales) {
-            window.misClientesOriginales = Array.from(clienteSelect.options);
-        } else {
-            // Restauramos todas las opciones al abrir el modal
-            clienteSelect.innerHTML = "";
-            window.misClientesOriginales.forEach(opt => clienteSelect.add(opt));
+        // 1. Guardar una copia maestra de los clientes si no existe
+        // Esto evita que al filtrar se "pierdan" los clientes para siempre
+        if (!window.clientesBackup) {
+            window.clientesBackup = Array.from(clienteSelect.options).map(o => ({
+                value: o.value,
+                text: o.text
+            }));
         }
 
+        // 2. Restaurar la lista completa al abrir
+        clienteSelect.innerHTML = "";
+        window.clientesBackup.forEach(c => {
+            clienteSelect.add(new Option(c.text, c.value));
+        });
+
+        // 3. Filtrado en tiempo real (Evento oninput)
         busquedaInput.oninput = function() {
             const filtro = busquedaInput.value.toLowerCase();
             
-            // Filtrar las opciones guardadas
-            const filtradas = window.misClientesOriginales.filter(opt => {
-                if (opt.value === "") return true; // Mantener siempre el "-- Seleccione --"
-                return opt.text.toLowerCase().includes(filtro);
+            // Filtramos la copia maestra
+            const filtrados = window.clientesBackup.filter(c => {
+                // Siempre dejamos la opción vacía o la que coincida con el texto
+                return c.value === "" || c.text.toLowerCase().includes(filtro);
             });
 
-            // Limpiar el select y meter solo las que coinciden
+            // Vaciamos el select y metemos solo los que pasaron el filtro
             clienteSelect.innerHTML = "";
-            filtradas.forEach(opt => clienteSelect.add(opt));
+            filtrados.forEach(c => {
+                clienteSelect.add(new Option(c.text, c.value));
+            });
         };
     }
 
-    // --- LÓGICA DE EDICIÓN / CREACIÓN ---
+    // --- LÓGICA DE CARGA DE DATOS (EDITAR / CREAR) ---
     if (mode === 'edit') {
         title.textContent = "Editar Tarea";
         let tarea = (typeof tareaIdOrObject === "object") ? tareaIdOrObject : window.tareasList.find(t => t.id == tareaIdOrObject);
@@ -2001,13 +2010,15 @@ function openTareaModal(tareaIdOrObject, mode) {
             if (tarea.fechaLimite) document.getElementById('tareaFechaLimite').value = tarea.fechaLimite.split("T")[0];
             
             if (document.getElementById('tareaActividadId')) document.getElementById('tareaActividadId').value = tarea.actividadId || "";
+            
+            // Seleccionamos el cliente (IMPORTANTE: después de restaurar la lista)
             clienteSelect.value = tarea.clienteNegocioId || "";
 
             // Marcar técnicos
             const selectAsignados = document.getElementById('tareaAsignadoA');
             if (selectAsignados) {
                 Array.from(selectAsignados.options).forEach(opt => opt.selected = false);
-                const ids = tarea.usuarios ? tarea.usuarios.map(u => String(u.id)) : (tarea.usuarioAsignadoId ? [String(tarea.usuarioAsignadoId)] : []);
+                const ids = tarea.usuarios ? tarea.usuarios.map(u => String(u.id)) : [];
                 Array.from(selectAsignados.options).forEach(opt => {
                     if (ids.includes(String(opt.value))) opt.selected = true;
                 });
@@ -2016,9 +2027,7 @@ function openTareaModal(tareaIdOrObject, mode) {
             // Cargar direcciones
             if (tarea.clienteNegocioId) {
                 cargarDireccionesCliente(tarea.clienteNegocioId);
-                setTimeout(() => { 
-                    if (direccionSelect) direccionSelect.value = tarea.direccionClienteId || ""; 
-                }, 500);
+                setTimeout(() => { if (direccionSelect) direccionSelect.value = tarea.direccionClienteId || ""; }, 500);
             }
         }
     } else {
@@ -4284,33 +4293,3 @@ document.addEventListener("DOMContentLoaded", revisarAccionesUrl);
 
 
 
-
-// 🔥 LÓGICA DEL BUSCADOR DE CLIENTES
-// 🔥 BUSCADOR DE CLIENTES (FUNCIONAL)
-document.addEventListener('input', function (e) {
-    // Verificamos que el usuario esté escribiendo en el input de búsqueda
-    if (e.target && e.target.id === 'busquedaCliente') {
-        const filtro = e.target.value.toLowerCase();
-        const select = document.getElementById('tareaClienteId');
-        
-        if (!select) return;
-
-        const opciones = select.options;
-
-        for (let i = 0; i < opciones.length; i++) {
-            // No filtramos la primera opción ("-- Seleccione Cliente --")
-            if (i === 0) continue; 
-
-            const nombreCliente = opciones[i].text.toLowerCase();
-            
-            // Si el nombre contiene lo que escribimos, se muestra; si no, se oculta
-            if (nombreCliente.includes(filtro)) {
-                opciones[i].style.display = ""; // Visible
-                opciones[i].disabled = false;
-            } else {
-                opciones[i].style.display = "none"; // Oculto
-                opciones[i].disabled = true;
-            }
-        }
-    }
-});
