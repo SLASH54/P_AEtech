@@ -1957,6 +1957,14 @@ function openTareaModal(tareaIdOrObject, mode) {
 
     const clienteSelect = document.getElementById('tareaClienteId');
     const direccionSelect = document.getElementById('tareaDireccionCliente');
+    const busquedaInput = document.getElementById('busquedaCliente'); // El buscador
+
+    // 🔍 LIMPIEZA DEL BUSCADOR AL ABRIR EL MODAL
+    if (busquedaInput) {
+        busquedaInput.value = ""; // Limpiamos el texto escrito
+        // Nos aseguramos que todas las opciones del select vuelvan a ser visibles
+        Array.from(clienteSelect.options).forEach(opt => opt.style.display = "");
+    }
 
     // Asignar evento cada vez que se abre el modal
     clienteSelect.onchange = () => {
@@ -1993,14 +2001,11 @@ function openTareaModal(tareaIdOrObject, mode) {
         document.getElementById('tareaActividadId').value = tarea.actividadId || "";
         document.getElementById('tareaClienteId').value = tarea.clienteNegocioId || "";
 
-        // 👥 MARCAR MÚLTIPLES USUARIOS (CORREGIDO)
+        // 👥 MARCAR MÚLTIPLES USUARIOS
         const selectAsignados = document.getElementById('tareaAsignadoA');
         if (selectAsignados) {
-            // Desmarcamos todos primero
             Array.from(selectAsignados.options).forEach(opt => opt.selected = false);
 
-            // 1. Intentamos sacar los IDs de la nueva relación 'usuarios'
-            // 2. Si no hay, intentamos con el campo viejo 'usuarioAsignadoId'
             let idsAsignados = [];
             if (tarea.usuarios && tarea.usuarios.length > 0) {
                 idsAsignados = tarea.usuarios.map(u => String(u.id));
@@ -2008,7 +2013,6 @@ function openTareaModal(tareaIdOrObject, mode) {
                 idsAsignados = [String(tarea.usuarioAsignadoId)];
             }
 
-            // Marcamos en el select múltiple
             Array.from(selectAsignados.options).forEach(option => {
                 if (idsAsignados.includes(String(option.value))) {
                     option.selected = true;
@@ -2020,9 +2024,7 @@ function openTareaModal(tareaIdOrObject, mode) {
         if (tarea.clienteNegocioId) {
             cargarDireccionesCliente(tarea.clienteNegocioId);
 
-            // Usamos un pequeño delay para dar tiempo a que las direcciones se carguen en el HTML
             setTimeout(() => {
-                // Importante: Checa si tu objeto usa 'direccionClienteId' o 'direccionCliente'
                 direccionSelect.value = tarea.direccionClienteId || tarea.direccionCliente || "";
             }, 500); 
         }
@@ -2041,14 +2043,12 @@ function openTareaModal(tareaIdOrObject, mode) {
 
         direccionSelect.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
         
-        // Desmarcar usuarios en modo creación
         const selectAsignados = document.getElementById('tareaAsignadoA');
         if (selectAsignados) Array.from(selectAsignados.options).forEach(opt => opt.selected = false);
     }
 
     modal.style.display = "flex";
 }
-
 /**
  * Envía una petición para eliminar una tarea.
  * @param {string} tareaId - El ID de la tarea a eliminar.
@@ -4295,3 +4295,26 @@ function revisarAccionesUrl() {
 
 // Ejecutar cada vez que carga la página
 document.addEventListener("DOMContentLoaded", revisarAccionesUrl);
+
+
+
+
+//busqueda del cliente
+// Pon esto donde manejas los eventos del DOM o al final de tu script.js
+document.getElementById('busquedaCliente')?.addEventListener('input', function(e) {
+    const filtro = e.target.value.toLowerCase();
+    const select = document.getElementById('tareaClienteId');
+    const opciones = select.options;
+
+    for (let i = 0; i < opciones.length; i++) {
+        const texto = opciones[i].text.toLowerCase();
+        // No filtramos la opción por defecto ("-- Seleccione Cliente --")
+        if (i === 0) continue; 
+
+        if (texto.includes(filtro)) {
+            opciones[i].style.display = ""; // Muestra
+        } else {
+            opciones[i].style.display = "none"; // Oculta
+        }
+    }
+});
