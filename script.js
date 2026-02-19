@@ -1951,118 +1951,83 @@ function setupTareaModal() {
  * @param {string} mode - 'create' o 'edit'.
  */
 function openTareaModal(tareaIdOrObject, mode) {
-    // 1. Declarar todos los elementos correctamente
     const modal = document.getElementById('tareaModal');
-    const title = document.getElementById('tareaModalTitle'); // Cambié a 'tareaModalTitle' según tu HTML
+    const title = document.getElementById('tareaModalTitle');
     const form = document.getElementById('tareaForm');
     const clienteSelect = document.getElementById('tareaClienteId');
-    const direccionSelect = document.getElementById('tareaDireccionCliente');
     const busquedaInput = document.getElementById('busquedaCliente');
+    const direccionSelect = document.getElementById('tareaDireccionCliente');
 
-    // Validación de seguridad: si no existe el modal, no sigas
-    if (!modal) {
-        console.error("No se encontró el modal con ID 'tareaModal'");
-        return;
-    }
+    if (!modal) return;
 
-    // 2. Limpiar el buscador si existe
-    if (busquedaInput) {
-        busquedaInput.value = "";
-        if (clienteSelect) {
-            Array.from(clienteSelect.options).forEach(opt => {
-                opt.style.display = "";
-                opt.disabled = false;
-            });
+    // --- 🔍 LÓGICA DEL BUSCADOR (ESTA VERSIÓN NO FALLA) ---
+    if (busquedaInput && clienteSelect) {
+        busquedaInput.value = ""; // Limpiar el texto al abrir
+        
+        // Guardamos todas las opciones originales la primera vez para no perderlas
+        if (!window.misClientesOriginales) {
+            window.misClientesOriginales = Array.from(clienteSelect.options);
+        } else {
+            // Restauramos todas las opciones al abrir el modal
+            clienteSelect.innerHTML = "";
+            window.misClientesOriginales.forEach(opt => clienteSelect.add(opt));
         }
-    }
 
-    // 3. Configurar evento de cambio de cliente
-    if (clienteSelect) {
-        clienteSelect.onchange = () => {
-            if (typeof cargarDireccionesCliente === "function") {
-                cargarDireccionesCliente(clienteSelect.value);
-            }
+        busquedaInput.oninput = function() {
+            const filtro = busquedaInput.value.toLowerCase();
+            
+            // Filtrar las opciones guardadas
+            const filtradas = window.misClientesOriginales.filter(opt => {
+                if (opt.value === "") return true; // Mantener siempre el "-- Seleccione --"
+                return opt.text.toLowerCase().includes(filtro);
+            });
+
+            // Limpiar el select y meter solo las que coinciden
+            clienteSelect.innerHTML = "";
+            filtradas.forEach(opt => clienteSelect.add(opt));
         };
     }
 
-    let tarea = {};
-
+    // --- LÓGICA DE EDICIÓN / CREACIÓN ---
     if (mode === 'edit') {
-        // --- MODO EDICIÓN ---
-        if (typeof tareaIdOrObject === "string" || typeof tareaIdOrObject === "number") {
-            tarea = window.tareasList ? window.tareasList.find(t => t.id == tareaIdOrObject) : null;
-        } else {
-            tarea = tareaIdOrObject;
-        }
-
-        if (!tarea) {
-            console.error("Tarea no encontrada para editar");
-            return;
-        }
-
-        if (title) title.textContent = "Editar Tarea";
-        if (document.getElementById('tareaId')) document.getElementById('tareaId').value = tarea.id;
-
-        // Llenar campos de texto (con protección por si no existen)
-        if (document.getElementById('tareaTitulo')) document.getElementById('tareaTitulo').value = tarea.nombre || "";
-        if (document.getElementById('tareaDescripcion')) document.getElementById('tareaDescripcion').value = tarea.descripcion || "";
-        if (document.getElementById('tareaEstado')) document.getElementById('tareaEstado').value = tarea.estado || "";
-
-        if (tarea.fechaLimite && document.getElementById('tareaFechaLimite')) {
-            document.getElementById('tareaFechaLimite').value = tarea.fechaLimite.split("T")[0];
-        }
-
-        // Selects
-        if (document.getElementById('tareaActividadId')) document.getElementById('tareaActividadId').value = tarea.actividadId || "";
-        if (clienteSelect) clienteSelect.value = tarea.clienteNegocioId || "";
-
-        // Múltiples usuarios 👥
-        const selectAsignados = document.getElementById('tareaAsignadoA');
-        if (selectAsignados) {
-            Array.from(selectAsignados.options).forEach(opt => opt.selected = false);
-            let idsAsignados = [];
-            if (tarea.usuarios && tarea.usuarios.length > 0) {
-                idsAsignados = tarea.usuarios.map(u => String(u.id));
-            } else if (tarea.usuarioAsignadoId) {
-                idsAsignados = [String(tarea.usuarioAsignadoId)];
-            }
-            Array.from(selectAsignados.options).forEach(option => {
-                if (idsAsignados.includes(String(option.value))) option.selected = true;
-            });
-        }
-
-        // Cargar direcciones 📍
-        if (tarea.clienteNegocioId && typeof cargarDireccionesCliente === "function") {
-            cargarDireccionesCliente(tarea.clienteNegocioId);
-            setTimeout(() => {
-                if (direccionSelect) {
-                    direccionSelect.value = tarea.direccionClienteId || tarea.direccionCliente || "";
-                }
-            }, 500); 
-        }
-
-    } else {
-        // --- MODO CREAR ---
-        if (title) title.textContent = "Crear Nueva Tarea";
-        if (form) form.reset();
-        if (document.getElementById('tareaId')) document.getElementById('tareaId').value = "";
-
-        const fechaInput = document.getElementById('tareaFechaLimite');
-        if (fechaInput) {
-            fechaInput.value = new Date().toISOString().split('T')[0];
-        }
-
-        if (direccionSelect) {
-            direccionSelect.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
-        }
+        title.textContent = "Editar Tarea";
+        let tarea = (typeof tareaIdOrObject === "object") ? tareaIdOrObject : window.tareasList.find(t => t.id == tareaIdOrObject);
         
-        const selectAsignados = document.getElementById('tareaAsignadoA');
-        if (selectAsignados) {
-            Array.from(selectAsignados.options).forEach(opt => opt.selected = false);
+        if (tarea) {
+            document.getElementById('tareaId').value = tarea.id;
+            document.getElementById('tareaTitulo').value = tarea.nombre || "";
+            document.getElementById('tareaDescripcion').value = tarea.descripcion || "";
+            document.getElementById('tareaEstado').value = tarea.estado || "";
+            if (tarea.fechaLimite) document.getElementById('tareaFechaLimite').value = tarea.fechaLimite.split("T")[0];
+            
+            if (document.getElementById('tareaActividadId')) document.getElementById('tareaActividadId').value = tarea.actividadId || "";
+            clienteSelect.value = tarea.clienteNegocioId || "";
+
+            // Marcar técnicos
+            const selectAsignados = document.getElementById('tareaAsignadoA');
+            if (selectAsignados) {
+                Array.from(selectAsignados.options).forEach(opt => opt.selected = false);
+                const ids = tarea.usuarios ? tarea.usuarios.map(u => String(u.id)) : (tarea.usuarioAsignadoId ? [String(tarea.usuarioAsignadoId)] : []);
+                Array.from(selectAsignados.options).forEach(opt => {
+                    if (ids.includes(String(opt.value))) opt.selected = true;
+                });
+            }
+
+            // Cargar direcciones
+            if (tarea.clienteNegocioId) {
+                cargarDireccionesCliente(tarea.clienteNegocioId);
+                setTimeout(() => { 
+                    if (direccionSelect) direccionSelect.value = tarea.direccionClienteId || ""; 
+                }, 500);
+            }
         }
+    } else {
+        title.textContent = "Crear Nueva Tarea";
+        if (form) form.reset();
+        document.getElementById("tareaId").value = "";
+        if (direccionSelect) direccionSelect.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
     }
 
-    // 4. MOSTRAR EL MODAL ✨
     modal.style.display = "flex";
 }
 
