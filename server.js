@@ -76,18 +76,37 @@ app.use('/api/cuentas', require('./src/routes/cuentaRoutes'));
 
 // server.js final
 
+// === INICIO DEL SERVIDOR – CON CREACIÓN MANUAL DE TABLA ===
 connectDB()
   .then(async () => {
     console.log('✅ Base de datos conectada correctamente');
 
-    // 🔄 MODIFICACIÓN AQUÍ: Agregamos { alter: true }
-    // Esto crea la tabla TareaUsuarios sin borrar tus datos actuales
-    await sequelize.sync({ alter: true }); 
-    
-    console.log('🚀 Modelos sincronizados con soporte para múltiples usuarios');
+    try {
+      // 🛠️ ESTE ES EL CAMBIO EN LA BASE DE DATOS:
+      // Creamos la tabla de unión manualmente para evitar el error "USING"
+      await sequelize.query(`
+        CREATE TABLE IF NOT EXISTS "TareaUsuarios" (
+          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL,
+          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL,
+          "tareaId" INTEGER REFERENCES "Tareas" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+          "usuarioId" INTEGER REFERENCES "Usuarios" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+          PRIMARY KEY ("tareaId", "usuarioId")
+        );
+      `);
+      console.log('✅ Tabla TareaUsuarios lista (Cambio en DB exitoso)');
+    } catch (dbError) {
+      console.error('⚠️ Nota sobre la tabla:', dbError.message);
+    }
+
+    // Sincronización normal (SIN el alter: true que causó el error)
+    await sequelize.sync(); 
+    console.log('🚀 Modelos sincronizados correctamente');
 
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
-      console.log(`🚀 Servidor en puerto ${PORT}`);
+      console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
     });
+  })
+  .catch(err => {
+    console.error('❌ Error al iniciar el servidor:', err);
   });
