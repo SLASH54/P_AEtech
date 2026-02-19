@@ -4298,25 +4298,6 @@ document.addEventListener("DOMContentLoaded", revisarAccionesUrl);
 
 
 
-//busqueda del cliente
-// Pon esto donde manejas los eventos del DOM o al final de tu script.js
-document.getElementById('busquedaCliente')?.addEventListener('input', function(e) {
-    const filtro = e.target.value.toLowerCase();
-    const select = document.getElementById('tareaClienteId');
-    const opciones = select.options;
-
-    for (let i = 0; i < opciones.length; i++) {
-        const texto = opciones[i].text.toLowerCase();
-        // No filtramos la opción por defecto ("-- Seleccione Cliente --")
-        if (i === 0) continue; 
-
-        if (texto.includes(filtro)) {
-            opciones[i].style.display = ""; // Muestra
-        } else {
-            opciones[i].style.display = "none"; // Oculta
-        }
-    }
-});
 
 
 
