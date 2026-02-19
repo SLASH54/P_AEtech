@@ -1952,23 +1952,16 @@ function setupTareaModal() {
  */
 function openTareaModal(tareaIdOrObject, mode) {
     const modal = document.getElementById('tareaModal');
-    const busquedaInput = document.getElementById('busquedaCliente');
     const clienteSelect = document.getElementById('tareaClienteId');
+    const busquedaInput = document.getElementById('busquedaCliente');
 
-    // ✨ LIMPIAR BÚSQUEDA ANTERIOR
+    // 1. Limpiar el buscador y mostrar todos los clientes de nuevo
     if (busquedaInput) {
-        busquedaInput.value = ""; // Borra el texto
-        // Muestra todos los clientes de nuevo
+        busquedaInput.value = "";
         if (clienteSelect) {
-            Array.from(clienteSelect.options).forEach(opt => {
-                opt.style.display = "";
-                opt.disabled = false;
-            });
+            Array.from(clienteSelect.options).forEach(opt => opt.style.display = "");
         }
     }
-
-    
-
 
     
 
@@ -4305,6 +4298,29 @@ document.addEventListener("DOMContentLoaded", revisarAccionesUrl);
 
 
 
+//busqueda del cliente
+// Pon esto donde manejas los eventos del DOM o al final de tu script.js
+document.getElementById('busquedaCliente')?.addEventListener('input', function(e) {
+    const filtro = e.target.value.toLowerCase();
+    const select = document.getElementById('tareaClienteId');
+    const opciones = select.options;
+
+    for (let i = 0; i < opciones.length; i++) {
+        const texto = opciones[i].text.toLowerCase();
+        // No filtramos la opción por defecto ("-- Seleccione Cliente --")
+        if (i === 0) continue; 
+
+        if (texto.includes(filtro)) {
+            opciones[i].style.display = ""; // Muestra
+        } else {
+            opciones[i].style.display = "none"; // Oculta
+        }
+    }
+});
+
+
+
+// 🔥 LÓGICA DEL BUSCADOR DE CLIENTES
 // 🔥 BUSCADOR DE CLIENTES (FUNCIONAL)
 document.addEventListener('input', function (e) {
     // Verificamos que el usuario esté escribiendo en el input de búsqueda
