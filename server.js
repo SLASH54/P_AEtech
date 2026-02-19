@@ -75,13 +75,16 @@ app.use('/api/cuentas', require('./src/routes/cuentaRoutes'));
 
 
 // server.js final
+
 connectDB()
   .then(async () => {
     console.log('✅ Base de datos conectada correctamente');
 
-    // Cambiamos alter:true por un sync normal ahora que ya borramos las tablas
-    await sequelize.sync(); 
-    console.log('🚀 Tablas creadas desde cero exitosamente');
+    // 🔄 MODIFICACIÓN AQUÍ: Agregamos { alter: true }
+    // Esto crea la tabla TareaUsuarios sin borrar tus datos actuales
+    await sequelize.sync({ alter: true }); 
+    
+    console.log('🚀 Modelos sincronizados con soporte para múltiples usuarios');
 
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {

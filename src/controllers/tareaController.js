@@ -172,54 +172,49 @@ const includeConfig = [
 // ===============================s
 exports.createTarea = async (req, res) => {
     try {
-       const { 
-    nombre, descripcion, usuarioAsignadoId, actividadId, 
-    sucursalId, clienteNegocioId, direccionClienteId, fechaLimite, prioridad,
-      direccion, cliente_Nombre,      // Texto si es express
-      es_express
-} = req.body;
+        const { 
+            nombre, descripcion, usuarioAsignadoId, actividadId, 
+            sucursalId, clienteNegocioId, direccionClienteId, fechaLimite, prioridad,
+            direccion, cliente_Nombre, es_express 
+        } = req.body;
 
-    let finalClienteId = clienteNegocioId;
-    let finalDireccionId = direccionClienteId; // El ID que venga por defecto
+        let finalClienteId = clienteNegocioId;
+        let finalDireccionId = direccionClienteId;
 
-    // 🚀 LÓGICA EXPRESS: Si el cliente no existe, lo creamos ahorita
-    if (es_express) {
-      console.log("🛠 Creando cliente y dirección express para Tarea...");
-      
-      // 1. Crear el Negocio/Cliente
-      const nuevoNegocio = await ClienteNegocio.create({
-        nombre: cliente_Nombre,
-        email: `express_${Date.now()}@aetech.com`, // Email único temporal
-        telefono: "0000000000"
-        // Puedes agregar campos por defecto si tu modelo los pide
-      });
+        // 🚀 LÓGICA EXPRESS: Si el cliente no existe, lo creamos
+        if (es_express) {
+            console.log("🛠 Creando cliente y dirección express para Tarea...");
+            const nuevoNegocio = await ClienteNegocio.create({
+                nombre: cliente_Nombre,
+                email: `express_${Date.now()}@aetech.com`,
+                telefono: "0000000000"
+            });
 
-      // 2. Crear la Dirección asociada a ese nuevo negocio
-      const nuevaDireccion = await ClienteDireccion.create({
-        clienteId: nuevoNegocio.id,
-        estado: "N/A", 
-        municipio: "N/A",
-        direccion: direccion,
-        alias: "Registro Express"
-      });
+            const nuevaDireccion = await ClienteDireccion.create({
+                clienteId: nuevoNegocio.id,
+                estado: "N/A", 
+                municipio: "N/A",
+                direccion: direccion,
+                alias: "Registro Express"
+            });
 
-      finalClienteId = nuevoNegocio.id;
-      finalDireccionId = nuevaDireccion.id;
-    }
+            finalClienteId = nuevoNegocio.id;
+            finalDireccionId = nuevaDireccion.id;
+        }
 
-        
-        // Validación de campos obligatorios
+        // Validación de campos obligatorios (usuarioAsignadoId ahora esperamos que sea un Array)
         if (!nombre || !usuarioAsignadoId || !actividadId || !sucursalId) {
             return res.status(400).json({ 
-                message: 'Faltan campos requeridos (nombre, asignado, actividad, sucursal o cliente).' 
+                message: 'Faltan campos requeridos (nombre, asignados, actividad o sucursal).' 
             });
         }
 
-        // Crear la tarea
-       const tarea = await Tarea.create({
+        //modificacion a varios usuarios 
+       // 1. Crear la tarea (guardamos el primer ID en el campo viejo para no romper nada)
+const tarea = await Tarea.create({
     nombre,
-    descripcion,        // 👈 AGREGADO
-    usuarioAsignadoId,
+    descripcion,
+    usuarioAsignadoId: Array.isArray(usuarioAsignadoId) ? usuarioAsignadoId[0] : usuarioAsignadoId,
     actividadId,
     sucursalId,
     clienteNegocioId: finalClienteId,
@@ -228,80 +223,94 @@ exports.createTarea = async (req, res) => {
     prioridad
 });
 
-        // Obtener detalles de la tarea creada
-        const tareaCreada = await Tarea.findByPk(tarea.id, { include: includeConfig });
-
-        //✅ Crear notificación automática para el usuario asignado
-    
-
-        
-
-await Notificacion.create({
-  usuarioId: usuarioAsignadoId,
-  tareaId: tareaCreada.id,
-  mensaje: `Tienes una nueva tarea: ${tareaCreada.nombre}`,
-  leida: false
-});
-
-// ✅ 🔔 Enviar notificación Push FCM (Dentro de tu createTarea)
-try {
-  const usuarioAsignado = await Usuario.findByPk(usuarioAsignadoId);
-  if (usuarioAsignado && usuarioAsignado.fcmToken) {
-
-   const mensaje = {
-  notification: {
-    title: "Nueva tarea asignada",
-    body: `Se te ha asignado la tarea: "${tareaCreada.nombre}".`,
-  },
-  data: { 
-      // Enviamos la marca en la URL
-      click_action: "https://aetechprueba.netlify.app/sistema.html?open=tareas",
-  },
-  token: usuarioAsignado.fcmToken,
-};
-
-    await admin.messaging().send(mensaje);
-    console.log("✅ Notificación FCM enviada a:", usuarioAsignado.nombre);
-  }
-} catch (error) {
-  console.error("❌ Error enviando notificación FCM:", error);
+// 2. 🔥 VINCULAR TODOS LOS USUARIOS SELECCIONADOS
+if (Array.isArray(usuarioAsignadoId) && usuarioAsignadoId.length > 0) {
+    await tarea.setUsuarios(usuarioAsignadoId); 
 }
 
-    // 🔹 Responder al frontend
-    return res.status(201).json({
-      message: "Tarea asignada con éxito.",
-      tarea: tareaCreada
+// 3. 🔔 NOTIFICAR A CADA UNO (Usando un ciclo)
+const idsANotificar = Array.isArray(usuarioAsignadoId) ? usuarioAsignadoId : [usuarioAsignadoId];
+
+for (const uId of idsANotificar) {
+    // Crear notificación en DB
+    await Notificacion.create({
+        usuarioId: uId,
+        tareaId: tarea.id,
+        mensaje: `Tienes una nueva tarea: ${nombre}`,
+        leida: false
     });
 
-  } catch (error) {
-    console.error("Error al crear tarea:", error);
-    return res.status(500).json({
-      message: "Error interno del servidor al crear la tarea."
-    });
-  }
+    // Enviar Push FCM
+    try {
+        const user = await Usuario.findByPk(uId);
+        if (user && user.fcmToken) {
+            const mensajePush = {
+                notification: { title: "Nueva tarea asignada", body: `Asignada: ${nombre}` },
+                token: user.fcmToken
+            };
+            await admin.messaging().send(mensajePush);
+        }
+    } catch (e) { console.error("Error enviando push:", e); }
+}
 
 
 
 
+        // 2. 🔗 ASOCIAR MÚLTIPLES USUARIOS
+        // Esto asume que tienes la relación belongsToMany configurada como "usuarios"
+        if (Array.isArray(usuarioAsignadoId)) {
+            await tarea.setUsuarios(usuarioAsignadoId); 
+        }
 
+        // Obtener detalles para las notificaciones
+        const tareaCreada = await Tarea.findByPk(tarea.id, { include: includeConfig });
 
-//sendPushToUser(
-//  usuarioAsignadoId,
-//  'Nueva tarea asignada',
-//  `${tareaCreada.nombre} · fecha límite: ${new Date(tareaCreada.fechaLimite).toLocaleDateString('es-MX')}`,
-//  { tareaId: String(tareaCreada.id) }
-//);
-        
-//      return res.status(201).json({ message: 'Tarea asignada con éxito.', tarea: tareaCreada });  
-      
-//      } catch (error) {
-//        console.error('Error al crear tarea:', error);
-//        return res.status(500).json({ message: 'Error interno del servidor al crear la tarea.' });
-//    }
-    
+        // 3. 🔔 BUCLE DE NOTIFICACIONES PARA CADA USUARIO
+        const listaUsuariosIds = Array.isArray(usuarioAsignadoId) ? usuarioAsignadoId : [usuarioAsignadoId];
+
+        for (const uId of listaUsuariosIds) {
+            // Notificación en la base de datos
+            await Notificacion.create({
+                usuarioId: uId,
+                tareaId: tareaCreada.id,
+                mensaje: `Tienes una nueva tarea: ${tareaCreada.nombre}`,
+                leida: false
+            });
+
+            // Intento de notificación Push FCM
+            try {
+                const usuarioAsignado = await Usuario.findByPk(uId);
+                if (usuarioAsignado && usuarioAsignado.fcmToken) {
+                    const mensajePush = {
+                        notification: {
+                            title: "Nueva tarea asignada",
+                            body: `Se te ha asignado la tarea: "${tareaCreada.nombre}".`,
+                        },
+                        data: { 
+                            click_action: "https://aetechprueba.netlify.app/sistema.html?open=tareas",
+                        },
+                        token: usuarioAsignado.fcmToken,
+                    };
+                    await admin.messaging().send(mensajePush);
+                    console.log(`✅ Push enviada a: ${usuarioAsignado.nombre}`);
+                }
+            } catch (err) {
+                console.error(`❌ Error Push para usuario ${uId}:`, err.message);
+            }
+        }
+
+        return res.status(201).json({
+            message: "Tarea asignada con éxito a todos los usuarios.",
+            tarea: tareaCreada
+        });
+
+    } catch (error) {
+        console.error("🚨 Error al crear tarea:", error);
+        return res.status(500).json({
+            message: "Error interno del servidor al crear la tarea."
+        });
+    }
 };
-
-
 // ===============================
 // 2. OBTENER TODAS LAS TAREAS (GET)
 // ===============================

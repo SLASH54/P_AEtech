@@ -32,9 +32,35 @@ ClienteDireccion.hasMany(Tarea, {
   foreignKey: 'direccionClienteId' 
 });
 
-// Tarea → Usuario
+
+
+
+
+
+// --- NUEVA RELACIÓN MUCHOS A MUCHOS ---
+// Esto creará automáticamente una tabla llamada 'TareaUsuarios' para unir ambas
+Tarea.belongsToMany(Usuario, { 
+  through: 'TareaUsuarios', 
+  as: 'usuarios', 
+  foreignKey: 'tareaId' 
+});
+
+Usuario.belongsToMany(Tarea, { 
+  through: 'TareaUsuarios', 
+  as: 'TareasAsignadas', 
+  foreignKey: 'usuarioId' 
+});
+
+// Mantenemos esta solo por compatibilidad con el campo viejo de la DB
 Tarea.belongsTo(Usuario, { foreignKey: 'usuarioAsignadoId', as: 'AsignadoA' });
-Usuario.hasMany(Tarea, { foreignKey: 'usuarioAsignadoId', as: 'TareasAsignadas' });
+
+
+
+
+
+
+
+
 
 // Tarea → Actividad
 Tarea.belongsTo(Actividad, { foreignKey: 'actividadId' });

@@ -1597,7 +1597,11 @@ function renderTareasTable(tareas) {
 
 
         // Datos relacionados
-        const asignadoNombre = tarea.AsignadoA?.nombre || 'N/A';
+   // Sacamos los nombres de los usuarios (si son varios) o el nombre único (si es el formato viejo)
+        const asignadoNombre = (tarea.usuarios && tarea.usuarios.length > 0) 
+            ? tarea.usuarios.map(u => u.nombre).join(', ') 
+            : (tarea.AsignadoA?.nombre || 'N/A');
+
       const clienteNombre = tarea.ClienteNegocio?.nombre || 'Sin cliente';
 
       let clienteDireccion = 'Sin dirección registrada';
@@ -1647,6 +1651,7 @@ const clienteMapsLink = clienteMaps
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 ${asignadoNombre}
             </td>
+            
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                <a href="${clienteMapsLink}" target="_blank" class="text-blue-600 hover:underline">
                   ${clienteDireccion} 📍
@@ -1883,17 +1888,31 @@ function setupTareaModal() {
             }
 
             // --- DATA FINAL PARA EL BACKEND ---
+            // --- 1. CAPTURA DE USUARIOS (NUEVO) ---
+            const selectAsignados = document.getElementById('tareaAsignadoA');
+            // Esto crea una lista con todos los IDs de los usuarios que seleccionaste
+            const usuariosSeleccionadosIds = Array.from(selectAsignados.selectedOptions).map(option => option.value);
+
+            // Validación rápida
+            if (usuariosSeleccionadosIds.length === 0) {
+                alert("⚠️ Por favor, selecciona al menos un usuario.");
+                loader.style.display = 'none';
+                return;
+            }
+
+            // --- 2. DATA FINAL PARA EL BACKEND (ACTUALIZADO) ---
             const data = {
                 nombre: document.getElementById('tareaTitulo').value, 
-                usuarioAsignadoId: document.getElementById('tareaAsignadoA').value, 
-                actividadId: actividadId, // 👈 Usamos el ID (el viejo o el nuevo)
+                // Enviamos el array de IDs en lugar de uno solo
+                usuarioAsignadoId: usuariosSeleccionadosIds, 
+                actividadId: actividadId,
                 clienteNegocioId: document.getElementById('tareaClienteId').value,
                 direccionClienteId: document.getElementById('tareaDireccionCliente').value,
                 sucursalId: document.getElementById('tareaSucursalId')?.value || '1', 
                 descripcion: document.getElementById('tareaDescripcion').value,
                 fechaLimite: document.getElementById('tareaFechaLimite').value,
                 estado: document.getElementById('tareaEstado').value,
-                prioridad : 'Normal',
+                prioridad: 'Normal',
                 cliente_Nombre: clienteNombre,
                 direccion: direccionTexto,
                 es_express: isExpressModeTarea 
@@ -1969,11 +1988,23 @@ function openTareaModal(tareaIdOrObject, mode) {
             document.getElementById('tareaFechaLimite').value = tarea.fechaLimite.split("T")[0];
         }
 
-        // SELECTS IMPORTANTES 🔥🔥🔥
-       document.getElementById('tareaActividadId').value = tarea.actividadId || "";
-       document.getElementById('tareaClienteId').value = tarea.clienteNegocioId || "";
-       document.getElementById('tareaDireccionCliente').value = tarea.direccionCliente || "";
-       ;
+      // SELECTS IMPORTANTES 🔥🔥🔥
+document.getElementById('tareaActividadId').value = tarea.actividadId || "";
+document.getElementById('tareaClienteId').value = tarea.clienteNegocioId || "";
+
+// Marcar múltiples usuarios seleccionados (NUEVO)
+const selectAsignados = document.getElementById('tareaAsignadoA');
+if (tarea.usuarioAsignadoId) {
+    // Si el backend te devuelve un array, lo usamos directamente. 
+    // Si viene como string separado por comas, usamos .split(',')
+    const idsAsignados = Array.isArray(tarea.usuarioAsignadoId) 
+        ? tarea.usuarioAsignadoId 
+        : [tarea.usuarioAsignadoId];
+
+    Array.from(selectAsignados.options).forEach(option => {
+        option.selected = idsAsignados.includes(option.value);
+    });
+}
 
         // Cargar direcciones
         cargarDireccionesCliente(tarea.clienteNegocioId);
