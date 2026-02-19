@@ -1677,7 +1677,7 @@ const clienteMapsLink = clienteMaps
                         Agregar Evidencias
                     </button>`
                   :`<button disabled title="Solo disponible cuando la tarea este Autorizada o marcada como Pendiente" 
-                        class="inline-block px-3 py-1 text-sm rounded bg-gray-300 text-gray-600 cursor-not-allowed ml-2">
+                        class="inline-block px-3 py-1 text-sm rounded bg-gray-300 text-gray-600 cursor-not-allowed ml-2 width: 90%;">
                         Agregar Evidencias
                     </button>`
                 }
@@ -1689,7 +1689,7 @@ const clienteMapsLink = clienteMaps
                         📄 PDF
                     </button>`
                 : `<button disabled title="Solo disponible cuando la tarea esté completada" 
-                        class="inline-block px-3 py-1 text-sm rounded bg-gray-300 text-gray-600 cursor-not-allowed ml-2">
+                        class="inline-block px-3 py-1 text-sm rounded bg-gray-300 text-gray-600 cursor-not-allowed ml-2 width: 90%;">
                         📄 PDF
                     </button>`
                   }
@@ -1700,7 +1700,7 @@ const clienteMapsLink = clienteMaps
                           👁 Ver Evidencias
                       </button>`
                   :`<button disabled title="Solo disponible cuando la tarea esté completada"
-                          class="inline-block px-3 py-1 text-sm rounded bg-gray-300 text-gray-600 cursor-not-allowed ml-2">
+                          class="inline-block px-3 py-1 text-sm rounded bg-gray-300 text-gray-600 cursor-not-allowed ml-2 width: 90%;">
                           👁 Ver Evidencias
                       </button>`
                   }
@@ -1711,7 +1711,7 @@ const clienteMapsLink = clienteMaps
                         <i class="fas fa-bell"></i> Recordar
                       </button>`
                   :`<button disabled title="Solo disponible cuando la tarea este Pendiente" 
-                      class="inline-block px-3 py-1 text-sm rounded bg-gray-300 text-gray-600 cursor-not-allowed ml-2">
+                      class="inline-block px-3 py-1 text-sm rounded bg-gray-300 text-gray-600 cursor-not-allowed ml-2 width: 90%">
                         <i class="fas fa-bell"></i> Recordar
                       </button>` 
                   }

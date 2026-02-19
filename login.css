@@ -4723,31 +4723,37 @@ button.text-purple-600 {
 /* Rojo Suave (Eliminar) */
 button.text-red-600.hover\:text-red-900 {
     background: linear-gradient(180deg, #ff7675 0%, #d63031 100%) !important;
+    width: 90%;
 }
 
 /* Morado Eléctrico (Recordatorio) */
 button.btn-recordatorio {
     background: linear-gradient(180deg, #a29bfe 0%, #6c5ce7 100%) !important;
+    width: 90%;
 }
 
 /* Cian / Turquesa (Editar) */
 button.text-indigo-600.hover\:text-indigo-900.mr-3 {
     background: linear-gradient(180deg, #81ecec 0%, #00cec9 100%) !important;
+    width: 90%;
 }
 
 /* Verde Esmeralda (Completar) */
 button.text-green-600.hover\:text-green-900 {
     background: linear-gradient(180deg, #55efc4 0%, #00b894 100%) !important;
+    width: 90%;
 }
 
 /* Naranja Atardecer (Express) */
 button.inline-block.px-3.py-1.text-sm.rounded.bg-green-600.text-white.hover\:bg-green-700.ml-2 {
     background: linear-gradient(180deg, #fab1a0 0%, #e17055 100%) !important;
+    width: 90%;
 }
 
 /* Rosa Orquídea (Detalles/Otros) */
 button.text-purple-600.hover\:text-purple-900.ml-2 {
     background: linear-gradient(180deg, #fd79a8 0%, #e84393 100%) !important;
+    width: 90%;
 }
 
 /* Reflejo de luz superior para el efecto agua */
