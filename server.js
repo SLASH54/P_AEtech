@@ -98,7 +98,7 @@ connectDB()
       console.error('⚠️ Error al verificar tabla TareaUsuarios:', dbError.message);
     }
 
-    // Sync normal sin alter:true para evitar errores de ENUM
+    // Sync normal sin alter:true para evitar errore s de ENUM
     await sequelize.sync(); 
     console.log('🚀 Servidor sincronizado y listo');
 

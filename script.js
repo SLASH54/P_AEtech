@@ -1958,7 +1958,6 @@ function openTareaModal(tareaIdOrObject, mode) {
     const clienteSelect = document.getElementById('tareaClienteId');
     const direccionSelect = document.getElementById('tareaDireccionCliente');
 
-
     // Asignar evento cada vez que se abre el modal
     clienteSelect.onchange = () => {
         cargarDireccionesCliente(clienteSelect.value);
@@ -1967,8 +1966,7 @@ function openTareaModal(tareaIdOrObject, mode) {
     let tarea = {};
 
     if (mode === 'edit') {
-
-        if (typeof tareaIdOrObject === "string") {
+        if (typeof tareaIdOrObject === "string" || typeof tareaIdOrObject === "number") {
             tarea = window.tareasList.find(t => t.id == tareaIdOrObject);
         } else {
             tarea = tareaIdOrObject;
@@ -1991,51 +1989,65 @@ function openTareaModal(tareaIdOrObject, mode) {
             document.getElementById('tareaFechaLimite').value = tarea.fechaLimite.split("T")[0];
         }
 
-      // SELECTS IMPORTANTES 🔥🔥🔥
-document.getElementById('tareaActividadId').value = tarea.actividadId || "";
-document.getElementById('tareaClienteId').value = tarea.clienteNegocioId || "";
+        // SELECTS IMPORTANTES
+        document.getElementById('tareaActividadId').value = tarea.actividadId || "";
+        document.getElementById('tareaClienteId').value = tarea.clienteNegocioId || "";
 
-// Marcar múltiples usuarios seleccionados (NUEVO)
-const selectAsignados = document.getElementById('tareaAsignadoA');
-if (tarea.usuarioAsignadoId) {
-    // Si el backend te devuelve un array, lo usamos directamente. 
-    // Si viene como string separado por comas, usamos .split(',')
-    const idsAsignados = Array.isArray(tarea.usuarioAsignadoId) 
-        ? tarea.usuarioAsignadoId 
-        : [tarea.usuarioAsignadoId];
+        // 👥 MARCAR MÚLTIPLES USUARIOS (CORREGIDO)
+        const selectAsignados = document.getElementById('tareaAsignadoA');
+        if (selectAsignados) {
+            // Desmarcamos todos primero
+            Array.from(selectAsignados.options).forEach(opt => opt.selected = false);
 
-    Array.from(selectAsignados.options).forEach(option => {
-        option.selected = idsAsignados.includes(option.value);
-    });
-}
+            // 1. Intentamos sacar los IDs de la nueva relación 'usuarios'
+            // 2. Si no hay, intentamos con el campo viejo 'usuarioAsignadoId'
+            let idsAsignados = [];
+            if (tarea.usuarios && tarea.usuarios.length > 0) {
+                idsAsignados = tarea.usuarios.map(u => String(u.id));
+            } else if (tarea.usuarioAsignadoId) {
+                idsAsignados = [String(tarea.usuarioAsignadoId)];
+            }
 
-        // Cargar direcciones
-        cargarDireccionesCliente(tarea.clienteNegocioId);
+            // Marcamos en el select múltiple
+            Array.from(selectAsignados.options).forEach(option => {
+                if (idsAsignados.includes(String(option.value))) {
+                    option.selected = true;
+                }
+            });
+        }
 
-        setTimeout(() => {
-            direccionSelect.value = tarea.direccionCliente || "";
-        }, 250);
+        // 📍 CARGAR DIRECCIONES Y SELECCIONAR LA CORRECTA
+        if (tarea.clienteNegocioId) {
+            cargarDireccionesCliente(tarea.clienteNegocioId);
+
+            // Usamos un pequeño delay para dar tiempo a que las direcciones se carguen en el HTML
+            setTimeout(() => {
+                // Importante: Checa si tu objeto usa 'direccionClienteId' o 'direccionCliente'
+                direccionSelect.value = tarea.direccionClienteId || tarea.direccionCliente || "";
+            }, 500); 
+        }
 
     } else {
-    // CREAR TAREA
-    title.textContent = "Crear Nueva Tarea";
-    form.reset();
-    document.getElementById("tareaId").value = "";
+        // CREAR TAREA
+        title.textContent = "Crear Nueva Tarea";
+        form.reset();
+        document.getElementById("tareaId").value = "";
 
-    // 📅 FECHA POR DEFECTO = HOY
-    const fechaInput = document.getElementById('tareaFechaLimite');
-    if (fechaInput) {
-        const hoy = new Date().toISOString().split('T')[0];
-        fechaInput.value = hoy;
+        const fechaInput = document.getElementById('tareaFechaLimite');
+        if (fechaInput) {
+            const hoy = new Date().toISOString().split('T')[0];
+            fechaInput.value = hoy;
+        }
+
+        direccionSelect.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
+        
+        // Desmarcar usuarios en modo creación
+        const selectAsignados = document.getElementById('tareaAsignadoA');
+        if (selectAsignados) Array.from(selectAsignados.options).forEach(opt => opt.selected = false);
     }
-
-    direccionSelect.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
-}
-
 
     modal.style.display = "flex";
 }
-
 
 /**
  * Envía una petición para eliminar una tarea.

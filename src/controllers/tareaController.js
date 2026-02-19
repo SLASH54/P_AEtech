@@ -337,30 +337,61 @@ exports.getTareasAsignadas = async (req, res) => {
         return res.status(500).json({ message: 'Error al obtener tareas.' });
     }
 };
+
+
 // ===============================
-// 4. ACTUALIZAR TAREA (PUT)
+// OBTENER TAREA POR ID (Para el Modal de Edición) 4.1
+// ===============================
+exports.getTareaById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const tarea = await Tarea.findByPk(id, { 
+            include: includeConfig // includeConfig ya tiene 'usuarios' y 'ClienteNegocio'
+        });
+        if (!tarea) return res.status(404).json({ message: 'Tarea no encontrada' });
+        res.json(tarea);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener la tarea' });
+    }
+};
+
+// ===============================
+// 4. ACTUALIZAR TAREA (PUT) - MODIFICADO
 // ===============================
 exports.updateTarea = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const [updated] = await Tarea.update(req.body, { where: { id } });
+    try {
+        const { id } = req.params;
+        const { usuarioAsignadoId, ...datosTarea } = req.body;
 
-    if (!updated) return res.status(404).json({ message: 'Tarea no encontrada.' });
+        const tarea = await Tarea.findByPk(id);
+        if (!tarea) return res.status(404).json({ message: 'Tarea no encontrada.' });
 
-    const tareaActualizada = await Tarea.findByPk(id, { include: includeConfig });
+        // 1. Actualizar datos básicos (nombre, descripción, dirección, etc.)
+        await tarea.update(datosTarea);
 
-    // ✅ Si la tarea se marca como COMPLETADA → eliminar notificaciones
-    if (tareaActualizada.estado === 'Completada') {
-      await Notificacion.destroy({ where: { tareaId: id } });
-      console.log(`🧹 Notificaciones eliminadas para tarea completada ID: ${id}`);
+        // 2. 🔥 ACTUALIZAR USUARIOS (Muchos a Muchos)
+        if (usuarioAsignadoId) {
+            const idsArray = Array.isArray(usuarioAsignadoId) 
+                ? usuarioAsignadoId.filter(id => id !== "") 
+                : [usuarioAsignadoId];
+            
+            await tarea.setUsuarios(idsArray);
+            
+            // Actualizamos también el campo viejo por compatibilidad
+            await tarea.update({ usuarioAsignadoId: idsArray[0] || null });
+        }
+
+        const tareaActualizada = await Tarea.findByPk(id, { include: includeConfig });
+
+        if (tareaActualizada.estado === 'Completada') {
+            await Notificacion.destroy({ where: { tareaId: id } });
+        }
+
+        res.json({ message: 'Tarea actualizada con éxito.', tarea: tareaActualizada });
+    } catch (error) {
+        console.error('Error al actualizar tarea:', error);
+        res.status(500).json({ message: 'Error al actualizar la tarea.' });
     }
-
-    res.json({ message: 'Tarea actualizada con éxito.', tarea: tareaActualizada });
-
-  } catch (error) {
-    console.error('Error al actualizar tarea:', error);
-    res.status(500).json({ message: 'Error interno del servidor al actualizar la tarea.' });
-  }
 };
 
 // ===============================
