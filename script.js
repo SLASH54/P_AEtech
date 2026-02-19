@@ -1960,12 +1960,11 @@ function openTareaModal(tareaIdOrObject, mode) {
 
     if (!modal) return;
 
-    // --- 🚀 BUSCADOR TIPO GOOGLE (RECONSTRUCCIÓN TOTAL) ---
+    // --- 🔍 LÓGICA DEL BUSCADOR (CORREGIDA PARA DIRECCIONES) ---
     if (busquedaInput && clienteSelect) {
-        busquedaInput.value = ""; // Limpiar texto al abrir
+        busquedaInput.value = ""; 
         
-        // 1. Guardar una copia maestra de los clientes si no existe
-        // Esto evita que al filtrar se "pierdan" los clientes para siempre
+        // 1. Guardar copia maestra si no existe
         if (!window.clientesBackup) {
             window.clientesBackup = Array.from(clienteSelect.options).map(o => ({
                 value: o.value,
@@ -1973,31 +1972,43 @@ function openTareaModal(tareaIdOrObject, mode) {
             }));
         }
 
-        // 2. Restaurar la lista completa al abrir
+        // 2. Restaurar lista completa al abrir
         clienteSelect.innerHTML = "";
         window.clientesBackup.forEach(c => {
             clienteSelect.add(new Option(c.text, c.value));
         });
 
-        // 3. Filtrado en tiempo real (Evento oninput)
+        // 3. Filtrado en tiempo real
         busquedaInput.oninput = function() {
             const filtro = busquedaInput.value.toLowerCase();
-            
-            // Filtramos la copia maestra
-            const filtrados = window.clientesBackup.filter(c => {
-                // Siempre dejamos la opción vacía o la que coincida con el texto
-                return c.value === "" || c.text.toLowerCase().includes(filtro);
-            });
+            const filtrados = window.clientesBackup.filter(c => 
+                c.value === "" || c.text.toLowerCase().includes(filtro)
+            );
 
-            // Vaciamos el select y metemos solo los que pasaron el filtro
             clienteSelect.innerHTML = "";
             filtrados.forEach(c => {
                 clienteSelect.add(new Option(c.text, c.value));
             });
+            
+            // Re-vincular el evento de cambio para que al filtrar no se pierda la carga de direcciones
+            clienteSelect.onchange = () => {
+                if (typeof cargarDireccionesCliente === "function") {
+                    cargarDireccionesCliente(clienteSelect.value);
+                }
+            };
         };
     }
 
-    // --- LÓGICA DE CARGA DE DATOS (EDITAR / CREAR) ---
+    // --- 📍 VINCULAR CARGA DE DIRECCIONES ---
+    if (clienteSelect) {
+        clienteSelect.onchange = () => {
+            if (typeof cargarDireccionesCliente === "function") {
+                cargarDireccionesCliente(clienteSelect.value);
+            }
+        };
+    }
+
+    // --- LÓGICA DE CARGA DE DATOS ---
     if (mode === 'edit') {
         title.textContent = "Editar Tarea";
         let tarea = (typeof tareaIdOrObject === "object") ? tareaIdOrObject : window.tareasList.find(t => t.id == tareaIdOrObject);
@@ -2011,8 +2022,16 @@ function openTareaModal(tareaIdOrObject, mode) {
             
             if (document.getElementById('tareaActividadId')) document.getElementById('tareaActividadId').value = tarea.actividadId || "";
             
-            // Seleccionamos el cliente (IMPORTANTE: después de restaurar la lista)
+            // Seleccionamos el cliente
             clienteSelect.value = tarea.clienteNegocioId || "";
+
+            // 🔥 FORZAMOS LA CARGA DE DIRECCIONES AL EDITAR
+            if (tarea.clienteNegocioId && typeof cargarDireccionesCliente === "function") {
+                cargarDireccionesCliente(tarea.clienteNegocioId);
+                setTimeout(() => { 
+                    if (direccionSelect) direccionSelect.value = tarea.direccionClienteId || ""; 
+                }, 600); // Un pelín más de tiempo para seguridad
+            }
 
             // Marcar técnicos
             const selectAsignados = document.getElementById('tareaAsignadoA');
@@ -2022,12 +2041,6 @@ function openTareaModal(tareaIdOrObject, mode) {
                 Array.from(selectAsignados.options).forEach(opt => {
                     if (ids.includes(String(opt.value))) opt.selected = true;
                 });
-            }
-
-            // Cargar direcciones
-            if (tarea.clienteNegocioId) {
-                cargarDireccionesCliente(tarea.clienteNegocioId);
-                setTimeout(() => { if (direccionSelect) direccionSelect.value = tarea.direccionClienteId || ""; }, 500);
             }
         }
     } else {
