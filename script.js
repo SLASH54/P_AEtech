@@ -1882,28 +1882,20 @@ function setupTareaModal() {
             }
 
           // --- RECOLECCIÓN DE DATOS DE CLIENTE (OPCIONAL) ---
-            let clienteId, clienteNombre, direccionTexto, direccionId;
+let clienteId, clienteNombre, direccionTexto, direccionId; // <-- Agregamos direccionId aquí
 
-            if (isExpressModeTarea) {
-                clienteId = null;
-                clienteNombre = document.getElementById("expressClienteNombre").value.trim();
-                direccionTexto = document.getElementById("expressDireccion").value.trim();
-                // En modo express podrías dejar la validación o quitarla si también quieres que sea opcional
-                if (!clienteNombre || !direccionTexto) throw new Error("Faltan datos express");
-            } else {
-                const selectC = document.getElementById("tareaClienteId");
-                const selectD = document.getElementById("tareaDireccionCliente");
-                
-                // Si no hay nada seleccionado, el valor será null
-                clienteId = selectC.value || null;
-                direccionId = selectD.value || null;
+if (isExpressModeTarea) {
+    // ... tu código de express ...
+} else {
+    const selectC = document.getElementById("tareaClienteId");
+    const selectD = document.getElementById("tareaDireccionCliente");
+    
+    clienteId = selectC.value || null;
+    direccionId = selectD.value || null; // <-- ASEGÚRATE DE QUE ESTA LÍNEA ESTÉ AQUÍ
 
-                // Capturamos el texto de la opción seleccionada (si existe)
-                clienteNombre = clienteId ? selectC.options[selectC.selectedIndex]?.text : "Sin Cliente";
-                direccionTexto = direccionId ? selectD.options[selectD.selectedIndex]?.text : "Sin Dirección";
-                
-                // ✅ Ya no hay "throw new Error", así que si están vacíos, el código SIGUE.
-            }
+    clienteNombre = clienteId ? selectC.options[selectC.selectedIndex]?.text : "Sin Cliente";
+    direccionTexto = direccionId ? selectD.options[selectD.selectedIndex]?.text : "Sin Dirección";
+}
 
             // --- DATA FINAL PARA EL BACKEND ---
             // --- 1. CAPTURA DE USUARIOS (NUEVO) ---
@@ -1918,25 +1910,27 @@ function setupTareaModal() {
                 return;
             }
 
-         // --- 2. DATA FINAL PARA EL BACKEND (ACTUALIZADO) ---
-            const data = {
-                nombre: document.getElementById('tareaTitulo').value, 
-                usuarioAsignadoId: usuariosSeleccionadosIds, 
-                actividadId: actividadId,
-                
-                // 🔥 USA LAS VARIABLES QUE DEFINIMOS ARRIBA (que ya tienen el null)
-                clienteNegocioId: clienteId, 
-                direccionClienteId: direccionId, 
-                
-                sucursalId: document.getElementById('tareaSucursalId')?.value || '1', 
-                descripcion: document.getElementById('tareaDescripcion').value,
-                fechaLimite: document.getElementById('tareaFechaLimite').value,
-                estado: document.getElementById('tareaEstado').value,
-                prioridad: 'Normal',
-                cliente_Nombre: clienteNombre,
-                direccion: direccionTexto,
-                es_express: isExpressModeTarea 
-            };
+            // --- 2. DATA FINAL PARA EL BACKEND (ACTUALIZADO) ---
+        // --- 2. DATA FINAL PARA EL BACKEND ---
+const data = {
+    nombre: document.getElementById('tareaTitulo').value, 
+    usuarioAsignadoId: usuariosSeleccionadosIds, // Enviamos el array
+    actividadId: actividadId || null, // Si no hay actividad, mandamos null
+    
+    // 🔥 USAMOS LAS VARIABLES QUE DEFINIMOS EN EL PASO ANTERIOR
+    clienteNegocioId: clienteId, 
+    direccionClienteId: direccionId, 
+    
+    sucursalId: document.getElementById('tareaSucursalId')?.value || '1', 
+    descripcion: document.getElementById('tareaDescripcion').value,
+    fechaLimite: document.getElementById('tareaFechaLimite').value || null, // Evita error de fecha
+    estado: document.getElementById('tareaEstado').value,
+    prioridad: 'Normal',
+    cliente_Nombre: clienteNombre,
+    direccion: direccionTexto,
+    es_express: isExpressModeTarea 
+};
+
             const result = await saveOrUpdateData(endpoint, method, data);
             
             if (result) {

@@ -24,17 +24,17 @@ const Tarea = sequelize.define('Tarea', {
     // Claves Foráneas (FKs)
     usuarioAsignadoId: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true ,
         comment: 'FK al usuario (Residente/Practicante) que debe realizar la tarea.',
     },
     actividadId: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
         comment: 'FK al tipo de actividad (Instalación GPS) que se debe realizar.',
     },
     sucursalId: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true ,
         comment: 'FK a la sucursal donde se realizará la tarea.',
     },
     
