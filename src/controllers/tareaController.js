@@ -33,27 +33,24 @@ exports.solicitarTareaExpress = async (req, res) => {
         const nombreSolicitante = solicitante.nombre;
 
         // Si mandas fecha desde el front, conviértela a objeto Date primero
-        const fechaFormateada = new Date().toISOString().split('T')[0]; // Esto da 2026-01-
-        
-        
-// --- En tareaController.js ---
+        const fechaFormateada = new Date().toISOString().split('T')[0]; // Esto da 2026-01-08
+
 const nuevaTarea = await Tarea.create({
     nombre: nombre,
     descripcion: descripcion,
-    // Solo parseamos si existe el valor, si no mandamos null
+    // Solo usamos parseInt si el valor existe, si no, mandamos null
     actividadId: actividadId ? parseInt(actividadId) : null,
     sucursalId: sucursalId ? parseInt(sucursalId) : null,
     clienteNegocioId: clienteNegocioId ? parseInt(clienteNegocioId) : null,
     direccionClienteId: direccionClienteId ? parseInt(direccionClienteId) : null,
     
-    // Si usuarioAsignadoId es un array (por el cambio que hiciste), mandamos null aquí
-    // ya que los técnicos se guardan en la tabla intermedia "TareaUsuarios"
-    usuarioAsignadoId: Array.isArray(usuarioAsignadoId) ? null : (usuarioAsignadoId || null), 
-    
+    usuarioAsignadoId: userId, 
     estado: 'Pendiente de Autorización', 
-    fechaLimite: fechaLimite || null,
+    fechaLimite: fechaFormateada,
     prioridad: 'Normal'
 });
+
+
 
          await Notificacion.create({
       usuarioId: nuevaTarea.usuarioAsignadoId,
