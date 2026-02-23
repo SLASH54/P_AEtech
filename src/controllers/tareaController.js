@@ -412,10 +412,10 @@ exports.deleteTarea = async (req, res) => {
     await sequelize.query(`DELETE FROM "Evidencias" WHERE "tareaId" = ${id}`);
     console.log(`🖼️ Evidencias eliminadas.`);
 
-    
-// 🔹 3. Eliminar notificaciones vinculadas
-// Cambia "Notificacions" por "Notificaciones" (o como se llame exactamente en tu pgAdmin)
-await sequelize.query(`DELETE FROM "Notificaciones" WHERE "tareaId" = ${id}`);
+    // 3️⃣ TERCERO: Eliminar notificaciones vinculadas
+    await sequelize.query(`DELETE FROM "Notificacions" WHERE "tareaId" = ${id}`);
+    console.log(`🧹 Notificaciones eliminadas.`);
+
     // 4️⃣ FINALMENTE: Ahora que no hay dependencias, borramos la tarea
     const deleted = await Tarea.destroy({ where: { id } });
 
