@@ -4764,7 +4764,7 @@ button.text-purple-600.hover\:text-purple-900.ml-2 {
 }
 
 
-
+/* editar eliminar cliente*/
 button.edit-btn {
     color: #00ffff;
     border: 2px solid #00ffff;
@@ -4785,6 +4785,11 @@ button.edit-btn {
     -webkit-backdrop-filter: blur(5px);
 }
 
+
+button.edit-btn {
+    background: rgba(48, 209, 88, 0.25) !important;
+    border-color: rgba(48, 209, 88, 0.3);
+}
 
 
 
@@ -4807,3 +4812,22 @@ button.delete-btn {
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
 }
+
+button.delete-btn {
+    background: rgba(48, 209, 88, 0.25) !important;
+    border-color: rgba(48, 209, 88, 0.3);
+}
+
+/* tarea express */
+button#openAddExpressTaskModal {
+    background: rgba(175, 82, 222, 0.25) !important;
+    border-color: rgba(175, 82, 222, 0.3);
+}
+
+
+/* descripcion de la tarea */
+button.text-blue-600.hover\:text-blue-800.text-xs.mt-1.underline {
+    background: rgba(48, 209, 88, 0.25) !important;
+    border-color: rgba(48, 209, 88, 0.3);
+}
+
