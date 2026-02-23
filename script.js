@@ -1958,6 +1958,7 @@ function openTareaModal(tareaIdOrObject, mode) {
     const busquedaInput = document.getElementById('busquedaCliente');
     const direccionSelect = document.getElementById('tareaDireccionCliente');
     const fechaInput = document.getElementById('tareaFechaLimite');
+    const selectAsignados = document.getElementById('tareaAsignadoA');
 
     if (!modal) return;
 
@@ -1981,14 +1982,12 @@ function openTareaModal(tareaIdOrObject, mode) {
             clienteSelect.innerHTML = "";
             filtrados.forEach(c => clienteSelect.add(new Option(c.text, c.value)));
             
-            // Re-vincular onchange tras filtrar
             clienteSelect.onchange = () => {
                 if (typeof cargarDireccionesCliente === "function") cargarDireccionesCliente(clienteSelect.value);
             };
         };
     }
 
-    // Evento de cambio de cliente (para direcciones)
     if (clienteSelect) {
         clienteSelect.onchange = () => {
             if (typeof cargarDireccionesCliente === "function") cargarDireccionesCliente(clienteSelect.value);
@@ -2006,7 +2005,6 @@ function openTareaModal(tareaIdOrObject, mode) {
             document.getElementById('tareaDescripcion').value = tarea.descripcion || "";
             document.getElementById('tareaEstado').value = tarea.estado || "";
             
-            // Poner fecha de la tarea
             if (tarea.fechaLimite && fechaInput) {
                 fechaInput.value = tarea.fechaLimite.split("T")[0];
             }
@@ -2014,7 +2012,6 @@ function openTareaModal(tareaIdOrObject, mode) {
             if (document.getElementById('tareaActividadId')) document.getElementById('tareaActividadId').value = tarea.actividadId || "";
             clienteSelect.value = tarea.clienteNegocioId || "";
 
-            // Cargar direcciones al editar
             if (tarea.clienteNegocioId && typeof cargarDireccionesCliente === "function") {
                 cargarDireccionesCliente(tarea.clienteNegocioId);
                 setTimeout(() => { 
@@ -2022,8 +2019,7 @@ function openTareaModal(tareaIdOrObject, mode) {
                 }, 600);
             }
 
-            // Marcar técnicos
-            const selectAsignados = document.getElementById('tareaAsignadoA');
+            // Marcar usuarios previamente asignados
             if (selectAsignados) {
                 Array.from(selectAsignados.options).forEach(opt => opt.selected = false);
                 const ids = tarea.usuarios ? tarea.usuarios.map(u => String(u.id)) : [];
@@ -2033,24 +2029,35 @@ function openTareaModal(tareaIdOrObject, mode) {
             }
         }
     } else {
-        // --- MODO CREAR ---
         title.textContent = "Crear Nueva Tarea";
         if (form) form.reset();
         document.getElementById("tareaId").value = "";
 
-        // 🔥 ESTO PONE LA FECHA DE HOY AUTOMÁTICAMENTE
         if (fechaInput) {
-            const hoy = new Date().toISOString().split('T')[0];
-            fechaInput.value = hoy;
+            fechaInput.value = new Date().toISOString().split('T')[0];
         }
 
         if (direccionSelect) direccionSelect.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
-        const selectAsignados = document.getElementById('tareaAsignadoA');
         if (selectAsignados) Array.from(selectAsignados.options).forEach(opt => opt.selected = false);
+    }
+
+    // --- 🔥 TRUCO: SELECCIÓN MÚLTIPLE SIN CTRL ---
+    if (selectAsignados) {
+        selectAsignados.onmousedown = function(e) {
+            e.preventDefault(); // Evita el comportamiento molesto por defecto
+            
+            const scroll = this.scrollTop; // Guardamos el scroll para que no brinque
+            e.target.selected = !e.target.selected; // Cambia el estado (si estaba on pasa a off y viceversa)
+            
+            setTimeout(() => { this.scrollTop = scroll; }, 0); // Restauramos scroll
+            $(this).focus(); // Mantenemos el foco (si usas jQuery, si no usa this.focus())
+        };
     }
 
     modal.style.display = "flex";
 }
+
+
 
 
 /**

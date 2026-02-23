@@ -4767,3 +4767,11 @@ button.text-purple-600.hover\:text-purple-900.ml-2 {
     background: linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%);
     pointer-events: none;
 }
+
+
+
+ /* delccion de usuario  */
+#tareaAsignadoA option:checked {
+    background-color: #4F46E5 !important; /* Azul intenso */
+    color: white;
+}
