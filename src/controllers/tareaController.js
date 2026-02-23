@@ -11,102 +11,96 @@ const { ClienteDireccion } = require('../models/relations');
 // ===============================
 exports.solicitarTareaExpress = async (req, res) => {
     try {
-        const { nombre, descripcion, actividadId, sucursalId, clienteNegocioId, direccionClienteId, fechaLimite, } = req.body;
+        // 1. Recibimos los datos (incluyendo cliente_Nombre y direccion que mandamos desde el front)
+        const { 
+            nombre, 
+            descripcion, 
+            actividadId, 
+            sucursalId, 
+            clienteNegocioId, 
+            direccionClienteId, 
+            fechaLimite,
+            cliente_Nombre, // <-- Nombre "No definido" o real
+            direccion       // <-- Dirección "No definida" o real
+        } = req.body;
 
-        // Aseguramos que el ID del usuario sea un número
-        // Si req.user.id es "admin", esto fallará, por eso usamos Number()
-        // 🔴 CORRECCIÓN AQUÍ:
-        // En lugar de forzar parseInt, verificamos que el ID exista en el token
         if (!req.user || !req.user.id) {
             return res.status(400).json({ message: "Sesión inválida: No se encontró el ID de usuario." });
         }
 
-        const userId = req.user.id; // Ya no usamos parseInt forzoso aquí para evitar el NaN
-
-        // 1. Buscamos el nombre del usuario que está haciendo la solicitud
+        const userId = req.user.id; 
         const solicitante = await Usuario.findByPk(userId);
         
         if (!solicitante) {
-            return res.status(404).json({ message: "Usuario solicitante no encontrado en la base de datos." });
+            return res.status(404).json({ message: "Usuario solicitante no encontrado." });
         }
 
         const nombreSolicitante = solicitante.nombre;
+        const fechaFormateada = new Date().toISOString().split('T')[0];
 
-        // Si mandas fecha desde el front, conviértela a objeto Date primero
-        const fechaFormateada = new Date().toISOString().split('T')[0]; // Esto da 2026-01-08
-
+        // --- 🛡️ GUARDADO SEGURO (SIN NAN) ---
         const nuevaTarea = await Tarea.create({
             nombre: nombre,
             descripcion: descripcion,
-            actividadId: parseInt(actividadId),
-            sucursalId: parseInt(sucursalId),
-            clienteNegocioId: parseInt(clienteNegocioId),
-            direccionClienteId: parseInt(direccionClienteId),
+            
+            // 🔥 LA MAGIA: Si no hay ID, mandamos null. Si hay, lo parseamos.
+            actividadId: actividadId ? parseInt(actividadId) : null,
+            sucursalId: sucursalId ? parseInt(sucursalId) : null,
+            clienteNegocioId: clienteNegocioId ? parseInt(clienteNegocioId) : null,
+            direccionClienteId: direccionClienteId ? parseInt(direccionClienteId) : null,
+            
+            // Si el front manda "No definido", se guarda en estos campos de texto:
+            cliente_Nombre: cliente_Nombre || "No definido",
+            direccion: direccion || "No definido",
+            
             usuarioAsignadoId: userId, 
-            // USAREMOS 'Pendiente' por ahora para evitar el error de ENUM en la DB
             estado: 'Pendiente de Autorización', 
             fechaLimite: fechaFormateada,
             prioridad: 'Normal'
-            
         });
 
-         await Notificacion.create({
-      usuarioId: nuevaTarea.usuarioAsignadoId,
-      tareaId: nuevaTarea.id,
-      mensaje: `Tienes una nueva tarea: ${nuevaTarea.nombre}`,
-      leida: false
-    });
-
-        // LÓGICA DE NOTIFICACIÓN PUSH AL ADMIN
-        // Buscamos a los admins para enviarles la notificación
-        const admins = await Usuario.findAll({ where: { rol: 'Admin' } });
-        // 2. Buscamos específicamente a Denisse (ID 37) por si no es Admin
-        const denisse = await Usuario.findByPk(37);
-
-        
-        // 3. Juntamos a todos en una lista única (usamos Map para no repetir si el Admin ya es Denisse)
-const destinatarios = new Map();
-admins.forEach(a => destinatarios.set(a.id, a));
-if (denisse) destinatarios.set(denisse.id, denisse);
-
-// 4. Enviamos a cada uno (Solo una vez)
-destinatarios.forEach(async (user) => {
-    try {
-        // --- ENVÍO PUSH ---
-        // Usamos tu función centralizada de push.js que ya maneja el token internamente
-        await sendPushToUser(
-            user.id, 
-            "Nueva Solicitud de Tarea", 
-            `${nombreSolicitante} solicita crear la tarea: ${nombre}`,
-            { 
-                click_action: "https://aetechprueba.netlify.app/sistema.html", // O la ruta específica de la tarea
-            }
-        );
-
-        // --- GUARDAR EN BASE DE DATOS (Para la campanita) ---
+        // --- NOTIFICACIONES ---
         await Notificacion.create({
-            usuarioId: user.id,
+            usuarioId: userId,
             tareaId: nuevaTarea.id,
-            mensaje: `Nueva solicitud de tarea express de ${nombreSolicitante}: ${nombre}`,
+            mensaje: `Has solicitado una tarea express: ${nuevaTarea.nombre}`,
             leida: false
         });
 
-        console.log(`✅ Notificación y registro creado para: ${user.nombre}`);
-    } catch (error) {
-        console.error(`❌ Error con usuario ${user.id}:`, error);
-    }
-});
-
-        // Una vez creada la tarea, podemos intentar enviar las notificaciones
-        // (Te recomiendo descomentarlas una por una para ver cuál falla)
+        const admins = await Usuario.findAll({ where: { rol: 'Admin' } });
+        const denisse = await Usuario.findByPk(37);
+        const destinatarios = new Map();
         
+        admins.forEach(a => destinatarios.set(a.id, a));
+        if (denisse) destinatarios.set(denisse.id, denisse);
+
+        destinatarios.forEach(async (user) => {
+            try {
+                await sendPushToUser(
+                    user.id, 
+                    "Nueva Solicitud de Tarea", 
+                    `${nombreSolicitante} solicita: ${nombre}`,
+                    { click_action: "https://aetechprueba.netlify.app/sistema.html" }
+                );
+
+                await Notificacion.create({
+                    usuarioId: user.id,
+                    tareaId: nuevaTarea.id,
+                    mensaje: `Nueva solicitud express de ${nombreSolicitante}: ${nombre}`,
+                    leida: false
+                });
+            } catch (err) {
+                console.error(`❌ Error notificando a ${user.id}:`, err);
+            }
+        });
+
         return res.status(201).json({ 
             message: "Tarea express creada correctamente", 
             tareaId: nuevaTarea.id 
         });
 
     } catch (error) {
-        console.error("Error en solicitarTareaExpress:", error);
+        console.error("🚨 Error en solicitarTareaExpress:", error);
         return res.status(500).json({ 
             message: "Error al crear la tarea", 
             detalle: error.message 
