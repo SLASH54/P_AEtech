@@ -1062,15 +1062,11 @@ async function deleteRecord(type, id) {
 
     const token = localStorage.getItem('accessToken');
     
-    // 🚀 AGREGAMOS EL CASO PARA TAREAS AQUÍ
+    // 🚀 Definimos el endpoint incluyendo 'tarea'
     let endpoint;
-    if (type === 'usuario') {
-        endpoint = `/users/${id}`;
-    } else if (type === 'cliente') {
-        endpoint = `/clientes/${id}`;
-    } else if (type === 'tarea') {
-        endpoint = `/tareas/${id}`; // Ruta para borrar la tarea
-    }
+    if (type === 'usuario') endpoint = `/users/${id}`;
+    else if (type === 'cliente') endpoint = `/clientes/${id}`;
+    else if (type === 'tarea') endpoint = `/tareas/${id}`; // <-- Agregado para tareas
 
     try {
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -1084,14 +1080,14 @@ async function deleteRecord(type, id) {
         if (response.ok) {
             alert(`${type.charAt(0).toUpperCase() + type.slice(1)} eliminado con éxito.`);
             
-            // 🔄 REFRESCO INTELIGENTE
+            // Refrescar la pantalla según lo que borramos
             if (type === 'tarea') {
-                // Si borramos tarea, actualizamos la lista local y redibujamos la tabla de tareas
+                // Filtramos la lista local para que desaparezca de la tabla
                 window.tareasList = window.tareasList.filter(t => t.id != id);
                 if (typeof renderTareas === 'function') renderTareas();
             } else {
-                cargarClientesTabla();
-                initAdminPanel();
+                if (typeof cargarClientesTabla === 'function') cargarClientesTabla();
+                if (typeof initAdminPanel === 'function') initAdminPanel();
             }
         } else {
             const errorData = await response.json().catch(() => ({ message: response.statusText })); 

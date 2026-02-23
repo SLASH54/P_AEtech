@@ -401,23 +401,36 @@ exports.deleteTarea = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // 🔹 Eliminar evidencias relacionadas
+    console.log(`🚀 Iniciando limpieza total para Tarea ID: ${id}`);
+
+    // 1️⃣ PRIMERO: Borramos la tabla intermedia de usuarios (Muchos a Muchos)
+    // Sin esto, PostgreSQL no te deja borrar la tarea.
+    await sequelize.query(`DELETE FROM "TareaUsuarios" WHERE "tareaId" = ${id}`);
+    console.log(`👥 Usuarios asignados eliminados.`);
+
+    // 2️⃣ SEGUNDO: Eliminar evidencias relacionadas
     await sequelize.query(`DELETE FROM "Evidencias" WHERE "tareaId" = ${id}`);
+    console.log(`🖼️ Evidencias eliminadas.`);
 
-    // 🔹 Eliminar notificaciones vinculadas
+    // 3️⃣ TERCERO: Eliminar notificaciones vinculadas
     await sequelize.query(`DELETE FROM "Notificacions" WHERE "tareaId" = ${id}`);
-    //await Notificacion.destroy({ where: { id } });
-    console.log(`🧹 Notificaciones eliminadas para tarea eliminada ID: ${id}`);
+    console.log(`🧹 Notificaciones eliminadas.`);
 
-    // 🔹 Eliminar la tarea
+    // 4️⃣ FINALMENTE: Ahora que no hay dependencias, borramos la tarea
     const deleted = await Tarea.destroy({ where: { id } });
-    if (!deleted) return res.status(404).json({ message: 'Tarea no encontrada.' });
 
-    res.json({ message: 'Tarea, evidencias y notificaciones eliminadas correctamente.' });
+    if (!deleted) {
+        return res.status(404).json({ message: 'La tarea ya no existe en la base de datos.' });
+    }
+
+    res.json({ message: 'Tarea y todos sus registros asociados eliminados con éxito.' });
 
   } catch (error) {
-    console.error('Error al eliminar tarea:', error);
-    res.status(500).json({ message: 'Error interno del servidor al eliminar la tarea.' });
+    console.error('❌ Error crítico al eliminar tarea:', error);
+    res.status(500).json({ 
+        message: 'Error interno del servidor.', 
+        error: error.message 
+    });
   }
 };
 

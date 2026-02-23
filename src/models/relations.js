@@ -39,14 +39,10 @@ ClienteDireccion.hasMany(Tarea, {
 
 // --- NUEVA RELACIÓN MUCHOS A MUCHOS ---
 // Esto creará automáticamente una tabla llamada 'TareaUsuarios' para unir ambas
-// Busca la parte donde defines la relación Muchos a Muchos
-// Debe quedar así para que PostgreSQL borre los usuarios de la tabla intermedia:
-
-Tarea.belongsToMany(models.Usuario, { 
-    through: 'TareaUsuarios', 
-    foreignKey: 'tareaId',
-    otherKey: 'usuarioId',
-    onDelete: 'CASCADE' // <--- ESTA ES LA LÍNEA MÁGICA
+Tarea.belongsToMany(Usuario, { 
+  through: 'TareaUsuarios', 
+  as: 'usuarios', 
+  foreignKey: 'tareaId' 
 });
 
 Usuario.belongsToMany(Tarea, { 
