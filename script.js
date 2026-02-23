@@ -1057,12 +1057,20 @@ function attachCrudListeners() {
 //DELETE
 async function deleteRecord(type, id) {
     if (!confirm(`¿Estás seguro de que quieres eliminar este ${type} con ID ${id}? Esta acción es irreversible.`)) {
-        return; // Detiene la ejecución si el usuario cancela
+        return; 
     }
 
     const token = localStorage.getItem('accessToken');
-    // Define el endpoint basado en el tipo (ej: /users/1 o /clientes/5)
-    const endpoint = (type === 'usuario') ? `/users/${id}` : `/clientes/${id}`;
+    
+    // 🚀 AGREGAMOS EL CASO PARA TAREAS AQUÍ
+    let endpoint;
+    if (type === 'usuario') {
+        endpoint = `/users/${id}`;
+    } else if (type === 'cliente') {
+        endpoint = `/clientes/${id}`;
+    } else if (type === 'tarea') {
+        endpoint = `/tareas/${id}`; // Ruta para borrar la tarea
+    }
 
     try {
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -1075,22 +1083,25 @@ async function deleteRecord(type, id) {
 
         if (response.ok) {
             alert(`${type.charAt(0).toUpperCase() + type.slice(1)} eliminado con éxito.`);
-            // 🔑 Vuelve a cargar el panel para refrescar AMBAS tablas
-            cargarClientesTabla();
-            initAdminPanel();
-        } else if (response.status === 404) {
-            alert(`Error: ${type} no encontrado. Es posible que haya sido eliminado previamente.`);
+            
+            // 🔄 REFRESCO INTELIGENTE
+            if (type === 'tarea') {
+                // Si borramos tarea, actualizamos la lista local y redibujamos la tabla de tareas
+                window.tareasList = window.tareasList.filter(t => t.id != id);
+                if (typeof renderTareas === 'function') renderTareas();
+            } else {
+                cargarClientesTabla();
+                initAdminPanel();
+            }
         } else {
-            // Manejo de otros errores (ej: error del servidor)
             const errorData = await response.json().catch(() => ({ message: response.statusText })); 
             alert(`Error al eliminar ${type}: ${errorData.message || response.statusText}`);
         }
     } catch (error) {
         console.error(`Error de conexión al eliminar ${type}:`, error);
-        alert('Hubo un error de conexión con el servidor al intentar eliminar el registro.');
+        alert('Hubo un error de conexión con el servidor.');
     }
 }
-
 
 let indexDir = 0;
 
@@ -1952,7 +1963,8 @@ function setupTareaModal() {
  */
 function openTareaModal(tareaIdOrObject, mode) {
     const modal = document.getElementById('tareaModal');
-    const title = document.getElementById('tareaModalTitle');
+    const title = document.getElementById('tareaModalTitle'); // <--- AGREGA ESTA LÍNEA
+    // ... resto del código
     const form = document.getElementById('tareaForm');
     const clienteSelect = document.getElementById('tareaClienteId');
     const busquedaInput = document.getElementById('busquedaCliente');
