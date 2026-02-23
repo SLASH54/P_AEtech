@@ -319,9 +319,9 @@
     <input type="text" id="busquedaCliente" placeholder="🔍 Escribe para buscar cliente..." 
            class="mb-2 block w-full border border-blue-200 rounded-md shadow-sm p-2 text-sm bg-blue-50 focus:ring-blue-500 focus:border-blue-500">
 
-  <select id="tareaClienteId" name="clienteId" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-    <option value="">-- Sin Cliente (Opcional) --</option>
-</select>
+    <select id="tareaClienteId" name="clienteId" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+        <option value="" disabled selected>-- Seleccione Cliente --</option>
+    </select>
     
     <input type="text" id="expressClienteNombre" placeholder="Nombre del nuevo cliente" class="mt-1 block w-full border border-blue-400 rounded-md p-2" style="display: none;">
 </div>
@@ -336,7 +336,7 @@
     <select id="tareaAsignadoA" name="asignadoA" required multiple
         class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
         style="height: 120px;"> </select>
-    
+    <p class="text-xs text-gray-500 mt-1">💡 Mantén presionado <b>Ctrl</b> (Windows) o <b>Command</b> (Mac) para elegir varios.</p>
 </div>
 
 

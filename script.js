@@ -1057,16 +1057,12 @@ function attachCrudListeners() {
 //DELETE
 async function deleteRecord(type, id) {
     if (!confirm(`¿Estás seguro de que quieres eliminar este ${type} con ID ${id}? Esta acción es irreversible.`)) {
-        return; 
+        return; // Detiene la ejecución si el usuario cancela
     }
 
     const token = localStorage.getItem('accessToken');
-    
-    // 🚀 Definimos el endpoint incluyendo 'tarea'
-    let endpoint;
-    if (type === 'usuario') endpoint = `/users/${id}`;
-    else if (type === 'cliente') endpoint = `/clientes/${id}`;
-    else if (type === 'tarea') endpoint = `/tareas/${id}`; // <-- Agregado para tareas
+    // Define el endpoint basado en el tipo (ej: /users/1 o /clientes/5)
+    const endpoint = (type === 'usuario') ? `/users/${id}` : `/clientes/${id}`;
 
     try {
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -1079,25 +1075,22 @@ async function deleteRecord(type, id) {
 
         if (response.ok) {
             alert(`${type.charAt(0).toUpperCase() + type.slice(1)} eliminado con éxito.`);
-            
-            // Refrescar la pantalla según lo que borramos
-            if (type === 'tarea') {
-                // Filtramos la lista local para que desaparezca de la tabla
-                window.tareasList = window.tareasList.filter(t => t.id != id);
-                if (typeof renderTareas === 'function') renderTareas();
-            } else {
-                if (typeof cargarClientesTabla === 'function') cargarClientesTabla();
-                if (typeof initAdminPanel === 'function') initAdminPanel();
-            }
+            // 🔑 Vuelve a cargar el panel para refrescar AMBAS tablas
+            cargarClientesTabla();
+            initAdminPanel();
+        } else if (response.status === 404) {
+            alert(`Error: ${type} no encontrado. Es posible que haya sido eliminado previamente.`);
         } else {
+            // Manejo de otros errores (ej: error del servidor)
             const errorData = await response.json().catch(() => ({ message: response.statusText })); 
             alert(`Error al eliminar ${type}: ${errorData.message || response.statusText}`);
         }
     } catch (error) {
         console.error(`Error de conexión al eliminar ${type}:`, error);
-        alert('Hubo un error de conexión con el servidor.');
+        alert('Hubo un error de conexión con el servidor al intentar eliminar el registro.');
     }
 }
+
 
 let indexDir = 0;
 
@@ -1881,23 +1874,21 @@ function setupTareaModal() {
                 console.log("✅ Actividad creada con ID:", actividadId);
             }
 
-          // --- RECOLECCIÓN DE DATOS DE CLIENTE (OPCIONAL) ---
-let clienteId, clienteNombre, direccionTexto, direccionId; // <-- Agregamos direccionId aquí
-
-if (isExpressModeTarea) {
-    // ... tu código de express ...
-} else {
-    const selectC = document.getElementById("tareaClienteId");
-    const selectD = document.getElementById("tareaDireccionCliente");
-    
-    clienteId = selectC.value || null;
-    direccionId = selectD.value || null;
-
-    clienteNombre = clienteId ? selectC.options[selectC.selectedIndex]?.text : "Sin Cliente";
-    direccionTexto = direccionId ? selectD.options[selectD.selectedIndex]?.text : "Sin Dirección";
-
-    // ✅ BORRA LA LÍNEA QUE TENÍA EL: throw new Error(...)
-}
+            // --- RECOLECCIÓN DE DATOS DE CLIENTE ---
+            let clienteId, clienteNombre, direccionTexto;
+            if (isExpressModeTarea) {
+                clienteId = null;
+                clienteNombre = document.getElementById("expressClienteNombre").value.trim();
+                direccionTexto = document.getElementById("expressDireccion").value.trim();
+                if (!clienteNombre || !direccionTexto) throw new Error("Faltan datos express");
+            } else {
+                const selectC = document.getElementById("tareaClienteId");
+                const selectD = document.getElementById("tareaDireccionCliente");
+                clienteId = selectC.value;
+                clienteNombre = selectC.options[selectC.selectedIndex]?.text;
+                direccionTexto = selectD.options[selectD.selectedIndex]?.text;
+                if (!clienteId || !direccionTexto) throw new Error("Selecciona cliente y dirección");
+            }
 
             // --- DATA FINAL PARA EL BACKEND ---
             // --- 1. CAPTURA DE USUARIOS (NUEVO) ---
@@ -1913,25 +1904,22 @@ if (isExpressModeTarea) {
             }
 
             // --- 2. DATA FINAL PARA EL BACKEND (ACTUALIZADO) ---
-        // --- 2. DATA FINAL PARA EL BACKEND ---
-const data = {
-    nombre: document.getElementById('tareaTitulo').value, 
-    usuarioAsignadoId: usuariosSeleccionadosIds, // Enviamos el array
-    actividadId: actividadId || null, // Si no hay actividad, mandamos null
-    
-    // 🔥 USAMOS LAS VARIABLES QUE DEFINIMOS EN EL PASO ANTERIOR
-    clienteNegocioId: clienteId, 
-    direccionClienteId: direccionId, 
-    
-    sucursalId: document.getElementById('tareaSucursalId')?.value || '1', 
-    descripcion: document.getElementById('tareaDescripcion').value,
-    fechaLimite: document.getElementById('tareaFechaLimite').value || null, // Evita error de fecha
-    estado: document.getElementById('tareaEstado').value,
-    prioridad: 'Normal',
-    cliente_Nombre: clienteNombre,
-    direccion: direccionTexto,
-    es_express: isExpressModeTarea 
-};
+            const data = {
+                nombre: document.getElementById('tareaTitulo').value, 
+                // Enviamos el array de IDs en lugar de uno solo
+                usuarioAsignadoId: usuariosSeleccionadosIds, 
+                actividadId: actividadId,
+                clienteNegocioId: document.getElementById('tareaClienteId').value,
+                direccionClienteId: document.getElementById('tareaDireccionCliente').value,
+                sucursalId: document.getElementById('tareaSucursalId')?.value || '1', 
+                descripcion: document.getElementById('tareaDescripcion').value,
+                fechaLimite: document.getElementById('tareaFechaLimite').value,
+                estado: document.getElementById('tareaEstado').value,
+                prioridad: 'Normal',
+                cliente_Nombre: clienteNombre,
+                direccion: direccionTexto,
+                es_express: isExpressModeTarea 
+            };
 
             const result = await saveOrUpdateData(endpoint, method, data);
             
@@ -1964,14 +1952,12 @@ const data = {
  */
 function openTareaModal(tareaIdOrObject, mode) {
     const modal = document.getElementById('tareaModal');
-    const title = document.getElementById('tareaModalTitle'); // <--- AGREGA ESTA LÍNEA
-    // ... resto del código
+    const title = document.getElementById('tareaModalTitle');
     const form = document.getElementById('tareaForm');
     const clienteSelect = document.getElementById('tareaClienteId');
     const busquedaInput = document.getElementById('busquedaCliente');
     const direccionSelect = document.getElementById('tareaDireccionCliente');
     const fechaInput = document.getElementById('tareaFechaLimite');
-    const selectAsignados = document.getElementById('tareaAsignadoA');
 
     if (!modal) return;
 
@@ -1995,12 +1981,14 @@ function openTareaModal(tareaIdOrObject, mode) {
             clienteSelect.innerHTML = "";
             filtrados.forEach(c => clienteSelect.add(new Option(c.text, c.value)));
             
+            // Re-vincular onchange tras filtrar
             clienteSelect.onchange = () => {
                 if (typeof cargarDireccionesCliente === "function") cargarDireccionesCliente(clienteSelect.value);
             };
         };
     }
 
+    // Evento de cambio de cliente (para direcciones)
     if (clienteSelect) {
         clienteSelect.onchange = () => {
             if (typeof cargarDireccionesCliente === "function") cargarDireccionesCliente(clienteSelect.value);
@@ -2018,6 +2006,7 @@ function openTareaModal(tareaIdOrObject, mode) {
             document.getElementById('tareaDescripcion').value = tarea.descripcion || "";
             document.getElementById('tareaEstado').value = tarea.estado || "";
             
+            // Poner fecha de la tarea
             if (tarea.fechaLimite && fechaInput) {
                 fechaInput.value = tarea.fechaLimite.split("T")[0];
             }
@@ -2025,6 +2014,7 @@ function openTareaModal(tareaIdOrObject, mode) {
             if (document.getElementById('tareaActividadId')) document.getElementById('tareaActividadId').value = tarea.actividadId || "";
             clienteSelect.value = tarea.clienteNegocioId || "";
 
+            // Cargar direcciones al editar
             if (tarea.clienteNegocioId && typeof cargarDireccionesCliente === "function") {
                 cargarDireccionesCliente(tarea.clienteNegocioId);
                 setTimeout(() => { 
@@ -2032,7 +2022,8 @@ function openTareaModal(tareaIdOrObject, mode) {
                 }, 600);
             }
 
-            // Marcar usuarios previamente asignados
+            // Marcar técnicos
+            const selectAsignados = document.getElementById('tareaAsignadoA');
             if (selectAsignados) {
                 Array.from(selectAsignados.options).forEach(opt => opt.selected = false);
                 const ids = tarea.usuarios ? tarea.usuarios.map(u => String(u.id)) : [];
@@ -2042,35 +2033,24 @@ function openTareaModal(tareaIdOrObject, mode) {
             }
         }
     } else {
+        // --- MODO CREAR ---
         title.textContent = "Crear Nueva Tarea";
         if (form) form.reset();
         document.getElementById("tareaId").value = "";
 
+        // 🔥 ESTO PONE LA FECHA DE HOY AUTOMÁTICAMENTE
         if (fechaInput) {
-            fechaInput.value = new Date().toISOString().split('T')[0];
+            const hoy = new Date().toISOString().split('T')[0];
+            fechaInput.value = hoy;
         }
 
         if (direccionSelect) direccionSelect.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
+        const selectAsignados = document.getElementById('tareaAsignadoA');
         if (selectAsignados) Array.from(selectAsignados.options).forEach(opt => opt.selected = false);
-    }
-
-    // --- 🔥 TRUCO: SELECCIÓN MÚLTIPLE SIN CTRL ---
-    if (selectAsignados) {
-        selectAsignados.onmousedown = function(e) {
-            e.preventDefault(); // Evita el comportamiento molesto por defecto
-            
-            const scroll = this.scrollTop; // Guardamos el scroll para que no brinque
-            e.target.selected = !e.target.selected; // Cambia el estado (si estaba on pasa a off y viceversa)
-            
-            setTimeout(() => { this.scrollTop = scroll; }, 0); // Restauramos scroll
-            $(this).focus(); // Mantenemos el foco (si usas jQuery, si no usa this.focus())
-        };
     }
 
     modal.style.display = "flex";
 }
-
-
 
 
 /**
