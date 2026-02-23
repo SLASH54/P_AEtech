@@ -4853,3 +4853,18 @@ button.btn-save {
     border-color: rgba(48, 209, 88, 0.3);
     background: rgba(48, 209, 88, 0.25) !important;
 }
+
+button#btnGuardarLevantamiento {
+    border-color: rgb(233 30 99 / 60%);
+    background: rgb(233 30 99 / 47%) !important;
+}
+
+button#levBtnAgregarMaterial {
+    border-color: rgb(233 30 99 / 60%);
+    background: rgb(233 30 99 / 47%) !important;
+}
+
+button#levBtnAgregarMaterial {
+    border-color: rgb(233 30 99 / 60%);
+    background: rgb(233 30 99 / 47%) !important;
+}
