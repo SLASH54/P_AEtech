@@ -4680,8 +4680,7 @@ div#tareaExpressModal {
     box-shadow: 0 0 5px rgba(0, 255, 255, 0.2);
 }
 
-
-/* --- CONFIGURACIÓN GENERAL PARA BOTONES DE TAREA --- */
+/* --- CONFIGURACIÓN GENERAL: APPLE GLASS STYLE --- */
 .container-acciones button, 
 button.text-red-600, 
 button.btn-recordatorio, 
@@ -4692,85 +4691,86 @@ button.text-purple-600 {
     width: 110px; 
     height: 38px;
     margin: 5px;
-    border: none;
     border-radius: 12px;
-    font-weight: 600;
+    font-weight: 500; /* Apple usa pesos más ligeros pero legibles */
     font-size: 13px;
     cursor: pointer;
     color: white !important;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* Animación más suave */
     
-    /* 💧 EFECTO AGUA/GLOSSY */
+    /* ✨ EFECTO GLASSMORPISM (APPLE VISION) */
     position: relative;
-    overflow: hidden;
-    box-shadow: inset 0 2px 5px rgba(255, 255, 255, 0.4), 
-                0 4px 10px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.2); /* Borde de cristal */
+    backdrop-filter: blur(12px) saturate(180%); /* El secreto de Apple */
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    background: rgba(255, 255, 255, 0.1); /* Fondo base muy tenue */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* Efecto de brillo de agua al pasar el mouse */
+/* Efecto al pasar el mouse (Hover) */
 .container-acciones button:hover {
-    transform: translateY(-2px);
-    box-shadow: inset 0 20px 20px rgba(255, 255, 255, 0.2), 
-                0 6px 15px rgba(0, 0, 0, 0.15);
+    transform: scale(1.05); /* Se infla un poco como en el Apple TV */
+    background: rgba(255, 255, 255, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
-/* --- COLORES ELEGANTES Y VIBRANTES --- */
+/* --- COLORES GLASS (TINTADOS) --- */
 
-/* Rojo Suave (Eliminar) */
+/* Rojo (Eliminar) */
 button.text-red-600.hover\:text-red-900 {
-    background: linear-gradient(180deg, #ff7675 0%, #d63031 100%) !important;
+    background: rgba(255, 69, 58, 0.3) !important; /* System Red Apple */
     width: 90%;
 }
 
-/* Morado Eléctrico (Recordatorio) */
+/* Morado (Recordatorio) */
 button.btn-recordatorio {
-    background: linear-gradient(180deg, #a29bfe 0%, #6c5ce7 100%) !important;
+    background: rgba(175, 82, 222, 0.3) !important; /* System Purple */
     width: 90%;
 }
 
 /* Cian / Turquesa (Editar) */
 button.text-indigo-600.hover\:text-indigo-900.mr-3 {
-    background: linear-gradient(180deg, #81ecec 0%, #00cec9 100%) !important;
+    background: rgba(100, 210, 255, 0.3) !important; /* System Blue */
     width: 90%;
 }
 
-/* Verde Esmeralda (Completar) */
+/* Verde (Completar) */
 button.text-green-600.hover\:text-green-900 {
-    background: linear-gradient(180deg, #55efc4 0%, #00b894 100%) !important;
+    background: rgba(48, 209, 88, 0.3) !important; /* System Green */
     width: 90%;
 }
 
-/* Naranja Atardecer (Express) */
+/* Naranja (Express) */
 button.inline-block.px-3.py-1.text-sm.rounded.bg-green-600.text-white.hover\:bg-green-700.ml-2 {
-    background: linear-gradient(180deg, #fab1a0 0%, #e17055 100%) !important;
+    background: rgba(255, 159, 10, 0.3) !important; /* System Orange */
     width: 90%;
 }
 
-/* Rosa Orquídea (Detalles/Otros) */
+/* Rosa (Detalles) */
 button.text-purple-600.hover\:text-purple-900.ml-2 {
-    background: linear-gradient(180deg, #fd79a8 0%, #e84393 100%) !important;
+    background: rgba(255, 55, 95, 0.3) !important; /* System Pink */
     width: 90%;
 }
 
-/* Reflejo de luz superior para el efecto agua */
-.container-acciones button::before {
+/* Brillo interior sutil (Reflejo Apple) */
+.container-acciones button::after {
     content: "";
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 50%;
-    background: linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%);
+    right: 0;
+    bottom: 0;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 50%);
     pointer-events: none;
 }
 
 
-
- /* delccion de usuario  */
+ /* delccion de usuario */
 #tareaAsignadoA option:checked {
     background-color: #4F46E5 !important; /* Azul intenso */
     color: white;
