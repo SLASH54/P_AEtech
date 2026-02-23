@@ -1837,7 +1837,6 @@ function setupTareaModal() {
     form.onsubmit = async (e) => {
         e.preventDefault();
         
-        // 1. Mostrar loader al iniciar el proceso
         loader.style.display = 'flex';
 
         try {
@@ -1849,17 +1848,14 @@ function setupTareaModal() {
 
             let actividadId = document.getElementById('tareaActividadId').value;
 
-            // --- ✨ MAGIA: REGISTRO DE ACTIVIDAD "OTRA" EN CHINGUISA ---
+            // --- ✨ REGISTRO DE ACTIVIDAD "OTRA" ---
             if (actividadId === "OTRA") {
                 const nuevoNombre = document.getElementById("nueva-actividad-nombre").value.trim();
-                
                 if (!nuevoNombre) {
                     alert("⚠️ Por favor escribe el nombre de la nueva actividad.");
                     loader.style.display = 'none';
                     return;
                 }
-
-                console.log("🚀 Creando nueva actividad...");
                 const resAct = await fetch(`https://p-aetech.onrender.com/api/actividades`, {
                     method: 'POST',
                     headers: {
@@ -1872,64 +1868,58 @@ function setupTareaModal() {
                         campos_evidencia: [] 
                     })
                 });
-
                 const dataAct = await resAct.json();
                 if (!resAct.ok) throw new Error(dataAct.message || "No se pudo crear la actividad");
-
-                // Asignamos el ID recién creado para la tarea
                 actividadId = dataAct.actividad.id;
-                console.log("✅ Actividad creada con ID:", actividadId);
             }
 
-          // --- RECOLECCIÓN DE DATOS DE CLIENTE (OPCIONAL) ---
-let clienteId, clienteNombre, direccionTexto, direccionId; // <-- Agregamos direccionId aquí
+            // --- RECOLECCIÓN DE DATOS DE CLIENTE (AHORA OPCIONAL) ---
+            let clienteId, clienteNombre, direccionTexto, direccionId;
 
-if (isExpressModeTarea) {
-    // ... tu código de express ...
-} else {
-    const selectC = document.getElementById("tareaClienteId");
-    const selectD = document.getElementById("tareaDireccionCliente");
-    
-    clienteId = selectC.value || null;
-    direccionId = selectD.value || null; // <-- ASEGÚRATE DE QUE ESTA LÍNEA ESTÉ AQUÍ
+            if (isExpressModeTarea) {
+                clienteId = null;
+                clienteNombre = document.getElementById("expressClienteNombre").value.trim() || "Cliente Express";
+                direccionTexto = document.getElementById("expressDireccion").value.trim() || "Dirección Express";
+                direccionId = null;
+                // 💡 Quitamos los 'throw new Error' de aquí si quieres que express también sea opcional
+            } else {
+                const selectC = document.getElementById("tareaClienteId");
+                const selectD = document.getElementById("tareaDireccionCliente");
+                
+                clienteId = selectC.value || null;
+                direccionId = selectD.value || null;
 
-    clienteNombre = clienteId ? selectC.options[selectC.selectedIndex]?.text : "Sin Cliente";
-    direccionTexto = direccionId ? selectD.options[selectD.selectedIndex]?.text : "Sin Dirección";
-}
+                clienteNombre = clienteId ? selectC.options[selectC.selectedIndex]?.text : "Sin Cliente";
+                direccionTexto = direccionId ? selectD.options[selectD.selectedIndex]?.text : "Sin Dirección";
+                // ✅ Aquí ya no hay bloqueos (sin Error)
+            }
 
-            // --- DATA FINAL PARA EL BACKEND ---
-            // --- 1. CAPTURA DE USUARIOS (NUEVO) ---
+            // --- CAPTURA DE USUARIOS ---
             const selectAsignados = document.getElementById('tareaAsignadoA');
-            // Esto crea una lista con todos los IDs de los usuarios que seleccionaste
             const usuariosSeleccionadosIds = Array.from(selectAsignados.selectedOptions).map(option => option.value);
 
-            // Validación rápida
             if (usuariosSeleccionadosIds.length === 0) {
                 alert("⚠️ Por favor, selecciona al menos un usuario.");
                 loader.style.display = 'none';
                 return;
             }
 
-            // --- 2. DATA FINAL PARA EL BACKEND (ACTUALIZADO) ---
-        // --- 2. DATA FINAL PARA EL BACKEND ---
-const data = {
-    nombre: document.getElementById('tareaTitulo').value, 
-    usuarioAsignadoId: usuariosSeleccionadosIds, // Enviamos el array
-    actividadId: actividadId || null, // Si no hay actividad, mandamos null
-    
-    // 🔥 USAMOS LAS VARIABLES QUE DEFINIMOS EN EL PASO ANTERIOR
-    clienteNegocioId: clienteId, 
-    direccionClienteId: direccionId, 
-    
-    sucursalId: document.getElementById('tareaSucursalId')?.value || '1', 
-    descripcion: document.getElementById('tareaDescripcion').value,
-    fechaLimite: document.getElementById('tareaFechaLimite').value || null, // Evita error de fecha
-    estado: document.getElementById('tareaEstado').value,
-    prioridad: 'Normal',
-    cliente_Nombre: clienteNombre,
-    direccion: direccionTexto,
-    es_express: isExpressModeTarea 
-};
+            // --- DATA FINAL PARA EL BACKEND ---
+            const data = {
+                nombre: document.getElementById('tareaTitulo').value, 
+                usuarioAsignadoId: usuariosSeleccionadosIds, 
+                actividadId: actividadId || null,
+                clienteNegocioId: clienteId, 
+                direccionClienteId: direccionId, 
+                sucursalId: document.getElementById('tareaSucursalId')?.value || null, 
+                descripcion: document.getElementById('tareaDescripcion').value,
+                fechaLimite: document.getElementById('tareaFechaLimite').value || null, 
+                estado: document.getElementById('tareaEstado').value,
+                prioridad: 'Normal',
+                cliente_Nombre: clienteNombre,
+                direccion: direccionTexto,
+                es_express: isExpressModeTarea 
+            };
 
             const result = await saveOrUpdateData(endpoint, method, data);
             
@@ -1937,14 +1927,14 @@ const data = {
                 alert('✨ Tarea guardada exitosamente'); 
                 modal.style.display = 'none'; 
                 initTareas(); 
-                await cargarNotificaciones();
+                if (typeof cargarNotificaciones === 'function') await cargarNotificaciones();
             }
 
         } catch (error) {
             console.error("🚨 Error:", error);
             alert("Algo salió mal: " + error.message);
         } finally {
-            loader.style.display = 'none'; // 👈 Se oculta pase lo que pase
+            loader.style.display = 'none';
         }
     };
 
@@ -1952,7 +1942,6 @@ const data = {
         if (event.target == modal) modal.style.display = "none";
     }
 }
-
 
 /**
 /**

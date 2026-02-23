@@ -35,21 +35,20 @@ exports.solicitarTareaExpress = async (req, res) => {
         // Si mandas fecha desde el front, conviértela a objeto Date primero
         const fechaFormateada = new Date().toISOString().split('T')[0]; // Esto da 2026-01-08
 
-        const nuevaTarea = await Tarea.create({
-            nombre: nombre,
-            descripcion: descripcion,
-            actividadId: parseInt(actividadId),
-            sucursalId: parseInt(sucursalId),
-            clienteNegocioId: parseInt(clienteNegocioId),
-            direccionClienteId: parseInt(direccionClienteId),
-            usuarioAsignadoId: userId, 
-            // USAREMOS 'Pendiente' por ahora para evitar el error de ENUM en la DB
-            estado: 'Pendiente de Autorización', 
-            fechaLimite: fechaFormateada,
-            prioridad: 'Normal'
-            
-        });
-
+const nuevaTarea = await Tarea.create({
+    nombre: nombre,
+    descripcion: descripcion,
+    // Solo usamos parseInt si el valor existe, si no, mandamos null
+    actividadId: actividadId ? parseInt(actividadId) : null,
+    sucursalId: sucursalId ? parseInt(sucursalId) : null,
+    clienteNegocioId: clienteNegocioId ? parseInt(clienteNegocioId) : null,
+    direccionClienteId: direccionClienteId ? parseInt(direccionClienteId) : null,
+    
+    usuarioAsignadoId: userId, 
+    estado: 'Pendiente de Autorización', 
+    fechaLimite: fechaFormateada,
+    prioridad: 'Normal'
+});
          await Notificacion.create({
       usuarioId: nuevaTarea.usuarioAsignadoId,
       tareaId: nuevaTarea.id,
