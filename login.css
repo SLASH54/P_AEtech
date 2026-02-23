@@ -4680,92 +4680,92 @@ div#tareaExpressModal {
     box-shadow: 0 0 5px rgba(0, 255, 255, 0.2);
 }
 
-/* --- CONFIGURACIÓN GENERAL: APPLE GLASS STYLE --- */
+/* --- CONFIGURACIÓN GENERAL: APPLE GLASSMORPISM --- */
 .container-acciones button, 
 button.text-red-600, 
 button.btn-recordatorio, 
 button.text-indigo-600, 
 button.text-green-600, 
 button.text-purple-600 {
-    /* Tamaño uniforme */
     width: 110px; 
-    height: 38px;
-    margin: 5px;
-    border-radius: 12px;
-    font-weight: 500; /* Apple usa pesos más ligeros pero legibles */
-    font-size: 13px;
+    height: 36px;
+    margin: 4px;
+    border-radius: 10px; /* Bordes redondeados pero no circulares, muy Apple */
+    font-weight: 500;
+    font-size: 12px;
     cursor: pointer;
     color: white !important;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* Animación más suave */
+    transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
     
-    /* ✨ EFECTO GLASSMORPISM (APPLE VISION) */
+    /* ✨ EFECTO CRISTAL ESMERILADO */
     position: relative;
-    border: 1px solid rgba(255, 255, 255, 0.2); /* Borde de cristal */
-    backdrop-filter: blur(12px) saturate(180%); /* El secreto de Apple */
-    -webkit-backdrop-filter: blur(12px) saturate(180%);
-    background: rgba(255, 255, 255, 0.1); /* Fondo base muy tenue */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: 1.5px solid rgba(255, 255, 255, 0.1); /* Borde blanco muy suave */
+    backdrop-filter: blur(15px) saturate(160%);
+    -webkit-backdrop-filter: blur(15px) saturate(160%);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-/* Efecto al pasar el mouse (Hover) */
+/* Interacción tipo Apple TV */
 .container-acciones button:hover {
-    transform: scale(1.05); /* Se infla un poco como en el Apple TV */
-    background: rgba(255, 255, 255, 0.25);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    transform: scale(1.04);
+    background: rgba(255, 255, 255, 0.2);
+    border: 1.5px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
-/* --- COLORES GLASS (TINTADOS) --- */
+/* --- COLORES OFICIALES APPLE (TINTADOS) --- */
 
-/* Rojo (Eliminar) */
+/* Rojo (Eliminar) - Apple System Red */
 button.text-red-600.hover\:text-red-900 {
-    background: rgba(255, 69, 58, 0.3) !important; /* System Red Apple */
-    width: 90%;
+    background: rgba(255, 59, 48, 0.25) !important;
+    border-color: rgba(255, 59, 48, 0.3);
 }
 
-/* Morado (Recordatorio) */
+/* Morado (Recordatorio) - Apple System Purple */
 button.btn-recordatorio {
-    background: rgba(175, 82, 222, 0.3) !important; /* System Purple */
-    width: 90%;
+    background: rgba(175, 82, 222, 0.25) !important;
+    border-color: rgba(175, 82, 222, 0.3);
 }
 
-/* Cian / Turquesa (Editar) */
+/* Azul/Cian (Editar) - Apple System Blue */
 button.text-indigo-600.hover\:text-indigo-900.mr-3 {
-    background: rgba(100, 210, 255, 0.3) !important; /* System Blue */
-    width: 90%;
+    background: rgba(10, 132, 255, 0.25) !important;
+    border-color: rgba(10, 132, 255, 0.3);
 }
 
-/* Verde (Completar) */
+/* Verde (Completar) - Apple System Green */
 button.text-green-600.hover\:text-green-900 {
-    background: rgba(48, 209, 88, 0.3) !important; /* System Green */
-    width: 90%;
+    background: rgba(48, 209, 88, 0.25) !important;
+    border-color: rgba(48, 209, 88, 0.3);
 }
 
-/* Naranja (Express) */
+/* Naranja (Express) - Apple System Orange */
 button.inline-block.px-3.py-1.text-sm.rounded.bg-green-600.text-white.hover\:bg-green-700.ml-2 {
-    background: rgba(255, 159, 10, 0.3) !important; /* System Orange */
-    width: 90%;
+    background: rgba(255, 159, 10, 0.25) !important;
+    border-color: rgba(255, 159, 10, 0.3);
 }
 
-/* Rosa (Detalles) */
+/* Rosa (Detalles) - Apple System Pink */
 button.text-purple-600.hover\:text-purple-900.ml-2 {
-    background: rgba(255, 55, 95, 0.3) !important; /* System Pink */
-    width: 90%;
+    background: rgba(255, 55, 95, 0.25) !important;
+    border-color: rgba(255, 55, 95, 0.3);
 }
 
-/* Brillo interior sutil (Reflejo Apple) */
-.container-acciones button::after {
+/* Reflejo de luz en la parte superior (Glossy sutil) */
+.container-acciones button::before {
     content: "";
     position: absolute;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
-    border-radius: 12px;
-    background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 50%);
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%);
+    border-radius: 10px;
     pointer-events: none;
 }
 
