@@ -1905,21 +1905,24 @@ function setupTareaModal() {
             }
 
             // --- DATA FINAL PARA EL BACKEND ---
-            const data = {
-                nombre: document.getElementById('tareaTitulo').value, 
-                usuarioAsignadoId: usuariosSeleccionadosIds, 
-                actividadId: actividadId || null,
-                clienteNegocioId: clienteId, 
-                direccionClienteId: direccionId, 
-                sucursalId: document.getElementById('tareaSucursalId')?.value || null, 
-                descripcion: document.getElementById('tareaDescripcion').value,
-                fechaLimite: document.getElementById('tareaFechaLimite').value || null, 
-                estado: document.getElementById('tareaEstado').value,
-                prioridad: 'Normal',
-                cliente_Nombre: clienteNombre,
-                direccion: direccionTexto,
-                es_express: isExpressModeTarea 
-            };
+           const data = {
+    nombre: document.getElementById('tareaTitulo').value, 
+    usuarioAsignadoId: usuariosSeleccionadosIds, 
+    actividadId: actividadId || null,
+    clienteNegocioId: clienteId, 
+    direccionClienteId: direccionId, 
+    sucursalId: document.getElementById('tareaSucursalId')?.value || null, 
+    descripcion: document.getElementById('tareaDescripcion').value,
+    fechaLimite: document.getElementById('tareaFechaLimite').value || null, 
+    estado: document.getElementById('tareaEstado').value,
+    prioridad: 'Normal',
+    
+    // ✨ AQUÍ ESTÁ EL TRUCO PARA LA TABLA:
+    cliente_Nombre: (clienteId && clienteNombre !== "Sin Cliente") ? clienteNombre : "No definido",
+    direccion: (direccionId && direccionTexto !== "Sin Dirección") ? direccionTexto : "No definido",
+    
+    es_express: isExpressModeTarea 
+};
 
             const result = await saveOrUpdateData(endpoint, method, data);
             

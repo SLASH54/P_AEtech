@@ -38,17 +38,23 @@ exports.solicitarTareaExpress = async (req, res) => {
 const nuevaTarea = await Tarea.create({
     nombre: nombre,
     descripcion: descripcion,
-    // Solo usamos parseInt si el valor existe, si no, mandamos null
+    // 🔥 CAMBIO CLAVE: Solo parsear si el valor existe, si no, mandar null
     actividadId: actividadId ? parseInt(actividadId) : null,
     sucursalId: sucursalId ? parseInt(sucursalId) : null,
     clienteNegocioId: clienteNegocioId ? parseInt(clienteNegocioId) : null,
     direccionClienteId: direccionClienteId ? parseInt(direccionClienteId) : null,
     
-    usuarioAsignadoId: userId, 
+    // El usuario asignado se maneja en la tabla intermedia abajo, 
+    // pero dejamos este por compatibilidad si tu modelo lo pide
+    usuarioAsignadoId: Array.isArray(usuarioAsignadoId) ? null : usuarioAsignadoId, 
+    
     estado: 'Pendiente de Autorización', 
-    fechaLimite: fechaFormateada,
+    fechaLimite: fechaFormateada || null,
     prioridad: 'Normal'
 });
+
+
+
          await Notificacion.create({
       usuarioId: nuevaTarea.usuarioAsignadoId,
       tareaId: nuevaTarea.id,
