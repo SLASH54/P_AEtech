@@ -1905,7 +1905,8 @@ function setupTareaModal() {
             }
 
             // --- DATA FINAL PARA EL BACKEND ---
-           const data = {
+// --- En script.js (Objeto data) ---
+const data = {
     nombre: document.getElementById('tareaTitulo').value, 
     usuarioAsignadoId: usuariosSeleccionadosIds, 
     actividadId: actividadId || null,
@@ -1916,8 +1917,8 @@ function setupTareaModal() {
     fechaLimite: document.getElementById('tareaFechaLimite').value || null, 
     estado: document.getElementById('tareaEstado').value,
     prioridad: 'Normal',
-    
-    // ✨ AQUÍ ESTÁ EL TRUCO PARA LA TABLA:
+
+    // ✨ Aquí forzamos que si no hay cliente, el texto sea "No definido"
     cliente_Nombre: (clienteId && clienteNombre !== "Sin Cliente") ? clienteNombre : "No definido",
     direccion: (direccionId && direccionTexto !== "Sin Dirección") ? direccionTexto : "No definido",
     
