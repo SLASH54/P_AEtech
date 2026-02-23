@@ -1881,20 +1881,28 @@ function setupTareaModal() {
                 console.log("✅ Actividad creada con ID:", actividadId);
             }
 
-            // --- RECOLECCIÓN DE DATOS DE CLIENTE ---
-            let clienteId, clienteNombre, direccionTexto;
+          // --- RECOLECCIÓN DE DATOS DE CLIENTE (OPCIONAL) ---
+            let clienteId, clienteNombre, direccionTexto, direccionId;
+
             if (isExpressModeTarea) {
                 clienteId = null;
                 clienteNombre = document.getElementById("expressClienteNombre").value.trim();
                 direccionTexto = document.getElementById("expressDireccion").value.trim();
+                // En modo express podrías dejar la validación o quitarla si también quieres que sea opcional
                 if (!clienteNombre || !direccionTexto) throw new Error("Faltan datos express");
             } else {
                 const selectC = document.getElementById("tareaClienteId");
                 const selectD = document.getElementById("tareaDireccionCliente");
-                clienteId = selectC.value;
-                clienteNombre = selectC.options[selectC.selectedIndex]?.text;
-                direccionTexto = selectD.options[selectD.selectedIndex]?.text;
-                if (!clienteId || !direccionTexto) throw new Error("Selecciona cliente y dirección");
+                
+                // Si no hay nada seleccionado, el valor será null
+                clienteId = selectC.value || null;
+                direccionId = selectD.value || null;
+
+                // Capturamos el texto de la opción seleccionada (si existe)
+                clienteNombre = clienteId ? selectC.options[selectC.selectedIndex]?.text : "Sin Cliente";
+                direccionTexto = direccionId ? selectD.options[selectD.selectedIndex]?.text : "Sin Dirección";
+                
+                // ✅ Ya no hay "throw new Error", así que si están vacíos, el código SIGUE.
             }
 
             // --- DATA FINAL PARA EL BACKEND ---
@@ -1910,14 +1918,16 @@ function setupTareaModal() {
                 return;
             }
 
-            // --- 2. DATA FINAL PARA EL BACKEND (ACTUALIZADO) ---
+         // --- 2. DATA FINAL PARA EL BACKEND (ACTUALIZADO) ---
             const data = {
                 nombre: document.getElementById('tareaTitulo').value, 
-                // Enviamos el array de IDs en lugar de uno solo
                 usuarioAsignadoId: usuariosSeleccionadosIds, 
                 actividadId: actividadId,
-                clienteNegocioId: document.getElementById('tareaClienteId').value,
-                direccionClienteId: document.getElementById('tareaDireccionCliente').value,
+                
+                // 🔥 USA LAS VARIABLES QUE DEFINIMOS ARRIBA (que ya tienen el null)
+                clienteNegocioId: clienteId, 
+                direccionClienteId: direccionId, 
+                
                 sucursalId: document.getElementById('tareaSucursalId')?.value || '1', 
                 descripcion: document.getElementById('tareaDescripcion').value,
                 fechaLimite: document.getElementById('tareaFechaLimite').value,
@@ -1927,7 +1937,6 @@ function setupTareaModal() {
                 direccion: direccionTexto,
                 es_express: isExpressModeTarea 
             };
-
             const result = await saveOrUpdateData(endpoint, method, data);
             
             if (result) {

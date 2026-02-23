@@ -37,11 +37,13 @@ const Tarea = sequelize.define('Tarea', {
         allowNull: false,
         comment: 'FK a la sucursal donde se realizará la tarea.',
     },
-    clienteNegocioId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        comment: 'FK al cliente para el que se realiza la tarea.',
-    },
+    
+   // En Tarea.js
+clienteNegocioId: {
+    type: DataTypes.INTEGER,
+    allowNull: true, // <--- CAMBIA DE FALSE A TRUE
+    comment: 'FK al cliente para el que se realiza la tarea.',
+},
     
     // Campos de Control
     fechaLimite: {
