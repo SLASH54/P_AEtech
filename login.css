@@ -4921,3 +4921,21 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 #filtroMesTarea::-webkit-calendar-picker-indicator {
     filter: invert(1) sepia(1) saturate(5) hue-rotate(175deg); /* Hace el icono azul brillante */
 }
+
+/* Agrégalo a tu CSS */
+.btn-historial-completo {
+    background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%);
+    color: white;
+    font-weight: bold;
+    padding: 8px 15px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(232, 67, 147, 0.4);
+}
+
+.btn-historial-completo:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
