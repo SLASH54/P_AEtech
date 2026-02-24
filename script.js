@@ -1393,35 +1393,36 @@ document.addEventListener('DOMContentLoaded', function () {
  * 3. Configura el comportamiento del modal de creación/edición.
  */
 async function initTareas() {
-    console.log('Iniciando sección de Tareas...');
-    const tareasBody = document.getElementById('tareasBody');
+    console.log('Iniciando sección de Tareas con Filtro de Mes...');
+    const tareasBody = document.getElementById('tareasBody'); // ID real de tu tabla
     if (!tareasBody) return;
 
+    // Estado de carga inicial
     tareasBody.innerHTML = '<tr><td colspan="10" class="p-4 text-center text-gray-500">Cargando tareas...</td></tr>';
 
-    // 🔹 Detectar rol del usuario logueado
+    // 🔹 Lógica de Roles (Tuya original)
     const rol = localStorage.getItem('userRol') || '';
     let endpoint = '/tareas'; 
-
     if (rol === 'Residente' || rol === 'Practicante' || rol === 'Técnico') {
         endpoint = '/tareas/mis-tareas';
     }
 
-    // 🔹 Cargar Tareas según el rol
+    // 🔹 Carga de datos
     const tareas = await fetchData(endpoint);
 
     if (tareas && tareas.length > 0) {
+        // Guardamos en la variable que ya usan tus otros filtros
         window.tareasOriginales = tareas;
 
-        // 🔥 Configurar el mes actual por defecto
+        // 🔥 Ponemos el mes actual en el input si está vacío
         const inputMes = document.getElementById('filtroMesTarea');
         if (inputMes && !inputMes.value) {
             const hoy = new Date();
             inputMes.value = hoy.toISOString().substring(0, 7); // Pone "2026-02"
         }
 
-        // 🔥 Ejecutar el filtro inicial para que nazca limpia la tabla
-        filtrarTareas();
+        // 🔥 LLAMAMOS AL FILTRO: Esto limpia la tabla y muestra solo lo del mes
+        filtrarTareas(); 
 
         llenarSelectClientes(tareas);
         llenarSelectActividades(tareas);
@@ -1429,7 +1430,7 @@ async function initTareas() {
         tareasBody.innerHTML = '<tr><td colspan="10" class="p-4 text-center text-gray-500">No hay tareas asignadas.</td></tr>';
     }
 
-    // 🔹 Configuraciones adicionales que ya tenías
+    // 🔹 Configuraciones automáticas de tu sistema
     setupTareaModal();
     loadUsersForTareaSelect();
     loadClientesForTareaSelect();
@@ -1437,33 +1438,29 @@ async function initTareas() {
     llenarSelectoresExpress();
     cargarDireccionesExpress();
 
-    // 🔹 Eventos de los filtros (Añadimos el de Mes)
+    // 🔹 Escuchadores de eventos para los filtros
     document.getElementById('filtroMesTarea')?.addEventListener('change', filtrarTareas);
     document.getElementById('filterCliente')?.addEventListener('change', filtrarTareas);
     document.getElementById('filterActividad')?.addEventListener('change', filtrarTareas);
 
-    // 🔹 Botón de limpiar filtros (Actualizado)
+    // 🔹 Botón de limpiar filtros (Actualizado para incluir el mes)
     document.getElementById('btnLimpiarFiltros')?.addEventListener('click', () => {
-        const btn = document.getElementById('btnLimpiarFiltros');
-        btn.style.transform = 'scale(0.9)';
-
-        setTimeout(() => {
-            btn.style.transform = 'scale(1)';
-            if(document.getElementById('filterCliente')) document.getElementById('filterCliente').value = "";
-            if(document.getElementById('filterActividad')) document.getElementById('filterActividad').value = "";
-            if(document.getElementById('filtroMesTarea')) document.getElementById('filtroMesTarea').value = "";
-            
-            // Mostramos todo sin filtros
-            filtrarTareas();
-        }, 120);
+        if(document.getElementById('filterCliente')) document.getElementById('filterCliente').value = "";
+        if(document.getElementById('filterActividad')) document.getElementById('filterActividad').value = "";
+        if(document.getElementById('filtroMesTarea')) document.getElementById('filtroMesTarea').value = "";
+        
+        filtrarTareas(); // Recarga la tabla completa
     });
 }
+
+
 
 function filtrarTareas() {
     const cliente = document.getElementById('filterCliente')?.value;
     const actividad = document.getElementById('filterActividad')?.value;
     const mes = document.getElementById('filtroMesTarea')?.value; 
 
+    // Usamos los datos guardados en la carga inicial
     let tareasFiltradas = window.tareasOriginales || [];
 
     // Filtro por Cliente
@@ -1476,24 +1473,33 @@ function filtrarTareas() {
         tareasFiltradas = tareasFiltradas.filter(t => t.actividadId == actividad);
     }
 
-    // 🔥 FILTRO POR MES
+    // 🔥 Filtro por Mes
     if (mes) {
+        // Compara "2026-02-24" (DB) con "2026-02" (Input)
         tareasFiltradas = tareasFiltradas.filter(t => t.fechaLimite && t.fechaLimite.startsWith(mes));
     }
 
     const tareasBody = document.getElementById('tareasBody');
     if (tareasBody) {
-        // ⚡ LIMPIEZA: Esto borra la tabla antes de poner lo nuevo
+        // ⚡ LIMPIEZA: Borramos la tabla antes de dibujar lo nuevo
         tareasBody.innerHTML = ""; 
 
         if (tareasFiltradas.length > 0) {
+            // Usamos tu función original que ya pone botones y estilos
             renderTareasTable(tareasFiltradas);
         } else {
-            tareasBody.innerHTML = '<tr><td colspan="10" class="text-center p-5 text-white font-bold">No hay tareas que coincidan.</td></tr>';
+            tareasBody.innerHTML = '<tr><td colspan="10" class="text-center p-5 text-white font-bold">No hay tareas para este periodo o filtros.</td></tr>';
         }
     }
 }
 
+// Función para el botón "VER HISTORIAL COMPLETO"
+function mostrarTodo() {
+    if(document.getElementById('filtroMesTarea')) document.getElementById('filtroMesTarea').value = "";
+    if(document.getElementById('filterCliente')) document.getElementById('filterCliente').value = "";
+    if(document.getElementById('filterActividad')) document.getElementById('filterActividad').value = "";
+    filtrarTareas();
+}
 // Para tu botón de "Ver historial completo"
 function mostrarTodo() {
     if(document.getElementById('filtroMesTarea')) document.getElementById('filtroMesTarea').value = "";
