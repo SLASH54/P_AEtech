@@ -4667,94 +4667,90 @@ div#tareaExpressModal {
     box-shadow: 0 0 5px rgba(0, 255, 255, 0.2);
 }
 
-/* --- CONFIGURACIÓN GENERAL: APPLE GLASSMORPISM --- */
+/* --- CONFIGURACIÓN GENERAL: APPLE GLASS VIBRANTE --- */
 .container-acciones button, 
 button.text-red-600, 
 button.btn-recordatorio, 
 button.text-indigo-600, 
 button.text-green-600, 
 button.text-purple-600 {
-    width: 110px; 
-    height: 36px;
-    margin: 4px;
-    border-radius: 10px; /* Bordes redondeados pero no circulares, muy Apple */
-    font-weight: 500;
-    font-size: 12px;
+    width: 115px; 
+    height: 40px;
+    margin: 6px;
+    border-radius: 12px;
+    font-weight: 700; /* Texto más grueso para que resalte en el color vivo */
+    font-size: 13px;
     cursor: pointer;
     color: white !important;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     
-    /* ✨ EFECTO CRISTAL ESMERILADO */
+    /* ✨ EFECTO CRISTAL VIBRANTE */
     position: relative;
-    border: 1.5px solid rgba(255, 255, 255, 0.1); /* Borde blanco muy suave */
-    backdrop-filter: blur(15px) saturate(160%);
-    -webkit-backdrop-filter: blur(15px) saturate(160%);
-    background: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4); /* Borde más visible */
+    backdrop-filter: blur(12px) saturate(200%); /* Más saturación para colores vivos */
+    -webkit-backdrop-filter: blur(12px) saturate(200%);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
 }
 
-/* Interacción tipo Apple TV */
+/* Efecto al pasar el mouse (Pop-out) */
 .container-acciones button:hover {
-    transform: scale(1.04);
-    background: rgba(255, 255, 255, 0.2);
-    border: 1.5px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    transform: scale(1.1) translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    filter: brightness(1.2); /* Brilla al tocarlo */
 }
 
-/* --- COLORES OFICIALES APPLE (TINTADOS) --- */
+/* --- PALETA DE COLORES VIVOS (GLASS TINT) --- */
 
-/* Rojo (Eliminar) - Apple System Red */
+/* Rojo Intenso (Eliminar) */
 button.text-red-600.hover\:text-red-900 {
-    background: rgba(255, 59, 48, 0.25) !important;
-    border-color: rgba(255, 59, 48, 0.3);
+    background: linear-gradient(135deg, rgba(255, 0, 0, 0.6), rgba(180, 0, 0, 0.7)) !important;
 }
 
-/* Morado (Recordatorio) - Apple System Purple */
+/* Morado Eléctrico (Recordatorio) */
 button.btn-recordatorio {
-    background: rgba(175, 82, 222, 0.25) !important;
-    border-color: rgba(175, 82, 222, 0.3);
+    background: linear-gradient(135deg, rgba(140, 0, 255, 0.6), rgba(80, 0, 180, 0.7)) !important;
 }
 
-/* Azul/Cian (Editar) - Apple System Blue */
+/* Azul Neón (Editar) */
 button.text-indigo-600.hover\:text-indigo-900.mr-3 {
-    background: rgba(10, 132, 255, 0.25) !important;
-    border-color: rgba(10, 132, 255, 0.3);
+    background: linear-gradient(135deg, rgba(0, 150, 255, 0.6), rgba(0, 80, 200, 0.7)) !important;
 }
 
-/* Verde (Completar) - Apple System Green */
+/* Verde Esmeralda (Completar) */
 button.text-green-600.hover\:text-green-900 {
-    background: rgba(48, 209, 88, 0.25) !important;
-    border-color: rgba(48, 209, 88, 0.3);
+    background: linear-gradient(135deg, rgba(0, 220, 100, 0.6), rgba(0, 150, 60, 0.7)) !important;
 }
 
-/* Naranja (Express) - Apple System Orange */
+/* Naranja Fuego (Express) */
 button.inline-block.px-3.py-1.text-sm.rounded.bg-green-600.text-white.hover\:bg-green-700.ml-2 {
-    background: rgba(255, 159, 10, 0.25) !important;
-    border-color: rgba(255, 159, 10, 0.3);
+    background: linear-gradient(135deg, rgba(255, 120, 0, 0.6), rgba(200, 60, 0, 0.7)) !important;
 }
 
-/* Rosa (Detalles) - Apple System Pink */
+/* Rosa Mexicano / Orquídea (Detalles) */
 button.text-purple-600.hover\:text-purple-900.ml-2 {
-    background: rgba(255, 55, 95, 0.25) !important;
-    border-color: rgba(255, 55, 95, 0.3);
+    background: linear-gradient(135deg, rgba(255, 0, 150, 0.6), rgba(180, 0, 100, 0.7)) !important;
 }
 
-/* Reflejo de luz en la parte superior (Glossy sutil) */
+/* Reflejo superior para dar volumen */
 .container-acciones button::before {
     content: "";
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%);
-    border-radius: 10px;
+    height: 50%;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 100%);
     pointer-events: none;
 }
+
+
+
+
 
 
  /* delccion de usuario */
