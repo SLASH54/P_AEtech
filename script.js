@@ -4314,65 +4314,84 @@ document.addEventListener("DOMContentLoaded", revisarAccionesUrl);
 
 
 
+// ==========================================
+// 1. VARIABLES GLOBALES Y CARGA INICIAL
+// ==========================================
+let todasLasTareasGlobal = []; //
 
-//filtro de tareas por mes 
-
-// 1. Variable global para no perder los datos
-let todasLasTareasGlobal = []; 
-
-async function cargarTareas() {
+async function initTareas() {
     try {
-        const res = await fetch('https://p-aetech.onrender.com/api/tareas', {
+        const response = await fetch(`${API_BASE_URL}/tareas`, {
             headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` }
         });
-        todasLasTareasGlobal = await res.json();
+        const data = await response.json();
+        
+        // Guardamos los datos originales para poder filtrar sin volver a la API
+        todasLasTareasGlobal = data; 
 
-        // Ponemos el mes actual por defecto si está vacío
+        // Seteamos el mes actual en el input por defecto
         const inputMes = document.getElementById('filtroMesTarea');
-        if (!inputMes.value) {
+        if (inputMes && !inputMes.value) {
             const hoy = new Date();
-            inputMes.value = hoy.toISOString().substring(0, 7);
+            inputMes.value = hoy.toISOString().substring(0, 7); // Da "2026-02"
         }
 
-        aplicarFiltroMes(); // Llamamos al filtro inmediatamente
+        // Ejecutamos el filtro por primera vez
+        filtrarYRenderizarTareas();
+
     } catch (error) {
-        console.error("Error:", error);
+        console.error("Error al cargar tareas:", error);
     }
 }
 
-function aplicarFiltroMes() {
-    const filtro = document.getElementById('filtroMesTarea').value; // Ejemplo: "2026-02"
+// ==========================================
+// 2. LÓGICA DE FILTRADO (LIMPIA Y DIBUJA)
+// ==========================================
+function filtrarYRenderizarTareas() {
+    const filtro = document.getElementById('filtroMesTarea').value; // Formato "YYYY-MM"
+    const tablaBody = document.querySelector("#tareas-table tbody") || document.getElementById('tareasTableBody');
     
-    const filtradas = todasLasTareasGlobal.filter(t => {
+    if (!tablaBody) return;
+
+    // 🔥 LIMPIEZA CLAVE: Evita que las tareas se amontonen
+    tablaBody.innerHTML = "";
+
+    const tareasFiltradas = todasLasTareasGlobal.filter(tarea => {
         if (!filtro) return true;
-        // La fecha en tu tabla sale como 20/02/2026, pero en la DB es 2026-02-20
-        return t.fechaLimite && t.fechaLimite.startsWith(filtro);
+        
+        // Comparamos el año y mes (YYYY-MM) de la base de datos
+        return tarea.fechaLimite && tarea.fechaLimite.startsWith(filtro);
     });
 
-    console.log(`Filtrando por ${filtro}. Encontradas: ${filtradas.length}`);
-    
-    // 🔥 IMPORTANTE: Aquí mandamos las tareas filtradas a tu función que dibuja
-    dibujarTablaTareas(filtradas); 
-}
-
-// 2. Asegúrate de que tu función que dibuja LIMPIE el contenedor
-function dibujarTablaTareas(tareasParaMostrar) {
-    const contenedor = document.getElementById('contenedorTareas'); // El ID de tu <tbody> o lista
-    if (!contenedor) return;
-
-    contenedor.innerHTML = ""; // <--- ESTO ES LO QUE LIMPIA LA TABLA ACUMULADA
-
-    if (tareasParaMostrar.length === 0) {
-        contenedor.innerHTML = `<tr><td colspan="7" class="text-white text-center p-4">No hay tareas para este mes</td></tr>`;
+    // Si no hay tareas en ese mes, avisamos al usuario
+    if (tareasFiltradas.length === 0) {
+        tablaBody.innerHTML = `<tr><td colspan="10" class="text-center p-5 text-white font-bold">No hay tareas para este periodo.</td></tr>`;
         return;
     }
 
-    tareasParaMostrar.forEach(tarea => {
-        // ... aquí va todo tu código actual para crear la fila (tr) ...
-        // const fila = `<tr> ... </tr>`;
-        // contenedor.innerHTML += fila;
-    });
+    // Dibujamos solo las que pasaron el filtro
+    actualizarInterfazTareas(tareasFiltradas); 
 }
 
-// 3. Escucha el cambio del input
-document.getElementById('filtroMesTarea')?.addEventListener('change', aplicarFiltroMes);
+// ==========================================
+// 3. FUNCIÓN PARA EL BOTÓN "VER HISTORIAL"
+// ==========================================
+function mostrarTodo() {
+    const inputMes = document.getElementById('filtroMesTarea');
+    if (inputMes) {
+        inputMes.value = ""; // Limpiamos la fecha para que el filtro deje pasar todo
+    }
+    
+    console.log("Mostrando todas las tareas guardadas...");
+    filtrarYRenderizarTareas(); // Al estar el input vacío, mostrará todo el array global
+}
+
+// ==========================================
+// 4. LISTENERS (EVENTOS)
+// ==========================================
+document.addEventListener("DOMContentLoaded", () => {
+    // Escuchar cuando cambies el mes en el calendario
+    document.getElementById('filtroMesTarea')?.addEventListener('change', filtrarYRenderizarTareas);
+    
+    // Si tienes el botón de historial, podrías asignarle el evento aquí o por onclick en HTML
+});
