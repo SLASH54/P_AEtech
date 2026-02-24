@@ -1451,6 +1451,17 @@ document.getElementById('btnLimpiarFiltros').addEventListener('click', () => {
   }, 120);
 });
 
+// Agregamos el listener para que el mes responda al cambiarlo
+document.getElementById('filtroMesTarea')?.addEventListener('change', filtrarTareas);
+
+// (Opcional) Si quieres que al cargar la página ya salga filtrado por el mes actual:
+const inputMes = document.getElementById('filtroMesTarea');
+if (inputMes && !inputMes.value) {
+    const hoy = new Date();
+    inputMes.value = hoy.toISOString().substring(0, 7);
+    // Ejecutamos el filtro inicial
+    setTimeout(filtrarTareas, 500); 
+}
 
 }
 
@@ -4312,7 +4323,57 @@ document.addEventListener("DOMContentLoaded", revisarAccionesUrl);
 
 //filtro de tareas por mes 
 
+// --- LÓGICA DE FILTRADO UNIFICADA ---
 
+function filtrarTareas() {
+    // 1. Obtenemos valores de los filtros (Cliente, Actividad y el nuevo de Mes)
+    const clienteId = document.getElementById('filterCliente')?.value;
+    const actividadId = document.getElementById('filterActividad')?.value;
+    const filtroMes = document.getElementById('filtroMesTarea')?.value; // "YYYY-MM"
+
+    // 2. Usamos la variable que ya llena tu initTareas
+    let resultados = window.tareasOriginales || [];
+
+    // 3. Filtramos por Cliente
+    if (clienteId) {
+        resultados = resultados.filter(t => String(t.clienteNegocioId) === String(clienteId));
+    }
+
+    // 4. Filtramos por Actividad
+    if (actividadId) {
+        resultados = resultados.filter(t => String(t.actividadId) === String(actividadId));
+    }
+
+    // 5. 🔥 FILTRO POR MES (Machea "2026-02-24" con "2026-02")
+    if (filtroMes) {
+        resultados = resultados.filter(t => t.fechaLimite && t.fechaLimite.startsWith(filtroMes));
+    }
+
+    // 6. LIMPIEZA Y DIBUJO
+    const tareasBody = document.getElementById('tareasBody');
+    if (tareasBody) {
+        tareasBody.innerHTML = ""; // ⚡ ESTO ES LO QUE EVITA QUE SE AMONTONEN
+
+        if (resultados.length > 0) {
+            // Usamos tu función de dibujo que ya te sirve
+            renderTareasTable(resultados);
+        } else {
+            tareasBody.innerHTML = '<tr><td colspan="10" class="p-4 text-center text-white">No se encontraron tareas con estos filtros.</td></tr>';
+        }
+    }
+}
+
+// Función para tu botón de "VER HISTORIAL COMPLETO"
+function mostrarTodo() {
+    const inputMes = document.getElementById('filtroMesTarea');
+    if (inputMes) inputMes.value = ""; 
+    
+    // Limpiamos los otros selects también
+    if(document.getElementById('filterCliente')) document.getElementById('filterCliente').value = "";
+    if(document.getElementById('filterActividad')) document.getElementById('filterActividad').value = "";
+
+    filtrarTareas();
+}
 
 
 
