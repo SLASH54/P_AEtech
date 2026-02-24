@@ -4310,57 +4310,10 @@ function revisarAccionesUrl() {
 // Ejecutar cada vez que carga la página
 document.addEventListener("DOMContentLoaded", revisarAccionesUrl);
 
-
-
-
-
-
 //filtro de tareas por mes 
 
-let todasLasTareas = []; // Variable global para guardar los datos originales
 
-async function initTareas() {
-    try {
-        const response = await fetch('https://p-aetech.onrender.com/api/tareas', {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` }
-        });
-        const data = await response.json();
-        
-        // Guardamos las tareas originales en nuestra variable global
-        todasLasTareas = data; 
-        
-        // Dibujamos la tabla por primera vez
-        renderizarTablaConFiltro(); 
-        
-    } catch (error) {
-        console.error("Error al cargar tareas:", error);
-    }
-}
 
-// Función que se encarga de filtrar y dibujar
-function renderizarTablaConFiltro() {
-    const filtro = document.getElementById('filtroMesTarea').value; // Ejemplo: "2026-02"
-    
-    const tareasFiltradas = todasLasTareas.filter(tarea => {
-        if (!filtro) return true; // Si no hay filtro, mostrar todo
-        
-        // Si la tarea tiene fecha, comparamos solo el Año y el Mes
-        if (tarea.fechaLimite) {
-            // fechaLimite suele ser "2026-02-24", cortamos los primeros 7 caracteres
-            return tarea.fechaLimite.substring(0, 7) === filtro;
-        }
-        return false;
-    });
 
-    // LLAMA AQUÍ A TU FUNCIÓN QUE DIBUJA LA TABLA (la que tiene el forEach o map)
-    // Ejemplo:
-    actualizarInterfazTareas(tareasFiltradas); 
-}
 
-// Escuchar cambios en el input de mes
-document.getElementById('filtroMesTarea')?.addEventListener('change', renderizarTablaConFiltro);
 
-function limpiarFiltroMes() {
-    document.getElementById('filtroMesTarea').value = "";
-    renderizarTablaConFiltro();
-}
