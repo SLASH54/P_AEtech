@@ -2618,7 +2618,7 @@ button:disabled {
     #tareasTable th,
     #tareasTable td {
         font-size: 0.8rem;
-        padding: 0.5rem;
+        
     }
 
     #tareaForm .grid {
