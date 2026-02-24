@@ -4314,87 +4314,51 @@ document.addEventListener("DOMContentLoaded", revisarAccionesUrl);
 
 
 
-// ==========================================
-// 1. VARIABLES GLOBALES
-// ==========================================
-let todasLasTareasGlobal = []; 
-// Asegúrate de que esta URL sea la correcta de tu servidor
-const URL_API_PROD = 'https://p-aetech.onrender.com/api'; 
 
-// ==========================================
-// 2. CARGA INICIAL
-// ==========================================
-async function initTareas() {
+//filtro de tareas por mes 
+
+let tareasOriginales = []; // Aquí guardaremos todo lo que viene del servidor
+
+async function cargarTareas() {
     try {
-        console.log("Cargando tareas desde el servidor...");
-        const response = await fetch(`${URL_API_PROD}/tareas`, {
+        const res = await fetch('https://p-aetech.onrender.com/api/tareas', {
             headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` }
         });
-        
-        const data = await response.json();
-        todasLasTareasGlobal = data; 
+        const data = await res.json();
+        tareasOriginales = data;
 
-        // Seteamos el mes actual en el input por defecto si está vacío
-        const inputMes = document.getElementById('filtroMesTarea');
-        if (inputMes && !inputMes.value) {
-            const hoy = new Date();
-            inputMes.value = hoy.toISOString().substring(0, 7); 
-        }
+        // 1. Ponemos el mes actual en el input al cargar por primera vez
+        const hoy = new Date();
+        const mesActual = hoy.toISOString().substring(0, 7); // Da "2026-02"
+        document.getElementById('filtroMesTarea').value = mesActual;
 
-        // Ejecutamos el filtro para limpiar la tabla al entrar
-        filtrarYRenderizarTareas();
+        // 2. Ejecutamos el filtro inicial
+        filtrarTareasPorMes();
 
     } catch (error) {
-        console.error("🚨 Error al cargar tareas:", error);
+        console.error("Error cargando tareas:", error);
     }
 }
 
-// ==========================================
-// 3. LÓGICA DE FILTRADO
-// ==========================================
-function filtrarYRenderizarTareas() {
-    const filtro = document.getElementById('filtroMesTarea').value; 
-    // Buscamos el contenedor donde dibujas tus filas
-    const contenedor = document.getElementById('contenedorTareas') || document.getElementById('tareasTableBody');
+function filtrarTareasPorMes() {
+    const mesSeleccionado = document.getElementById('filtroMesTarea').value;
     
-    if (!contenedor) {
-        console.error("No se encontró el contenedor de la tabla (contenedorTareas)");
-        return;
-    }
-
-    // 🔥 LIMPIAMOS LA TABLA para que no se acumulen
-    contenedor.innerHTML = "";
-
-    const tareasFiltradas = todasLasTareasGlobal.filter(tarea => {
-        if (!filtro) return true;
-        // Comparamos fechaLimite (YYYY-MM-DD) con filtro (YYYY-MM)
-        return tarea.fechaLimite && tarea.fechaLimite.startsWith(filtro);
+    // Si no hay nada seleccionado, mostramos todo, pero si hay, filtramos:
+    const filtradas = tareasOriginales.filter(t => {
+        if (!mesSeleccionado) return true;
+        // Comparamos los primeros 7 caracteres de la fecha (YYYY-MM)
+        return t.fechaLimite && t.fechaLimite.substring(0, 7) === mesSeleccionado;
     });
 
-    if (tareasFiltradas.length === 0) {
-        contenedor.innerHTML = `<tr><td colspan="10" class="text-center p-5 text-white">No hay tareas para este periodo.</td></tr>`;
-        return;
-    }
-
-    // IMPORTANTE: Aquí llamo a la función que YA TIENES en tu script para dibujar
-    // Según tu archivo, se llama dibujarTablaTareas o similar. 
-    // Si tu función de dibujo original es la que hace el forEach, llámala aquí:
-    actualizarInterfazTareas(tareasFiltradas); 
+    // Esta es la función que ya tienes para dibujar la tabla
+    // Pásale el array filtrado en lugar del original
+    renderizarTabla(filtradas); 
 }
 
-// ==========================================
-// 4. BOTÓN VER TODO e INICIALIZACIÓN
-// ==========================================
 function mostrarTodo() {
-    const inputMes = document.getElementById('filtroMesTarea');
-    if (inputMes) inputMes.value = ""; 
-    filtrarYRenderizarTareas();
+    document.getElementById('filtroMesTarea').value = "";
+    renderizarTabla(tareasOriginales);
 }
 
-// Escuchamos el cambio del input
-document.addEventListener("DOMContentLoaded", () => {
-    const inputMes = document.getElementById('filtroMesTarea');
-    if (inputMes) {
-        inputMes.addEventListener('change', filtrarYRenderizarTareas);
-    }
-});
+// Escuchamos cuando el usuario cambia el mes en el calendario
+document.getElementById('filtroMesTarea').addEventListener('change', filtrarTareasPorMes);
