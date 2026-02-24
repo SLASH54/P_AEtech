@@ -4939,3 +4939,34 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     transform: scale(1.05);
     filter: brightness(1.1);
 }
+
+
+/* Ajuste para el contenedor del filtro */
+@media (max-width: 768px) {
+    /* El contenedor que me pasaste en HTML */
+    .flex.items-center.space-x-4.my-6 {
+        flex-direction: column; /* Apila los elementos verticalmente */
+        align-items: stretch;   /* Hace que ocupen todo el ancho */
+          /* Quita el espacio lateral */
+        gap: 15px;              /* Agrega espacio entre el input y el botón */
+    }
+
+    /* Ajuste para el input de mes */
+    #filtroMesTarea {
+        width: 100%;           /* Que ocupe todo el ancho disponible */
+        font-size: 14px;       /* Un poco más pequeño para que quepa bien */
+    }
+
+    /* Ajuste para el botón de historial */
+    button[onclick="mostrarTodo()"] {
+        width: 100%;           /* Botón ancho completo en móvil */
+        padding: 12px;
+    }
+}
+
+/* Estilo extra para que el input no se vea "apachurrado" */
+#filtroMesTarea {
+    min-width: 150px; /* Evita que se haga demasiado chiquito */
+    max-width: 100%;  /* Evita que se salga del contenedor padre */
+    box-sizing: border-box; /* Asegura que el padding no lo ensanche de más */
+}
