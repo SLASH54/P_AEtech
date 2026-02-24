@@ -4318,7 +4318,7 @@ document.addEventListener("DOMContentLoaded", revisarAccionesUrl);
 //filtro de tareas por mes 
 
 // Variable global para guardar el filtro actual
-let filtroMesActual = "";
+let filtroMesActual = "Febrero";
 
 // Escuchar cuando el usuario cambia el mes
 document.getElementById('filtroMesTarea')?.addEventListener('change', (e) => {
