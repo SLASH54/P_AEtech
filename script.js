@@ -196,80 +196,57 @@ function accesoCuentas() {
 }
 
 // Función para manejar el inicio de sesión
+
 const loginUser = async (e) => {
-    e.preventDefault(); // Evita que el formulario se envíe de la forma tradicional (recarga de página)
+    e.preventDefault(); 
     
-    // 1. Obtener los valores del formulario de login
-    // IDs de tu HTML: email_input y password_input
+    // 🍎 TRUCO CLAVE PARA IPHONE/SAFARI:
+    // Antes de intentar loguear, borramos todo rastro de sesiones viejas.
+    // Esto obliga al iPhone a crear un espacio de memoria limpio para los nuevos tokens.
+    localStorage.clear();
+    sessionStorage.clear();
+
     const email = document.getElementById('email_input').value; 
     const password = document.getElementById('password_input').value;
 
     try {
         const response = await fetch(`${API_BASE_URL}/auth/login`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password }),
         });
 
         if (!response.ok) {
-            // Manejo de errores 401 (Unauthorized) o 403 (Forbidden)
             const errorData = await response.json();
-            throw new Error(errorData.message || 'Credenciales incorrectas o error en el servidor.');
+            throw new Error(errorData.message || 'Credenciales incorrectas.');
         }
 
         const data = await response.json();
-
-         // 🔑 AGREGAMOS ESTA LÍNEA CLAVE 🔑
-        console.log('Respuesta COMPLETA del Servidor al Login:', data);
+        console.log('Respuesta COMPLETA del Servidor:', data);
         
-        // 1. Guardar el Token
-        //localStorage.setItem('accessToken', data.token);
+        // Guardamos tokens (Asegúrate que los nombres coincidan con tu backend)
         localStorage.setItem('accessToken', data.accessToken);
         localStorage.setItem('refreshToken', data.refreshToken);
 
-        let rolDelUsuario = 'Usuario'; // Valor por defecto
+        // Guardamos datos de usuario
+        if (data.nombre) localStorage.setItem('userName', data.nombre);
+        if (data.email) localStorage.setItem('userEmail', data.email);
+        if (data.rol) localStorage.setItem('userRol', data.rol);
 
-    
-
-        // 2. Intento de guardar el nombre y email
-        // Dejaremos la versión más segura (asumiendo que viene en 'user')
-        if (data.nombre && data.email) {
-            localStorage.setItem('userName', data.nombre);
-            localStorage.setItem('userEmail', data.email);
-        }
-
-        if  (data.rol) {
-            localStorage.setItem('userRol', data.rol)
-        }
-        
-
-     
-
-        
-        if (data.user && data.rol) {
-            // Si el backend SI devuelve { user: { rol: '...' } }, usa ese valor
-            rolDelUsuario = data.rol;
-        } 
-        
-        // Si el backend NO devuelve el rol, solo muestra un mensaje de éxito
+        // 🍎 OJO AQUÍ: En iPhone, a veces el redireccionamiento es tan rápido 
+        // que no le da tiempo al sistema de asegurar el localStorage.
+        // Usamos un pequeño delay de 100ms antes de moverla a sistema.html
         alert(`✅ Login Exitoso! Bienvenido ${data.nombre || data.email}`);
         
-        // 3. Redirigir o cambiar la vista
-        //mostrarContenido('Tablero');
-        window.location.href = "sistema.html";
+        setTimeout(() => {
+            window.location.href = "sistema.html";
+        }, 100);
 
-
-
-        
     } catch (error) {
         console.error("Error de login:", error.message);
-        alert('⚠ Error de inicio de sesión: ' + error.message);
-    }
-
+        alert('⚠ Error: ' + error.message);
+    }
 };
-
 
 
 // Función para manejar el registro de nuevos usuarios
