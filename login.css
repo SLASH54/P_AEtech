@@ -4864,3 +4864,21 @@ button#levBtnAgregarMaterial {
     border-color: rgb(233 30 99 / 60%);
     background: rgb(233 30 99 / 47%) !important;
 }
+
+
+/* filtro de tareas por mes */
+
+#filtroMesTarea {
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 8px;
+}
+
+/* Cambiar el color del icono del calendario en Chrome/Edge */
+#filtroMesTarea::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}

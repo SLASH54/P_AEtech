@@ -4315,3 +4315,37 @@ document.addEventListener("DOMContentLoaded", revisarAccionesUrl);
 
 
 
+//filtro de tareas por mes 
+
+// Variable global para guardar el filtro actual
+let filtroMesActual = "";
+
+// Escuchar cuando el usuario cambia el mes
+document.getElementById('filtroMesTarea')?.addEventListener('change', (e) => {
+    filtroMesActual = e.target.value; // Esto da algo como "2026-02"
+    renderizarTareasFiltradas();
+});
+
+function limpiarFiltroMes() {
+    document.getElementById('filtroMesTarea').value = "";
+    filtroMesActual = "";
+    renderizarTareasFiltradas();
+}
+
+function renderizarTareasFiltradas() {
+    // Aquí usamos la lista de tareas que ya tienes cargada (ejemplo: todasLasTareas)
+    // Suponiendo que tu array global de tareas se llama 'tareasData'
+    const tareasFiltradas = tareasData.filter(tarea => {
+        if (!filtroMesActual) return true; // Si no hay filtro, pasan todas
+        
+        // Comparamos el año y mes de 'fechaLimite' con el filtro
+        return tarea.fechaLimite && tarea.fechaLimite.startsWith(filtroMesActual);
+    });
+
+    // Llamamos a tu función que dibuja la tabla mandándole solo las filtradas
+    actualizarTablaTareas(tareasFiltradas); 
+}
+
+
+
+
