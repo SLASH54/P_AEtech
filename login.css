@@ -4905,3 +4905,19 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     filter: invert(1) saturate(5);
     cursor: pointer;
 }
+
+
+#filtroMesTarea {
+    background: rgba(30, 41, 59, 0.7) !important;
+    border: 2px solid #3b82f6; /* Azul brillante */
+    color: #fff;
+    font-weight: bold;
+    padding: 8px;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); /* Efecto Neón sutil */
+    cursor: pointer;
+}
+
+#filtroMesTarea::-webkit-calendar-picker-indicator {
+    filter: invert(1) sepia(1) saturate(5) hue-rotate(175deg); /* Hace el icono azul brillante */
+}
