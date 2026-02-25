@@ -637,10 +637,12 @@ async function fetchData(endpoint, options = {}) {
   let token = localStorage.getItem('accessToken');
   if (!token) return null;
 
+  // 🍎 Agregamos 'Accept' para que el iPhone no diga "0 elementos"
   options.headers = {
     ...options.headers,
-    Authorization: `Bearer ${token}`,
-    'Content-Type': 'application/json'
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json',
+    'Accept': 'application/json' 
   };
 
   let res = await fetch(`${API_BASE_URL}${endpoint}`, options);
@@ -654,13 +656,13 @@ async function fetchData(endpoint, options = {}) {
 
     token = localStorage.getItem('accessToken');
     options.headers.Authorization = `Bearer ${token}`;
+    // Reintentamos con el nuevo token y los mismos headers (que ya llevan el Accept)
     res = await fetch(`${API_BASE_URL}${endpoint}`, options);
   }
 
   if (!res.ok) return null;
   return await res.json();
 }
-
 
 
     // 2. OBTENER Y CARGAR DATOS (Tu lógica actual)
@@ -2003,17 +2005,28 @@ function openTareaModal(tareaIdOrObject, mode) {
         if (selectAsignados) Array.from(selectAsignados.options).forEach(opt => opt.selected = false);
     }
 
-    // --- 🔥 TRUCO: SELECCIÓN MÚLTIPLE SIN CTRL ---
+    // --- 🔥 SELECCIÓN MÚLTIPLE INTELIGENTE ---
     if (selectAsignados) {
-        selectAsignados.onmousedown = function(e) {
-            e.preventDefault(); // Evita el comportamiento molesto por defecto
-            
-            const scroll = this.scrollTop; // Guardamos el scroll para que no brinque
-            e.target.selected = !e.target.selected; // Cambia el estado (si estaba on pasa a off y viceversa)
-            
-            setTimeout(() => { this.scrollTop = scroll; }, 0); // Restauramos scroll
-            $(this).focus(); // Mantenemos el foco (si usas jQuery, si no usa this.focus())
-        };
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+        if (!isMobile) {
+            // PC: Selección sin Ctrl
+            selectAsignados.onmousedown = function(e) {
+                if (e.target.tagName === 'OPTION') {
+                    e.preventDefault();
+                    const scroll = this.scrollTop;
+                    e.target.selected = !e.target.selected;
+                    setTimeout(() => { this.scrollTop = scroll; }, 0);
+                    this.focus();
+                    this.dispatchEvent(new Event('change'));
+                }
+            };
+        } else {
+            // iPhone/Móvil: Dejamos que el sistema use su ruedita nativa
+            selectAsignados.onmousedown = null;
+            selectAsignados.style.height = "auto"; // Se expande para ver mejor
+            selectAsignados.style.fontSize = "16px"; // Evita que el iPhone haga zoom solo
+        }
     }
 
     modal.style.display = "flex";
@@ -2161,40 +2174,37 @@ document.getElementById('filterActividad').addEventListener('change', filtrarTar
 
 // FILTRADO FINAL TAREAS 
 function filtrarTareas() {
-  // 1. 🛡️ PROTECCIÓN: Si las tareas aún no cargan en el iPhone, salimos para no romper el código
-  if (!window.tareasOriginales) {
-    console.warn("Intentando filtrar sin datos cargados...");
-    return;
-  }
+    // 🛡️ Protección: Si no han cargado los datos, no hacemos nada
+    if (!window.tareasOriginales) return;
 
-  // 2. Obtener valores de los filtros del HTML
-  const cliente = document.getElementById('filterCliente')?.value || "";
-  const actividad = document.getElementById('filterActividad')?.value || "";
-  const filtroMes = document.getElementById('filtroMesTarea')?.value || ""; // 📅 VITAL para que no salga 0
+    const cliente = document.getElementById('filterCliente')?.value || "";
+    const actividad = document.getElementById('filterActividad')?.value || "";
+    const filtroMes = document.getElementById('filtroMesTarea')?.value || "";
 
-  // 3. Aplicar el filtrado sobre la lista original
-  const tareasFiltradas = window.tareasOriginales.filter(t => {
-    // Extraer nombres para comparar
-    const clienteNombre = t.ClienteNegocio?.nombre || "";
-    const actividadNombre = t.Actividad?.nombre || "";
-    
-    // 🍎 LÓGICA DE FECHA PARA IPHONE (Formato YYYY-MM)
-    // Asumimos que t.fecha viene como "2026-02-25"
-    const fechaTarea = t.fecha || ""; 
-    const mesTarea = fechaTarea.substring(0, 7); // Corta a "2026-02"
+    const tareasFiltradas = window.tareasOriginales.filter(t => {
+        const clienteNombre = t.ClienteNegocio?.nombre || "";
+        const actividadNombre = t.Actividad?.nombre || "";
+        
+        // 📅 Lógica de fecha compatible (YYYY-MM)
+        const fechaLimite = t.fechaLimite || ""; 
+        const mesTarea = fechaLimite.substring(0, 7); 
 
-    // Definir las condiciones (Si el filtro está vacío, la condición es verdadera)
-    const condCliente = !cliente || clienteNombre === cliente;
-    const condActividad = !actividad || actividadNombre === actividad;
-    const condMes = !filtroMes || mesTarea === filtroMes;
+        const condCliente = !cliente || clienteNombre === cliente;
+        const condActividad = !actividad || actividadNombre === actividad;
+        const condMes = !filtroMes || mesTarea === filtroMes;
 
-    // Solo pasa si cumple las TRES condiciones
-    return condCliente && condActividad && condMes;
-  });
+        return condCliente && condActividad && condMes;
+    });
 
-  // 4. Mandar a dibujar la tabla con el resultado
-  console.log(`Filtrado terminado: ${tareasFiltradas.length} tareas encontradas.`);
-  renderTareasConAnimacion(tareasFiltradas);
+    const tareasBody = document.getElementById('tareasBody');
+    if (tareasBody) {
+        tareasBody.innerHTML = ""; 
+        if (tareasFiltradas.length > 0) {
+            renderTareasTable(tareasFiltradas);
+        } else {
+            tareasBody.innerHTML = '<tr><td colspan="10" class="p-4 text-center text-white">No se encontraron tareas.</td></tr>';
+        }
+    }
 }
 
 // 1. Función para abrir el modal y llenar datos automáticos

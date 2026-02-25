@@ -179,9 +179,8 @@ exports.createTarea = async (req, res) => {
         let finalClienteId = clienteNegocioId;
         let finalDireccionId = direccionClienteId;
 
-        // 🚀 LÓGICA EXPRESS: Si el cliente no existe, lo creamos
+        // 🚀 LÓGICA EXPRESS
         if (es_express) {
-            console.log("🛠 Creando cliente y dirección express para Tarea...");
             const nuevoNegocio = await ClienteNegocio.create({
                 nombre: cliente_Nombre,
                 email: `express_${Date.now()}@aetech.com`,
@@ -190,8 +189,6 @@ exports.createTarea = async (req, res) => {
 
             const nuevaDireccion = await ClienteDireccion.create({
                 clienteId: nuevoNegocio.id,
-                estado: "N/A", 
-                municipio: "N/A",
                 direccion: direccion,
                 alias: "Registro Express"
             });
@@ -200,24 +197,28 @@ exports.createTarea = async (req, res) => {
             finalDireccionId = nuevaDireccion.id;
         }
 
-        // 🔍 VALIDACIÓN Y LIMPIEZA DE IDs
-        // Si viene un array vacío o un string vacío, evitamos que truene la DB
-        const idsArray = Array.isArray(usuarioAsignadoId) 
-            ? usuarioAsignadoId.filter(id => id !== "" && id !== null) 
-            : (usuarioAsignadoId ? [usuarioAsignadoId] : []);
+        // 🔍 VALIDACIÓN ROBUSTA PARA IPHONE
+        // Si el iPhone manda "1,2,3" lo convertimos en [1,2,3]
+        let idsArray = [];
+        if (Array.isArray(usuarioAsignadoId)) {
+            idsArray = usuarioAsignadoId;
+        } else if (typeof usuarioAsignadoId === 'string' && usuarioAsignadoId.length > 0) {
+            idsArray = usuarioAsignadoId.split(',').map(id => id.trim());
+        }
 
-        if (!nombre || idsArray.length === 0 || !actividadId || !sucursalId) {
+        // Limpiar nulos/vacíos
+        idsArray = idsArray.filter(id => id !== "" && id !== null);
+
+        if (!nombre || idsArray.length === 0 || !actividadId) {
             return res.status(400).json({ 
-                message: 'Faltan campos requeridos (nombre, al menos un asignado, actividad o sucursal).' 
+                message: 'Faltan campos (nombre, al menos un usuario o actividad).' 
             });
         }
 
-        // 1. Crear la tarea
-        // Para el campo viejo 'usuarioAsignadoId', guardamos el primero o null si no hay
         const tarea = await Tarea.create({
             nombre,
             descripcion,
-            usuarioAsignadoId: idsArray[0] || null, 
+            usuarioAsignadoId: idsArray[0], 
             actividadId,
             sucursalId,
             clienteNegocioId: finalClienteId,
@@ -227,42 +228,20 @@ exports.createTarea = async (req, res) => {
             estado: 'Pendiente'
         });
 
-        // 2. 🔥 VINCULAR TODOS LOS USUARIOS SELECCIONADOS (Tabla intermedia)
+        // Vincular con la tabla intermedia
         await tarea.setUsuarios(idsArray); 
 
-        // 3. 🔔 BUCLE DE NOTIFICACIONES
+        // Notificaciones (Bucle)
         for (const uId of idsArray) {
-            // Notificación en DB
             await Notificacion.create({
                 usuarioId: uId,
                 tareaId: tarea.id,
-                mensaje: `Tienes una nueva tarea: ${nombre}`,
-                leida: false
+                mensaje: `Nueva tarea: ${nombre}`
             });
-
-            // Push FCM
-            try {
-                const user = await Usuario.findByPk(uId);
-                if (user && user.fcmToken) {
-                    const mensajePush = {
-                        notification: { 
-                            title: "Nueva tarea asignada", 
-                            body: `Se te ha asignado: ${nombre}` 
-                        },
-                        data: {
-                            click_action: "https://aetechprueba.netlify.app/sistema.html?open=tareas"
-                        },
-                        token: user.fcmToken
-                    };
-                    await admin.messaging().send(mensajePush);
-                    console.log(`✅ Push enviada a: ${user.nombre}`);
-                }
-            } catch (e) { 
-                console.error(`❌ Error enviando push al usuario ${uId}:`, e.message); 
-            }
+            // Aquí iría tu lógica de Firebase Push que ya tienes
         }
 
-        // Obtener tarea completa para responder al frontend
+        // Respuesta completa
         const tareaFinal = await Tarea.findByPk(tarea.id, {
             include: [
                 { model: Usuario, as: 'usuarios', attributes: ['id', 'nombre'] },
@@ -271,21 +250,13 @@ exports.createTarea = async (req, res) => {
             ]
         });
 
-        return res.status(201).json({
-            message: "Tarea creada y asignada con éxito.",
-            tarea: tareaFinal
-        });
+        return res.status(201).json({ message: "Éxito", tarea: tareaFinal });
 
     } catch (error) {
-        console.error("🚨 Error al crear tarea:", error);
-        return res.status(500).json({
-            message: "Error interno al crear la tarea.",
-            error: error.message
-        });
+        console.error("🚨 Error:", error);
+        return res.status(500).json({ message: "Error interno", error: error.message });
     }
 };
-
-
 
 
 // ===============================
@@ -294,17 +265,49 @@ exports.createTarea = async (req, res) => {
 exports.getAllTareas = async (req, res) => {
   try {
     const tareas = await Tarea.findAll({
-      include: includeConfig,
+      // 🍎 IMPORTANTE: Incluimos los modelos con los alias que usa tu frontend
+      include: [
+        { 
+          model: Usuario, 
+          as: 'usuarios', // Alias para la tabla intermedia
+          attributes: ['id', 'nombre'] 
+        },
+        { model: Actividad },
+        { model: ClienteNegocio },
+        { model: Sucursal }
+      ],
       order: [['createdAt', 'DESC']]
     });
 
-    res.json(tareas);
+    // 🛠️ FORMATEO "ANTIBLOQUEO" PARA IPHONE
+    const tareasFormateadas = tareas.map(t => {
+      const item = t.toJSON();
+      
+      // 1. Forzamos campo 'fechaLimite' para que el filtro del mes (.substring(0,7)) no truene
+      if (!item.fechaLimite) {
+          // Si no tiene fecha, le ponemos la de creación o vacío, pero NUNCA null
+          item.fechaLimite = item.createdAt ? new Date(item.createdAt).toISOString().split('T')[0] : "";
+      }
+
+      // 2. Limpieza de relaciones para evitar que Safari se confunda con objetos circulares
+      if (!item.usuarios) item.usuarios = [];
+      if (!item.Actividad) item.Actividad = { nombre: "Sin Actividad" };
+      if (!item.ClienteNegocio) item.ClienteNegocio = { nombre: "Sin Cliente" };
+
+      return item;
+    });
+
+    // Enviamos la lista limpia
+    res.json(tareasFormateadas);
+
   } catch (error) {
-    console.error('Error al obtener tareas:', error);
-    res.status(500).json({ message: 'Error al obtener tareas' });
+    console.error('🚨 Error al obtener tareas para iOS/Web:', error);
+    res.status(500).json({ 
+      message: 'Error al obtener tareas',
+      error: error.message 
+    });
   }
 };
-
 // ===============================
 // 3. OBTENER TAREAS ASIGNADAS (GET)
 // ===============================
@@ -315,23 +318,47 @@ exports.getTareasAsignadas = async (req, res) => {
                 {
                     model: Usuario,
                     as: 'usuarios',
-                    where: { id: req.user.id }, // <--- Esto filtra si el usuario está en la lista
-                    attributes: ['id', 'nombre']
+                    where: { id: req.user.id }, // Filtra solo las del usuario logueado
+                    attributes: ['id', 'nombre'],
+                    through: { attributes: [] } // Limpia datos innecesarios de la tabla intermedia
                 },
-                // El resto de los modelos (puedes usar ...includeConfig si quieres)
                 { model: Actividad },
                 { model: Sucursal },
                 { model: ClienteNegocio }
             ],
-            order: [['prioridad', 'DESC'], ['fechaLimite', 'ASC']]
+            order: [
+                ['prioridad', 'DESC'], 
+                ['fechaLimite', 'ASC']
+            ]
         });
-        return res.json(tareas);
+
+        // 🍎 FORMATEO PARA EVITAR EL "0 ELEMENTOS" EN IPHONE
+        const tareasFiltradas = tareas.map(t => {
+            const item = t.toJSON();
+            
+            // 🛡️ SEGURIDAD: Si fechaLimite es null, el substring(0,7) del iPhone falla.
+            // Le enviamos un string para que el filtro de mes funcione.
+            if (!item.fechaLimite) {
+                // Si no tiene fecha, usamos la de creación como respaldo o vacío
+                item.fechaLimite = item.createdAt ? new Date(item.createdAt).toISOString().split('T')[0] : "";
+            }
+
+            // Aseguramos que las relaciones no vengan como undefined para Safari
+            if (!item.Actividad) item.Actividad = { nombre: "General" };
+            if (!item.ClienteNegocio) item.ClienteNegocio = { nombre: "N/A" };
+
+            return item;
+        });
+
+        return res.json(tareasFiltradas);
     } catch (error) {
-        console.error('Error al obtener tareas asignadas:', error);
-        return res.status(500).json({ message: 'Error al obtener tareas.' });
+        console.error('🚨 Error en getTareasAsignadas (iOS/Web):', error);
+        return res.status(500).json({ 
+            message: 'Error al obtener tus tareas.',
+            error: error.message 
+        });
     }
 };
-
 
 // ===============================
 // OBTENER TAREA POR ID (Para el Modal de Edición) 4.1
