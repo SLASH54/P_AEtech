@@ -1383,10 +1383,10 @@ async function initTareas() {
   const tareasBody = document.getElementById('tareasBody');
   if (!tareasBody) return;
 
-  tareasBody.innerHTML = '<tr><td colspan="10" class="p-4 text-center">Cargando...</td></tr>';
+  tareasBody.innerHTML = '<tr><td colspan="10" class="p-4 text-center text-white">Cargando...</td></tr>';
 
   try {
-    // 🍎 En iPhone es mejor cargar secuencialmente lo crítico
+    // Carga secuencial de catálogos
     await loadUsersForTareaSelect(); 
     await loadClientesForTareaSelect();
     await loadActividadesForTareaSelect();
@@ -1394,27 +1394,35 @@ async function initTareas() {
     llenarSelectoresExpress();
     cargarDireccionesExpress();
 
-    // Luego las tareas
     const rol = localStorage.getItem('userRol') || '';
     let endpoint = (rol === 'Residente' || rol === 'Practicante' || rol === 'Técnico') 
-                   ? '/tareas/mis-tareas' : '/tareas';
+                    ? '/tareas/mis-tareas' : '/tareas';
 
     const tareas = await fetchData(endpoint);
 
     if (tareas && tareas.length > 0) {
       window.tareasOriginales = tareas;
       const inputMes = document.getElementById('filtroMesTarea');
-      if (inputMes && !inputMes.value) {
-          inputMes.value = new Date().toISOString().substring(0, 7);
-      }
-      filtrarTareas(); 
-      llenarSelectClientes(tareas);
-      llenarSelectActividades(tareas);
+     if (inputMes && !inputMes.value) {
+    const ahora = new Date();
+    const anio = ahora.getFullYear();
+    const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+    inputMes.value = `${anio}-${mes}`; // Esto fuerza el mes real local
+}
+
+      // ⏳ TRUCO MAESTRO: Esperamos 100ms para que Safari asimile el valor del input
+      setTimeout(() => {
+          filtrarTareas(); 
+          llenarSelectClientes(tareas);
+          llenarSelectActividades(tareas);
+      }, 100);
+
     } else {
-      tareasBody.innerHTML = '<tr><td colspan="10" class="p-4 text-center">No hay tareas.</td></tr>';
+      tareasBody.innerHTML = '<tr><td colspan="10" class="p-4 text-center text-white">No hay tareas asignadas.</td></tr>';
     }
   } catch (error) {
-    console.error("Error en iPhone:", error);
+    console.error("Error en inicialización:", error);
+    tareasBody.innerHTML = '<tr><td colspan="10" class="p-4 text-center text-red-500">Error al cargar datos.</td></tr>';
   }
   setupTareaModal();
 }
@@ -1428,21 +1436,31 @@ async function loadUsersForTareaSelect() {
 
     const users = await fetchData('/users'); 
     
-    // 🍎 AJUSTE PARA IPHONE: Quitamos el 'disabled' para que Safari no se trabe
+    // Limpiamos y preparamos
     userSelect.innerHTML = '<option value="">-- Seleccione Usuario --</option>';
 
     if (users && users.length > 0) {
         users.forEach(user => {
             const option = document.createElement('option');
-            // Usamos || para asegurar que si el ID viene en otro formato no quede vacío
             option.value = user.id || user._id; 
             option.textContent = user.nombre; 
             userSelect.appendChild(option);
         });
+
+        // 🍎 AJUSTE PARA IPHONE: Si detectamos iOS, forzamos un tamaño de letra 
+        // de 16px para que Safari no bloquee el menú ni haga zoom.
+        if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        userSelect.style.fontSize = "16px"; // 🍎 Obligatorio para Safari
+        userSelect.style.height = "auto";
+        userSelect.style.minHeight = "150px"; // Para que se vea el área de selección
+        }
     } else {
-        console.warn('No se pudieron cargar usuarios para asignación.');
+        console.warn('No se pudieron cargar usuarios.');
     }
 }
+
+
+
 /**
  * Carga clientes y llena el SELECT del modal de tareas.
  */
