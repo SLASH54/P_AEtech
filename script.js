@@ -2003,9 +2003,8 @@ async function openTareaModal(tareaIdOrObject, mode) {
 
     // 🔍 PASO 3: LÓGICA DEL BUSCADOR + DIRECCIONES
     if (busquedaInput && clienteSelect) {
-        busquedaInput.value = ""; // Limpiar al abrir
+        busquedaInput.value = ""; 
         
-        // Función interna para conectar el cambio de dirección
         const conectarEventoDireccion = () => {
             clienteSelect.onchange = function() {
                 const selectedId = clienteSelect.value;
@@ -2015,7 +2014,6 @@ async function openTareaModal(tareaIdOrObject, mode) {
             };
         };
 
-        // Resetear el select a la lista completa al abrir
         if (window.clientesBackup && window.clientesBackup.length > 0) {
             clienteSelect.options.length = 0;
             clienteSelect.options.add(new Option("-- Seleccione Cliente --", ""));
@@ -2024,10 +2022,8 @@ async function openTareaModal(tareaIdOrObject, mode) {
             });
         }
 
-        // Conectamos el evento de dirección por primera vez
         conectarEventoDireccion();
 
-        // Lógica de filtrado en tiempo real
         busquedaInput.oninput = function() {
             const filtro = busquedaInput.value.toLowerCase();
             const filtrados = (window.clientesBackup || []).filter(c => 
@@ -2039,8 +2035,6 @@ async function openTareaModal(tareaIdOrObject, mode) {
             filtrados.forEach(c => {
                 clienteSelect.options.add(new Option(c.nombre, c.id));
             });
-
-            // Re-conectamos el evento de dirección porque al limpiar el select se pierde
             conectarEventoDireccion();
         };
     }
@@ -2064,12 +2058,8 @@ async function openTareaModal(tareaIdOrObject, mode) {
             
             if (tarea.fechaLimite && fechaInput) fechaInput.value = tarea.fechaLimite.split("T")[0];
             
-            // Seleccionar cliente
-            if (clienteSelect) {
-                clienteSelect.value = tarea.clienteNegocioId || "";
-            }
+            if (clienteSelect) clienteSelect.value = tarea.clienteNegocioId || "";
 
-            // Cargar direcciones (Modo Edición)
             if (tarea.clienteNegocioId && typeof cargarDireccionesCliente === "function") {
                 cargarDireccionesCliente(tarea.clienteNegocioId);
                 setTimeout(() => { 
@@ -2077,7 +2067,6 @@ async function openTareaModal(tareaIdOrObject, mode) {
                 }, 600);
             }
 
-            // Marcar usuarios asignados
             if (selectAsignados) {
                 for (let i = 0; i < selectAsignados.options.length; i++) {
                     selectAsignados.options[i].selected = false;
@@ -2097,7 +2086,6 @@ async function openTareaModal(tareaIdOrObject, mode) {
         const d = new Date();
         if (fechaInput) fechaInput.value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         
-        // Limpiar direcciones al crear nueva
         if (direccionSelect) {
             direccionSelect.options.length = 0;
             direccionSelect.options.add(new Option("-- Seleccione Dirección --", ""));
@@ -2110,12 +2098,33 @@ async function openTareaModal(tareaIdOrObject, mode) {
         }
     }
 
-    // Estilos finales para iPhone
+    // 🍎 PASO FINAL: REPARACIÓN SELECCIÓN MÚLTIPLE IPHONE
     if (selectAsignados) {
-        selectAsignados.style.fontSize = "16px";
+        selectAsignados.multiple = true; 
         selectAsignados.setAttribute('multiple', 'multiple');
+        selectAsignados.style.fontSize = "16px"; 
+        
         const total = selectAsignados.options.length;
-        selectAsignados.size = total > 1 ? Math.min(total, 8) : 5;
+        selectAsignados.size = total > 1 ? Math.min(total, 10) : 5;
+
+        // --- 🍎 TRUCO DE TOQUE ÚNICO PARA IPHONE ---
+        // Este código permite seleccionar varios simplemente tocando, 
+        // sin necesidad de dejar presionado.
+        selectAsignados.onmousedown = function(e) {
+            if (e.target.tagName === 'OPTION') {
+                e.preventDefault();
+                const scroll = this.scrollTop;
+                e.target.selected = !e.target.selected; // Cambia el estado (on/off)
+                
+                setTimeout(() => {
+                    this.scrollTop = scroll;
+                }, 0);
+                
+                this.focus();
+                // Disparamos evento de cambio por si lo necesitas
+                this.dispatchEvent(new Event('change'));
+            }
+        };
     }
 
     modal.style.display = "flex";
