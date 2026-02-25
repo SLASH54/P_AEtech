@@ -1956,7 +1956,7 @@ function openTareaModal(tareaIdOrObject, mode) {
 
     if (!modal) return;
 
-    // --- 🔍 LÓGICA DEL BUSCADOR ---
+    // --- 🔍 LÓGICA DEL BUSCADOR (ESTO NO SE TOCA, YA TE SIRVE) ---
     if (busquedaInput && clienteSelect) {
         busquedaInput.value = ""; 
         if (!window.clientesBackup) {
@@ -2013,7 +2013,6 @@ function openTareaModal(tareaIdOrObject, mode) {
                 }, 600);
             }
 
-            // Marcar usuarios previamente asignados
             if (selectAsignados) {
                 Array.from(selectAsignados.options).forEach(opt => opt.selected = false);
                 const ids = tarea.usuarios ? tarea.usuarios.map(u => String(u.id)) : [];
@@ -2028,36 +2027,30 @@ function openTareaModal(tareaIdOrObject, mode) {
         document.getElementById("tareaId").value = "";
 
         if (fechaInput) {
-            // 🍎 Ajuste para evitar error de día en iPhone (Fecha Local)
-            const ahora = new Date();
-            const anio = ahora.getFullYear();
-            const mes = String(ahora.getMonth() + 1).padStart(2, '0');
-            const dia = String(ahora.getDate()).padStart(2, '0');
-            fechaInput.value = `${anio}-${mes}-${dia}`;
+            fechaInput.value = new Date().toISOString().split('T')[0];
         }
 
         if (direccionSelect) direccionSelect.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
         if (selectAsignados) Array.from(selectAsignados.options).forEach(opt => opt.selected = false);
     }
 
-    // --- 🔥 TRUCO MÚLTIPLE: COMPATIBILIDAD IPHONE Y PC ---
+    // --- 🔥 EL CAMBIO ESTÁ AQUÍ (PARA QUE SALGA EN APPLE) ---
     if (selectAsignados) {
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
         if (isMobile) {
-            // 🍎 En iPhone quitamos el preventDefault para que Safari muestre su lista nativa
+            // Si es iPhone, no bloqueamos el clic, dejamos que Safari lo abra normal
             selectAsignados.onmousedown = null; 
-            selectAsignados.style.fontSize = "16px"; // Vital para iOS
+            selectAsignados.style.fontSize = "16px"; 
         } else {
-            // 💻 En PC mantenemos tu truco de selección sin Ctrl
+            // Si es PC, mantenemos tu truco de selección sin Ctrl
             selectAsignados.onmousedown = function(e) {
                 if (e.target.tagName === 'OPTION') {
-                    e.preventDefault();
+                    e.preventDefault(); 
                     const scroll = this.scrollTop;
                     e.target.selected = !e.target.selected;
                     setTimeout(() => { this.scrollTop = scroll; }, 0);
                     this.focus();
-                    this.dispatchEvent(new Event('change'));
                 }
             };
         }
@@ -2065,6 +2058,9 @@ function openTareaModal(tareaIdOrObject, mode) {
 
     modal.style.display = "flex";
 }
+
+
+
 /**
  * Envía una petición para eliminar una tarea.
  * @param {string} tareaId - El ID de la tarea a eliminar.
