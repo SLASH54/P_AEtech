@@ -1363,120 +1363,40 @@ document.addEventListener('DOMContentLoaded', function () {
  * 2. Carga la lista de usuarios para el selector de asignación.
  * 3. Configura el comportamiento del modal de creación/edición.
  */
-async function initTareas() {
-    console.log('Iniciando sección de Tareas con parche iOS...');
-    
-    // 🍎 PASO EXTRA: Inyectar estilos para que Safari no oculte el texto de los usuarios
-    const styleId = 'safari-fix-style';
-    if (!document.getElementById(styleId)) {
-        const style = document.createElement('style');
-        style.id = styleId;
-        style.innerHTML = `
-            #tareaAsignadoA {
-                background-color: #ffffff !important; 
-                color: #000000 !important; 
-                -webkit-appearance: none !important;
-                appearance: none !important;
-                min-height: 120px !important;
-                border: 1px solid #ccc !important;
-                border-radius: 8px !important;
-                padding: 8px !important;
-                font-size: 16px !important;
-                display: block !important;
-            }
-            #tareaAsignadoA option {
-                padding: 10px !important;
-                color: #000000 !important;
-                background-color: #ffffff !important;
-            }
-            /* Esto ayuda a ver quién está seleccionado en iPhone */
-            #tareaAsignadoA option:checked {
-                background-color: #00ffff !important;
-                color: #000000 !important;
-            }
-        `;
-        document.head.appendChild(style);
-    }
+async function loadUsersForTareaSelect() {
+    const userSelect = document.getElementById('tareaAsignadoA');
+    if (!userSelect) return;
 
-    const tareasBody = document.getElementById('tareasBody');
-    if (!tareasBody) return;
+    // Mensaje temporal
+    userSelect.options.length = 0;
+    userSelect.options.add(new Option("Cargando...", ""));
 
-    tareasBody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">Cargando tareas...</td></tr>';
+    try {
+        const response = await fetchData('/users');
+        // Buscamos la lista donde sea que esté
+        const users = Array.isArray(response) ? response : (response?.users || response?.data || []);
 
-    // 1. Detectar rol
-    const rol = localStorage.getItem('userRol') || '';
-    let endpoint = (['Residente', 'Practicante', 'Técnico'].includes(rol)) ? '/tareas/mis-tareas' : '/tareas';
-
-    // 2. 🔥 CARGA DE DATOS MAESTROS (Esperamos a que carguen para que no salgan vacíos)
-    await Promise.all([
-        loadUsersForTareaSelect(),
-        loadClientesForTareaSelect(),
-        loadActividadesForTareaSelect()
-    ]);
-
-    // 3. Cargar Tareas
-    const tareas = await fetchData(endpoint);
-
-    if (tareas && Array.isArray(tareas)) {
-        window.tareasOriginales = tareas;
+        userSelect.options.length = 0; // Limpiamos el "Cargando..."
         
-        // Ponemos el mes actual antes de renderizar
-        const inputMes = document.getElementById('filtroMesTarea');
-        if (inputMes && !inputMes.value) {
-            const hoy = new Date();
-            const anio = hoy.getFullYear();
-            const mes = String(hoy.getMonth() + 1).padStart(2, '0');
-            inputMes.value = `${anio}-${mes}`; 
-        }
-
-        // Renderizamos con el filtro aplicado de una vez
-        if (typeof filtrarTareas === "function") {
-            filtrarTareas();
+        if (users.length > 0) {
+            for (let u of users) {
+                const nombre = u.nombre || u.username || "Usuario";
+                const id = String(u._id || u.id);
+                // 🍎 La forma más compatible con iPhone:
+                const opt = document.createElement('option');
+                opt.value = id;
+                opt.text = nombre;
+                userSelect.add(opt);
+            }
+            console.log("Usuarios cargados con éxito");
         } else {
-            renderTareasTable(tareas);
+            userSelect.options.add(new Option("No hay usuarios", ""));
         }
-
-        // Llenamos los filtros de la tabla superior
-        if (typeof llenarSelectClientes === "function") llenarSelectClientes(tareas);
-        if (typeof llenarSelectActividades === "function") llenarSelectActividades(tareas);
-    } else {
-        tareasBody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">No hay tareas asignadas.</td></tr>';
+    } catch (e) {
+        console.error("Error en loadUsers:", e);
+        userSelect.options.add(new Option("Error al cargar", ""));
     }
-
-    // 4. Configurar eventos
-    if (typeof setupTareaModal === "function") setupTareaModal();
-    if (typeof llenarSelectoresExpress === "function") llenarSelectoresExpress();
-    if (typeof cargarDireccionesExpress === "function") cargarDireccionesExpress();
-
-    // --- 🍎 LISTENERS LIMPIOS (Evita que se dupliquen clics en iPhone) ---
-    const fCliente = document.getElementById('filterCliente');
-    if (fCliente) {
-        const newC = fCliente.cloneNode(true);
-        fCliente.replaceWith(newC);
-        newC.addEventListener('change', filtrarTareas);
-    }
-
-    const fActividad = document.getElementById('filterActividad');
-    if (fActividad) {
-        const newA = fActividad.cloneNode(true);
-        fActividad.replaceWith(newA);
-        newA.addEventListener('change', filtrarTareas);
-    }
-    
-    document.getElementById('filtroMesTarea')?.addEventListener('change', filtrarTareas);
-
-    document.getElementById('btnLimpiarFiltros')?.addEventListener('click', () => {
-        const inC = document.getElementById('filterCliente');
-        const inA = document.getElementById('filterActividad');
-        const inM = document.getElementById('filtroMesTarea');
-        if (inC) inC.value = "";
-        if (inA) inA.value = "";
-        if (inM) inM.value = "";
-        renderTareasTable(window.tareasOriginales);
-    });
 }
-
-
 /**
  * Carga usuarios y llena el SELECT del modal de tareas.
  */
