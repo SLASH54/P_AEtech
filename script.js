@@ -637,31 +637,35 @@ async function fetchData(endpoint, options = {}) {
   let token = localStorage.getItem('accessToken');
   if (!token) return null;
 
+  // 🍎 Añadimos 'Accept' para que Safari procese bien la respuesta
   options.headers = {
     ...options.headers,
-    Authorization: `Bearer ${token}`,
-    'Content-Type': 'application/json'
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json',
+    'Accept': 'application/json' 
   };
 
-  let res = await fetch(`${API_BASE_URL}${endpoint}`, options);
+  try {
+    let res = await fetch(`${API_BASE_URL}${endpoint}`, options);
 
-  if (res.status === 401) {
-    const ok = await refreshAccessToken();
-    if (!ok) {
-      logout();
-      return null;
+    if (res.status === 401) {
+      const ok = await refreshAccessToken();
+      if (!ok) {
+        logout();
+        return null;
+      }
+      token = localStorage.getItem('accessToken');
+      options.headers.Authorization = `Bearer ${token}`;
+      res = await fetch(`${API_BASE_URL}${endpoint}`, options);
     }
 
-    token = localStorage.getItem('accessToken');
-    options.headers.Authorization = `Bearer ${token}`;
-    res = await fetch(`${API_BASE_URL}${endpoint}`, options);
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (error) {
+    console.error("Error en fetch:", error);
+    return null;
   }
-
-  if (!res.ok) return null;
-  return await res.json();
 }
-
-
 
     // 2. OBTENER Y CARGAR DATOS (Tu lógica actual)
     const tbodyUsuarios = document.getElementById('datagridUsuariosRoles')?.querySelector('tbody');
@@ -1944,7 +1948,7 @@ function setupTareaModal() {
  * @param {string|Object} tareaIdOrObject - ID de la tarea si es edición, o un objeto vacío ({}) si es creación.
  * @param {string} mode - 'create' o 'edit'.
  */
-function openTareaModal(tareaIdOrObject, mode) {
+async function openTareaModal(tareaIdOrObject, mode) {
     const modal = document.getElementById('tareaModal');
     const title = document.getElementById('tareaModalTitle');
     const form = document.getElementById('tareaForm');
@@ -1956,10 +1960,10 @@ function openTareaModal(tareaIdOrObject, mode) {
 
     if (!modal) return;
 
-    // --- 🔍 LÓGICA DEL BUSCADOR (ESTO NO SE TOCA, YA TE SIRVE) ---
+    // --- 🔍 LÓGICA DEL BUSCADOR ---
     if (busquedaInput && clienteSelect) {
         busquedaInput.value = ""; 
-        if (!window.clientesBackup) {
+        if (!window.clientesBackup || window.clientesBackup.length <= 1) {
             window.clientesBackup = Array.from(clienteSelect.options).map(o => ({
                 value: o.value,
                 text: o.text
@@ -2027,23 +2031,31 @@ function openTareaModal(tareaIdOrObject, mode) {
         document.getElementById("tareaId").value = "";
 
         if (fechaInput) {
-            fechaInput.value = new Date().toISOString().split('T')[0];
+            // 🍎 FIX FECHA LOCAL: Evita que en iPhone salga el día siguiente o mes vacío
+            const d = new Date();
+            const anio = d.getFullYear();
+            const mes = String(d.getMonth() + 1).padStart(2, '0');
+            const dia = String(d.getDate()).padStart(2, '0');
+            fechaInput.value = `${anio}-${mes}-${dia}`;
         }
 
         if (direccionSelect) direccionSelect.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
         if (selectAsignados) Array.from(selectAsignados.options).forEach(opt => opt.selected = false);
     }
 
-    // --- 🔥 EL CAMBIO ESTÁ AQUÍ (PARA QUE SALGA EN APPLE) ---
+    // --- 🔥 SELECCIÓN MÚLTIPLE IPHONE VS PC ---
     if (selectAsignados) {
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
+        // 🛡️ SEGURO: Si el select está vacío por error de carga previa, intentamos cargar usuarios
+        if (selectAsignados.options.length <= 1 && typeof loadUsersForTareaSelect === "function") {
+            await loadUsersForTareaSelect();
+        }
+
         if (isMobile) {
-            // Si es iPhone, no bloqueamos el clic, dejamos que Safari lo abra normal
             selectAsignados.onmousedown = null; 
-            selectAsignados.style.fontSize = "16px"; 
+            selectAsignados.style.fontSize = "16px"; // Safari exige esto para no bugearse
         } else {
-            // Si es PC, mantenemos tu truco de selección sin Ctrl
             selectAsignados.onmousedown = function(e) {
                 if (e.target.tagName === 'OPTION') {
                     e.preventDefault(); 
@@ -2051,6 +2063,7 @@ function openTareaModal(tareaIdOrObject, mode) {
                     e.target.selected = !e.target.selected;
                     setTimeout(() => { this.scrollTop = scroll; }, 0);
                     this.focus();
+                    this.dispatchEvent(new Event('change'));
                 }
             };
         }
@@ -2058,7 +2071,6 @@ function openTareaModal(tareaIdOrObject, mode) {
 
     modal.style.display = "flex";
 }
-
 
 
 /**
