@@ -1364,7 +1364,40 @@ document.addEventListener('DOMContentLoaded', function () {
  * 3. Configura el comportamiento del modal de creación/edición.
  */
 async function initTareas() {
-    console.log('Iniciando sección de Tareas...');
+    console.log('Iniciando sección de Tareas con parche iOS...');
+    
+    // 🍎 PASO EXTRA: Inyectar estilos para que Safari no oculte el texto de los usuarios
+    const styleId = 'safari-fix-style';
+    if (!document.getElementById(styleId)) {
+        const style = document.createElement('style');
+        style.id = styleId;
+        style.innerHTML = `
+            #tareaAsignadoA {
+                background-color: #ffffff !important; 
+                color: #000000 !important; 
+                -webkit-appearance: none !important;
+                appearance: none !important;
+                min-height: 120px !important;
+                border: 1px solid #ccc !important;
+                border-radius: 8px !important;
+                padding: 8px !important;
+                font-size: 16px !important;
+                display: block !important;
+            }
+            #tareaAsignadoA option {
+                padding: 10px !important;
+                color: #000000 !important;
+                background-color: #ffffff !important;
+            }
+            /* Esto ayuda a ver quién está seleccionado en iPhone */
+            #tareaAsignadoA option:checked {
+                background-color: #00ffff !important;
+                color: #000000 !important;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
     const tareasBody = document.getElementById('tareasBody');
     if (!tareasBody) return;
 
@@ -1374,8 +1407,7 @@ async function initTareas() {
     const rol = localStorage.getItem('userRol') || '';
     let endpoint = (['Residente', 'Practicante', 'Técnico'].includes(rol)) ? '/tareas/mis-tareas' : '/tareas';
 
-    // 2. 🔥 CARGA DE DATOS MAESTROS (Usuarios, Clientes, Actividades)
-    // Los lanzamos primero para que cuando abran el modal ya estén ahí
+    // 2. 🔥 CARGA DE DATOS MAESTROS (Esperamos a que carguen para que no salgan vacíos)
     await Promise.all([
         loadUsersForTareaSelect(),
         loadClientesForTareaSelect(),
@@ -1388,7 +1420,7 @@ async function initTareas() {
     if (tareas && Array.isArray(tareas)) {
         window.tareasOriginales = tareas;
         
-        // Ponemos el mes actual antes de renderizar para que coincida con el filtro
+        // Ponemos el mes actual antes de renderizar
         const inputMes = document.getElementById('filtroMesTarea');
         if (inputMes && !inputMes.value) {
             const hoy = new Date();
@@ -1398,35 +1430,48 @@ async function initTareas() {
         }
 
         // Renderizamos con el filtro aplicado de una vez
-        filtrarTareas();
+        if (typeof filtrarTareas === "function") {
+            filtrarTareas();
+        } else {
+            renderTareasTable(tareas);
+        }
 
-        // Llenamos los filtros de la tabla
-        llenarSelectClientes(tareas);
-        llenarSelectActividades(tareas);
+        // Llenamos los filtros de la tabla superior
+        if (typeof llenarSelectClientes === "function") llenarSelectClientes(tareas);
+        if (typeof llenarSelectActividades === "function") llenarSelectActividades(tareas);
     } else {
         tareasBody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">No hay tareas asignadas.</td></tr>';
     }
 
-    // 4. Configurar eventos (Solo una vez)
-    setupTareaModal();
-    
-    // Estos son los que tenías al final, asegúrate de que existan
+    // 4. Configurar eventos
+    if (typeof setupTareaModal === "function") setupTareaModal();
     if (typeof llenarSelectoresExpress === "function") llenarSelectoresExpress();
     if (typeof cargarDireccionesExpress === "function") cargarDireccionesExpress();
 
-    // Listeners
-    document.getElementById('filterCliente')?.replaceWith(document.getElementById('filterCliente').cloneNode(true));
-    document.getElementById('filterCliente')?.addEventListener('change', filtrarTareas);
-    
-    document.getElementById('filterActividad')?.replaceWith(document.getElementById('filterActividad').cloneNode(true));
-    document.getElementById('filterActividad')?.addEventListener('change', filtrarTareas);
+    // --- 🍎 LISTENERS LIMPIOS (Evita que se dupliquen clics en iPhone) ---
+    const fCliente = document.getElementById('filterCliente');
+    if (fCliente) {
+        const newC = fCliente.cloneNode(true);
+        fCliente.replaceWith(newC);
+        newC.addEventListener('change', filtrarTareas);
+    }
+
+    const fActividad = document.getElementById('filterActividad');
+    if (fActividad) {
+        const newA = fActividad.cloneNode(true);
+        fActividad.replaceWith(newA);
+        newA.addEventListener('change', filtrarTareas);
+    }
     
     document.getElementById('filtroMesTarea')?.addEventListener('change', filtrarTareas);
 
     document.getElementById('btnLimpiarFiltros')?.addEventListener('click', () => {
-        document.getElementById('filterCliente').value = "";
-        document.getElementById('filterActividad').value = "";
-        document.getElementById('filtroMesTarea').value = "";
+        const inC = document.getElementById('filterCliente');
+        const inA = document.getElementById('filterActividad');
+        const inM = document.getElementById('filtroMesTarea');
+        if (inC) inC.value = "";
+        if (inA) inA.value = "";
+        if (inM) inM.value = "";
         renderTareasTable(window.tareasOriginales);
     });
 }
@@ -1439,30 +1484,29 @@ async function loadUsersForTareaSelect() {
     const userSelect = document.getElementById('tareaAsignadoA');
     if (!userSelect) return;
 
-    userSelect.innerHTML = '<option value="" disabled selected>-- Cargando... --</option>';
-
     try {
         const response = await fetchData('/users');
         let users = Array.isArray(response) ? response : (response?.users || response?.data || []);
 
-        userSelect.innerHTML = '<option value="" disabled selected>-- Seleccione Usuario --</option>';
+        // 🍎 Limpieza total estilo Apple
+        userSelect.options.length = 0;
 
         if (users.length > 0) {
             users.forEach(u => {
-                const opt = new Option(u.nombre || u.username, String(u._id || u.id));
-                userSelect.add(opt);
+                // Usamos el constructor nativo de Option que Safari ama
+                const nombre = u.nombre || u.username || "Usuario";
+                const id = String(u._id || u.id);
+                userSelect.options.add(new Option(nombre, id));
             });
+            
+            // Forzamos un valor vacío al inicio para que no se autoseleccione el primero
+            userSelect.selectedIndex = -1; 
+            console.log("Usuarios cargados en iPhone:", users.length);
         } else {
-            // 🍎 PLAN B: Si el server falla, metemos los nombres conocidos a mano
-            // para que ella pueda trabajar mientras tanto.
-            const manualUsers = [
-                {id: "ID_DE_JOEL", nombre: "Joel"},
-                {id: "ID_DE_FERNANDO", nombre: "Fernando"}
-            ];
-            manualUsers.forEach(u => userSelect.add(new Option(u.nombre, u.id)));
+            userSelect.options.add(new Option("No hay usuarios disponibles", ""));
         }
     } catch (e) {
-        userSelect.innerHTML = '<option value="">Error de carga</option>';
+        userSelect.options.add(new Option("Error al cargar", ""));
     }
 }
 
@@ -1948,12 +1992,10 @@ async function openTareaModal(tareaIdOrObject, mode) {
     }
 
     // 🍎 PASO 2: EL "REFRESH" FORZADO PARA SAFARI
-    // Safari a veces no muestra las opciones aunque ya estén ahí. 
-    // Esto las obliga a aparecer.
     if (selectAsignados) {
-        selectAsignados.style.display = 'none'; // Lo ocultamos un milisegundo
-        selectAsignados.offsetHeight;        // Forzamos al iPhone a calcular el espacio
-        selectAsignados.style.display = 'block'; // Lo volvemos a mostrar
+        selectAsignados.style.display = 'none'; 
+        selectAsignados.offsetHeight; // Forzar cálculo de espacio en iPhone
+        selectAsignados.style.display = 'block'; 
     }
 
     const title = document.getElementById('tareaModalTitle');
@@ -1966,7 +2008,8 @@ async function openTareaModal(tareaIdOrObject, mode) {
 
     if (mode === 'edit') {
         title.textContent = "Editar Tarea";
-        let tarea = (typeof tareaIdOrObject === "object") ? tareaIdOrObject : window.tareasList.find(t => t.id == tareaIdOrObject);
+        // Buscamos la tarea en el listado global
+        let tarea = (typeof tareaIdOrObject === "object") ? tareaIdOrObject : (window.tareasList || []).find(t => t.id == tareaIdOrObject);
         
         if (tarea) {
             document.getElementById('tareaId').value = tarea.id;
@@ -1985,14 +2028,15 @@ async function openTareaModal(tareaIdOrObject, mode) {
             }
 
             if (selectAsignados) {
-                // Limpiar selección previa
+                // 1. Limpiar selección previa de forma segura
                 for (let i = 0; i < selectAsignados.options.length; i++) {
                     selectAsignados.options[i].selected = false;
                 }
                 
+                // 2. Obtener IDs (compatibilidad id / _id)
                 const ids = tarea.usuarios ? tarea.usuarios.map(u => String(u.id || u._id)) : [];
                 
-                // 🍎 Loop tradicional (Safari lo prefiere sobre Array.from)
+                // 3. Marcar seleccionados con Loop tradicional (más estable en Safari)
                 for (let i = 0; i < selectAsignados.options.length; i++) {
                     if (ids.includes(String(selectAsignados.options[i].value))) {
                         selectAsignados.options[i].selected = true;
@@ -2006,7 +2050,9 @@ async function openTareaModal(tareaIdOrObject, mode) {
         document.getElementById("tareaId").value = "";
         
         const d = new Date();
-        if (fechaInput) fechaInput.value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        if (fechaInput) {
+            fechaInput.value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
         
         if (selectAsignados) {
             for (let i = 0; i < selectAsignados.options.length; i++) {
@@ -2015,15 +2061,27 @@ async function openTareaModal(tareaIdOrObject, mode) {
         }
     }
 
-    // 🍎 PASO 3: ESTILO DE SEGURIDAD
+    // 🍎 PASO 3: AJUSTE FINAL DE VISIBILIDAD PARA IPHONE
     if (selectAsignados) {
         selectAsignados.style.fontSize = "16px";
-        // En iPhone, a veces el select múltiple necesita que le digamos explícitamente que es múltiple
-        selectAsignados.setAttribute('multiple', ''); 
+        selectAsignados.setAttribute('multiple', 'multiple');
+        
+        // Forzamos a que el recuadro muestre varias líneas (evita que solo salgan 2)
+        const totalOptions = selectAsignados.options.length;
+        selectAsignados.size = totalOptions > 1 ? Math.min(totalOptions, 8) : 5;
+
+        // Pequeño delay para asegurar que Safari pinte los nombres
+        setTimeout(() => {
+            selectAsignados.style.visibility = 'hidden';
+            selectAsignados.offsetHeight;
+            selectAsignados.style.visibility = 'visible';
+        }, 150);
     }
 
     modal.style.display = "flex";
 }
+
+
 /**
  * Envía una petición para eliminar una tarea.
  * @param {string} tareaId - El ID de la tarea a eliminar.
