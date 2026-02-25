@@ -1485,37 +1485,38 @@ async function loadUsersForTareaSelect() {
 /**
  * Carga clientes y llena el SELECT del modal de tareas.
  */
-async function loadClientesForTareaSelect() {
-    const clienteSelect = document.getElementById('tareaClienteId');
-    if (!clienteSelect) return;
+async function loadUsersForTareaSelect() {
+    const userSelect = document.getElementById('tareaAsignadoA');
+    if (!userSelect) return false;
 
-    clienteSelect.innerHTML = '<option value="" disabled selected>-- Cargando Clientes... --</option>';
+    try {
+        const users = await fetchData('/users'); 
+        
+        // Limpieza total
+        userSelect.options.length = 0; 
+        
+        // Opción por defecto
+        const defaultOpt = document.createElement('option');
+        defaultOpt.value = "";
+        defaultOpt.text = "-- Seleccione Usuario --";
+        defaultOpt.disabled = true;
+        defaultOpt.selected = true;
+        userSelect.add(defaultOpt);
 
-    const clientes = await fetchData('/clientes'); 
-
-    // Almacenamos los clientes globalmente para fácil acceso a la dirección
-    window.clientesData = {};
-
-    clienteSelect.innerHTML = '<option value="" disabled selected>-- Seleccione Cliente --</option>';
-
-    if (clientes && Array.isArray(clientes) && clientes.length > 0) {
-        clientes.forEach(cliente => {
-            const option = document.createElement('option');
-            option.value = cliente._id || cliente.id; 
-            option.textContent = cliente.nombre; 
-            clienteSelect.appendChild(option);
-            
-            window.clientesData[option.value] = cliente; 
-        });
-    } else {
-        const errorMessage = (clientes === null) 
-            ? 'No tienes permisos para ver clientes.' 
-            : 'No se encontraron clientes.';
-            
-        clienteSelect.innerHTML = `<option value="" disabled selected>${errorMessage}</option>`;
+        if (users && Array.isArray(users) && users.length > 0) {
+            users.forEach(user => {
+                const option = document.createElement('option');
+                option.value = String(user.id || user._id);
+                option.text = user.nombre; // Usamos .text en lugar de .textContent para iOS
+                userSelect.add(option);
+            });
+            return true;
+        }
+    } catch (error) {
+        console.error('Error carga iOS:', error);
     }
+    return false;
 }
-
 
 
 
@@ -1955,17 +1956,25 @@ function setupTareaModal() {
  */
 async function openTareaModal(tareaIdOrObject, mode) {
     const modal = document.getElementById('tareaModal');
-    const title = document.getElementById('tareaModalTitle');
-    const form = document.getElementById('tareaForm');
+    const selectAsignados = document.getElementById('tareaAsignadoA');
     const clienteSelect = document.getElementById('tareaClienteId');
     const busquedaInput = document.getElementById('busquedaCliente');
     const direccionSelect = document.getElementById('tareaDireccionCliente');
     const fechaInput = document.getElementById('tareaFechaLimite');
-    const selectAsignados = document.getElementById('tareaAsignadoA');
+    const title = document.getElementById('tareaModalTitle');
+    const form = document.getElementById('tareaForm');
 
     if (!modal) return;
 
-    // --- 🔍 LÓGICA DEL BUSCADOR ---
+    // --- 1. 🛡️ SEGURIDAD DE CARGA (PRIMERO LOS DATOS) ---
+    // Si el select está vacío, esperamos a que cargue ANTES de seguir con la lógica
+    if (selectAsignados && selectAsignados.options.length <= 1) {
+        if (typeof loadUsersForTareaSelect === "function") {
+            await loadUsersForTareaSelect();
+        }
+    }
+
+    // --- 2. 🔍 LÓGICA DEL BUSCADOR DE CLIENTES ---
     if (busquedaInput && clienteSelect) {
         busquedaInput.value = ""; 
         if (!window.clientesBackup || window.clientesBackup.length <= 1) {
@@ -1984,20 +1993,10 @@ async function openTareaModal(tareaIdOrObject, mode) {
             );
             clienteSelect.innerHTML = "";
             filtrados.forEach(c => clienteSelect.add(new Option(c.text, c.value)));
-            
-            clienteSelect.onchange = () => {
-                if (typeof cargarDireccionesCliente === "function") cargarDireccionesCliente(clienteSelect.value);
-            };
         };
     }
 
-    if (clienteSelect) {
-        clienteSelect.onchange = () => {
-            if (typeof cargarDireccionesCliente === "function") cargarDireccionesCliente(clienteSelect.value);
-        };
-    }
-
-    // --- 📅 LÓGICA DE DATOS Y FECHA ---
+    // --- 3. 📅 LÓGICA DE DATOS (EDITAR VS CREAR) ---
     if (mode === 'edit') {
         title.textContent = "Editar Tarea";
         let tarea = (typeof tareaIdOrObject === "object") ? tareaIdOrObject : window.tareasList.find(t => t.id == tareaIdOrObject);
@@ -2013,7 +2012,7 @@ async function openTareaModal(tareaIdOrObject, mode) {
             }
             
             if (document.getElementById('tareaActividadId')) document.getElementById('tareaActividadId').value = tarea.actividadId || "";
-            clienteSelect.value = tarea.clienteNegocioId || "";
+            if (clienteSelect) clienteSelect.value = tarea.clienteNegocioId || "";
 
             if (tarea.clienteNegocioId && typeof cargarDireccionesCliente === "function") {
                 cargarDireccionesCliente(tarea.clienteNegocioId);
@@ -2022,6 +2021,7 @@ async function openTareaModal(tareaIdOrObject, mode) {
                 }, 600);
             }
 
+            // Marcar usuarios asignados (Ahora sí existen en el DOM)
             if (selectAsignados) {
                 Array.from(selectAsignados.options).forEach(opt => opt.selected = false);
                 const ids = tarea.usuarios ? tarea.usuarios.map(u => String(u.id)) : [];
@@ -2036,7 +2036,6 @@ async function openTareaModal(tareaIdOrObject, mode) {
         document.getElementById("tareaId").value = "";
 
         if (fechaInput) {
-            // 🍎 FIX FECHA LOCAL: Evita que en iPhone salga el día siguiente o mes vacío
             const d = new Date();
             const anio = d.getFullYear();
             const mes = String(d.getMonth() + 1).padStart(2, '0');
@@ -2048,18 +2047,17 @@ async function openTareaModal(tareaIdOrObject, mode) {
         if (selectAsignados) Array.from(selectAsignados.options).forEach(opt => opt.selected = false);
     }
 
-    // --- 🔥 SELECCIÓN MÚLTIPLE IPHONE VS PC ---
+    // --- 4. 📱 AJUSTES FINALES PARA IPHONE ---
     if (selectAsignados) {
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-        // 🛡️ SEGURO: Si el select está vacío por error de carga previa, intentamos cargar usuarios
-        if (selectAsignados.options.length <= 1 && typeof loadUsersForTareaSelect === "function") {
-            await loadUsersForTareaSelect();
-        }
-
+        
         if (isMobile) {
             selectAsignados.onmousedown = null; 
-            selectAsignados.style.fontSize = "16px"; // Safari exige esto para no bugearse
+            selectAsignados.style.fontSize = "16px";
+            // Forzamos un repintado para Safari
+            selectAsignados.style.display = 'none';
+            selectAsignados.offsetHeight; 
+            selectAsignados.style.display = 'block';
         } else {
             selectAsignados.onmousedown = function(e) {
                 if (e.target.tagName === 'OPTION') {
@@ -2076,6 +2074,13 @@ async function openTareaModal(tareaIdOrObject, mode) {
 
     modal.style.display = "flex";
 }
+
+
+
+
+
+
+
 
 /**
  * Envía una petición para eliminar una tarea.
