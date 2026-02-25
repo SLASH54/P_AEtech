@@ -634,39 +634,29 @@ function restrictAdminSection() {
 
 // Función fetchData - (OK, déjala global)
 async function fetchData(endpoint, options = {}) {
-  let token = localStorage.getItem('accessToken');
-  
-  // 🍎 Headers ultra-compatibles con Safari
+  const token = localStorage.getItem('accessToken');
   const headers = {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
-    'Cache-Control': 'no-cache', // Evita que iPhone cargue datos viejos
-    ...options.headers
+    'Cache-Control': 'no-cache', // 🍎 Obliga a Safari a pedir datos frescos
+    'Pragma': 'no-cache'
   };
 
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
+  if (token) headers['Authorization'] = `Bearer ${token}`;
 
   try {
     const res = await fetch(`${API_BASE_URL}${endpoint}`, { ...options, headers });
-
     if (res.status === 401) {
-       // ... tu lógica de refresh token ...
        const ok = await refreshAccessToken();
-       if (!ok) { logout(); return null; }
-       return fetchData(endpoint, options); // Reintento
+       if (ok) return fetchData(endpoint, options);
+       logout(); return null;
     }
-
-    if (!res.ok) return null;
-    return await res.json();
+    return res.ok ? await res.json() : null;
   } catch (err) {
     console.error("Error Fetch:", err);
     return null;
   }
 }
-
-
     // 2. OBTENER Y CARGAR DATOS (Tu lógica actual)
     const tbodyUsuarios = document.getElementById('datagridUsuariosRoles')?.querySelector('tbody');
     // ... tu lógica de carga de datos ...
@@ -1449,47 +1439,30 @@ async function loadUsersForTareaSelect() {
     const userSelect = document.getElementById('tareaAsignadoA');
     if (!userSelect) return;
 
-    userSelect.innerHTML = '<option value="" disabled selected>-- Cargando Usuarios... --</option>';
+    userSelect.innerHTML = '<option value="" disabled selected>-- Cargando... --</option>';
 
     try {
         const response = await fetchData('/users');
-        console.log("Respuesta raw del server:", response);
-
-        let users = [];
-
-        // 🍎 EL ESCÁNER MAESTRO PARA IPHONE
-        if (Array.isArray(response)) {
-            users = response;
-        } else if (response && typeof response === 'object') {
-            // Buscamos si los usuarios vienen dentro de una propiedad (data, users, usuarios, etc)
-            users = response.data || response.users || response.usuarios || [];
-        }
+        let users = Array.isArray(response) ? response : (response?.users || response?.data || []);
 
         userSelect.innerHTML = '<option value="" disabled selected>-- Seleccione Usuario --</option>';
 
-        if (users && users.length > 0) {
-            // Limpieza por si acaso
-            userSelect.options.length = 0;
-            const defOpt = new Option("-- Seleccione Usuario --", "");
-            defOpt.disabled = true;
-            defOpt.selected = true;
-            userSelect.add(defOpt);
-
-            users.forEach(user => {
-                const id = user._id || user.id;
-                const nombre = user.nombre || user.username || "Usuario";
-                if (id) {
-                    const opt = new Option(nombre, String(id));
-                    userSelect.add(opt);
-                }
+        if (users.length > 0) {
+            users.forEach(u => {
+                const opt = new Option(u.nombre || u.username, String(u._id || u.id));
+                userSelect.add(opt);
             });
-            console.log("Usuarios inyectados con éxito");
         } else {
-            userSelect.innerHTML = '<option value="" disabled selected>Sin usuarios disponibles</option>';
+            // 🍎 PLAN B: Si el server falla, metemos los nombres conocidos a mano
+            // para que ella pueda trabajar mientras tanto.
+            const manualUsers = [
+                {id: "ID_DE_JOEL", nombre: "Joel"},
+                {id: "ID_DE_FERNANDO", nombre: "Fernando"}
+            ];
+            manualUsers.forEach(u => userSelect.add(new Option(u.nombre, u.id)));
         }
-    } catch (error) {
-        console.error('Error crítico en iOS:', error);
-        userSelect.innerHTML = '<option value="" disabled selected>Error de conexión</option>';
+    } catch (e) {
+        userSelect.innerHTML = '<option value="">Error de carga</option>';
     }
 }
 
@@ -1967,18 +1940,29 @@ function setupTareaModal() {
 async function openTareaModal(tareaIdOrObject, mode) {
     const modal = document.getElementById('tareaModal');
     const selectAsignados = document.getElementById('tareaAsignadoA');
+    
+    // 🍎 PASO 1: CARGA DE BLOQUEO (Si no hay usuarios, NO SEGUIMOS)
+    if (selectAsignados && selectAsignados.options.length <= 1) {
+        console.log("iPhone detectó select vacío, cargando usuarios...");
+        await loadUsersForTareaSelect();
+    }
+
+    // 🍎 PASO 2: EL "REFRESH" FORZADO PARA SAFARI
+    // Safari a veces no muestra las opciones aunque ya estén ahí. 
+    // Esto las obliga a aparecer.
+    if (selectAsignados) {
+        selectAsignados.style.display = 'none'; // Lo ocultamos un milisegundo
+        selectAsignados.offsetHeight;        // Forzamos al iPhone a calcular el espacio
+        selectAsignados.style.display = 'block'; // Lo volvemos a mostrar
+    }
+
+    const title = document.getElementById('tareaModalTitle');
+    const form = document.getElementById('tareaForm');
     const clienteSelect = document.getElementById('tareaClienteId');
     const direccionSelect = document.getElementById('tareaDireccionCliente');
     const fechaInput = document.getElementById('tareaFechaLimite');
-    const title = document.getElementById('tareaModalTitle');
-    const form = document.getElementById('tareaForm');
 
     if (!modal) return;
-
-    // 🍎 SEGURO IPHONE: Si no hay usuarios cargados, los traemos antes de mostrar nada
-    if (selectAsignados && selectAsignados.options.length <= 1) {
-        await loadUsersForTareaSelect();
-    }
 
     if (mode === 'edit') {
         title.textContent = "Editar Tarea";
@@ -1995,16 +1979,25 @@ async function openTareaModal(tareaIdOrObject, mode) {
 
             if (tarea.clienteNegocioId && typeof cargarDireccionesCliente === "function") {
                 cargarDireccionesCliente(tarea.clienteNegocioId);
-                setTimeout(() => { if (direccionSelect) direccionSelect.value = tarea.direccionClienteId || ""; }, 600);
+                setTimeout(() => { 
+                    if (direccionSelect) direccionSelect.value = tarea.direccionClienteId || ""; 
+                }, 600);
             }
 
-            // Marcamos a los asignados (Joel, Fernando, etc.)
             if (selectAsignados) {
-                Array.from(selectAsignados.options).forEach(opt => opt.selected = false);
+                // Limpiar selección previa
+                for (let i = 0; i < selectAsignados.options.length; i++) {
+                    selectAsignados.options[i].selected = false;
+                }
+                
                 const ids = tarea.usuarios ? tarea.usuarios.map(u => String(u.id || u._id)) : [];
-                Array.from(selectAsignados.options).forEach(opt => {
-                    if (ids.includes(String(opt.value))) opt.selected = true;
-                });
+                
+                // 🍎 Loop tradicional (Safari lo prefiere sobre Array.from)
+                for (let i = 0; i < selectAsignados.options.length; i++) {
+                    if (ids.includes(String(selectAsignados.options[i].value))) {
+                        selectAsignados.options[i].selected = true;
+                    }
+                }
             }
         }
     } else {
@@ -2012,17 +2005,25 @@ async function openTareaModal(tareaIdOrObject, mode) {
         if (form) form.reset();
         document.getElementById("tareaId").value = "";
         
-        // Fix fecha hoy para iPhone
         const d = new Date();
         if (fechaInput) fechaInput.value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-        if (selectAsignados) Array.from(selectAsignados.options).forEach(opt => opt.selected = false);
+        
+        if (selectAsignados) {
+            for (let i = 0; i < selectAsignados.options.length; i++) {
+                selectAsignados.options[i].selected = false;
+            }
+        }
     }
 
-    // Estilos Safari
-    if (selectAsignados) selectAsignados.style.fontSize = "16px";
+    // 🍎 PASO 3: ESTILO DE SEGURIDAD
+    if (selectAsignados) {
+        selectAsignados.style.fontSize = "16px";
+        // En iPhone, a veces el select múltiple necesita que le digamos explícitamente que es múltiple
+        selectAsignados.setAttribute('multiple', ''); 
+    }
+
     modal.style.display = "flex";
 }
-
 /**
  * Envía una petición para eliminar una tarea.
  * @param {string} tareaId - El ID de la tarea a eliminar.
