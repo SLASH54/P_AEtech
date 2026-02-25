@@ -635,32 +635,36 @@ function restrictAdminSection() {
 // Función fetchData - (OK, déjala global)
 async function fetchData(endpoint, options = {}) {
   let token = localStorage.getItem('accessToken');
-  if (!token) return null;
-
-  options.headers = {
-    ...options.headers,
-    Authorization: `Bearer ${token}`,
-    'Content-Type': 'application/json'
+  
+  // 🍎 Headers ultra-compatibles con Safari
+  const headers = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'Cache-Control': 'no-cache', // Evita que iPhone cargue datos viejos
+    ...options.headers
   };
 
-  let res = await fetch(`${API_BASE_URL}${endpoint}`, options);
-
-  if (res.status === 401) {
-    const ok = await refreshAccessToken();
-    if (!ok) {
-      logout();
-      return null;
-    }
-
-    token = localStorage.getItem('accessToken');
-    options.headers.Authorization = `Bearer ${token}`;
-    res = await fetch(`${API_BASE_URL}${endpoint}`, options);
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
   }
 
-  if (!res.ok) return null;
-  return await res.json();
-}
+  try {
+    const res = await fetch(`${API_BASE_URL}${endpoint}`, { ...options, headers });
 
+    if (res.status === 401) {
+       // ... tu lógica de refresh token ...
+       const ok = await refreshAccessToken();
+       if (!ok) { logout(); return null; }
+       return fetchData(endpoint, options); // Reintento
+    }
+
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (err) {
+    console.error("Error Fetch:", err);
+    return null;
+  }
+}
 
 
     // 2. OBTENER Y CARGAR DATOS (Tu lógica actual)
@@ -1448,29 +1452,44 @@ async function loadUsersForTareaSelect() {
     userSelect.innerHTML = '<option value="" disabled selected>-- Cargando Usuarios... --</option>';
 
     try {
-        const response = await fetchData('/users'); 
+        const response = await fetchData('/users');
+        console.log("Respuesta raw del server:", response);
+
         let users = [];
-        
-        // 🍎 COMPATIBILIDAD RENDER: Buscamos el array en cualquier nivel
-        if (Array.isArray(response)) { users = response; }
-        else if (response && Array.isArray(response.users)) { users = response.users; }
-        else if (response && Array.isArray(response.data)) { users = response.data; }
+
+        // 🍎 EL ESCÁNER MAESTRO PARA IPHONE
+        if (Array.isArray(response)) {
+            users = response;
+        } else if (response && typeof response === 'object') {
+            // Buscamos si los usuarios vienen dentro de una propiedad (data, users, usuarios, etc)
+            users = response.data || response.users || response.usuarios || [];
+        }
 
         userSelect.innerHTML = '<option value="" disabled selected>-- Seleccione Usuario --</option>';
 
-        if (users.length > 0) {
+        if (users && users.length > 0) {
+            // Limpieza por si acaso
+            userSelect.options.length = 0;
+            const defOpt = new Option("-- Seleccione Usuario --", "");
+            defOpt.disabled = true;
+            defOpt.selected = true;
+            userSelect.add(defOpt);
+
             users.forEach(user => {
-                const option = document.createElement('option');
-                option.value = String(user.id || user._id); 
-                option.textContent = user.nombre || user.username || "Usuario"; 
-                userSelect.appendChild(option);
+                const id = user._id || user.id;
+                const nombre = user.nombre || user.username || "Usuario";
+                if (id) {
+                    const opt = new Option(nombre, String(id));
+                    userSelect.add(opt);
+                }
             });
+            console.log("Usuarios inyectados con éxito");
         } else {
             userSelect.innerHTML = '<option value="" disabled selected>Sin usuarios disponibles</option>';
         }
     } catch (error) {
-        console.error('Error cargando usuarios:', error);
-        userSelect.innerHTML = '<option value="" disabled selected>Error al conectar</option>';
+        console.error('Error crítico en iOS:', error);
+        userSelect.innerHTML = '<option value="" disabled selected>Error de conexión</option>';
     }
 }
 
