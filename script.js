@@ -1522,31 +1522,35 @@ async function loadClientesForTareaSelect() {
 
     clienteSelect.innerHTML = '<option value="" disabled selected>-- Cargando Clientes... --</option>';
 
-    const clientes = await fetchData('/clientes'); 
+    try {
+        const clientes = await fetchData('/clientes'); 
+        window.clientesData = {}; // Para las direcciones
+        window.clientesBackup = []; // Para el buscador
 
-    // Almacenamos los clientes globalmente para fácil acceso a la dirección
-    window.clientesData = {};
+        clienteSelect.innerHTML = '<option value="" disabled selected>-- Seleccione Cliente --</option>';
 
-    clienteSelect.innerHTML = '<option value="" disabled selected>-- Seleccione Cliente --</option>';
-
-    if (clientes && Array.isArray(clientes) && clientes.length > 0) {
-        clientes.forEach(cliente => {
-            const option = document.createElement('option');
-            option.value = cliente._id || cliente.id; 
-            option.textContent = cliente.nombre; 
-            clienteSelect.appendChild(option);
-            
-            window.clientesData[option.value] = cliente; 
-        });
-    } else {
-        const errorMessage = (clientes === null) 
-            ? 'No tienes permisos para ver clientes.' 
-            : 'No se encontraron clientes.';
-            
-        clienteSelect.innerHTML = `<option value="" disabled selected>${errorMessage}</option>`;
+        if (clientes && Array.isArray(clientes) && clientes.length > 0) {
+            clientes.forEach(cliente => {
+                const id = String(cliente._id || cliente.id);
+                const nombre = cliente.nombreNegocio || cliente.nombre || "Sin nombre";
+                
+                const option = new Option(nombre, id);
+                clienteSelect.add(option);
+                
+                // Guardamos para las direcciones
+                window.clientesData[id] = cliente; 
+                // Guardamos para el buscador
+                window.clientesBackup.push({ id, nombre });
+            });
+            console.log("Clientes cargados para el buscador:", window.clientesBackup.length);
+        } else {
+            clienteSelect.innerHTML = '<option value="" disabled selected>No se encontraron clientes</option>';
+        }
+    } catch (error) {
+        console.error("Error cargando clientes:", error);
+        clienteSelect.innerHTML = '<option value="" disabled selected>Error al cargar</option>';
     }
 }
-
 
 
 
@@ -1987,25 +1991,51 @@ function setupTareaModal() {
 async function openTareaModal(tareaIdOrObject, mode) {
     const modal = document.getElementById('tareaModal');
     const selectAsignados = document.getElementById('tareaAsignadoA');
+    const clienteSelect = document.getElementById('tareaClienteId');
+    const busquedaInput = document.getElementById('busquedaCliente'); // El input del buscador
     
-    // 🍎 PASO 1: CARGA DE BLOQUEO (Si no hay usuarios, NO SEGUIMOS)
+    // 🍎 PASO 1: CARGA DE BLOQUEO (Usuarios)
     if (selectAsignados && selectAsignados.options.length <= 1) {
-        console.log("iPhone detectó select vacío, cargando usuarios...");
         await loadUsersForTareaSelect();
     }
 
-    // 🍎 PASO 2: EL "REFRESH" FORZADO PARA SAFARI
-    // Safari a veces no muestra las opciones aunque ya estén ahí. 
-    // Esto las obliga a aparecer.
+    // 🍎 PASO 2: REFRESH FORZADO (Safari)
     if (selectAsignados) {
-        selectAsignados.style.display = 'none'; // Lo ocultamos un milisegundo
-        selectAsignados.offsetHeight;        // Forzamos al iPhone a calcular el espacio
-        selectAsignados.style.display = 'block'; // Lo volvemos a mostrar
+        selectAsignados.style.display = 'none';
+        selectAsignados.offsetHeight;
+        selectAsignados.style.display = 'block';
+    }
+
+    // 🔍 PASO 3: RE-CONECTAR EL BUSCADOR DE CLIENTES
+    if (busquedaInput && clienteSelect) {
+        busquedaInput.value = ""; // Limpiar búsqueda anterior
+        
+        // Resetear el select a la lista completa al abrir
+        if (window.clientesBackup && window.clientesBackup.length > 0) {
+            clienteSelect.options.length = 0;
+            clienteSelect.options.add(new Option("-- Seleccione Cliente --", ""));
+            window.clientesBackup.forEach(c => {
+                clienteSelect.options.add(new Option(c.nombre, c.id));
+            });
+        }
+
+        // Lógica de filtrado en tiempo real
+        busquedaInput.oninput = function() {
+            const filtro = busquedaInput.value.toLowerCase();
+            const filtrados = (window.clientesBackup || []).filter(c => 
+                c.nombre.toLowerCase().includes(filtro)
+            );
+
+            clienteSelect.options.length = 0;
+            clienteSelect.options.add(new Option("-- Seleccione Cliente --", ""));
+            filtrados.forEach(c => {
+                clienteSelect.options.add(new Option(c.nombre, c.id));
+            });
+        };
     }
 
     const title = document.getElementById('tareaModalTitle');
     const form = document.getElementById('tareaForm');
-    const clienteSelect = document.getElementById('tareaClienteId');
     const direccionSelect = document.getElementById('tareaDireccionCliente');
     const fechaInput = document.getElementById('tareaFechaLimite');
 
@@ -2013,7 +2043,7 @@ async function openTareaModal(tareaIdOrObject, mode) {
 
     if (mode === 'edit') {
         title.textContent = "Editar Tarea";
-        let tarea = (typeof tareaIdOrObject === "object") ? tareaIdOrObject : window.tareasList.find(t => t.id == tareaIdOrObject);
+        let tarea = (typeof tareaIdOrObject === "object") ? tareaIdOrObject : (window.tareasOriginales || []).find(t => t.id == tareaIdOrObject);
         
         if (tarea) {
             document.getElementById('tareaId').value = tarea.id;
@@ -2022,8 +2052,11 @@ async function openTareaModal(tareaIdOrObject, mode) {
             document.getElementById('tareaEstado').value = tarea.estado || "";
             
             if (tarea.fechaLimite && fechaInput) fechaInput.value = tarea.fechaLimite.split("T")[0];
+            
+            // Seleccionar cliente
             if (clienteSelect) clienteSelect.value = tarea.clienteNegocioId || "";
 
+            // Cargar direcciones
             if (tarea.clienteNegocioId && typeof cargarDireccionesCliente === "function") {
                 cargarDireccionesCliente(tarea.clienteNegocioId);
                 setTimeout(() => { 
@@ -2031,15 +2064,12 @@ async function openTareaModal(tareaIdOrObject, mode) {
                 }, 600);
             }
 
+            // Marcar usuarios asignados
             if (selectAsignados) {
-                // Limpiar selección previa
                 for (let i = 0; i < selectAsignados.options.length; i++) {
                     selectAsignados.options[i].selected = false;
                 }
-                
                 const ids = tarea.usuarios ? tarea.usuarios.map(u => String(u.id || u._id)) : [];
-                
-                // 🍎 Loop tradicional (Safari lo prefiere sobre Array.from)
                 for (let i = 0; i < selectAsignados.options.length; i++) {
                     if (ids.includes(String(selectAsignados.options[i].value))) {
                         selectAsignados.options[i].selected = true;
@@ -2051,10 +2081,8 @@ async function openTareaModal(tareaIdOrObject, mode) {
         title.textContent = "Crear Nueva Tarea";
         if (form) form.reset();
         document.getElementById("tareaId").value = "";
-        
         const d = new Date();
         if (fechaInput) fechaInput.value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-        
         if (selectAsignados) {
             for (let i = 0; i < selectAsignados.options.length; i++) {
                 selectAsignados.options[i].selected = false;
@@ -2062,11 +2090,12 @@ async function openTareaModal(tareaIdOrObject, mode) {
         }
     }
 
-    // 🍎 PASO 3: ESTILO DE SEGURIDAD
+    // Estilos finales
     if (selectAsignados) {
         selectAsignados.style.fontSize = "16px";
-        // En iPhone, a veces el select múltiple necesita que le digamos explícitamente que es múltiple
-        selectAsignados.setAttribute('multiple', ''); 
+        selectAsignados.setAttribute('multiple', 'multiple');
+        const total = selectAsignados.options.length;
+        selectAsignados.size = total > 1 ? Math.min(total, 8) : 5;
     }
 
     modal.style.display = "flex";
