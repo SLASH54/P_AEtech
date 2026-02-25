@@ -195,7 +195,7 @@ function accesoCuentas() {
     }
 }
 
-// Función para manejar el inicio de sesión tambien para el iphone de dnisse 
+// Función para manejar el inicio de sesión
 
 const loginUser = async (e) => {
     e.preventDefault(); 
