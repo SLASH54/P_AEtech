@@ -1363,83 +1363,91 @@ document.addEventListener('DOMContentLoaded', function () {
  * 2. Carga la lista de usuarios para el selector de asignación.
  * 3. Configura el comportamiento del modal de creación/edición.
  */
-/**
- * Inicializa la sección de Tareas:
- * 1. Carga la lista de tareas desde la API.
- * 2. Carga la lista de usuarios para el selector de asignación.
- * 3. Configura el comportamiento del modal de creación/edición.
- */
+
+// 🍎 SOLUCIÓN PARA IPHONE: Esperar a que el sistema esté listo
+window.addEventListener('load', () => {
+    console.log("Página cargada. Esperando 600ms para asegurar sesión en iOS...");
+    setTimeout(() => {
+        // Solo llamamos a initTareas si estamos en la sección de tareas
+        if (typeof initTareas === 'function') {
+            initTareas();
+        }
+    }, 600); 
+});
+
+/*** Inicializa la sección de Tareas*/
+
 async function initTareas() {
   console.log('Iniciando sección de Tareas...');
   const tareasBody = document.getElementById('tareasBody');
   if (!tareasBody) return;
 
-  tareasBody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">Cargando tareas...</td></tr>';
+  // Limpieza visual inicial
+  tareasBody.innerHTML = '<tr><td colspan="10" class="p-4 text-center text-gray-500">Cargando tareas...</td></tr>';
 
-  // 🔹 Detectar rol del usuario logueado
-  const rol = localStorage.getItem('userRol') || '';
-  let endpoint = '/tareas'; // Por defecto (Admin, Ingeniero)
-
-  // 🔸 Para residentes o practicantes usamos la ruta personalizada
-  if (rol === 'Residente' || rol === 'Practicante' || rol === 'Técnico') {
-    endpoint = '/tareas/mis-tareas';
+  // 1. 🔹 CARGAR RECURSOS PRIMERO (Evita selectores vacíos en iPhone)
+  try {
+    await Promise.all([
+      loadUsersForTareaSelect(),
+      loadClientesForTareaSelect(),
+      loadActividadesForTareaSelect()
+    ]);
+    llenarSelectoresExpress();
+    cargarDireccionesExpress();
+  } catch (err) {
+    console.warn("Fallo en carga de catálogos, posible problema de token:", err);
   }
 
-  // 🔹 Cargar Tareas según el rol
+  // 2. 🔹 DETERMINAR ROL Y ENDPOINT
+  const rol = localStorage.getItem('userRol') || '';
+  let endpoint = (rol === 'Residente' || rol === 'Practicante' || rol === 'Técnico') 
+                 ? '/tareas/mis-tareas' 
+                 : '/tareas';
+
+  // 3. 🔹 CARGAR TAREAS
   const tareas = await fetchData(endpoint);
 
   if (tareas && tareas.length > 0) {
     window.tareasOriginales = tareas;
-    renderTareasTable(tareas);
 
-    // 🔥 AQUÍ SE LLENAN LOS SELECTS 🔥
+    // Configurar el input de mes con el mes actual si está vacío
+    const inputMes = document.getElementById('filtroMesTarea');
+    if (inputMes && !inputMes.value) {
+        const hoy = new Date();
+        inputMes.value = hoy.toISOString().substring(0, 7);
+    }
+
+    // Dibujamos la tabla aplicando el filtro de mes de una vez
+    filtrarTareas(); 
+
     llenarSelectClientes(tareas);
     llenarSelectActividades(tareas);
   } else {
-    tareasBody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">No hay tareas asignadas.</td></tr>';
+    tareasBody.innerHTML = '<tr><td colspan="10" class="p-4 text-center text-gray-500">No hay tareas asignadas.</td></tr>';
   }
 
-  // 🔹 Configurar modal (solo si renderTareasTable no falló)
+  // 4. 🔹 CONFIGURAR MODAL Y EVENTOS
   setupTareaModal();
 
-  // 🔹 Cargar recursos
-  loadUsersForTareaSelect();
-  loadClientesForTareaSelect();
-  loadActividadesForTareaSelect();
-
-  llenarSelectClientes(tareas);
-  llenarSelectActividades(tareas);
-
-  llenarSelectoresExpress()
-  cargarDireccionesExpress()
-
+  // Listeners de los filtros (con el ? por si no existen en el HTML)
   document.getElementById('filterCliente')?.addEventListener('change', filtrarTareas);
-document.getElementById('filterActividad')?.addEventListener('change', filtrarTareas);
+  document.getElementById('filterActividad')?.addEventListener('change', filtrarTareas);
+  document.getElementById('filtroMesTarea')?.addEventListener('change', filtrarTareas);
 
-document.getElementById('btnLimpiarFiltros').addEventListener('click', () => {
-  const btn = document.getElementById('btnLimpiarFiltros');
-  btn.style.transform = 'scale(0.9)';
-
-  setTimeout(() => {
-    btn.style.transform = 'scale(1)';
-    document.getElementById('filterCliente').value = "";
-    document.getElementById('filterActividad').value = "";
-    renderTareasConAnimacion(window.tareasOriginales);
-  }, 120);
-});
-
-// Agregamos el listener para que el mes responda al cambiarlo
-document.getElementById('filtroMesTarea')?.addEventListener('change', filtrarTareas);
-
-// (Opcional) Si quieres que al cargar la página ya salga filtrado por el mes actual:
-const inputMes = document.getElementById('filtroMesTarea');
-if (inputMes && !inputMes.value) {
-    const hoy = new Date();
-    inputMes.value = hoy.toISOString().substring(0, 7);
-    // Ejecutamos el filtro inicial
-    setTimeout(filtrarTareas, 500); 
-}
-
+  // Botón Limpiar Filtros
+  const btnLimpiar = document.getElementById('btnLimpiarFiltros');
+  if (btnLimpiar) {
+    btnLimpiar.addEventListener('click', () => {
+      btnLimpiar.style.transform = 'scale(0.9)';
+      setTimeout(() => {
+        btnLimpiar.style.transform = 'scale(1)';
+        document.getElementById('filterCliente').value = "";
+        document.getElementById('filterActividad').value = "";
+        // Al limpiar mostramos todo el historial original
+        renderTareasConAnimacion(window.tareasOriginales);
+      }, 120);
+    });
+  }
 }
 
 
@@ -4340,7 +4348,7 @@ function filtrarTareas() {
     }
 }
 
-// Función para tu botón de "VER HISTORIAL COMPLETO"
+// Función para tu botón de "VER HISTORIAL COMPLETO" detalles de las tareas
 function mostrarTodo() {
     const inputMes = document.getElementById('filtroMesTarea');
     if (inputMes) inputMes.value = ""; 
