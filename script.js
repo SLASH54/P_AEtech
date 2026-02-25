@@ -1980,7 +1980,7 @@ function setupTareaModal() {
 
 /**
 /**
- * Abre y llena el modal para crear o editar una tarea.
+ * Abre y llena el modal para crear o editar una tarea NOSE .
  * @param {string|Object} tareaIdOrObject - ID de la tarea si es edición, o un objeto vacío ({}) si es creación.
  * @param {string} mode - 'create' o 'edit'.
  */
