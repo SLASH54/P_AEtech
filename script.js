@@ -2028,29 +2028,43 @@ function openTareaModal(tareaIdOrObject, mode) {
         document.getElementById("tareaId").value = "";
 
         if (fechaInput) {
-            fechaInput.value = new Date().toISOString().split('T')[0];
+            // 🍎 Ajuste para evitar error de día en iPhone (Fecha Local)
+            const ahora = new Date();
+            const anio = ahora.getFullYear();
+            const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+            const dia = String(ahora.getDate()).padStart(2, '0');
+            fechaInput.value = `${anio}-${mes}-${dia}`;
         }
 
         if (direccionSelect) direccionSelect.innerHTML = `<option value="">-- Seleccione Dirección --</option>`;
         if (selectAsignados) Array.from(selectAsignados.options).forEach(opt => opt.selected = false);
     }
 
-    // --- 🔥 TRUCO: SELECCIÓN MÚLTIPLE SIN CTRL ---
+    // --- 🔥 TRUCO MÚLTIPLE: COMPATIBILIDAD IPHONE Y PC ---
     if (selectAsignados) {
-        selectAsignados.onmousedown = function(e) {
-            e.preventDefault(); // Evita el comportamiento molesto por defecto
-            
-            const scroll = this.scrollTop; // Guardamos el scroll para que no brinque
-            e.target.selected = !e.target.selected; // Cambia el estado (si estaba on pasa a off y viceversa)
-            
-            setTimeout(() => { this.scrollTop = scroll; }, 0); // Restauramos scroll
-            $(this).focus(); // Mantenemos el foco (si usas jQuery, si no usa this.focus())
-        };
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+        if (isMobile) {
+            // 🍎 En iPhone quitamos el preventDefault para que Safari muestre su lista nativa
+            selectAsignados.onmousedown = null; 
+            selectAsignados.style.fontSize = "16px"; // Vital para iOS
+        } else {
+            // 💻 En PC mantenemos tu truco de selección sin Ctrl
+            selectAsignados.onmousedown = function(e) {
+                if (e.target.tagName === 'OPTION') {
+                    e.preventDefault();
+                    const scroll = this.scrollTop;
+                    e.target.selected = !e.target.selected;
+                    setTimeout(() => { this.scrollTop = scroll; }, 0);
+                    this.focus();
+                    this.dispatchEvent(new Event('change'));
+                }
+            };
+        }
     }
 
     modal.style.display = "flex";
 }
-
 /**
  * Envía una petición para eliminar una tarea.
  * @param {string} tareaId - El ID de la tarea a eliminar.

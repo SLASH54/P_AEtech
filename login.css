@@ -4969,3 +4969,37 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     max-width: 100%;  /* Evita que se salga del contenedor padre */
     box-sizing: border-box; /* Asegura que el padding no lo ensanche de más */
 }
+
+
+/* 🍎 Estilos Blindados para Selector Múltiple en iOS/Android */
+#tareaAsignadoA {
+    background-color: #ffffff !important; /* Asegura fondo blanco para que el texto negro se vea */
+    color: #111827 !important;           /* Texto gris muy oscuro (casi negro) */
+    font-size: 16px !important;          /* 👈 VITAL: Evita el zoom molesto en iPhone */
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    padding: 0.5rem;
+    width: 100%;
+    min-height: 150px;                   /* Altura para ver a varios ingenieros */
+    -webkit-appearance: none;            /* Quita el estilo nativo de Apple que a veces lo oculta */
+    appearance: none;
+}
+
+/* Estilo para las opciones dentro del select */
+#tareaAsignadoA option {
+    padding: 8px;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+/* Estilo cuando una opción está seleccionada (Solo PC) */
+#tareaAsignadoA option:checked {
+    background-color: #4f46e5 !important; /* Azul índigo */
+    color: white !important;
+}
+
+/* Ajuste para que el label no se pierda */
+label[for="tareaAsignadoA"] {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
