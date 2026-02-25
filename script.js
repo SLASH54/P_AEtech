@@ -1378,78 +1378,44 @@ window.addEventListener('load', () => {
 /*** Inicializa la sección de Tareas*/
 
 async function initTareas() {
-  console.log('Iniciando sección de Tareas...');
   const tareasBody = document.getElementById('tareasBody');
   if (!tareasBody) return;
 
-  // Limpieza visual inicial
-  tareasBody.innerHTML = '<tr><td colspan="10" class="p-4 text-center text-gray-500">Cargando tareas...</td></tr>';
+  tareasBody.innerHTML = '<tr><td colspan="10" class="p-4 text-center">Cargando...</td></tr>';
 
-  // 1. 🔹 CARGAR RECURSOS PRIMERO (Evita selectores vacíos en iPhone)
   try {
-    await Promise.all([
-      loadUsersForTareaSelect(),
-      loadClientesForTareaSelect(),
-      loadActividadesForTareaSelect()
-    ]);
+    // 🍎 En iPhone es mejor cargar secuencialmente lo crítico
+    await loadUsersForTareaSelect(); 
+    await loadClientesForTareaSelect();
+    await loadActividadesForTareaSelect();
+    
     llenarSelectoresExpress();
     cargarDireccionesExpress();
-  } catch (err) {
-    console.warn("Fallo en carga de catálogos, posible problema de token:", err);
-  }
 
-  // 2. 🔹 DETERMINAR ROL Y ENDPOINT
-  const rol = localStorage.getItem('userRol') || '';
-  let endpoint = (rol === 'Residente' || rol === 'Practicante' || rol === 'Técnico') 
-                 ? '/tareas/mis-tareas' 
-                 : '/tareas';
+    // Luego las tareas
+    const rol = localStorage.getItem('userRol') || '';
+    let endpoint = (rol === 'Residente' || rol === 'Practicante' || rol === 'Técnico') 
+                   ? '/tareas/mis-tareas' : '/tareas';
 
-  // 3. 🔹 CARGAR TAREAS
-  const tareas = await fetchData(endpoint);
+    const tareas = await fetchData(endpoint);
 
-  if (tareas && tareas.length > 0) {
-    window.tareasOriginales = tareas;
-
-    // Configurar el input de mes con el mes actual si está vacío
-    const inputMes = document.getElementById('filtroMesTarea');
-    if (inputMes && !inputMes.value) {
-        const hoy = new Date();
-        inputMes.value = hoy.toISOString().substring(0, 7);
+    if (tareas && tareas.length > 0) {
+      window.tareasOriginales = tareas;
+      const inputMes = document.getElementById('filtroMesTarea');
+      if (inputMes && !inputMes.value) {
+          inputMes.value = new Date().toISOString().substring(0, 7);
+      }
+      filtrarTareas(); 
+      llenarSelectClientes(tareas);
+      llenarSelectActividades(tareas);
+    } else {
+      tareasBody.innerHTML = '<tr><td colspan="10" class="p-4 text-center">No hay tareas.</td></tr>';
     }
-
-    // Dibujamos la tabla aplicando el filtro de mes de una vez
-    filtrarTareas(); 
-
-    llenarSelectClientes(tareas);
-    llenarSelectActividades(tareas);
-  } else {
-    tareasBody.innerHTML = '<tr><td colspan="10" class="p-4 text-center text-gray-500">No hay tareas asignadas.</td></tr>';
+  } catch (error) {
+    console.error("Error en iPhone:", error);
   }
-
-  // 4. 🔹 CONFIGURAR MODAL Y EVENTOS
   setupTareaModal();
-
-  // Listeners de los filtros (con el ? por si no existen en el HTML)
-  document.getElementById('filterCliente')?.addEventListener('change', filtrarTareas);
-  document.getElementById('filterActividad')?.addEventListener('change', filtrarTareas);
-  document.getElementById('filtroMesTarea')?.addEventListener('change', filtrarTareas);
-
-  // Botón Limpiar Filtros
-  const btnLimpiar = document.getElementById('btnLimpiarFiltros');
-  if (btnLimpiar) {
-    btnLimpiar.addEventListener('click', () => {
-      btnLimpiar.style.transform = 'scale(0.9)';
-      setTimeout(() => {
-        btnLimpiar.style.transform = 'scale(1)';
-        document.getElementById('filterCliente').value = "";
-        document.getElementById('filterActividad').value = "";
-        // Al limpiar mostramos todo el historial original
-        renderTareasConAnimacion(window.tareasOriginales);
-      }, 120);
-    });
-  }
 }
-
 
 /**
  * Carga usuarios y llena el SELECT del modal de tareas.
@@ -2195,22 +2161,41 @@ document.getElementById('filterActividad').addEventListener('change', filtrarTar
 
 // FILTRADO FINAL TAREAS 
 function filtrarTareas() {
+  // 1. 🛡️ PROTECCIÓN: Si las tareas aún no cargan en el iPhone, salimos para no romper el código
+  if (!window.tareasOriginales) {
+    console.warn("Intentando filtrar sin datos cargados...");
+    return;
+  }
+
+  // 2. Obtener valores de los filtros del HTML
   const cliente = document.getElementById('filterCliente')?.value || "";
   const actividad = document.getElementById('filterActividad')?.value || "";
+  const filtroMes = document.getElementById('filtroMesTarea')?.value || ""; // 📅 VITAL para que no salga 0
 
+  // 3. Aplicar el filtrado sobre la lista original
   const tareasFiltradas = window.tareasOriginales.filter(t => {
+    // Extraer nombres para comparar
     const clienteNombre = t.ClienteNegocio?.nombre || "";
     const actividadNombre = t.Actividad?.nombre || "";
+    
+    // 🍎 LÓGICA DE FECHA PARA IPHONE (Formato YYYY-MM)
+    // Asumimos que t.fecha viene como "2026-02-25"
+    const fechaTarea = t.fecha || ""; 
+    const mesTarea = fechaTarea.substring(0, 7); // Corta a "2026-02"
 
+    // Definir las condiciones (Si el filtro está vacío, la condición es verdadera)
     const condCliente = !cliente || clienteNombre === cliente;
     const condActividad = !actividad || actividadNombre === actividad;
+    const condMes = !filtroMes || mesTarea === filtroMes;
 
-    return condCliente && condActividad;
+    // Solo pasa si cumple las TRES condiciones
+    return condCliente && condActividad && condMes;
   });
 
+  // 4. Mandar a dibujar la tabla con el resultado
+  console.log(`Filtrado terminado: ${tareasFiltradas.length} tareas encontradas.`);
   renderTareasConAnimacion(tareasFiltradas);
 }
-
 
 // 1. Función para abrir el modal y llenar datos automáticos
 // 1. Función para abrir el modal y cargar los datos
