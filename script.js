@@ -1454,31 +1454,41 @@ async function loadUsersForTareaSelect() {
     const userSelect = document.getElementById('tareaAsignadoA');
     if (!userSelect) return;
 
-    // 1. Mensaje de carga inicial claro
     userSelect.innerHTML = '<option value="" disabled selected>-- Cargando Usuarios... --</option>';
 
     try {
-        const users = await fetchData('/users'); 
+        const response = await fetchData('/users'); 
         
-        // 2. Limpiamos y preparamos el select
+        // 🍎 TRUCO DE COMPATIBILIDAD:
+        // A veces el server manda { data: [...] } o { users: [...] }
+        // Buscamos la lista de usuarios donde sea que esté.
+        let users = [];
+        if (Array.isArray(response)) {
+            users = response;
+        } else if (response && Array.isArray(response.users)) {
+            users = response.users;
+        } else if (response && Array.isArray(response.data)) {
+            users = response.data;
+        }
+
         userSelect.innerHTML = '<option value="" disabled selected>-- Seleccione Usuario --</option>';
 
-        if (users && Array.isArray(users) && users.length > 0) {
+        if (users.length > 0) {
             users.forEach(user => {
                 const option = document.createElement('option');
-                // Usamos el ID de forma segura (asegurando que sea String para comparar luego)
-                option.value = String(user.id || user._id); 
-                option.textContent = user.nombre; 
+                // Algunos servers usan .id, otros ._id (MongoDB)
+                option.value = String(user._id || user.id); 
+                option.textContent = user.nombre || user.username || "Usuario sin nombre"; 
                 userSelect.appendChild(option);
             });
+            console.log("Usuarios cargados:", users.length);
         } else {
-            console.warn('No se encontraron usuarios en el servidor.');
-            userSelect.innerHTML = '<option value="" disabled selected>Sin usuarios disponibles</option>';
+            // Si llega aquí, el server de verdad mandó 0 usuarios
+            userSelect.innerHTML = '<option value="" disabled selected>No hay usuarios en la base de datos</option>';
         }
     } catch (error) {
-        // 3. Si el iPhone falla en la conexión, evitamos que se congele el modal
-        console.error('Error cargando usuarios para asignación:', error);
-        userSelect.innerHTML = '<option value="" disabled selected>Error al cargar lista</option>';
+        console.error('Error cargando usuarios:', error);
+        userSelect.innerHTML = '<option value="" disabled selected>Error de conexión</option>';
     }
 }
 
@@ -2074,9 +2084,6 @@ async function openTareaModal(tareaIdOrObject, mode) {
 
     modal.style.display = "flex";
 }
-
-
-
 
 
 
