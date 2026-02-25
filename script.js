@@ -1454,26 +1454,31 @@ async function loadUsersForTareaSelect() {
     const userSelect = document.getElementById('tareaAsignadoA');
     if (!userSelect) return;
 
-    const users = await fetchData('/users'); 
-    
-    // Limpiar opciones previas, excepto el placeholder
-    const placeholder = userSelect.querySelector('option[disabled]');
-    userSelect.innerHTML = '';
-    if (placeholder) {
-        userSelect.appendChild(placeholder);
-    } else {
-        userSelect.innerHTML = '<option value="" disabled selected>-- Seleccione Usuario --</option>';
-    }
+    // 1. Mensaje de carga inicial claro
+    userSelect.innerHTML = '<option value="" disabled selected>-- Cargando Usuarios... --</option>';
 
-    if (users && users.length > 0) {
-        users.forEach(user => {
-            const option = document.createElement('option');
-            option.value = user.id; // Asume que el ID es la clave para asignar
-            option.textContent = user.nombre; 
-            userSelect.appendChild(option);
-        });
-    } else {
-        console.warn('No se pudieron cargar usuarios para asignación.');
+    try {
+        const users = await fetchData('/users'); 
+        
+        // 2. Limpiamos y preparamos el select
+        userSelect.innerHTML = '<option value="" disabled selected>-- Seleccione Usuario --</option>';
+
+        if (users && Array.isArray(users) && users.length > 0) {
+            users.forEach(user => {
+                const option = document.createElement('option');
+                // Usamos el ID de forma segura (asegurando que sea String para comparar luego)
+                option.value = String(user.id || user._id); 
+                option.textContent = user.nombre; 
+                userSelect.appendChild(option);
+            });
+        } else {
+            console.warn('No se encontraron usuarios en el servidor.');
+            userSelect.innerHTML = '<option value="" disabled selected>Sin usuarios disponibles</option>';
+        }
+    } catch (error) {
+        // 3. Si el iPhone falla en la conexión, evitamos que se congele el modal
+        console.error('Error cargando usuarios para asignación:', error);
+        userSelect.innerHTML = '<option value="" disabled selected>Error al cargar lista</option>';
     }
 }
 
@@ -2071,7 +2076,6 @@ async function openTareaModal(tareaIdOrObject, mode) {
 
     modal.style.display = "flex";
 }
-
 
 /**
  * Envía una petición para eliminar una tarea.
