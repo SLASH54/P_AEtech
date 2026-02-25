@@ -1520,35 +1520,28 @@ async function loadClientesForTareaSelect() {
     const clienteSelect = document.getElementById('tareaClienteId');
     if (!clienteSelect) return;
 
-    clienteSelect.innerHTML = '<option value="" disabled selected>-- Cargando Clientes... --</option>';
-
     try {
         const clientes = await fetchData('/clientes'); 
-        window.clientesData = {}; // Para las direcciones
-        window.clientesBackup = []; // Para el buscador
+        window.clientesData = {}; // 🏠 Para las direcciones
+        window.clientesBackup = []; // 🔍 Para el buscador
 
-        clienteSelect.innerHTML = '<option value="" disabled selected>-- Seleccione Cliente --</option>';
+        clienteSelect.options.length = 0;
+        clienteSelect.options.add(new Option("-- Seleccione Cliente --", ""));
 
-        if (clientes && Array.isArray(clientes) && clientes.length > 0) {
+        if (clientes && Array.isArray(clientes)) {
             clientes.forEach(cliente => {
                 const id = String(cliente._id || cliente.id);
                 const nombre = cliente.nombreNegocio || cliente.nombre || "Sin nombre";
                 
-                const option = new Option(nombre, id);
-                clienteSelect.add(option);
+                clienteSelect.options.add(new Option(nombre, id));
                 
-                // Guardamos para las direcciones
+                // Guardamos la info completa para recuperar la dirección luego
                 window.clientesData[id] = cliente; 
-                // Guardamos para el buscador
                 window.clientesBackup.push({ id, nombre });
             });
-            console.log("Clientes cargados para el buscador:", window.clientesBackup.length);
-        } else {
-            clienteSelect.innerHTML = '<option value="" disabled selected>No se encontraron clientes</option>';
         }
     } catch (error) {
-        console.error("Error cargando clientes:", error);
-        clienteSelect.innerHTML = '<option value="" disabled selected>Error al cargar</option>';
+        console.error("Error en carga de clientes:", error);
     }
 }
 
@@ -1988,11 +1981,13 @@ function setupTareaModal() {
  * @param {string|Object} tareaIdOrObject - ID de la tarea si es edición, o un objeto vacío ({}) si es creación.
  * @param {string} mode - 'create' o 'edit'.
  */
+
+
 async function openTareaModal(tareaIdOrObject, mode) {
     const modal = document.getElementById('tareaModal');
     const selectAsignados = document.getElementById('tareaAsignadoA');
     const clienteSelect = document.getElementById('tareaClienteId');
-    const busquedaInput = document.getElementById('busquedaCliente'); // El input del buscador
+    const busquedaInput = document.getElementById('busquedaCliente'); 
     
     // 🍎 PASO 1: CARGA DE BLOQUEO (Usuarios)
     if (selectAsignados && selectAsignados.options.length <= 1) {
@@ -2006,10 +2001,20 @@ async function openTareaModal(tareaIdOrObject, mode) {
         selectAsignados.style.display = 'block';
     }
 
-    // 🔍 PASO 3: RE-CONECTAR EL BUSCADOR DE CLIENTES
+    // 🔍 PASO 3: LÓGICA DEL BUSCADOR + DIRECCIONES
     if (busquedaInput && clienteSelect) {
-        busquedaInput.value = ""; // Limpiar búsqueda anterior
+        busquedaInput.value = ""; // Limpiar al abrir
         
+        // Función interna para conectar el cambio de dirección
+        const conectarEventoDireccion = () => {
+            clienteSelect.onchange = function() {
+                const selectedId = clienteSelect.value;
+                if (typeof cargarDireccionesCliente === "function") {
+                    cargarDireccionesCliente(selectedId);
+                }
+            };
+        };
+
         // Resetear el select a la lista completa al abrir
         if (window.clientesBackup && window.clientesBackup.length > 0) {
             clienteSelect.options.length = 0;
@@ -2018,6 +2023,9 @@ async function openTareaModal(tareaIdOrObject, mode) {
                 clienteSelect.options.add(new Option(c.nombre, c.id));
             });
         }
+
+        // Conectamos el evento de dirección por primera vez
+        conectarEventoDireccion();
 
         // Lógica de filtrado en tiempo real
         busquedaInput.oninput = function() {
@@ -2031,6 +2039,9 @@ async function openTareaModal(tareaIdOrObject, mode) {
             filtrados.forEach(c => {
                 clienteSelect.options.add(new Option(c.nombre, c.id));
             });
+
+            // Re-conectamos el evento de dirección porque al limpiar el select se pierde
+            conectarEventoDireccion();
         };
     }
 
@@ -2054,9 +2065,11 @@ async function openTareaModal(tareaIdOrObject, mode) {
             if (tarea.fechaLimite && fechaInput) fechaInput.value = tarea.fechaLimite.split("T")[0];
             
             // Seleccionar cliente
-            if (clienteSelect) clienteSelect.value = tarea.clienteNegocioId || "";
+            if (clienteSelect) {
+                clienteSelect.value = tarea.clienteNegocioId || "";
+            }
 
-            // Cargar direcciones
+            // Cargar direcciones (Modo Edición)
             if (tarea.clienteNegocioId && typeof cargarDireccionesCliente === "function") {
                 cargarDireccionesCliente(tarea.clienteNegocioId);
                 setTimeout(() => { 
@@ -2083,6 +2096,13 @@ async function openTareaModal(tareaIdOrObject, mode) {
         document.getElementById("tareaId").value = "";
         const d = new Date();
         if (fechaInput) fechaInput.value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        
+        // Limpiar direcciones al crear nueva
+        if (direccionSelect) {
+            direccionSelect.options.length = 0;
+            direccionSelect.options.add(new Option("-- Seleccione Dirección --", ""));
+        }
+
         if (selectAsignados) {
             for (let i = 0; i < selectAsignados.options.length; i++) {
                 selectAsignados.options[i].selected = false;
@@ -2090,7 +2110,7 @@ async function openTareaModal(tareaIdOrObject, mode) {
         }
     }
 
-    // Estilos finales
+    // Estilos finales para iPhone
     if (selectAsignados) {
         selectAsignados.style.fontSize = "16px";
         selectAsignados.setAttribute('multiple', 'multiple');
@@ -2100,6 +2120,9 @@ async function openTareaModal(tareaIdOrObject, mode) {
 
     modal.style.display = "flex";
 }
+
+
+
 
 /**
  * Envía una petición para eliminar una tarea.
