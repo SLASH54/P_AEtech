@@ -1460,19 +1460,14 @@ async function loadUsersForTareaSelect() {
 
     const users = await fetchData('/users'); 
     
-    // Limpiar opciones previas, excepto el placeholder
-    const placeholder = userSelect.querySelector('option[disabled]');
-    userSelect.innerHTML = '';
-    if (placeholder) {
-        userSelect.appendChild(placeholder);
-    } else {
-        userSelect.innerHTML = '<option value="" disabled selected>-- Seleccione Usuario --</option>';
-    }
+    // 🍎 AJUSTE PARA IPHONE: Quitamos el 'disabled' para que Safari no se trabe
+    userSelect.innerHTML = '<option value="">-- Seleccione Usuario --</option>';
 
     if (users && users.length > 0) {
         users.forEach(user => {
             const option = document.createElement('option');
-            option.value = user.id; // Asume que el ID es la clave para asignar
+            // Usamos || para asegurar que si el ID viene en otro formato no quede vacío
+            option.value = user.id || user._id; 
             option.textContent = user.nombre; 
             userSelect.appendChild(option);
         });
@@ -1480,7 +1475,6 @@ async function loadUsersForTareaSelect() {
         console.warn('No se pudieron cargar usuarios para asignación.');
     }
 }
-
 /**
  * Carga clientes y llena el SELECT del modal de tareas.
  */
