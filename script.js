@@ -1809,7 +1809,7 @@ let isExpressModeTarea = false;
 function toggleRegistroExpressTarea() {
     isExpressModeTarea = !isExpressModeTarea;
     
-    const selectCliente = document.getElementById('tareaClienteId');
+    const selectCliente = document.getElementById('busquedaCliente');
     const inputCliente = document.getElementById('expressClienteNombre');
     const selectDir = document.getElementById('tareaDireccionCliente');
     const inputDir = document.getElementById('expressDireccion');
@@ -1925,7 +1925,7 @@ function setupTareaModal() {
                 // 4. Obtenemos el texto de la dirección (si es select)
                 direccionTexto = (selectD && selectD.selectedIndex > 0) ? selectD.options[selectD.selectedIndex]?.text : "No definido";
             }
-            
+
             // --- CAPTURA DE USUARIOS ---
             const selectAsignados = document.getElementById('tareaAsignadoA');
             const usuariosSeleccionadosIds = Array.from(selectAsignados.selectedOptions).map(option => option.value);
