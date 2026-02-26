@@ -1851,36 +1851,6 @@ function setupTareaModal() {
 
     openBtn.onclick = () => openTareaModal({}, 'create');
     closeBtn.onclick = () => modal.style.display = 'none';
-
-    // Dentro de openTareaModal...
-
-const busquedaInput = document.getElementById('busquedaCliente');
-const hiddenClienteId = document.getElementById('tareaClienteId');
-
-if (busquedaInput) {
-    busquedaInput.value = ""; // Limpiar al abrir
-    hiddenClienteId.value = ""; // Limpiar ID
-
-    busquedaInput.oninput = function() {
-        const valor = busquedaInput.value;
-        const lista = document.getElementById('listaClientes');
-        
-        // Buscamos si el texto escrito coincide con alguna opción de la lista
-        const opcionSeleccionada = Array.from(lista.options).find(opt => opt.value === valor);
-
-        if (opcionSeleccionada) {
-            const clienteId = opcionSeleccionada.dataset.id;
-            hiddenClienteId.value = clienteId; // Guardamos el ID real
-            
-            console.log("Cliente detectado:", clienteId);
-            
-            // 🍎 CARGA AUTOMÁTICA DE DIRECCIONES
-            if (typeof cargarDireccionesCliente === "function") {
-                cargarDireccionesCliente(clienteId);
-            }
-        }
-    };
-}
     
     form.onsubmit = async (e) => {
         e.preventDefault();
@@ -2032,42 +2002,35 @@ async function openTareaModal(tareaIdOrObject, mode) {
     }
 
     // 🔍 PASO 3: LÓGICA DEL BUSCADOR + DIRECCIONES
-    if (busquedaInput && clienteSelect) {
-        busquedaInput.value = ""; 
+    // Dentro de openTareaModal...
+
+
+const hiddenClienteId = document.getElementById('tareaClienteId');
+
+if (busquedaInput) {
+    busquedaInput.value = ""; // Limpiar al abrir
+    hiddenClienteId.value = ""; // Limpiar ID
+
+    busquedaInput.oninput = function() {
+        const valor = busquedaInput.value;
+        const lista = document.getElementById('listaClientes');
         
-        const conectarEventoDireccion = () => {
-            clienteSelect.onchange = function() {
-                const selectedId = clienteSelect.value;
-                if (typeof cargarDireccionesCliente === "function") {
-                    cargarDireccionesCliente(selectedId);
-                }
-            };
-        };
+        // Buscamos si el texto escrito coincide con alguna opción de la lista
+        const opcionSeleccionada = Array.from(lista.options).find(opt => opt.value === valor);
 
-        if (window.clientesBackup && window.clientesBackup.length > 0) {
-            clienteSelect.options.length = 0;
-            clienteSelect.options.add(new Option("-- Seleccione Cliente --", ""));
-            window.clientesBackup.forEach(c => {
-                clienteSelect.options.add(new Option(c.nombre, c.id));
-            });
+        if (opcionSeleccionada) {
+            const clienteId = opcionSeleccionada.dataset.id;
+            hiddenClienteId.value = clienteId; // Guardamos el ID real
+            
+            console.log("Cliente detectado:", clienteId);
+            
+            // 🍎 CARGA AUTOMÁTICA DE DIRECCIONES
+            if (typeof cargarDireccionesCliente === "function") {
+                cargarDireccionesCliente(clienteId);
+            }
         }
-
-        conectarEventoDireccion();
-
-        busquedaInput.oninput = function() {
-            const filtro = busquedaInput.value.toLowerCase();
-            const filtrados = (window.clientesBackup || []).filter(c => 
-                c.nombre.toLowerCase().includes(filtro)
-            );
-
-            clienteSelect.options.length = 0;
-            clienteSelect.options.add(new Option("-- Seleccione Cliente --", ""));
-            filtrados.forEach(c => {
-                clienteSelect.options.add(new Option(c.nombre, c.id));
-            });
-            conectarEventoDireccion();
-        };
-    }
+    };
+}
 
     const title = document.getElementById('tareaModalTitle');
     const form = document.getElementById('tareaForm');
