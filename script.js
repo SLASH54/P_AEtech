@@ -1892,6 +1892,7 @@ function setupTareaModal() {
             }
 
             // --- RECOLECCIÓN DE DATOS DE CLIENTE (CON PARCHES ANTI-ERRORES) ---
+            // --- RECOLECCIÓN DE DATOS DE CLIENTE (CORREGIDO PARA DATALIST) ---
             let clienteId, clienteNombre, direccionTexto, direccionId;
 
             if (isExpressModeTarea) {
@@ -1901,30 +1902,30 @@ function setupTareaModal() {
                 let nombreInput = document.getElementById("expressClienteNombre").value.trim();
                 let dirInput = document.getElementById("expressDireccion").value.trim();
 
-                // Si está vacío, generamos un ID aleatorio como el correo
-                if (!nombreInput) {
-                    const randomNum = Math.floor(1000 + Math.random() * 9000);
-                    clienteNombre = `CLIENTE-REG-EXPRESS-${randomNum}`;
-                } else {
-                    clienteNombre = nombreInput;
-                }
-
+                clienteNombre = nombreInput || `CLIENTE-REG-EXPRESS-${Math.floor(1000 + Math.random() * 9000)}`;
                 direccionTexto = dirInput || "Dirección no definida";
                 
             } else {
-                const selectC = document.getElementById("tareaClienteId");
+                // 1. Buscamos el input del cliente (el que ahora tiene el datalist)
+                const inputCliente = document.getElementById("tareaClienteId");
                 const selectD = document.getElementById("tareaDireccionCliente");
                 
-                clienteId = selectC.value || null;
-                direccionId = selectD.value || null;
+                // 2. Buscamos el ID real en el input oculto o el valor si es un select
+                // Si usas el datalist, el ID debería estar en un input hidden o guardado previamente
+                clienteId = document.getElementById("tareaClienteId").value || null; 
+                direccionId = selectD ? selectD.value : null;
 
-                // Si no hay selección, ponemos "No definido" para la tabla
-                clienteNombre = clienteId ? selectC.options[selectC.selectedIndex]?.text : "No definido";
-                direccionTexto = direccionId ? selectD.options[selectD.selectedIndex]?.text : "No definido";
+                // 3. Obtenemos los nombres (si es input, usamos .value, si es select, usamos .text)
+                if (inputCliente.tagName === 'INPUT') {
+                    clienteNombre = inputCliente.value || "No definido";
+                } else {
+                    clienteNombre = clienteId ? inputCliente.options[inputCliente.selectedIndex]?.text : "No definido";
+                }
                 
-                // ✅ Eliminamos el error: ya no es obligatorio elegir cliente
+                // 4. Obtenemos el texto de la dirección (si es select)
+                direccionTexto = (selectD && selectD.selectedIndex > 0) ? selectD.options[selectD.selectedIndex]?.text : "No definido";
             }
-
+            
             // --- CAPTURA DE USUARIOS ---
             const selectAsignados = document.getElementById('tareaAsignadoA');
             const usuariosSeleccionadosIds = Array.from(selectAsignados.selectedOptions).map(option => option.value);
