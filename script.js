@@ -1517,31 +1517,31 @@ async function loadUsersForTareaSelect() {
  * Carga clientes y llena el SELECT del modal de tareas.
  */
 async function loadClientesForTareaSelect() {
-    const clienteSelect = document.getElementById('tareaClienteId');
-    if (!clienteSelect) return;
+    const dataList = document.getElementById('listaClientes');
+    if (!dataList) return;
 
     try {
         const clientes = await fetchData('/clientes'); 
-        window.clientesData = {}; // 🏠 Para las direcciones
-        window.clientesBackup = []; // 🔍 Para el buscador
+        window.clientesBackup = (clientes && Array.isArray(clientes)) ? clientes : [];
+        window.clientesData = {}; 
 
-        clienteSelect.options.length = 0;
-        clienteSelect.options.add(new Option("-- Seleccione Cliente --", ""));
+        dataList.innerHTML = ""; // Limpiar
 
-        if (clientes && Array.isArray(clientes)) {
-            clientes.forEach(cliente => {
-                const id = String(cliente._id || cliente.id);
-                const nombre = cliente.nombreNegocio || cliente.nombre || "Sin nombre";
-                
-                clienteSelect.options.add(new Option(nombre, id));
-                
-                // Guardamos la info completa para recuperar la dirección luego
-                window.clientesData[id] = cliente; 
-                window.clientesBackup.push({ id, nombre });
-            });
-        }
+        window.clientesBackup.forEach(cliente => {
+            const id = String(cliente._id || cliente.id);
+            const nombre = cliente.nombreNegocio || cliente.nombre || "Sin nombre";
+            
+            // Guardamos en el objeto para las direcciones
+            window.clientesData[id] = cliente;
+
+            // Creamos la opción del datalist
+            const option = document.createElement('option');
+            option.value = nombre; // Lo que el usuario ve y busca
+            option.dataset.id = id; // Guardamos el ID escondido
+            dataList.appendChild(option);
+        });
     } catch (error) {
-        console.error("Error en carga de clientes:", error);
+        console.error("Error cargando clientes:", error);
     }
 }
 
@@ -1851,6 +1851,36 @@ function setupTareaModal() {
 
     openBtn.onclick = () => openTareaModal({}, 'create');
     closeBtn.onclick = () => modal.style.display = 'none';
+
+    // Dentro de openTareaModal...
+
+const busquedaInput = document.getElementById('busquedaCliente');
+const hiddenClienteId = document.getElementById('tareaClienteId');
+
+if (busquedaInput) {
+    busquedaInput.value = ""; // Limpiar al abrir
+    hiddenClienteId.value = ""; // Limpiar ID
+
+    busquedaInput.oninput = function() {
+        const valor = busquedaInput.value;
+        const lista = document.getElementById('listaClientes');
+        
+        // Buscamos si el texto escrito coincide con alguna opción de la lista
+        const opcionSeleccionada = Array.from(lista.options).find(opt => opt.value === valor);
+
+        if (opcionSeleccionada) {
+            const clienteId = opcionSeleccionada.dataset.id;
+            hiddenClienteId.value = clienteId; // Guardamos el ID real
+            
+            console.log("Cliente detectado:", clienteId);
+            
+            // 🍎 CARGA AUTOMÁTICA DE DIRECCIONES
+            if (typeof cargarDireccionesCliente === "function") {
+                cargarDireccionesCliente(clienteId);
+            }
+        }
+    };
+}
     
     form.onsubmit = async (e) => {
         e.preventDefault();
