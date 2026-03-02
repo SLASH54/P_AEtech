@@ -1719,7 +1719,7 @@ const clienteMapsLink = clienteMaps
                         📄 PDF
                     </button>`
                 : `<button disabled title="Solo disponible cuando la tarea esté completada" 
-                        class="inline-block px-3 py-1 text-sm rounded bg-gray-300 text-gray-600 cursor-not-allowed ml-2 width: 90%;">
+                        class="inline-block px-3 py-1 text-sm rounded bg-gray-300 text-gray-600 cursor-not-allowed ml-2 width: 90%;" style="width: 95%; >
                         📄 PDF
                     </button>`
                   }
@@ -1741,7 +1741,7 @@ const clienteMapsLink = clienteMaps
                         <i class="fas fa-bell"></i> Recordar
                       </button>`
                   :`<button disabled title="Solo disponible cuando la tarea este Pendiente" 
-                      class="inline-block px-3 py-1 text-sm rounded bg-gray-300 text-gray-600 cursor-not-allowed ml-2 width: 90%">
+                      class="inline-block px-3 py-1 text-sm rounded bg-gray-300 text-gray-600 cursor-not-allowed ml-2 width: 90%" style="width: 95%>
                         <i class="fas fa-bell"></i> Recordar
                       </button>` 
                   }
