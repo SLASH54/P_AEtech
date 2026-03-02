@@ -4711,31 +4711,37 @@ button.text-purple-600 {
 /* Rojo Intenso (Eliminar) */
 button.text-red-600.hover\:text-red-900 {
     background: linear-gradient(135deg, rgba(255, 0, 0, 0.6), rgba(180, 0, 0, 0.7)) !important;
+    width: 95%;
 }
 
 /* Morado Eléctrico (Recordatorio) */
 button.btn-recordatorio {
     background: linear-gradient(135deg, rgba(140, 0, 255, 0.6), rgba(80, 0, 180, 0.7)) !important;
+    width: 95%;
 }
 
 /* Azul Neón (Editar) */
 button.text-indigo-600.hover\:text-indigo-900.mr-3 {
     background: linear-gradient(135deg, rgba(0, 150, 255, 0.6), rgba(0, 80, 200, 0.7)) !important;
+    width: 95%;
 }
 
 /* Verde Esmeralda (Completar) */
 button.text-green-600.hover\:text-green-900 {
     background: linear-gradient(135deg, rgba(0, 220, 100, 0.6), rgba(0, 150, 60, 0.7)) !important;
+    width: 95%;
 }
 
 /* Naranja Fuego (Express) */
 button.inline-block.px-3.py-1.text-sm.rounded.bg-green-600.text-white.hover\:bg-green-700.ml-2 {
     background: linear-gradient(135deg, rgba(255, 120, 0, 0.6), rgba(200, 60, 0, 0.7)) !important;
+    width: 95%;
 }
 
 /* Rosa Mexicano / Orquídea (Detalles) */
 button.text-purple-600.hover\:text-purple-900.ml-2 {
     background: linear-gradient(135deg, rgba(255, 0, 150, 0.6), rgba(180, 0, 100, 0.7)) !important;
+    width: 95%;
 }
 
 /* Reflejo superior para dar volumen */
