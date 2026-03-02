@@ -4820,6 +4820,10 @@ button.delete-btn {
 button#openAddExpressTaskModal {
     background: rgba(175, 82, 222, 0.25) !important;
     border-color: rgba(175, 82, 222, 0.3);
+    border-radius: 0.5rem;
+    height: 35px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.3s;
 }
 
 
@@ -4834,6 +4838,10 @@ button.text-blue-600.hover\:text-blue-800.text-xs.mt-1.underline {
 button#btnNotificaciones {
     background: rgba(48, 209, 88, 0.25) !important;
     border-color: rgba(48, 209, 88, 0.3);
+    border-radius: 0.5rem;
+    height: 35px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.3s;
 }
 
 
