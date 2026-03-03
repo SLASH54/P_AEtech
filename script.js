@@ -2695,24 +2695,40 @@ function initEvidencias(tareaId) {
 
   container.innerHTML = ''; // limpia el contenido anterior
 
-  const div = document.createElement('div');
-    div.className = 'card-evidencia';
-    div.innerHTML = `
-      <label>Título de la evidencia</label>
-      <input type="text" name="titulo[]" class="titulo" value="Foto de Confirmacion de Ubicacion" Readonly>
-      <label class="label-file">
-        <i class="fa-solid fa-camera"></i> Tomar Foto / Elegir Archivo
-        <input type="file" name="archivos" class="archivo" accept="image/*" class="archivo">
-      </label>
-      <div class="preview-container">
-        <img class="preview-img" src="" alt="Vista previa" style="display:none;">
-      </div>
-    `;
-    container.appendChild(div);
+  // 1. Contenedor para fotos
+  const fotosContainer = document.createElement('div');
+  fotosContainer.id = 'fotos-lista-container';
+  container.appendChild(fotosContainer);
 
-  for (let i = 0; i < 2; i++) agregarCampo();
+  // 2. Campo de Observaciones (Se enviará como un título sin foto)
+  const divObs = document.createElement('div');
+  divObs.className = 'card-evidencia';
+  divObs.style.borderLeft = "5px solid #4285F4"; // Color distintivo
+  divObs.innerHTML = `
+    <label><i class="fa-solid fa-comment"></i> Observaciones Finales</label>
+    <textarea id="tareaObservaciones" class="titulo titulo-observacion" 
+      placeholder="Escribe aquí comentarios sobre el servicio..." 
+      style="width: 100%; height: 80px; margin-top: 10px; border-radius: 8px; padding: 10px; border: 1px solid #ccc;"></textarea>
+    
+    <input type="file" class="archivo" style="display:none;">
+  `;
+  container.appendChild(divObs);
 
-  addBtn.onclick = agregarCampo;
+  // 3. Foto Fija (Ubicación)
+  const divFija = document.createElement('div');
+  divFija.className = 'card-evidencia';
+  divFija.innerHTML = `
+    <label>Título de la evidencia</label>
+    <input type="text" name="titulo[]" class="titulo" value="Foto de Confirmacion de Ubicacion" Readonly>
+    <label class="label-file">
+      <i class="fa-solid fa-camera"></i> Tomar Foto / Elegir Archivo
+      <input type="file" name="archivos" class="archivo" accept="image/*">
+    </label>
+    <div class="preview-container">
+      <img class="preview-img" src="" alt="Vista previa" style="display:none;">
+    </div>
+  `;
+  fotosContainer.appendChild(divFija);
 
   function agregarCampo() {
     const div = document.createElement('div');
@@ -2722,14 +2738,17 @@ function initEvidencias(tareaId) {
       <input type="text" name="titulo[]" class="titulo" placeholder="Ej: Foto antes de la instalación">
       <label class="label-file">
         <i class="fa-solid fa-camera"></i> Tomar Foto / Elegir Archivo
-        <input type="file" name="archivos" class="archivo" accept="image/*" class="archivo">
+        <input type="file" name="archivos" class="archivo" accept="image/*">
       </label>
       <div class="preview-container">
         <img class="preview-img" src="" alt="Vista previa" style="display:none;">
       </div>
     `;
-    container.appendChild(div);
+    fotosContainer.appendChild(div);
   }
+
+  for (let i = 0; i < 2; i++) agregarCampo();
+  addBtn.onclick = agregarCampo;
 
 
 
