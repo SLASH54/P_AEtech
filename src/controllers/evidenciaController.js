@@ -22,6 +22,7 @@ const subirMultiplesEvidencias = async (req, res) => {
     const files = req.files?.archivos || [];
     const firma = req.files?.firmaCliente?.[0] || null;
     const titulos = req.body.titulos ? req.body.titulos.split(',') : [];
+    const observaciones = req.body.comentario || ""; 
     
 // 🧱 Capturar materiales ocupados (enviados desde el frontend)
 const materiales = req.body.materiales ? JSON.parse(req.body.materiales) : [];
@@ -63,6 +64,9 @@ const evidencia = await Evidencia.create({
   titulo,
   archivoUrl: result.secure_url,
   firmaClienteUrl: firmaUrl,
+
+  observaciones: i === 0 ? observaciones : null, 
+
   materiales // 🧱 se guarda correctamente el array enviado
 });
 

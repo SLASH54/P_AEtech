@@ -2710,7 +2710,7 @@ function initEvidencias(tareaId) {
       placeholder="Escribe aquí comentarios sobre el servicio..." 
       style="width: 100%; height: 80px; margin-top: 10px; border-radius: 8px; padding: 10px; border: 1px solid #ccc;"></textarea>
     
-    <input type="file" class="archivo" style="display:none;">
+    <input type="file" id="tareaObservaciones" class="tareaObservaciones" style="display:none;">
   `;
   container.appendChild(divObs);
 
@@ -2802,6 +2802,10 @@ function initEvidencias(tareaId) {
 
 
     const formData = new FormData();
+     // Agregamos el comentario al envío
+    const observaciones = document.getElementById('tareaObservaciones').value;
+    formData.append('observaciones', observaciones);
+
     const titulos = [...document.querySelectorAll('.titulo')].map(i => i.value);
     const archivos = [...document.querySelectorAll('.archivo')];//Posiblemente no lleve "s"(.archivo)
     archivos.forEach(f => { if (f.files[0]) formData.append('archivos', f.files[0]); });
