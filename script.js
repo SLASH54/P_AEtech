@@ -3512,10 +3512,10 @@ if (evidenciaConObservaciones?.observaciones) {
         Observaciones Finales
       </h3>
 
-      <h3 style="color:#003366; margin:0 0 12px;">
+      <h4 style="color:#003366; margin:0 0 12px;">
         ${evidenciaConObservaciones.observaciones || 'Sin Observaciones'}
-      </h3>
-      
+      </h4>
+
     </div>
   `;
 }
