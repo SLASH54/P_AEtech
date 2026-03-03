@@ -2045,10 +2045,28 @@ if (busquedaInput) {
         let tarea = (typeof tareaIdOrObject === "object") ? tareaIdOrObject : (window.tareasOriginales || []).find(t => t.id == tareaIdOrObject);
         
         if (tarea) {
+            // 1. Llenar el ID oculto
+            const hiddenClienteId = document.getElementById('tareaClienteId');
+            if (hiddenClienteId) hiddenClienteId.value = tarea.clienteNegocioId || "";
+
+            // 2. Llenar el nombre en el buscador (para que sea visible)
+            const busquedaInput = document.getElementById('busquedaCliente');
+            if (busquedaInput) {
+                // Buscamos el nombre en nuestro backup global
+                const clienteObj = window.clientesBackup?.find(c => String(c._id || c.id) === String(tarea.clienteNegocioId));
+                busquedaInput.value = clienteObj ? (clienteObj.nombreNegocio || clienteObj.nombre) : (tarea.cliente_Nombre || "");
+            }
+
+            // 3. Disparar la carga de direcciones automáticamente al editar
+            if (tarea.clienteNegocioId) {
+                cargarDireccionesCliente(tarea.clienteNegocioId, tarea.direccionClienteId);
+            }
+
             document.getElementById('tareaId').value = tarea.id;
             document.getElementById('tareaTitulo').value = tarea.nombre || "";
             document.getElementById('tareaDescripcion').value = tarea.descripcion || "";
             document.getElementById('tareaEstado').value = tarea.estado || "";
+            document.getElementById('tareaActividadId').value = tarea.actividadId || "";
             
             if (tarea.fechaLimite && fechaInput) fechaInput.value = tarea.fechaLimite.split("T")[0];
             
