@@ -11,7 +11,7 @@ const Evidencia = sequelize.define('Evidencia', {
   tareaId: { type: DataTypes.INTEGER, allowNull: false },
   usuarioId: { type: DataTypes.INTEGER, allowNull: false },
   titulo: { type: DataTypes.STRING, allowNull: false },
-  archivoUrl: { type: DataTypes.STRING, allowNull: false },
+  archivoUrl: { type: DataTypes.STRING, allowNull: true },
   firmaClienteUrl: { type: DataTypes.STRING, allowNull: true },
 
 
