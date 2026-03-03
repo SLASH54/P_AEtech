@@ -2717,6 +2717,12 @@ function initEvidencias(tareaId) {
   // 3. Foto Fija (Ubicación)
   const divFija = document.createElement('div');
   divFija.className = 'card-evidencia';
+  // 🍎 Agregamos este estilo para separar las tarjetas
+    div.style.marginBottom = "20px"; 
+    div.style.padding = "15px";
+    div.style.border = "1px solid #ddd";
+    div.style.borderRadius = "10px";
+    div.style.backgroundColor = "#f9f9f9";
   divFija.innerHTML = `
     <label>Título de la evidencia</label>
     <input type="text" name="titulo[]" class="titulo" value="Foto de Confirmacion de Ubicacion" Readonly>
