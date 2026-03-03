@@ -17,7 +17,13 @@ const Evidencia = sequelize.define('Evidencia', {
 
   materiales: {
   type: DataTypes.JSON, // o DataTypes.TEXT si tu DB no soporta JSON
-  allowNull: true
+  allowNull: true,
+
+  // Dentro de la definición de Tarea
+  observaciones: {
+      type: DataTypes.TEXT,
+      allowNull: true
+  }
 },
 
 
