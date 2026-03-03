@@ -3495,6 +3495,31 @@ html += evidencias
   .join('');
 
 
+// ========== Observaciones ==========
+const evidenciaConObservaciones = evidencias.find(ev => ev.observaciones);
+if (evidenciaConObservaciones?.observaciones) {
+  html += `
+    <div style="
+      background:#fff;
+      padding:18px;
+      margin:15px auto;
+      border-radius:12px;
+      box-shadow:0 3px 10px rgba(0,0,0,0.12);
+      max-width:90%;
+      text-align:center;
+    ">
+      <h3 style="color:#003366; margin-bottom:10px;">
+        Observaciones Finales
+      </h3>
+
+      <h3 style="color:#003366; margin:0 0 12px;">
+        ${evidenciaConObservaciones.observaciones || 'Sin Observaciones'}
+      </h3>
+      
+    </div>
+  `;
+}
+
 // ========== Firma del cliente ==========
 const evidenciaConFirma = evidencias.find(ev => ev.firmaClienteUrl);
 if (evidenciaConFirma?.firmaClienteUrl) {
