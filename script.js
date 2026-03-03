@@ -2733,6 +2733,12 @@ function initEvidencias(tareaId) {
   function agregarCampo() {
     const div = document.createElement('div');
     div.className = 'card-evidencia';
+    // 🍎 Agregamos este estilo para separar las tarjetas
+    div.style.marginBottom = "20px"; 
+    div.style.padding = "15px";
+    div.style.border = "1px solid #ddd";
+    div.style.borderRadius = "10px";
+    div.style.backgroundColor = "#f9f9f9";
     div.innerHTML = `
       <label>Título de la evidencia</label>
       <input type="text" name="titulo[]" class="titulo" placeholder="Ej: Foto antes de la instalación">
