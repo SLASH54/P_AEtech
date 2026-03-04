@@ -150,6 +150,8 @@ function loadUserInfo() {
 
 // Asegúrate de que esta función se llame al cargar la página:
 document.addEventListener('DOMContentLoaded', function() {
+    revisarAccionesUrl();
+
     initEvidencias();
     // 1. Ejecuta la verificación de sesión
     checkSession(); 
