@@ -80,7 +80,7 @@ exports.solicitarTareaExpress = async (req, res) => {
                     user.id, 
                     "Nueva Solicitud de Tarea", 
                     `${nombreSolicitante} solicita: ${nombre}`,
-                    { click_action: "https://aetechprueba.netlify.app/sistema.html" }
+                    { click_action: "https://aetechprueba.netlify.app/sistema.html?open=tareas" }
                 );
 
                 await Notificacion.create({
@@ -127,7 +127,7 @@ exports.autorizarTarea = async (req, res) => {
           'Tarea Autorizada',
           `Ya puedes Trabajar en ella: ${tarea.nombre}`,
           { 
-              click_action: "https://aetechprueba.netlify.app/sistema.html", // O la ruta específica de la tarea
+              click_action: "https://aetechprueba.netlify.app/sistema.html?open=tareas", // O la ruta específica de la tarea
           }
         );
 
