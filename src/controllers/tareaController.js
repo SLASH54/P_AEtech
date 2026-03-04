@@ -250,7 +250,7 @@ exports.createTarea = async (req, res) => {
                             body: `Se te ha asignado: ${nombre}` 
                         },
                         data: {
-                            click_action: "https://aetechprueba.netlify.app/sistema.html"
+                            click_action: "https://aetechprueba.netlify.app/sistema.html?open=tareas"
                         },
                         token: user.fcmToken
                     };
@@ -461,5 +461,3 @@ async function crearNotificacion(usuarioId, tareaId, mensaje) {
     console.error("❌ Error al crear notificación:", error);
   }
 }
-
-
