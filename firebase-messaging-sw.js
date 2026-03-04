@@ -18,21 +18,19 @@ const messaging = firebase.messaging();
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
 
-  // Extraemos la URL de la data del backend
-  const urlToOpen = event.notification.data?.click_action || 'https://aetechprueba.netlify.app/sistema.html?open=tareas';
+  // Lee la URL que mandamos desde el backend
+  const urlToOpen = event.notification.data?.click_action || 'https://aetechprueba.netlify.app/sistema.html';
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(windowClients) {
-      // 1. Intentar encontrar una pestaña que ya tenga la app abierta
+      // Si la pestaña ya está abierta, navega a la URL con el parámetro y dale foco
       for (var i = 0; i < windowClients.length; i++) {
         var client = windowClients[i];
-        // Si la pestaña está abierta, la mandamos a la URL con el parámetro y le damos foco
-        if (client.url.includes('sistema.html')) {
+        if ('focus' in client) {
           return client.navigate(urlToOpen).then(c => c.focus());
         }
       }
-      
-      // 2. Si no hay pestañas abiertas (o falló el navigate), abrimos una nueva
+      // Si no hay pestañas abiertas, abre una nueva
       if (clients.openWindow) {
         return clients.openWindow(urlToOpen);
       }
@@ -50,7 +48,7 @@ messaging.onBackgroundMessage(function (payload) {
     badge: '/img/logoAEtech.png',
     data: {
         // Guardamos la URL aquí para que el evento de arriba la lea
-        click_action: payload.data?.click_action || 'https://aetechprueba.netlify.app/sistema.html?open=tareas'
+        click_action: payload.data?.click_action || '/sistema.html'
     }
   };
 
