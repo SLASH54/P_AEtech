@@ -2286,22 +2286,22 @@ document.getElementById('filterActividad').addEventListener('change', filtrarTar
 
 
 // FILTRADO FINAL TAREAS 
-//function filtrarTareas() {
-//  const cliente = document.getElementById('filterCliente')?.value || "";
-//  const actividad = document.getElementById('filterActividad')?.value || "";
+function filtrarTareas() {
+  const cliente = document.getElementById('filterCliente')?.value || "";
+  const actividad = document.getElementById('filterActividad')?.value || "";
 
-//  const tareasFiltradas = window.tareasOriginales.filter(t => {
-//    const clienteNombre = t.ClienteNegocio?.nombre || "";
-//    const actividadNombre = t.Actividad?.nombre || "";
+  const tareasFiltradas = window.tareasOriginales.filter(t => {
+    const clienteNombre = t.ClienteNegocio?.nombre || "";
+    const actividadNombre = t.Actividad?.nombre || "";
 
-//    const condCliente = !cliente || clienteNombre === cliente;
-//    const condActividad = !actividad || actividadNombre === actividad;
+    const condCliente = !cliente || clienteNombre === cliente;
+    const condActividad = !actividad || actividadNombre === actividad;
 
-//    return condCliente && condActividad;
-//  });
+    return condCliente && condActividad;
+  });
 
-//  renderTareasConAnimacion(tareasFiltradas);
-//}
+  renderTareasConAnimacion(tareasFiltradas);
+}
 
 
 // 1. Función para abrir el modal y llenar datos automáticos
@@ -4456,43 +4456,43 @@ document.addEventListener("DOMContentLoaded", revisarAccionesUrl);
 
 // --- LÓGICA DE FILTRADO UNIFICADA ---
 
-function filtrarTareas() {
+//function filtrarTareas() {
     // 1. Obtenemos valores de los filtros (Cliente, Actividad y el nuevo de Mes)
-    const clienteId = document.getElementById('filterCliente')?.value;
-    const actividadId = document.getElementById('filterActividad')?.value;
-    const filtroMes = document.getElementById('filtroMesTarea')?.value; // "YYYY-MM"
+    //const clienteId = document.getElementById('filterCliente')?.value;
+    //const actividadId = document.getElementById('filterActividad')?.value;
+    //const filtroMes = document.getElementById('filtroMesTarea')?.value; // "YYYY-MM"
 
     // 2. Usamos la variable que ya llena tu initTareas
-    let resultados = window.tareasOriginales || [];
+    //let resultados = window.tareasOriginales || [];
 
     // 3. Filtramos por Cliente
-    if (clienteId) {
-        resultados = resultados.filter(t => String(t.clienteNegocioId) === String(clienteId));
-    }
+    //if (clienteId) {
+    //    resultados = resultados.filter(t => String(t.clienteNegocioId) === String(clienteId));
+    //}
 
     // 4. Filtramos por Actividad
-    if (actividadId) {
-        resultados = resultados.filter(t => String(t.actividadId) === String(actividadId));
-    }
+    //if (actividadId) {
+    //    resultados = resultados.filter(t => String(t.actividadId) === String(actividadId));
+    //}
 
     // 5. 🔥 FILTRO POR MES (Machea "2026-02-24" con "2026-02")
-    if (filtroMes) {
-        resultados = resultados.filter(t => t.fechaLimite && t.fechaLimite.startsWith(filtroMes));
-    }
+    //if (filtroMes) {
+    //    resultados = resultados.filter(t => t.fechaLimite && t.fechaLimite.startsWith(filtroMes));
+    //}
 
     // 6. LIMPIEZA Y DIBUJO
-    const tareasBody = document.getElementById('tareasBody');
-    if (tareasBody) {
-        tareasBody.innerHTML = ""; // ⚡ ESTO ES LO QUE EVITA QUE SE AMONTONEN
+    //const tareasBody = document.getElementById('tareasBody');
+    //if (tareasBody) {
+    //    tareasBody.innerHTML = ""; // ⚡ ESTO ES LO QUE EVITA QUE SE AMONTONEN
 
-        if (resultados.length > 0) {
+    //    if (resultados.length > 0) {
             // Usamos tu función de dibujo que ya te sirve
-            renderTareasTable(resultados);
-        } else {
-            tareasBody.innerHTML = '<tr><td colspan="10" class="p-4 text-center text-white">No se encontraron tareas con estos filtros.</td></tr>';
-        }
-    }
-}
+    //        renderTareasTable(resultados);
+    //    } else {
+    //        tareasBody.innerHTML = '<tr><td colspan="10" class="p-4 text-center text-white">No se encontraron tareas con estos filtros.</td></tr>';
+    //    }
+    //}
+//}
 
 // Función para tu botón de "VER HISTORIAL COMPLETO" detalles de las
 function mostrarTodo() {
