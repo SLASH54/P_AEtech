@@ -48,7 +48,7 @@ messaging.onBackgroundMessage(function (payload) {
     badge: '/img/logoAEtech.png',
     data: {
         // Guardamos la URL aquí para que el evento de arriba la lea
-        click_action: payload.data?.click_action || '/sistema.html'
+        click_action: payload.data?.click_action || '/sistema.html?open=tareas'
     }
   };
 
