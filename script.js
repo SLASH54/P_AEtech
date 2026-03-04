@@ -1474,7 +1474,7 @@ async function initTareas() {
         if (inC) inC.value = "";
         if (inA) inA.value = "";
         if (inM) inM.value = "";
-        renderTareasTable(window.tareasOriginales);
+        renderTareasConAnimacion(window.tareasOriginales);
     });
 }
 
@@ -4468,17 +4468,6 @@ document.addEventListener("DOMContentLoaded", revisarAccionesUrl);
 // --- LÓGICA DE FILTRADO UNIFICADA ---
 
 
-// Función para tu botón de "VER HISTORIAL COMPLETO" detalles de las
-function mostrarTodo() {
-    const inputMes = document.getElementById('filtroMesTarea');
-    if (inputMes) inputMes.value = ""; 
-    
-    // Limpiamos los otros selects también
-    if(document.getElementById('filterCliente')) document.getElementById('filterCliente').value = "";
-    if(document.getElementById('filterActividad')) document.getElementById('filterActividad').value = "";
-
-    filtrarTareas();
-}
 
 
 
