@@ -150,6 +150,8 @@ function loadUserInfo() {
 
 // Asegúrate de que esta función se llame al cargar la página:
 document.addEventListener('DOMContentLoaded', function() {
+    revisarAccionesUrl();
+
     initEvidencias();
     // 1. Ejecuta la verificación de sesión
     checkSession(); 
@@ -4439,29 +4441,27 @@ function checkNuevaActividad(select) {
     }
 }
 
-// 🕵️ Función para detectar acciones desde la URL (Notificaciones)
+// 🕵️ Función para detectar acciones desde la URL (Notificaciones Push)
 function revisarAccionesUrl() {
     const urlParams = new URLSearchParams(window.location.search);
-    const accion = urlParams.get('action');
+    const openSection = urlParams.get('open'); // Captura "tareas" de ?open=tareas
 
-    if (accion === 'abrirTareas') {
-        console.log("🚀 Acción detectada: Abriendo Organizador de Tareas...");
+    if (openSection === 'tareas') {
+        console.log("🚀 Notificación detectada: Abriendo sección de Tareas...");
         
-        // Usamos un pequeño delay para asegurar que el DOM esté listo
+        // Usamos un pequeño delay para asegurar que el sistema cargó
         setTimeout(() => {
-            // Buscamos tu función mostrarContenido que ya usas en el menú
             if (typeof mostrarContenido === "function") {
+                // Asegúrate de que el ID coincida con el de tu menú (ej: 'organizadortareas' o 'Tareas')
                 mostrarContenido('organizadortareas'); 
-            } else {
-                // Si no tienes mostrarContenido global, simulamos el clic en el botón del menú
-                document.querySelector('[onclick*="organizadortareas"]')?.click();
             }
-        }, 1000); // 1 segundo de espera
+        }, 1200); 
     }
 }
 
-// Ejecutar cada vez que carga la página
+// Asegúrate de que se ejecute al cargar el DOM
 document.addEventListener("DOMContentLoaded", revisarAccionesUrl);
+
 
 //filtro de tareas por mes 
 

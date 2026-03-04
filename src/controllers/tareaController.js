@@ -434,7 +434,7 @@ exports.enviarRecordatorioPush = async (req, res) => {
 
         // Enviamos la push usando tu archivo push.js
         await sendPushToUser(tarea.AsignadoA.id, titulo, mensaje, { 
-                click_action: "https://aetechprueba.netlify.app/sistema.html", // O la ruta específica de la tarea
+                click_action: "https://aetechprueba.netlify.app/sistema.html?open=tareas", // O la ruta específica de la tarea
             });
 
         res.json({ success: true, message: "Recordatorio enviado" });
