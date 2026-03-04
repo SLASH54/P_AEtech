@@ -3935,11 +3935,41 @@ try {
 
 // Registrar el service worker solo si no hay uno activo
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/firebase-messaging-sw.js', { scope: '/' })
+    // 1. Registramos el Service Worker
+    navigator.serviceWorker.register('/firebase-messaging-sw.js')
         .then(reg => {
-            console.log('✅ SW Activo en:', reg.scope);
+            console.log('✅ Service Worker registrado con éxito');
+
+            // 2. Detectamos si hay una actualización esperando en segundo plano
+            reg.addEventListener('updatefound', () => {
+                const newWorker = reg.installing;
+                
+                newWorker.addEventListener('statechange', () => {
+                    // Si el nuevo worker se instaló correctamente y ya hay uno viejo controlando la página
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        
+                        // Creamos una alerta visual no intrusiva o un confirm
+                        const mensaje = "🚀 ¡Nueva actualización disponible! Se aplicarán cambios para mejorar las notificaciones y el rendimiento.";
+                        
+                        if (confirm(mensaje)) {
+                            // Forzamos la limpieza de cache y recarga
+                            forzarActualizacionSilenciosa();
+                        }
+                    }
+                });
+            });
         })
-        .catch(err => console.error('❌ Fallo en SW:', err));
+        .catch(err => console.error('❌ Error registrando el SW:', err));
+}
+
+// Función auxiliar para limpiar y recargar sin alertas molestas
+async function forzarActualizacionSilenciosa() {
+    if ('caches' in window) {
+        const names = await caches.keys();
+        await Promise.all(names.map(name => caches.delete(name)));
+    }
+    // Recarga la página ignorando el cache del navegador
+    window.location.reload(true);
 }
 
   async function solicitarPermisoNotificaciones() {
