@@ -2279,25 +2279,36 @@ function llenarSelectActividades(tareas) {
 
 
 
-// EVENTOS DE FILTRO
-//document.getElementById('filterEstado').addEventListener('change', filtrarTareas);
-document.getElementById('filterCliente').addEventListener('change', filtrarTareas);
-document.getElementById('filterActividad').addEventListener('change', filtrarTareas);
+// 1. EVENTOS DE FILTRO (Agregamos el de fecha)
+document.getElementById('filterCliente')?.addEventListener('change', filtrarTareas);
+document.getElementById('filterActividad')?.addEventListener('change', filtrarTareas);
+document.getElementById('filtroMesTarea')?.addEventListener('input', filtrarTareas); // El input de mes
 
-
-// FILTRADO FINAL TAREAS 
+// 2. FUNCIÓN DE FILTRADO ÚNICA
 function filtrarTareas() {
+  // Capturamos los 3 valores
   const cliente = document.getElementById('filterCliente')?.value || "";
   const actividad = document.getElementById('filterActividad')?.value || "";
+  const filtroMes = document.getElementById('filtroMesTarea')?.value || ""; // Ejemplo: "2026-02"
 
   const tareasFiltradas = window.tareasOriginales.filter(t => {
+    // Datos de la tarea
     const clienteNombre = t.ClienteNegocio?.nombre || "";
     const actividadNombre = t.Actividad?.nombre || "";
+    const fechaTarea = t.fechaLimite || ""; // Formato "YYYY-MM-DD"
 
+    // Condición 1: Cliente
     const condCliente = !cliente || clienteNombre === cliente;
+
+    // Condición 2: Actividad
     const condActividad = !actividad || actividadNombre === actividad;
 
-    return condCliente && condActividad;
+    // Condición 3: Fecha (Mes)
+    // Compara si la fecha de la tarea empieza con el año-mes seleccionado (YYYY-MM)
+    const condFecha = !filtroMes || fechaTarea.startsWith(filtroMes);
+
+    // Retorna solo si cumple las TRES condiciones
+    return condCliente && condActividad && condFecha;
   });
 
   renderTareasConAnimacion(tareasFiltradas);
@@ -4456,43 +4467,6 @@ document.addEventListener("DOMContentLoaded", revisarAccionesUrl);
 
 // --- LÓGICA DE FILTRADO UNIFICADA ---
 
-//function filtrarTareas() {
-    // 1. Obtenemos valores de los filtros (Cliente, Actividad y el nuevo de Mes)
-    //const clienteId = document.getElementById('filterCliente')?.value;
-    //const actividadId = document.getElementById('filterActividad')?.value;
-    //const filtroMes = document.getElementById('filtroMesTarea')?.value; // "YYYY-MM"
-
-    // 2. Usamos la variable que ya llena tu initTareas
-    //let resultados = window.tareasOriginales || [];
-
-    // 3. Filtramos por Cliente
-    //if (clienteId) {
-    //    resultados = resultados.filter(t => String(t.clienteNegocioId) === String(clienteId));
-    //}
-
-    // 4. Filtramos por Actividad
-    //if (actividadId) {
-    //    resultados = resultados.filter(t => String(t.actividadId) === String(actividadId));
-    //}
-
-    // 5. 🔥 FILTRO POR MES (Machea "2026-02-24" con "2026-02")
-    //if (filtroMes) {
-    //    resultados = resultados.filter(t => t.fechaLimite && t.fechaLimite.startsWith(filtroMes));
-    //}
-
-    // 6. LIMPIEZA Y DIBUJO
-    //const tareasBody = document.getElementById('tareasBody');
-    //if (tareasBody) {
-    //    tareasBody.innerHTML = ""; // ⚡ ESTO ES LO QUE EVITA QUE SE AMONTONEN
-
-    //    if (resultados.length > 0) {
-            // Usamos tu función de dibujo que ya te sirve
-    //        renderTareasTable(resultados);
-    //    } else {
-    //        tareasBody.innerHTML = '<tr><td colspan="10" class="p-4 text-center text-white">No se encontraron tareas con estos filtros.</td></tr>';
-    //    }
-    //}
-//}
 
 // Función para tu botón de "VER HISTORIAL COMPLETO" detalles de las
 function mostrarTodo() {
