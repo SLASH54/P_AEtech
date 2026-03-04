@@ -80,7 +80,7 @@ exports.solicitarTareaExpress = async (req, res) => {
                     user.id, 
                     "Nueva Solicitud de Tarea", 
                     `${nombreSolicitante} solicita: ${nombre}`,
-                    { click_action: "https://aetechprueba.netlify.app/sistema.html?open=tareas" }
+                    { click_action: "https://aetechprueba.netlify.app/sistema.html" }
                 );
 
                 await Notificacion.create({
@@ -127,7 +127,7 @@ exports.autorizarTarea = async (req, res) => {
           'Tarea Autorizada',
           `Ya puedes Trabajar en ella: ${tarea.nombre}`,
           { 
-              click_action: "https://aetechprueba.netlify.app/sistema.html?open=tareas", // O la ruta específica de la tarea
+              click_action: "https://aetechprueba.netlify.app/sistema.html", // O la ruta específica de la tarea
           }
         );
 
@@ -250,7 +250,7 @@ exports.createTarea = async (req, res) => {
                             body: `Se te ha asignado: ${nombre}` 
                         },
                         data: {
-                            click_action: "https://aetechprueba.netlify.app/sistema.html?open=tareas"
+                            click_action: "https://aetechprueba.netlify.app/sistema.html"
                         },
                         token: user.fcmToken
                     };
@@ -434,7 +434,7 @@ exports.enviarRecordatorioPush = async (req, res) => {
 
         // Enviamos la push usando tu archivo push.js
         await sendPushToUser(tarea.AsignadoA.id, titulo, mensaje, { 
-                click_action: "https://aetechprueba.netlify.app/sistema.html?open=tareas", // O la ruta específica de la tarea
+                click_action: "https://aetechprueba.netlify.app/sistema.html", // O la ruta específica de la tarea
             });
 
         res.json({ success: true, message: "Recordatorio enviado" });
