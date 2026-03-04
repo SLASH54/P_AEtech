@@ -2286,22 +2286,22 @@ document.getElementById('filterActividad').addEventListener('change', filtrarTar
 
 
 // FILTRADO FINAL TAREAS 
-function filtrarTareas() {
-  const cliente = document.getElementById('filterCliente')?.value || "";
-  const actividad = document.getElementById('filterActividad')?.value || "";
+//function filtrarTareas() {
+//  const cliente = document.getElementById('filterCliente')?.value || "";
+//  const actividad = document.getElementById('filterActividad')?.value || "";
 
-  const tareasFiltradas = window.tareasOriginales.filter(t => {
-    const clienteNombre = t.ClienteNegocio?.nombre || "";
-    const actividadNombre = t.Actividad?.nombre || "";
+//  const tareasFiltradas = window.tareasOriginales.filter(t => {
+//    const clienteNombre = t.ClienteNegocio?.nombre || "";
+//    const actividadNombre = t.Actividad?.nombre || "";
 
-    const condCliente = !cliente || clienteNombre === cliente;
-    const condActividad = !actividad || actividadNombre === actividad;
+//    const condCliente = !cliente || clienteNombre === cliente;
+//    const condActividad = !actividad || actividadNombre === actividad;
 
-    return condCliente && condActividad;
-  });
+//    return condCliente && condActividad;
+//  });
 
-  renderTareasConAnimacion(tareasFiltradas);
-}
+//  renderTareasConAnimacion(tareasFiltradas);
+//}
 
 
 // 1. Función para abrir el modal y llenar datos automáticos
