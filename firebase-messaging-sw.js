@@ -19,7 +19,7 @@ self.addEventListener('notificationclick', function(event) {
   event.notification.close();
 
   // Lee la URL que mandamos desde el backend
-  const urlToOpen = event.notification.data?.click_action || 'https://aetechprueba.netlify.app/sistema.html';
+  const urlToOpen = event.notification.data?.click_action || 'https://aetechprueba.netlify.app/sistema.html?open=tareas';
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(windowClients) {
