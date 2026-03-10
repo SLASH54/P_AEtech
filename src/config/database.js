@@ -17,6 +17,7 @@ if (isProduction) {
         rejectUnauthorized: false
       }
     },
+    native: false,
     logging: false
   });
 } else {
