@@ -10,7 +10,7 @@ const notificacionController = require('../controllers/notificacionController');
 router.put('/mark-read-by-tarea/:tareaId', protect, notificacionController.markReadByTarea);
 
 // 🟡 Obtener solo notificaciones no leídas
-router.get('/', protect, notificacionController.getNotificacionesNoLeidas);
+//router.get('/', protect, notificacionController.getNotificacionesNoLeidas);
 
 router.delete('/clean-orphans', protect, notificacionController.cleanOrphanNotificaciones);
 
