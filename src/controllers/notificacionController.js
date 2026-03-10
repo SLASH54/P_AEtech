@@ -17,19 +17,19 @@ exports.getNotificacionesUsuario = async (req, res) => {
 };
 
 // 🟡 Solo no leídas (esta será la ruta principal GET /api/notificaciones)
-exports.getNotificacionesNoLeidas = async (req, res) => {
-  try {
-    const usuarioId = req.user.id;
-    const notificaciones = await Notificacion.findAll({
-      where: { usuarioId, leida: false },
-      order: [['createdAt', 'DESC']],
-    });
-    res.json(notificaciones);
-  } catch (error) {
-    console.error('Error al obtener notificaciones no leídas:', error);
-    res.status(500).json({ message: 'Error al cargar notificaciones' });
-  }
-};
+//exports.getNotificacionesNoLeidas = async (req, res) => {
+//  try {
+//    const usuarioId = req.user.id;
+//    const notificaciones = await Notificacion.findAll({
+//      where: { usuarioId, leida: false },
+//      order: [['createdAt', 'DESC']],
+//    });
+//    res.json(notificaciones);
+//  } catch (error) {
+//    console.error('Error al obtener notificaciones no leídas:', error);
+//    res.status(500).json({ message: 'Error al cargar notificaciones' });
+//  }
+//};
 
 // 🟢 Marcar todas las notificaciones de una tarea como leídas
 exports.markReadByTarea = async (req, res) => {
