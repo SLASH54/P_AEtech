@@ -60,50 +60,50 @@ app.use('/api/cuentas', require('./src/routes/cuentaRoutes'));
 
 
 // === INICIO DEL SERVIDOR – SOLO UNA VEZ ===
-//connectDB()
-//  .then(() => {
-//   console.log('✅ Base de datos conectada correctamente');
+connectDB()
+  .then(() => {
+   console.log('✅ Base de datos conectada correctamente');
 
-//    const PORT = process.env.PORT || 3000;
-//    app.listen(PORT, () => {
-//      console.log(`🚀 Servidor iniciado en http://localhost:${PORT}`);
-//    });
-//  })
-//  .catch(err => {
-//    console.error('❌ No se pudo iniciar el servidor:', err);
-//  });
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+      console.log(`🚀 Servidor iniciado en http://localhost:${PORT}`);
+    });
+  })
+  .catch(err => {
+    console.error('❌ No se pudo iniciar el servidor:', err);
+  });
 
 
 // server.js final
 
 // === INICIO DEL SERVIDOR – CON CREACIÓN MANUAL DE TABLA ===
-connectDB()
-  .then(async () => {
-    console.log('✅ Base de datos conectada correctamente');
+//connectDB()
+//  .then(async () => {
+//    console.log('✅ Base de datos conectada correctamente');
 
-    try {
+//    try {
       // 🛠️ ESTE ES EL COMANDO SQL QUE CAMBIA TODO:
       // Crea la tabla "libreta" donde se anotan los múltiples usuarios por tarea
-      await sequelize.query(`
-        CREATE TABLE IF NOT EXISTS "TareaUsuarios" (
-          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL,
-          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL,
-          "tareaId" INTEGER REFERENCES "Tareas" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-          "usuarioId" INTEGER REFERENCES "Usuarios" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-          PRIMARY KEY ("tareaId", "usuarioId")
-        );
-      `);
-      console.log('✅ Tabla TareaUsuarios lista para guardar múltiples técnicos');
-    } catch (dbError) {
-      console.error('⚠️ Error al verificar tabla TareaUsuarios:', dbError.message);
-    }
+//      await sequelize.query(`
+//        CREATE TABLE IF NOT EXISTS "TareaUsuarios" (
+//          "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL,
+//          "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL,
+//          "tareaId" INTEGER REFERENCES "Tareas" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+//         "usuarioId" INTEGER REFERENCES "Usuarios" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+//          PRIMARY KEY ("tareaId", "usuarioId")
+//        );
+//      `);
+//      console.log('✅ Tabla TareaUsuarios lista para guardar múltiples técnicos');
+//    } catch (dbError) {
+//      console.error('⚠️ Error al verificar tabla TareaUsuarios:', dbError.message);
+//    }
 
     // Sync normal sin alter:true para evitar errore s de ENUM
-    await sequelize.sync(); 
-    console.log('🚀 Servidor sincronizado y listo');
+//    await sequelize.sync(); 
+//    console.log('🚀 Servidor sincronizado y listo');
 
-    const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => {
-      console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
-    });
-  });
+//    const PORT = process.env.PORT || 3000;
+//    app.listen(PORT, () => {
+//      console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
+//    });
+//  });
