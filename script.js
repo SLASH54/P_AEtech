@@ -1893,9 +1893,8 @@ function setupTareaModal() {
                 actividadId = dataAct.actividad.id;
             }
 
-            // --- RECOLECCIÓN DE DATOS DE CLIENTE (CON PARCHES ANTI-ERRORES) ---
-            // --- RECOLECCIÓN DE DATOS DE CLIENTE (CORREGIDO PARA DATALIST) ---
-            let clienteId, clienteNombre, direccionTexto, direccionId;
+            // --- RECOLECCIÓN DE DATOS DE CLIENTE Y DIRECCIÓN ---
+            let clienteId, clienteNombre, direccionTexto, direccionId, mapsLink = null;
 
             if (isExpressModeTarea) {
                 clienteId = null;
@@ -1905,26 +1904,25 @@ function setupTareaModal() {
                 let dirInput = document.getElementById("expressDireccion").value.trim();
 
                 clienteNombre = nombreInput || `CLIENTE-REG-EXPRESS-${Math.floor(1000 + Math.random() * 9000)}`;
-                direccionTexto = dirInput || "Dirección no definida";
+                
+                // ✨ PROCESAMIENTO EXPRESS CORREGIDO (Detecta links de Maps)
+                const resultadoExpress = procesarDireccionExpress(dirInput);
+                direccionTexto = resultadoExpress.direccion || "Dirección no definida";
+                mapsLink = resultadoExpress.maps;
                 
             } else {
-                // 1. Buscamos el input del cliente (el que ahora tiene el datalist)
                 const inputCliente = document.getElementById("tareaClienteId");
                 const selectD = document.getElementById("tareaDireccionCliente");
                 
-                // 2. Buscamos el ID real en el input oculto o el valor si es un select
-                // Si usas el datalist, el ID debería estar en un input hidden o guardado previamente
                 clienteId = document.getElementById("tareaClienteId").value || null; 
                 direccionId = selectD ? selectD.value : null;
 
-                // 3. Obtenemos los nombres (si es input, usamos .value, si es select, usamos .text)
                 if (inputCliente.tagName === 'INPUT') {
                     clienteNombre = inputCliente.value || "No definido";
                 } else {
                     clienteNombre = clienteId ? inputCliente.options[inputCliente.selectedIndex]?.text : "No definido";
                 }
                 
-                // 4. Obtenemos el texto de la dirección (si es select)
                 direccionTexto = (selectD && selectD.selectedIndex > 0) ? selectD.options[selectD.selectedIndex]?.text : "No definido";
             }
 
@@ -1950,8 +1948,9 @@ function setupTareaModal() {
                 fechaLimite: document.getElementById('tareaFechaLimite').value || null, 
                 estado: document.getElementById('tareaEstado').value,
                 prioridad: 'Normal',
-                cliente_Nombre: clienteNombre, // Aquí va el nombre real o el "No definido"
-                direccion: direccionTexto,     // Aquí va la dirección real o la "No definida"
+                cliente_Nombre: clienteNombre, 
+                direccion: direccionTexto,
+                maps: mapsLink, // ✨ Se envía el link de Google Maps por separado
                 es_express: isExpressModeTarea 
             };
 
@@ -1976,6 +1975,47 @@ function setupTareaModal() {
         if (event.target == modal) modal.style.display = "none";
     }
 }
+
+
+/**
+ * direccion link 
+ */
+function extraerDireccionDeMapsExpress(url) {
+    try {
+        const match = url.match(/\/place\/([^/]+)/);
+        if (!match) return null;
+        return decodeURIComponent(match[1].replace(/\+/g, " "));
+    } catch {
+        return null;
+    }
+}
+
+function procesarDireccionExpress(valor) {
+    const texto = valor.trim();
+
+    if (!texto) {
+        return { direccion: null, maps: null };
+    }
+
+    const esLinkMaps =
+        texto.includes("maps.google") ||
+        texto.includes("goo.gl/maps") ||
+        texto.includes("maps.app.goo.gl");
+
+    if (esLinkMaps) {
+        return {
+            direccion: "Ubicación en Google Maps",
+            maps: texto
+        };
+    }
+
+    return {
+        direccion: texto,
+        maps: null
+    };
+}
+
+
 
 
 /**
