@@ -342,7 +342,7 @@ if (resto.length > 0) {
 
     if (materiales.length > 0) {
       //nuevaPagina(doc, plantillaBuf);
-      doc.moveDown(10);                                                                                                 
+      doc.moveDown(11.5);                                                                                                 
 
       doc.fontSize(16)
         .fillColor("#00938f")
