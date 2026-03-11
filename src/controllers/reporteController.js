@@ -286,19 +286,19 @@ if (resto.length > 0) {
   const x = col === 0 ? MARGIN_LEFT : doc.page.width / 2 + 5;
 
   // Salto de página: Si la siguiente foto + su texto se pasan del margen inferior
-  if (y + FOTO_H + 40 > doc.page.height - MARGIN_BOTTOM) {
+  if (y + MAX_H + 40 > doc.page.height - MARGIN_BOTTOM) {
     nuevaPagina(doc, plantillaBuf);
     y = MARGIN_TOP + 20;
     col = 0; // Reiniciar columna en página nueva
   }
 
    // Dibujamos la imagen con tamaño FIJO
-  doc.image(imgBuffer, x, y, { width: FOTO_W, height: FOTO_H });
+  doc.image(imgBuffer, x, y, { width: MAX_W, height: MAX_H });
 
   doc.fontSize(10) // Un poco más chica la letra para que no ocupe tanto espacio
     .fillColor("#333")
-    .text(ev.titulo || "Evidencia", x, y + FOTO_H + 5, {
-      width: FOTO_W,
+    .text(ev.titulo || "Evidencia", x, y + MAX_H + 5, {
+      width: MAX_W,
       align: "center"
     });
 
@@ -306,7 +306,7 @@ if (resto.length > 0) {
     col = 1;
   } else {
     col = 0;
-    y += FOTO_H + 50; // Bajamos a la siguiente fila (espacio para foto + texto + gap)
+    y += MAX_H + 50; // Bajamos a la siguiente fila (espacio para foto + texto + gap)
   }
 }
 }
