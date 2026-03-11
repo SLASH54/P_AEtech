@@ -63,9 +63,9 @@ async function procesarImagen(url, maxW, maxH, isSignature = false) {
       .resize({ 
         width: maxW, 
         height: maxH, 
-        fit: "inside",
-        withoutEnlargement: true // 👈 No estira imágenes pequeñas (evita pixeleado)
-      })
+        fit: "cover", // 👈 Cambia "inside" por "cover" para uniformidad
+    withoutEnlargement: false // 👈 Permite que fotos chicas se ajusten al tamaño estándar
+  })
       .toBuffer();
   } catch (err) {
     console.log("⚠ Error procesando imagen:", url, err.message);
@@ -228,8 +228,8 @@ if (tarea.DireccionEspecifica) {
     // =============================================================
 // EVIDENCIAS EN LA PRIMERA PÁGINA (SOLO 2 PRIMERAS)
 // =============================================================
-const MAX_W = 250, MAX_H = 250;
-const GAP = 30;
+const MAX_W = 240, MAX_H = 180;
+const GAP = 20;
 doc.moveDown(1);
 
 doc.fontSize(20)
@@ -279,33 +279,36 @@ if (resto.length > 0) {
   let y = MARGIN_TOP + 20;
 
   for (const ev of resto) {
-    const imgBuffer = await procesarImagen(ev.archivoUrl, MAX_W, MAX_H);
-    if (!imgBuffer) continue;
+  // Forzamos a sharp a darnos exactamente este tamaño
+  const imgBuffer = await procesarImagen(ev.archivoUrl, FOTO_W, FOTO_H);
+  if (!imgBuffer) continue;
 
-    const img = doc.openImage(imgBuffer);
+  const x = col === 0 ? MARGIN_LEFT : doc.page.width / 2 + 5;
 
-    const x = col === 0
-      ? MARGIN_LEFT
-      : doc.page.width / 2 - 20;
-
-    // Salto de página si se acerca al footer
-    if (y + img.height > doc.page.height - 180) {
-      nuevaPagina(doc, plantillaBuf);
-      y = MARGIN_TOP + 60;
-    }
-
-    doc.image(imgBuffer, x, y, { width: img.width });
-
-    doc.fontSize(12)
-      .fillColor("#000")
-      .text(ev.titulo || "Evidencia", x, y + img.height + 5);
-
-    if (col === 0) col = 1;
-    else {
-      col = 0;
-      y += img.height + GAP;
-    }
+  // Salto de página: Si la siguiente foto + su texto se pasan del margen inferior
+  if (y + FOTO_H + 40 > doc.page.height - MARGIN_BOTTOM) {
+    nuevaPagina(doc, plantillaBuf);
+    y = MARGIN_TOP + 20;
+    col = 0; // Reiniciar columna en página nueva
   }
+
+   // Dibujamos la imagen con tamaño FIJO
+  doc.image(imgBuffer, x, y, { width: FOTO_W, height: FOTO_H });
+
+  doc.fontSize(10) // Un poco más chica la letra para que no ocupe tanto espacio
+    .fillColor("#333")
+    .text(ev.titulo || "Evidencia", x, y + FOTO_H + 5, {
+      width: FOTO_W,
+      align: "center"
+    });
+
+  if (col === 0) {
+    col = 1;
+  } else {
+    col = 0;
+    y += FOTO_H + 50; // Bajamos a la siguiente fila (espacio para foto + texto + gap)
+  }
+}
 }
 
     // Firma
