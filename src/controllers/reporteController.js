@@ -253,7 +253,7 @@ for (let i = 0; i < primerasDos.length; i++) {
   if (!imgBuffer) continue;
 
   //const x = i === 0 ? xLeft : xRight;
-  const x = col === 0 ? MARGIN_LEFT : doc.page.width / 2 + 5;
+  const x = i === 0 ? MARGIN_LEFT : doc.page.width / 2 + 5;
 
   // Aplicamos el tamaño fijo en el PDF
   doc.image(imgBuffer, x, yPrimera, {
