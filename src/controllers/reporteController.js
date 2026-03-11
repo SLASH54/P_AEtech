@@ -324,7 +324,7 @@ if (resto.length > 0) {
         .fillColor("#00938f")
         .text("FIRMA DEL CLIENTE", MARGIN_LEFT);
 
-      doc.moveDown(1);
+      doc.moveDown(0.5);
 
       const firmaBuf = await procesarImagen(evFirma.firmaClienteUrl, 380, 220, true);
 
@@ -342,7 +342,7 @@ if (resto.length > 0) {
 
     if (materiales.length > 0) {
       //nuevaPagina(doc, plantillaBuf);
-      doc.moveDown(2);                                                                                                 
+      doc.moveDown(5);                                                                                                 
 
       doc.fontSize(16)
         .fillColor("#00938f")
