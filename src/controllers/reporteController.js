@@ -280,7 +280,7 @@ if (resto.length > 0) {
 
   for (const ev of resto) {
   // Forzamos a sharp a darnos exactamente este tamaño
-  const imgBuffer = await procesarImagen(ev.archivoUrl, FOTO_W, FOTO_H);
+  const imgBuffer = await procesarImagen(ev.archivoUrl, MAX_W, MAX_H);
   if (!imgBuffer) continue;
 
   const x = col === 0 ? MARGIN_LEFT : doc.page.width / 2 + 5;
