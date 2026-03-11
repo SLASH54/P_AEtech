@@ -243,29 +243,41 @@ let yPrimera = MARGIN_TOP + 250;
 let xLeft = MARGIN_LEFT;
 let xRight = doc.page.width / 2 - 20;
 
-// Tomar SOLO las primeras dos
+// =============================================================
+// EVIDENCIAS EN LA PRIMERA PÁGINA (SOLO 2 PRIMERAS)
+// =============================================================
+doc.moveDown(1);
+doc.fontSize(20)
+    .fillColor("#00938f")
+    .text("EVIDENCIAS", MARGIN_LEFT);
+
+doc.moveDown(1);
+
+
 const primerasDos = evidencias.slice(0, 2);
 
 for (let i = 0; i < primerasDos.length; i++) {
   const ev = primerasDos[i];
+  
+  // Usamos TUS variables MAX_W y MAX_H
   const imgBuffer = await procesarImagen(ev.archivoUrl, MAX_W, MAX_H);
   if (!imgBuffer) continue;
 
-  const img = doc.openImage(imgBuffer);
-
-  // Izquierda o derecha
   const x = i === 0 ? xLeft : xRight;
 
+  // Aplicamos el tamaño fijo en el PDF
   doc.image(imgBuffer, x, yPrimera, {
-    width: img.width,
-    height: img.height,
+    width: MAX_W,
+    height: MAX_H,
   });
 
-  doc.fontSize(12)
+  doc.fontSize(10)
      .fillColor("#000")
-     .text(ev.titulo || "Evidencia", x, yPrimera + img.height + 5);
+     .text(ev.titulo || "Evidencia", x, yPrimera + MAX_H + 5, {
+       width: MAX_W,
+       align: "center"
+     });
 }
-
 
     // =============================================================
 // RESTO DE EVIDENCIAS (A PARTIR DE PÁGINA 2)
