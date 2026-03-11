@@ -243,17 +243,6 @@ let yPrimera = MARGIN_TOP + 250;
 let xLeft = MARGIN_LEFT;
 let xRight = doc.page.width / 2 - 20;
 
-// =============================================================
-// EVIDENCIAS EN LA PRIMERA PÁGINA (SOLO 2 PRIMERAS)
-// =============================================================
-doc.moveDown(1);
-doc.fontSize(20)
-    .fillColor("#00938f")
-    .text("EVIDENCIAS", MARGIN_LEFT);
-
-doc.moveDown(1);
-
-
 const primerasDos = evidencias.slice(0, 2);
 
 for (let i = 0; i < primerasDos.length; i++) {
@@ -263,7 +252,8 @@ for (let i = 0; i < primerasDos.length; i++) {
   const imgBuffer = await procesarImagen(ev.archivoUrl, MAX_W, MAX_H);
   if (!imgBuffer) continue;
 
-  const x = i === 0 ? xLeft : xRight;
+  //const x = i === 0 ? xLeft : xRight;
+  const x = col === 0 ? MARGIN_LEFT : doc.page.width / 2 + 5;
 
   // Aplicamos el tamaño fijo en el PDF
   doc.image(imgBuffer, x, yPrimera, {
