@@ -223,7 +223,7 @@ if (tarea.DireccionEspecifica) {
     doc.text(`Dirección de Sucursal: ${tarea.Sucursal.direccion}`, MARGIN_LEFT);
     doc.text(`Actividad: ${tarea.Actividad.nombre}`, MARGIN_LEFT);
     doc.text(`Asignado a: ${tarea.AsignadoA.nombre}`, MARGIN_LEFT);
-    doc.text(`Fecha límite: ${tarea.fechaLimite}`, MARGIN_LEFT);
+    doc.text(`Fecha: ${tarea.fechaLimite}`, MARGIN_LEFT);
 
     // =============================================================
 // EVIDENCIAS EN LA PRIMERA PÁGINA (SOLO 2 PRIMERAS)
