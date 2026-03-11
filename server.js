@@ -58,6 +58,12 @@ app.use('/api/notificaciones', require('./src/routes/NotificacionRoutes'));
 app.use("/api/levantamientos", require("./src/routes/LevantamientosRoutes"));
 app.use('/api/cuentas', require('./src/routes/cuentaRoutes'));
 
+// Ruta exclusiva para el Cronjob - NO TOCA LA BASE DE DATOS
+app.get('/api/keep-alive', (req, res) => {
+  console.log('Keep-alive: El servidor sigue despierto, Neon sigue durmiendo. 😴');
+  res.status(200).send('Servidor activo');
+});
+
 
 // === INICIO DEL SERVIDOR – SOLO UNA VEZ ===
 connectDB()
