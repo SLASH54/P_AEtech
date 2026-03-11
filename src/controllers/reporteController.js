@@ -209,7 +209,7 @@ if (tarea.DireccionEspecifica) {
 
     doc.moveDown(7);
 
-    doc.fontSize(20)
+    doc.fontSize(16)
       .fillColor("#00938f")
       .text("INFORMACION DEL SERVICIO", MARGIN_LEFT, doc.y);
 
@@ -232,7 +232,7 @@ const MAX_W = 240, MAX_H = 180;
 const GAP = 20;
 doc.moveDown(1);
 
-doc.fontSize(20)
+doc.fontSize(16)
     .fillColor("#00938f")
     .text("EVIDENCIAS", MARGIN_LEFT);
 
@@ -320,11 +320,11 @@ if (resto.length > 0) {
       nuevaPagina(doc, plantillaBuf);
       doc.moveDown(7);
 
-      doc.fontSize(20)
+      doc.fontSize(16)
         .fillColor("#00938f")
         .text("FIRMA DEL CLIENTE", MARGIN_LEFT);
 
-      doc.moveDown(2);
+      doc.moveDown(1);
 
       const firmaBuf = await procesarImagen(evFirma.firmaClienteUrl, 380, 220, true);
 
@@ -341,10 +341,10 @@ if (resto.length > 0) {
     const materiales = evidencias[0]?.materiales || [];
 
     if (materiales.length > 0) {
-      nuevaPagina(doc, plantillaBuf);
-      doc.moveDown(5);
+      //nuevaPagina(doc, plantillaBuf);
+      doc.moveDown(2);                                                                                                 
 
-      doc.fontSize(20)
+      doc.fontSize(16)
         .fillColor("#00938f")
         .text("MATERIAL OCUPADO", MARGIN_LEFT);
 
@@ -357,7 +357,7 @@ if (resto.length > 0) {
       });
 
       for (const cat of Object.keys(grupos)) {
-        doc.fontSize(16).fillColor("#004b85").text(`• ${cat}`);
+        doc.fontSize(14).fillColor("#004b85").text(`• ${cat}`);
         doc.moveDown(0.3);
 
         grupos[cat].forEach(m => {
