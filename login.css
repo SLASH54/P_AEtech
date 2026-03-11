@@ -4858,6 +4858,7 @@ button.btn-remove-dir {
     height: 35px;
 }
 
+
 button#btnAgregarDireccionRegistro {
     border-color: rgba(48, 209, 88, 0.3);
     background: rgba(48, 209, 88, 0.25) !important;
@@ -4868,6 +4869,8 @@ button#btnAgregarDireccionRegistro {
 button.btn-save {
     border-color: rgba(48, 209, 88, 0.3);
     background: rgba(48, 209, 88, 0.25) !important;
+     border-radius: 0.5rem;
+    height: 35px;
 }
 
 button#btnGuardarLevantamiento {
