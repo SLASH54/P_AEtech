@@ -269,7 +269,7 @@ for (let i = 0; i < primerasDos.length; i++) {
      });
      // 👇 Lógica para bajar a la siguiente fila cada 2 fotos
   if (i % 2 === 1) {
-    yCurrent += P_GAP_Y; // Bajamos al siguiente renglón
+    yPrimera += P_GAP_Y; // Bajamos al siguiente renglón
   }
 }
 
