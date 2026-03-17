@@ -239,7 +239,7 @@ doc.fontSize(16)
   doc.moveDown(1);
 
 // Punto EXACTO donde empieza el hueco blanco:
-let yPrimera = MARGIN_TOP + 250;  
+let yPrimera = MARGIN_TOP + 100;  
 let xLeft = MARGIN_LEFT;
 let xRight = doc.page.width / 2 - 20;
 
