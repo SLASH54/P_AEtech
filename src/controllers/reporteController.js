@@ -243,7 +243,7 @@ let yPrimera = MARGIN_TOP + 250;
 let xLeft = MARGIN_LEFT;
 let xRight = doc.page.width / 2 - 20;
 
-const primerasDos = evidencias.slice(0, 2);
+const primerasDos = evidencias.slice(0, 4);
 
 for (let i = 0; i < primerasDos.length; i++) {
   const ev = primerasDos[i];
@@ -267,6 +267,10 @@ for (let i = 0; i < primerasDos.length; i++) {
        width: MAX_W,
        align: "center"
      });
+     // 👇 Lógica para bajar a la siguiente fila cada 2 fotos
+  if (i % 2 === 1) {
+    yCurrent += P_GAP_Y; // Bajamos al siguiente renglón
+  }
 }
 
     // =============================================================
