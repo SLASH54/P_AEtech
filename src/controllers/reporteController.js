@@ -229,7 +229,7 @@ if (tarea.DireccionEspecifica) {
 // EVIDENCIAS EN LA PRIMERA PÁGINA (SOLO 2 PRIMERAS)
 // =============================================================
 const MAX_W = 240, MAX_H = 180;
-const GAP = 250;
+const GAP = 350;
 doc.moveDown(1);
 
 doc.fontSize(16)
@@ -276,7 +276,7 @@ for (let i = 0; i < primerasDos.length; i++) {
     // =============================================================
 // RESTO DE EVIDENCIAS (A PARTIR DE PÁGINA 2)
 // =============================================================
-const resto = evidencias.slice(2);
+const resto = evidencias.slice(4);
 
 if (resto.length > 0) {
   nuevaPagina(doc, plantillaBuf);
