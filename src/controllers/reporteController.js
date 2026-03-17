@@ -272,7 +272,7 @@ for (let i = 0; i < primerasCuatro.length; i++) {
 
   // CRÍTICO: Si ya dibujamos 2 fotos (la 0 y la 1), bajamos yFotos para la siguiente fila
   if (i === 1) {
-    yFotos += MAX_H + GAP + 20; // Bajamos el cursor para las imágenes 3 y 4
+    280 += GAP; // Bajamos el cursor para las imágenes 3 y 4
   }
 }
 
