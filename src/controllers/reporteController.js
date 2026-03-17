@@ -207,7 +207,7 @@ if (tarea.DireccionEspecifica) {
     // Primera página con plantilla
     fondoPlantilla(doc, plantillaBuf);
 
-    doc.moveDown(7);
+    doc.moveDown(3);
 
     doc.fontSize(16)
       .fillColor("#00938f")
@@ -318,7 +318,7 @@ if (resto.length > 0) {
 
     if (evFirma) {
       nuevaPagina(doc, plantillaBuf);
-      doc.moveDown(7);
+      doc.moveDown(3);
 
       doc.fontSize(16)
         .fillColor("#00938f")
