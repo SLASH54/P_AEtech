@@ -175,7 +175,7 @@ const MARGIN_BOTTOM = 120;
 
     const logoURL = "https://p-aetech.onrender.com/public/logo.png";
     const watermarkURL = "https://p-aetech.onrender.com/public/watermark.png";
-    const plantillaURL = "https://p-aetech.onrender.com/public/plantillas/plantilla_reporte.jpg";
+    const plantillaURL = "https://p-aetech.onrender.com/public/plantillas/PLANTILLAPDF.jpeg";
 
 
     const logoBuf = await cargarImagen(logoURL);
