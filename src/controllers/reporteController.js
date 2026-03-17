@@ -239,39 +239,46 @@ doc.fontSize(16)
   doc.moveDown(1);
 
 // Punto EXACTO donde empieza el hueco blanco:
-let yPrimera = MARGIN_TOP + 100;  
-let xLeft = MARGIN_LEFT;
-let xRight = doc.page.width / 2 - 20;
+// =============================================================
+// EVIDENCIAS EN LA PRIMERA PÁGINA (MÁXIMO 4)
+// =============================================================
+const primerasCuatro = evidencias.slice(0, 4);
 
-const primerasDos = evidencias.slice(0, 4);
+// Punto de inicio para las fotos en la primera hoja
+let yFotos = doc.y + 10; 
+const xLeft = MARGIN_LEFT;
+const xRight = doc.page.width / 2 + 5;
 
-for (let i = 0; i < primerasDos.length; i++) {
-  const ev = primerasDos[i];
+for (let i = 0; i < primerasCuatro.length; i++) {
+  const ev = primerasCuatro[i];
   
-  // Usamos TUS variables MAX_W y MAX_H
+  // Usamos MAX_W (240) y MAX_H (180) que ya tienes definidos
   const imgBuffer = await procesarImagen(ev.archivoUrl, MAX_W, MAX_H);
   if (!imgBuffer) continue;
 
-  //const x = i === 0 ? xLeft : xRight;
-  const x = i === 0 ? MARGIN_LEFT : doc.page.width / 2 + 5;
+  // Si i es 0 o 2 -> Izquierda | Si i es 1 o 3 -> Derecha
+  const x = (i % 2 === 0) ? xLeft : xRight;
 
-  // Aplicamos el tamaño fijo en el PDF
-  doc.image(imgBuffer, x, yPrimera, {
-    width: MAX_W,
-    height: MAX_H,
-  });
+  // Dibujar imagen
+  doc.image(imgBuffer, x, yFotos, { width: MAX_W, height: MAX_H });
 
+  // Título de la evidencia
   doc.fontSize(10)
      .fillColor("#000")
-     .text(ev.titulo || "Evidencia", x, yPrimera + MAX_H + 5, {
+     .text(ev.titulo || "Evidencia", x, yFotos + MAX_H + 5, {
        width: MAX_W,
        align: "center"
      });
-     // 👇 Lógica para bajar a la siguiente fila cada 2 fotos
-  if (i % 2 === 1) {
-    yPrimera += GAP; // Bajamos al siguiente renglón
+
+  // CRÍTICO: Si ya dibujamos 2 fotos (la 0 y la 1), bajamos yFotos para la siguiente fila
+  if (i === 1) {
+    yFotos += MAX_H + GAP + 20; // Bajamos el cursor para las imágenes 3 y 4
   }
 }
+
+// Al terminar el bucle, actualizamos la posición global 'doc.y' 
+// para que lo que siga (firmas o materiales) no se encime
+doc.y = yFotos + MAX_H + GAP;
 
     // =============================================================
 // RESTO DE EVIDENCIAS (A PARTIR DE PÁGINA 2)
