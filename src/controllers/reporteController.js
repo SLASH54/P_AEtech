@@ -229,7 +229,7 @@ if (tarea.DireccionEspecifica) {
 // EVIDENCIAS EN LA PRIMERA PÁGINA (SOLO 2 PRIMERAS)
 // =============================================================
 const MAX_W = 240, MAX_H = 180;
-const GAP = 300;
+const GAP = 275;
 doc.moveDown(1);
 
 doc.fontSize(16)
