@@ -229,7 +229,7 @@ if (tarea.DireccionEspecifica) {
 // EVIDENCIAS EN LA PRIMERA PÁGINA (SOLO 2 PRIMERAS)
 // =============================================================
 const MAX_W = 240, MAX_H = 180;
-const GAP = 20;
+const GAP = 180;
 doc.moveDown(1);
 
 doc.fontSize(16)
@@ -269,7 +269,7 @@ for (let i = 0; i < primerasDos.length; i++) {
      });
      // 👇 Lógica para bajar a la siguiente fila cada 2 fotos
   if (i % 2 === 1) {
-    yPrimera += P_GAP_Y; // Bajamos al siguiente renglón
+    yPrimera += GAP; // Bajamos al siguiente renglón
   }
 }
 
