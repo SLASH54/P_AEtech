@@ -1056,8 +1056,10 @@ function renderMaterialesEdit() {
     materialesEditList.forEach((item, index) => {
         const img = item.foto || item.fotoUrl || 'img/logoAEtech.png';
         
-        // 🟢 PASO CLAVE: Multiplicar aquí para la vista de la tabla
-        const totalRenglon = (item.cantidad * item.costo).toFixed(2);
+        // 🟢 Aseguramos que sean números para que la multiplicación no falle
+        const cant = Number(item.cantidad) || 0;
+        const prec = Number(item.costo) || 0;
+        const totalRenglon = (cant * prec).toFixed(2);
 
         tbody.innerHTML += `
             <tr style="background: white;">
@@ -1065,9 +1067,11 @@ function renderMaterialesEdit() {
                     <img src="${img}" style="width:45px; height:45px; border-radius:8px; object-fit:cover;">
                 </td>
                 <td style="color:black;">${item.nombre}</td>
-                <td style="color:black; text-align:center;">${item.cantidad}</td>
-                <td style="color:black; text-align:right;">$${item.costo.toFixed(2)}</td>
+                <td style="color:black; text-align:center;">${cant}</td>
+                <td style="color:black; text-align:right;">$${prec.toFixed(2)}</td>
+                
                 <td style="color:#00938f; text-align:right; font-weight:bold;">$${totalRenglon}</td>
+                
                 <td style="text-align:center;">
                     <button type="button" onclick="materialesEditList.splice(${index},1); renderMaterialesEdit();" style="background:none; border:none; color:red; cursor:pointer; font-size:1.2rem;">✕</button>
                 </td>
@@ -1076,6 +1080,7 @@ function renderMaterialesEdit() {
     });
     calcularSaldoEdit();
 }
+
 // 5. CÁLCULOS DE IVA Y SALDO (Actualizado para el orden: Total, Anticipo, Saldo)
 function calcularSaldoEdit() {
     let totalMateriales = 0;
