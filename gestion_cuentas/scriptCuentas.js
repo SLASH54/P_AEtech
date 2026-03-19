@@ -1012,39 +1012,30 @@ async function cargarClientesSelectEdit(clienteActual) {
 }
 
 // 3. AGREGAR MATERIAL (Con lógica de Select de Insumos)
-function agregarMaterialEdit() {
-    const select = document.getElementById("edit-levInsumo");
-    const campoExtra = document.getElementById("edit-levInsumoExtra");
-    const costoInput = document.getElementById("edit-prodCosto");
-    const cantInput = document.getElementById("edit-prodCant");
+function renderMaterialesEdit() {
+    const lista = document.getElementById("listaMaterialesEdit");
+    lista.innerHTML = "";
 
-    let nombre = (select.value === "Otro") ? campoExtra.value : select.value;
-    const costo = parseFloat(costoInput.value);
-    const cant = parseInt(cantInput.value) || 1;
-
-    if (!nombre || isNaN(costo)) {
-        return alert("selecciona un producto y ponle precio.");
-    }
-
-    materialesEditList.push({
-        nombre: nombre,
-        costo: costo,
-        cantidad: cant,
-        foto: tempFotoEdit,
-        fotoUrl: null
+    materialesEditList.forEach((mat, index) => {
+        const subtotal = (mat.cantidad * mat.costo).toFixed(2); // 👈 Cálculo clave
+        const li = document.createElement("li");
+        li.className = "ios-item-material"; // Asegúrate de que coincida con tu CSS
+        li.innerHTML = `
+            <div class="mat-info">
+                <strong>${mat.cantidad}x</strong> ${mat.nombre} 
+                <span class="mat-unitario">($${mat.costo.toFixed(2)} c/u)</span>
+            </div>
+            <div class="mat-precio">
+                $${subtotal}
+                <button class="btn-delete-mat" onclick="eliminarMaterialEdit(${index})">🗑️</button>
+            </div>
+        `;
+        lista.appendChild(li);
     });
 
-    // Limpiar campos
-    select.value = "";
-    campoExtra.value = "";
-    campoExtra.style.display = "none";
-    costoInput.value = "";
-    cantInput.value = "1";
-    document.getElementById("previewFotoEdit").style.display = "none";
-    tempFotoEdit = null;
-
-    renderMaterialesEdit();
+    calcularSaldoEdit(); // 👈 Siempre recalculamos al renderizar
 }
+
 
 // 4. RENDERIZAR TABLA Y CALCULAR
 function renderMaterialesEdit() {
@@ -1076,29 +1067,21 @@ function calcularSaldoEdit() {
         totalMateriales += (item.cantidad * item.costo);
     });
 
+  // ... después de calcular totalMateriales ...
     const llevaIva = document.getElementById("chkIvaEdit").checked;
     const porcentajeIva = parseFloat(document.getElementById("levIvaPorcentajeEdit").value) || 0;
     
-    let totalFinal = totalMateriales;
-    let montoIva = 0;
-    if (llevaIva) {
-        totalFinal += (totalMateriales * (porcentajeIva / 100));
-        montoIva = (totalMateriales * (porcentajeIva/100));
-    }
+    // Calculamos el monto del IVA siempre (si no lleva, será 0)
+    let montoIva = llevaIva ? (totalMateriales * (porcentajeIva / 100)) : 0;
+    let totalFinal = totalMateriales + montoIva;
 
     const anticipo = parseFloat(document.getElementById("levAnticipoEdit").value) || 0;
     const saldo = totalFinal - anticipo;
 
-    // Actualizar Inputs
+    // Actualizar Inputs (Mucho más limpio)
     document.getElementById("levSubtotalEdit").value = totalMateriales.toFixed(2);
-    if (llevaIva) {
-        montoIva = (totalMateriales * (porcentajeIva/100));
-        document.getElementById("levIVAEdit").value = montoIva.toFixed(2)
-    } else {
-        document.getElementById("levIVAEdit").value = montoIva.toFixed(2)
-    }
+    document.getElementById("levIVAEdit").value = montoIva.toFixed(2);
     document.getElementById("levTotalEdit").value = totalFinal.toFixed(2);
-    
     const inputSaldo = document.getElementById("levSaldoEdit");
     inputSaldo.value = saldo.toFixed(2);
 
