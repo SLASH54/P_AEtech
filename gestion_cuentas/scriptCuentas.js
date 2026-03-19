@@ -1012,28 +1012,38 @@ async function cargarClientesSelectEdit(clienteActual) {
 }
 
 // 3. AGREGAR MATERIAL (Con lógica de Select de Insumos)
-function renderMaterialesEdit() {
-    const lista = document.getElementById("listaMaterialesEdit");
-    lista.innerHTML = "";
+function agregarMaterialEdit() {
+    const select = document.getElementById("edit-levInsumo");
+    const campoExtra = document.getElementById("edit-levInsumoExtra");
+    const costoInput = document.getElementById("edit-prodCosto");
+    const cantInput = document.getElementById("edit-prodCant");
 
-    materialesEditList.forEach((mat, index) => {
-        const subtotal = (mat.cantidad * mat.costo).toFixed(2); // 👈 Cálculo clave
-        const li = document.createElement("li");
-        li.className = "ios-item-material"; // Asegúrate de que coincida con tu CSS
-        li.innerHTML = `
-            <div class="mat-info">
-                <strong>${mat.cantidad}x</strong> ${mat.nombre} 
-                <span class="mat-unitario">($${mat.costo.toFixed(2)} c/u)</span>
-            </div>
-            <div class="mat-precio">
-                $${subtotal}
-                <button class="btn-delete-mat" onclick="eliminarMaterialEdit(${index})">🗑️</button>
-            </div>
-        `;
-        lista.appendChild(li);
+    let nombre = (select.value === "Otro") ? campoExtra.value : select.value;
+    const costo = parseFloat(costoInput.value);
+    const cant = parseInt(cantInput.value) || 1;
+
+    if (!nombre || isNaN(costo)) {
+        return alert("selecciona un producto y ponle precio.");
+    }
+
+    materialesEditList.push({
+        nombre: nombre,
+        costo: costo,
+        cantidad: cant,
+        foto: tempFotoEdit,
+        fotoUrl: null
     });
 
-    calcularSaldoEdit(); // 👈 Siempre recalculamos al renderizar
+    // Limpiar campos
+    select.value = "";
+    campoExtra.value = "";
+    campoExtra.style.display = "none";
+    costoInput.value = "";
+    cantInput.value = "1";
+    document.getElementById("previewFotoEdit").style.display = "none";
+    tempFotoEdit = null;
+
+    renderMaterialesEdit();
 }
 
 
@@ -1044,38 +1054,33 @@ function renderMaterialesEdit() {
     tbody.innerHTML = "";
     
     materialesEditList.forEach((item, index) => {
-        // Determinamos la imagen a mostrar
         const img = item.foto || item.fotoUrl || 'img/logoAEtech.png';
         
-        // CALCULAMOS EL TOTAL DE ESTE RENGLÓN ESPECÍFICO
+        // 🟢 PASO CLAVE: Multiplicar aquí para la vista de la tabla
         const totalRenglon = (item.cantidad * item.costo).toFixed(2);
 
         tbody.innerHTML += `
-            <tr style="background: white; border-bottom: 1px solid #eee;">
-                <td style="text-align:center; padding: 5px;">
+            <tr style="background: white;">
+                <td style="text-align:center;">
                     <img src="${img}" style="width:45px; height:45px; border-radius:8px; object-fit:cover;">
                 </td>
-                <td style="color:black; font-weight: 500;">${item.nombre}</td>
+                <td style="color:black;">${item.nombre}</td>
                 <td style="color:black; text-align:center;">${item.cantidad}</td>
                 <td style="color:black; text-align:right;">$${item.costo.toFixed(2)}</td>
-                <td style="color:#00938f; text-align:right; font-weight: bold;">$${totalRenglon}</td>
+                <td style="color:#00938f; text-align:right; font-weight:bold;">$${totalRenglon}</td>
                 <td style="text-align:center;">
-                    <button type="button" 
-                        onclick="materialesEditList.splice(${index},1); renderMaterialesEdit();" 
-                        style="background:none; border:none; color:#ff3b30; cursor:pointer; font-size:1.2rem;">✕</button>
+                    <button type="button" onclick="materialesEditList.splice(${index},1); renderMaterialesEdit();" style="background:none; border:none; color:red; cursor:pointer; font-size:1.2rem;">✕</button>
                 </td>
             </tr>
         `;
     });
-    
     calcularSaldoEdit();
 }
-
 // 5. CÁLCULOS DE IVA Y SALDO (Actualizado para el orden: Total, Anticipo, Saldo)
 function calcularSaldoEdit() {
     let totalMateriales = 0;
     
-    // 1. Sumamos el total base multiplicando cantidad por costo
+    // 🟢 Sumamos multiplicando cantidad por costo
     materialesEditList.forEach(item => {
         totalMateriales += (item.cantidad * item.costo);
     });
@@ -1083,21 +1088,16 @@ function calcularSaldoEdit() {
     const chkIva = document.getElementById("chkIvaEdit");
     const ivaPorcentajeInput = document.getElementById("levIvaPorcentajeEdit");
     
-    // Verificamos si el switch de IVA está activo
     const llevaIva = chkIva ? chkIva.checked : false;
     const porcentajeIva = ivaPorcentajeInput ? (parseFloat(ivaPorcentajeInput.value) || 0) : 0;
     
-    // 2. Calculamos monto de IVA y Total Final
     let montoIva = llevaIva ? (totalMateriales * (porcentajeIva / 100)) : 0;
     let totalFinal = totalMateriales + montoIva;
 
-    const anticipoInput = document.getElementById("levAnticipoEdit");
-    const anticipo = anticipoInput ? (parseFloat(anticipoInput.value) || 0) : 0;
-    
-    // 3. Calculamos el saldo por liquidar
+    const anticipo = parseFloat(document.getElementById("levAnticipoEdit").value) || 0;
     const saldo = totalFinal - anticipo;
 
-    // ACTUALIZAR INPUTS EN EL MODAL
+    // Actualizar Inputs en pantalla
     document.getElementById("levSubtotalEdit").value = totalMateriales.toFixed(2);
     document.getElementById("levIVAEdit").value = montoIva.toFixed(2);
     document.getElementById("levTotalEdit").value = totalFinal.toFixed(2);
@@ -1106,26 +1106,23 @@ function calcularSaldoEdit() {
     if (inputSaldo) {
         inputSaldo.value = saldo.toFixed(2);
         
-        // --- COLORES Y BADGE EN TIEMPO REAL ---
+        // Colores del saldo
         const badgeEdit = document.getElementById('editEstatusBadge');
-        
         if (saldo <= 0) {
-            inputSaldo.style.color = "#28a745"; // Verde (Pagado)
-            if (badgeEdit) {
+            inputSaldo.style.color = "#28a745"; // Verde
+            if(badgeEdit) {
                 badgeEdit.innerText = "PAGADO";
                 badgeEdit.className = "badge-status-tabla status-pagado";
             }
         } else {
-            inputSaldo.style.color = "#ff3b30"; // Rojo (Pendiente)
-            if (badgeEdit) {
+            inputSaldo.style.color = "#ff3b30"; // Rojo
+            if(badgeEdit) {
                 badgeEdit.innerText = "PENDIENTE";
                 badgeEdit.className = "badge-status-tabla status-pendiente";
             }
         }
     }
 }
-
-
 
 // 6. GUARDAR CAMBIOS (PUT)
 async function actualizarCuentaFinal() {
