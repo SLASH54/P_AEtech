@@ -439,6 +439,25 @@
     </div>
 </div>
 
+<div id="modalAbono" class="loader-overlay" style="display: none;">
+    <div class="modal-content-ios" style="max-width: 300px; padding: 20px; text-align: center;">
+        <h3 style="margin-bottom: 15px;">Gestionar Pago</h3>
+        <p id="infoSaldoPendiente" style="font-size: 0.9em; color: #666;"></p>
+        
+        <div class="lev-total-field" style="margin: 15px 0;">
+            <label>Monto a abonar:</label>
+            <input type="number" id="inputMontoAbono" placeholder="0.00" step="0.01" 
+                   style="width: 100%; text-align: center; font-size: 1.2em; border: 1px solid #ccc; border-radius: 8px; padding: 5px;">
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <button onclick="procesarAbono()" class="btn-ver" style="width: 100%; background: #28a745; color: white;">Confirmar Abono</button>
+            <button onclick="liquidarTotalDirecto()" class="btn-pdf" style="width: 100%; background: #007aff;">Liquidar Total</button>
+            <button onclick="cerrarModalAbono()" style="background: none; border: none; color: #ff3b30; cursor: pointer; margin-top: 5px;">Cancelar</button>
+        </div>
+    </div>
+</div>
+
     <script src="scriptCuentas.js"></script>
 </body>
 </html>

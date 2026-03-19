@@ -248,3 +248,27 @@ exports.liquidarCuenta = async (req, res) => {
         res.status(500).send("Error al liquidar");
     }
 };
+
+exports.abonarALaCuenta = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { montoAbono } = req.body;
+        
+        const cuenta = await Cuenta.findByPk(id);
+        if (!cuenta) return res.status(404).json({ message: "No se encontró la cuenta" });
+
+        // Calculamos nuevos valores
+        const nuevoAnticipo = parseFloat(cuenta.anticipo) + parseFloat(montoAbono);
+        const nuevoSaldo = parseFloat(cuenta.total) - nuevoAnticipo;
+        
+        await cuenta.update({
+            anticipo: nuevoAnticipo,
+            saldo: nuevoSaldo,
+            estatus: nuevoSaldo <= 0 ? 'Pagado' : 'Pendiente'
+        });
+
+        res.json({ message: "Abono aplicado correctamente", nuevoSaldo });
+    } catch (error) {
+        res.status(500).json({ message: "Error al procesar el abono" });
+    }
+};

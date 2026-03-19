@@ -27,4 +27,6 @@ router.put('/:id', protect, cuentaController.editarCuenta);
 
 router.put('/liquidar/:id', cuentaController.liquidarCuenta);
 
+router.put('/abonar/:id', protect, cuentaController.abonarALaCuenta);
+
 module.exports = router;

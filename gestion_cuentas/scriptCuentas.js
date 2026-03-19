@@ -677,7 +677,7 @@ async function cargarCuentasTabla() {
                         <button onclick="compartirNota(${c.id})" class="btn-tabla-ios" style="background: rgba(50, 215, 255, 0.15); color: #00bcd4;" title="Compartir Link">🔗</button>
                         
                         ${!esPagado ? 
-                            `<button onclick="liquidarCuenta(${c.id})" class="btn-tabla-ios" style="background: rgba(58, 205, 0, 0.39); color: #000;" title="Liquidar Nota">💰</button>` : 
+                            `<button onclick="abrirModalAbono(${c.id})" class="btn-tabla-ios" style="background: rgba(58, 205, 0, 0.39); color: #000;" title="Liquidar Nota">💰</button>` : 
                             '<span style="font-size: 1.2rem; margin-left: 5px;" title="Pagado">✅</span>'
                         }
                     </div>
@@ -1263,4 +1263,52 @@ function limpiarFiltroCliente() {
     // Opcional: un pequeño efecto visual de que se limpió
     select.style.boxShadow = "0 0 10px rgba(52, 199, 89, 0.5)";
     setTimeout(() => select.style.boxShadow = "none", 500);
+}
+
+
+let cuentaSeleccionadaId = null;
+let saldoActualPendiente = 0;
+
+function abrirModalAbono(id, saldo) {
+    cuentaSeleccionadaId = id;
+    saldoActualPendiente = parseFloat(saldo);
+    
+    document.getElementById("infoSaldoPendiente").innerText = `Saldo pendiente: $${saldoActualPendiente.toFixed(2)}`;
+    document.getElementById("inputMontoAbono").value = "";
+    document.getElementById("modalAbono").style.display = "flex";
+}
+
+function cerrarModalAbono() {
+    document.getElementById("modalAbono").style.display = "none";
+}
+
+async function procesarAbono() {
+    const abono = parseFloat(document.getElementById("inputMontoAbono").value);
+    
+    if (!abono || abono <= 0) return alert("Ingresa un monto válido karnal.");
+    if (abono > saldoActualPendiente) return alert("El abono no puede ser mayor al saldo pendiente.");
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/Cuentas/abonar/${cuentaSeleccionadaId}`, {
+            method: 'PUT',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem("accessToken")}`
+            },
+            body: JSON.stringify({ montoAbono: abono })
+        });
+
+        if (response.ok) {
+            alert("¡Abono registrado!");
+            location.reload();
+        }
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+// Opción para liquidar todo de un jalón
+function liquidarTotalDirecto() {
+    document.getElementById("inputMontoAbono").value = saldoActualPendiente;
+    procesarAbono();
 }
