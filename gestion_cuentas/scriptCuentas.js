@@ -1044,63 +1044,88 @@ function renderMaterialesEdit() {
     tbody.innerHTML = "";
     
     materialesEditList.forEach((item, index) => {
+        // Determinamos la imagen a mostrar
         const img = item.foto || item.fotoUrl || 'img/logoAEtech.png';
+        
+        // CALCULAMOS EL TOTAL DE ESTE RENGLÓN ESPECÍFICO
+        const totalRenglon = (item.cantidad * item.costo).toFixed(2);
+
         tbody.innerHTML += `
-            <tr style="background: white;">
-                <td style="text-align:center;"><img src="${img}" style="width:45px; height:45px; border-radius:8px; object-fit:cover;"></td>
-                <td style="color:black;">${item.nombre}</td>
+            <tr style="background: white; border-bottom: 1px solid #eee;">
+                <td style="text-align:center; padding: 5px;">
+                    <img src="${img}" style="width:45px; height:45px; border-radius:8px; object-fit:cover;">
+                </td>
+                <td style="color:black; font-weight: 500;">${item.nombre}</td>
                 <td style="color:black; text-align:center;">${item.cantidad}</td>
                 <td style="color:black; text-align:right;">$${item.costo.toFixed(2)}</td>
+                <td style="color:#00938f; text-align:right; font-weight: bold;">$${totalRenglon}</td>
                 <td style="text-align:center;">
-                    <button type="button" onclick="materialesEditList.splice(${index},1); renderMaterialesEdit();" style="background:none; border:none; color:red; cursor:pointer; font-size:1.2rem;">✕</button>
+                    <button type="button" 
+                        onclick="materialesEditList.splice(${index},1); renderMaterialesEdit();" 
+                        style="background:none; border:none; color:#ff3b30; cursor:pointer; font-size:1.2rem;">✕</button>
                 </td>
             </tr>
         `;
     });
+    
     calcularSaldoEdit();
 }
 
 // 5. CÁLCULOS DE IVA Y SALDO (Actualizado para el orden: Total, Anticipo, Saldo)
 function calcularSaldoEdit() {
     let totalMateriales = 0;
+    
+    // 1. Sumamos el total base multiplicando cantidad por costo
     materialesEditList.forEach(item => {
         totalMateriales += (item.cantidad * item.costo);
     });
 
-  // ... después de calcular totalMateriales ...
-    const llevaIva = document.getElementById("chkIvaEdit").checked;
-    const porcentajeIva = parseFloat(document.getElementById("levIvaPorcentajeEdit").value) || 0;
+    const chkIva = document.getElementById("chkIvaEdit");
+    const ivaPorcentajeInput = document.getElementById("levIvaPorcentajeEdit");
     
-    // Calculamos el monto del IVA siempre (si no lleva, será 0)
+    // Verificamos si el switch de IVA está activo
+    const llevaIva = chkIva ? chkIva.checked : false;
+    const porcentajeIva = ivaPorcentajeInput ? (parseFloat(ivaPorcentajeInput.value) || 0) : 0;
+    
+    // 2. Calculamos monto de IVA y Total Final
     let montoIva = llevaIva ? (totalMateriales * (porcentajeIva / 100)) : 0;
     let totalFinal = totalMateriales + montoIva;
 
-    const anticipo = parseFloat(document.getElementById("levAnticipoEdit").value) || 0;
+    const anticipoInput = document.getElementById("levAnticipoEdit");
+    const anticipo = anticipoInput ? (parseFloat(anticipoInput.value) || 0) : 0;
+    
+    // 3. Calculamos el saldo por liquidar
     const saldo = totalFinal - anticipo;
 
-    // Actualizar Inputs (Mucho más limpio)
+    // ACTUALIZAR INPUTS EN EL MODAL
     document.getElementById("levSubtotalEdit").value = totalMateriales.toFixed(2);
     document.getElementById("levIVAEdit").value = montoIva.toFixed(2);
     document.getElementById("levTotalEdit").value = totalFinal.toFixed(2);
+    
     const inputSaldo = document.getElementById("levSaldoEdit");
-    inputSaldo.value = saldo.toFixed(2);
-
-    // --- ACTUALIZAR BADGE Y COLOR DE SALDO EN TIEMPO REAL ---
-    const badgeEdit = document.getElementById('editEstatusBadge');
-    if (saldo <= 0) {
-        inputSaldo.style.color = "#28a745"; // Verde
-        if(badgeEdit) {
-            badgeEdit.innerText = "PAGADO";
-            badgeEdit.className = "badge-status-tabla status-pagado";
-        }
-    } else {
-        inputSaldo.style.color = "#ff3b30"; // Rojo
-        if(badgeEdit) {
-            badgeEdit.innerText = "PENDIENTE";
-            badgeEdit.className = "badge-status-tabla status-pendiente";
+    if (inputSaldo) {
+        inputSaldo.value = saldo.toFixed(2);
+        
+        // --- COLORES Y BADGE EN TIEMPO REAL ---
+        const badgeEdit = document.getElementById('editEstatusBadge');
+        
+        if (saldo <= 0) {
+            inputSaldo.style.color = "#28a745"; // Verde (Pagado)
+            if (badgeEdit) {
+                badgeEdit.innerText = "PAGADO";
+                badgeEdit.className = "badge-status-tabla status-pagado";
+            }
+        } else {
+            inputSaldo.style.color = "#ff3b30"; // Rojo (Pendiente)
+            if (badgeEdit) {
+                badgeEdit.innerText = "PENDIENTE";
+                badgeEdit.className = "badge-status-tabla status-pendiente";
+            }
         }
     }
 }
+
+
 
 // 6. GUARDAR CAMBIOS (PUT)
 async function actualizarCuentaFinal() {
