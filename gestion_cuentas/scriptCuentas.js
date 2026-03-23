@@ -1195,14 +1195,15 @@ function calcularSaldoEdit() {
 
 // 6. GUARDAR CAMBIOS (PUT)
 async function actualizarCuentaFinal() {
-    if (materialesEditList.length === 0) return alert("La nota no puede estar vacía");
+    // 🟢 Cambiamos a la lista que sí tiene los datos actualizados
+    if (levMaterialesList.length === 0) return alert("La nota no puede estar vacía");
 
-    // Leemos el número que está puesto en el label para reenviarlo
     const numeroActual = document.getElementById("labelNumeroNotaEdit").innerText;
 
     const datos = {
-        numeroNota: numeroActual, // 👈 Aseguramos que se mantenga el nombre correcto
-        clienteNombre: document.getElementById("edit-clienteSelect").value,
+        numeroNota: numeroActual,
+        // 🟢 Asegúrate que este ID sea el correcto en tu modal de edición
+        clienteNombre: document.getElementById("edit-clienteSelect").value, 
         anticipo: parseFloat(document.getElementById("levAnticipoEdit").value) || 0,
         fecha_anticipo: document.getElementById("levFechaAnticipoEdit").value,
         subtotal: parseFloat(document.getElementById("levSubtotalEdit").value) || 0,
@@ -1211,7 +1212,8 @@ async function actualizarCuentaFinal() {
         ivaPorcentaje: parseFloat(document.getElementById("levIvaPorcentajeEdit").value) || 0,
         factura: document.getElementById("chkFacturaEdit").checked,
         folioFactura: document.getElementById("levFolioFacturaEdit").value,
-        materiales: materialesEditList
+        // 🟢 Usamos la lista unificada
+        materiales: levMaterialesList 
     };
 
     try {
@@ -1228,16 +1230,20 @@ async function actualizarCuentaFinal() {
         if (res.ok) {
             alert("✅ ¡Listo! Nota actualizada.");
             cerrarModalEditar();
-            cargarCuentasTabla();
+            if (typeof cargarCuentasTabla === "function") cargarCuentasTabla();
+            else location.reload(); // Si no tienes la función a la mano, recarga
         } else {
-            alert("No se pudo actualizar");
+            const errorData = await res.json();
+            alert("❌ No se pudo actualizar: " + (errorData.message || "Error del servidor"));
         }
     } catch (e) { 
-        //alert("Error de conexión"); 
+        console.error("Error en PUT:", e);
+        alert("Error de conexión al servidor");
     } finally { 
         document.getElementById("loader").style.display = "none"; 
     }
 }
+
 
 // FUNCIONES DE APOYO
 function levMostrarCampoExtraEdit() {
