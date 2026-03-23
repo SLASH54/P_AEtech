@@ -331,7 +331,6 @@ document.getElementById("levBtnAgregarMaterial")?.addEventListener("click", () =
 });
 
 
-
 // 🧹 LIMPIAR INPUTS
 function levLimpiarInputs() {
     document.getElementById("levInsumo").selectedIndex = 0;
@@ -347,73 +346,59 @@ function levLimpiarInputs() {
 // 🖨️ RENDER MATERIALES
 function levRenderMateriales() {
     const ul = document.getElementById("levListaMateriales");
-    if(!ul) return;
+    if (!ul) return;
     ul.innerHTML = "";
 
-    const grupos = {};
-    levMaterialesList.forEach(mat => {
-        if (!grupos[mat.categoria]) grupos[mat.categoria] = [];
-        grupos[mat.categoria].push(mat);
+    levMaterialesList.forEach((mat, index) => {
+        // 🟢 MULTIPLICACIÓN PARA LA VISTA
+        const subtotalRenglon = (mat.cantidad * mat.costo).toFixed(2);
+
+        const li = document.createElement("li");
+        li.style.display = "flex";
+        li.style.justifyContent = "space-between";
+        li.style.padding = "8px";
+        li.style.borderBottom = "1px solid #eee";
+        li.style.color = "black";
+
+        li.innerHTML = `
+            <div>
+                <strong>${mat.cantidad}x</strong> ${mat.insumo}
+                <br><small style="color: #666;">$${mat.costo.toFixed(2)} c/u</small>
+            </div>
+            <div style="text-align: right;">
+                <span style="color: #00938f; font-weight: bold;">$${subtotalRenglon}</span>
+                <button class="levBtnEliminarMat" style="background:none; border:none; color:red; margin-left:10px; cursor:pointer;">❌</button>
+            </div>
+        `;
+
+        li.querySelector(".levBtnEliminarMat").onclick = () => {
+            levMaterialesList.splice(index, 1);
+            levRenderMateriales();
+        };
+
+        ul.appendChild(li);
     });
 
-    Object.keys(grupos).sort().forEach(cat => {
-        const header = document.createElement("li");
-        header.innerHTML = `<strong style="color: #004b85;">${cat}</strong>`;
-        header.style.marginTop = "10px";
-        ul.appendChild(header);
-
-        grupos[cat].forEach(mat => {
-            // 🟢 MULTIPLICACIÓN PARA LA VISTA
-            const totalFila = (mat.cantidad * mat.costo).toFixed(2);
-
-            const li = document.createElement("li");
-            li.style.display = "flex";
-            li.style.justifyContent = "space-between";
-            li.style.alignItems = "center";
-            li.style.color = "black";
-            li.style.borderBottom = "1px solid #eee";
-            li.style.padding = "5px 0";
-
-            li.innerHTML = `
-                <div>
-                    <b>${mat.cantidad}</b> x ${mat.insumo} 
-                    <small style="color:#666;">($${mat.costo.toFixed(2)} c/u)</small>
-                </div>
-                <div style="font-weight:bold; color:#00938f;">
-                    $${totalFila}
-                    <button class="levBtnEliminarMat" style="background:none; border:none; color:red; cursor:pointer; margin-left:10px;">❌</button>
-                </div>
-            `;
-
-            li.querySelector(".levBtnEliminarMat").onclick = () => {
-                levMaterialesList = levMaterialesList.filter(m => m !== mat);
-                levRenderMateriales();
-            };
-            ul.appendChild(li);
-        });
-    });
-    
-    // 🟢 Actualizamos el subtotal de la nota automáticamente
-    actualizarTotalesNuevaNota();
+    // 🟢 ACTUALIZAMOS LOS TOTALES DE ABAJO
+    actualizarTotalesNota();
 }
 
 
 //total nota actualizado
-function actualizarTotalesNuevaNota() {
+function actualizarTotalesNota() {
     let subtotal = 0;
     levMaterialesList.forEach(m => {
         subtotal += (m.cantidad * m.costo);
     });
 
-    // Actualizamos los cuadros de texto de abajo
-    const sub = document.getElementById("levSubtotal");
-    const tot = document.getElementById("levTotal");
+    const inputSubtotal = document.getElementById("levSubtotal");
+    const inputTotal = document.getElementById("levTotal");
     
-    if(sub) sub.value = subtotal.toFixed(2);
-    if(tot) tot.value = subtotal.toFixed(2); // Aquí puedes sumarle IVA si quieres
-    
-    // Llamamos a tu función de saldo
-    calcularSaldo();
+    if (inputSubtotal) inputSubtotal.value = subtotal.toFixed(2);
+    if (inputTotal) inputTotal.value = subtotal.toFixed(2); 
+
+    // Llamamos a tu función de saldo para restar el anticipo
+    if (typeof calcularSaldo === "function") calcularSaldo();
 }
 
 
