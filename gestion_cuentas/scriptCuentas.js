@@ -121,31 +121,32 @@ document.getElementById("levInputFoto")?.addEventListener("change", async functi
 // Variable global para la lista de materiales (ya la tenías, asegúrate de que esté arriba)
 
 
-// 1. FUNCIÓN PARA AGREGAR MATERIAL (Actualizada)
+// 1. FUNCIÓN PARA AGREGAR MATERIAL (Corregida)
 document.getElementById("levBtnAgregarMaterial")?.addEventListener("click", () => {
     const selectInsumo = document.getElementById("levInsumo");
     const inputExtra = document.getElementById("levInsumoExtra");
-    const inputCosto = document.getElementById("levCosto");
+    const inputCosto = document.getElementById("levProdCosto"); // 👈 Revisa que este ID sea el de tu HTML
+    const inputCant = document.getElementById("levProdCant");   // 👈 ESTO ES LO QUE FALTABA
     
-    // Determinar el nombre del producto
     let nombreProducto = selectInsumo.value;
     if (nombreProducto === "Otro" || nombreProducto === "Fuente de poder centralizada") {
         nombreProducto = inputExtra.value || nombreProducto;
     }
 
-    const costo = parseFloat(inputCosto.value);
+    const costo = parseFloat(inputCosto.value) || 0;
+    const cantidad = parseFloat(inputCant.value) || 1; // 🟢 Capturamos la cantidad
 
     if (costo <= 0) {
-        alert("Coloca el nombre y un costo válido.");
+        alert("Coloca un costo válido.");
         return;
     }
 
-    // Crear objeto del material
     const nuevoMaterial = {
-        id: Date.now(), // ID único para borrarlo fácil
-        nombre : nombreProducto,
+        id: Date.now(),
+        nombre: nombreProducto,
         costo: costo,
-        foto: fotoTemporal // Usamos la variable de la cámara que definimos antes
+        cantidad: cantidad, // 🟢 GUARDAMOS LA CANTIDAD
+        foto: fotoTemporal 
     };
 
     levMaterialesList.push(nuevoMaterial);
@@ -153,62 +154,54 @@ document.getElementById("levBtnAgregarMaterial")?.addEventListener("click", () =
 
     // Limpiar campos
     inputCosto.value = "";
+    inputCant.value = "1"; // Reset a 1
     inputExtra.value = "";
     selectInsumo.selectedIndex = 0;
-    levMostrarCampoExtra(); // Oculta el campo extra si es necesario
-    fotoTemporal = null; // Limpiar foto
+    fotoTemporal = null;
 });
 
+
+
+// 2. FUNCIÓN PARA RENDERIZAR Y SUMAR (Corregida)
 function renderizarListaYTotales() {
     const listaUI = document.getElementById("levListaMateriales");
     const inputTotal = document.getElementById("levTotal");
-    const inputSubtotal = document.getElementById("levSubtotal"); // 👈 Agregamos subtotal
+    const inputSubtotal = document.getElementById("levSubtotal");
     
-    if (!listaUI) return;
     listaUI.innerHTML = "";
-    
-    let sumaTotalTotal = 0;
+    let sumaTotalNota = 0;
 
-    levMaterialesList.forEach((mat, index) => {
-        // 🟢 PASO CLAVE: Multiplicar cantidad por costo
-        const cantidad = parseFloat(mat.cantidad) || 1;
-        const costoUnitario = parseFloat(mat.costo) || 0;
-        const subtotalFila = cantidad * costoUnitario;
-        
-        sumaTotalTotal += subtotalFila; // 👈 Sumamos la multiplicación al gran total
+    levMaterialesList.forEach((mat) => {
+        // 🟢 MULTIPLICAMOS AQUÍ
+        const subtotalFila = mat.costo * mat.cantidad;
+        sumaTotalNota += subtotalFila;
 
         const li = document.createElement("li");
         li.className = "ios-list-item";
-        li.style = "display: flex; align-items: center; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; color: black;";
+        li.style = "display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee; color: black;";
         
         const imgHTML = mat.foto 
-            ? `<img src="${mat.foto}" class="img-miniatura" style="width:40px; height:40px; border-radius:5px; object-fit:cover; margin-right:10px;">` 
-            : `<div class="img-miniatura" style="width:40px; height:40px; display:flex; align-items:center; justify-content:center; background:#eee; border-radius:5px; margin-right:10px;">📦</div>`;
+            ? `<img src="${mat.foto}" class="img-miniatura" style="width:40px;height:40px;border-radius:5px;">` 
+            : `<div style="width:40px;height:40px;background:#eee;display:flex;align-items:center;justify-content:center;border-radius:5px;">📦</div>`;
 
         li.innerHTML = `
-            <div style="display: flex; align-items: center; flex: 1;">
-                ${imgHTML}
-                <div class="item-info">
-                    <strong>${cantidad}x ${mat.nombre || mat.insumo}</strong>
-                    <br><small style="color: #666;">$${costoUnitario.toFixed(2)} c/u</small>
-                </div>
+            <div style="flex: 1; margin-left: 10px;">
+                <strong>${mat.cantidad}x ${mat.nombre}</strong>
+                <br><small style="color: #666;">$${mat.costo.toFixed(2)} c/u</small>
             </div>
-            <div class="item-costo" style="font-weight: bold; color: #00938f; margin-right: 15px;">
+            <div style="font-weight: bold; color: #00938f; margin-right: 10px;">
                 $${subtotalFila.toFixed(2)}
             </div>
-            <button class="btn-eliminar" onclick="eliminarMaterial(${index})" style="background:none; border:none; color:red; cursor:pointer; font-size:1.2em;">❌</button>
+            <button class="btn-eliminar" onclick="eliminarMaterial(${mat.id})" style="background:none;border:none;color:red;cursor:pointer;">❌</button>
         `;
         listaUI.appendChild(li);
     });
 
-    // 🟢 Actualizar los inputs de la interfaz automáticamente
-    if (inputSubtotal) inputSubtotal.value = sumaTotalTotal.toFixed(2);
-    if (inputTotal) inputTotal.value = sumaTotalTotal.toFixed(2);
+    if (inputSubtotal) inputSubtotal.value = sumaTotalNota.toFixed(2);
+    if (inputTotal) inputTotal.value = sumaTotalNota.toFixed(2);
     
-    // Llamamos a tu función de saldo (Total - Anticipo)
     if (typeof calcularSaldo === "function") calcularSaldo();
 }
-
 
 // 3. FUNCIÓN PARA ELIMINAR MATERIALES
 window.eliminarMaterial = function(id) {
