@@ -829,11 +829,18 @@ async function verDetalleCuenta(id) {
         if (cuenta.iva) badgesContainer.innerHTML += `<span class="badge badge-iva">CON IVA</span>`;
         if (cuenta.factura) badgesContainer.innerHTML += `<span class="badge badge-factura">FACTURADO</span>`;
 
-        // --- TABLA DE PRODUCTOS ---
+    // --- TABLA DE PRODUCTOS ---
         const tbody = document.getElementById('detListaProductos');
         tbody.innerHTML = "";
+        
         cuenta.materiales.forEach(mat => {
             const imgSource = mat.fotoUrl || 'img/logoAEtech.png'; 
+            
+            // 🟢 CALCULAMOS EL SUBTOTAL DE ESTE RENGLÓN
+            const cant = parseFloat(mat.cantidad) || 0;
+            const precio = parseFloat(mat.costo) || 0;
+            const subtotalFila = cant * precio;
+
             tbody.innerHTML += `
                 <tr style="color: black; border-bottom: 0.5px solid #eee;">
                     <td style="padding: 10px 0;">
@@ -842,8 +849,12 @@ async function verDetalleCuenta(id) {
                         </div>
                     </td>
                     <td style="font-weight: 500;">${mat.nombre}</td>
-                    <td style="text-align: center;">${mat.cantidad}</td>
-                    <td style="text-align: right;">$${parseFloat(mat.costo).toLocaleString('es-MX', {minimumFractionDigits:2})}</td>
+                    <td style="text-align: center;">${cant}</td>
+                    <td style="text-align: right;">$${precio.toLocaleString('es-MX', {minimumFractionDigits:2})}</td>
+                    
+                    <td style="text-align: right; font-weight: bold; color: #00938f;">
+                        $${subtotalFila.toLocaleString('es-MX', {minimumFractionDigits:2})}
+                    </td>
                 </tr>
             `;
         });
