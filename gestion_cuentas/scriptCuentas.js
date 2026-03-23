@@ -1019,17 +1019,22 @@ function agregarMaterialEdit() {
     const cantInput = document.getElementById("edit-prodCant");
 
     let nombre = (select.value === "Otro") ? campoExtra.value : select.value;
-    const costo = parseFloat(costoInput.value);
-    const cant = parseInt(cantInput.value) || 1;
+    
+    // 🟢 FORZAMOS NÚMEROS DESDE EL INICIO
+    const valorCosto = parseFloat(costoInput.value) || 0;
+    const valorCant = parseInt(cantInput.value) || 1;
 
-    if (!nombre || isNaN(costo)) {
-        return alert("selecciona un producto y ponle precio.");
+    if (!nombre || valorCosto <= 0) {
+        return alert("Selecciona un producto y ponle precio.");
     }
+
+    // 🟢 LOG DE SEGURIDAD (Revísalo en la consola F12)
+    console.log("Agregando:", nombre, "Cant:", valorCant, "Precio:", valorCosto);
 
     materialesEditList.push({
         nombre: nombre,
-        costo: costo,
-        cantidad: cant,
+        costo: valorCosto,      
+        cantidad: valorCant,    
         foto: tempFotoEdit,
         fotoUrl: null
     });
@@ -1046,54 +1051,40 @@ function agregarMaterialEdit() {
     renderMaterialesEdit();
 }
 
-
 // 4. RENDERIZAR TABLA Y CALCULAR
 function renderMaterialesEdit() {
     const tbody = document.querySelector("#tablaMaterialesEdit tbody");
     if(!tbody) return;
-    
-    // 1. Limpiamos el contenido antes de empezar
     tbody.innerHTML = "";
     
-    // 2. Usamos una variable temporal para construir todo el HTML de un golpe
-    let htmlTemporal = "";
-
     materialesEditList.forEach((item, index) => {
         const img = item.foto || item.fotoUrl || 'img/logoAEtech.png';
         
-        // 🟢 Aseguramos que sean números reales
-        const cant = parseFloat(item.cantidad) || 0;
-        const prec = parseFloat(item.costo) || 0;
-        
-        // 🟢 Realizamos la multiplicación
-        const totalRenglon = (cant * prec).toFixed(2);
+        // 🟢 CÁLCULO EXPLÍCITO
+        const c = parseFloat(item.cantidad) || 0;
+        const p = parseFloat(item.costo) || 0;
+        const subtotal = (c * p).toFixed(2); 
 
-        htmlTemporal += `
-            <tr style="background: white; border-bottom: 1px solid #eee;">
-                <td style="text-align:center; padding: 5px;">
+        tbody.innerHTML += `
+            <tr style="background: white;">
+                <td style="text-align:center;">
                     <img src="${img}" style="width:45px; height:45px; border-radius:8px; object-fit:cover;">
                 </td>
                 <td style="color:black;">${item.nombre}</td>
-                <td style="color:black; text-align:center;">${cant}</td>
-                <td style="color:black; text-align:right;">$${prec.toFixed(2)}</td>
-                
-                <td style="color:#00938f; text-align:right; font-weight:bold;">$${totalRenglon}</td>
-                
+                <td style="color:black; text-align:center;">${item.cantidad}</td>
+                <td style="color:black; text-align:right;">$${parseFloat(item.costo).toFixed(2)}</td>
+                <td style="color:#00938f; text-align:right; font-weight:bold;">$${subtotal}</td>
                 <td style="text-align:center;">
-                    <button type="button" 
-                        onclick="materialesEditList.splice(${index},1); renderMaterialesEdit();" 
-                        style="background:none; border:none; color:red; cursor:pointer; font-size:1.2rem;">✕</button>
+                    <button type="button" onclick="materialesEditList.splice(${index},1); renderMaterialesEdit();" style="background:none; border:none; color:red; cursor:pointer; font-size:1.2rem;">✕</button>
                 </td>
             </tr>
         `;
     });
-
-    // 3. Insertamos todo el HTML de una sola vez
-    tbody.innerHTML = htmlTemporal;
-    
-    // 4. Mandamos a calcular los totales de abajo (Subtotal, IVA, Total)
     calcularSaldoEdit();
 }
+
+
+
 // 5. CÁLCULOS DE IVA Y SALDO (Actualizado para el orden: Total, Anticipo, Saldo)
 function calcularSaldoEdit() {
     let totalMateriales = 0;
