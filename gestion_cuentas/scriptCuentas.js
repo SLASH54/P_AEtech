@@ -125,8 +125,8 @@ document.getElementById("levInputFoto")?.addEventListener("change", async functi
 document.getElementById("levBtnAgregarMaterial")?.addEventListener("click", () => {
     const selectInsumo = document.getElementById("levInsumo");
     const inputExtra = document.getElementById("levInsumoExtra");
-    const inputCosto = document.getElementById("levProdCosto"); // 👈 Revisa que este ID sea el de tu HTML
-    const inputCant = document.getElementById("levProdCant");   // 👈 ESTO ES LO QUE FALTABA
+    const inputCosto = document.getElementById("levCosto"); // 👈 Revisa que este ID sea el de tu HTML
+    const inputCant = document.getElementById("levCantidad");   // 👈 ESTO ES LO QUE FALTABA
     
     let nombreProducto = selectInsumo.value;
     if (nombreProducto === "Otro" || nombreProducto === "Fuente de poder centralizada") {
