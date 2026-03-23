@@ -1051,19 +1051,26 @@ function agregarMaterialEdit() {
 function renderMaterialesEdit() {
     const tbody = document.querySelector("#tablaMaterialesEdit tbody");
     if(!tbody) return;
+    
+    // 1. Limpiamos el contenido antes de empezar
     tbody.innerHTML = "";
     
+    // 2. Usamos una variable temporal para construir todo el HTML de un golpe
+    let htmlTemporal = "";
+
     materialesEditList.forEach((item, index) => {
         const img = item.foto || item.fotoUrl || 'img/logoAEtech.png';
         
-        // 🟢 Aseguramos que sean números para que la multiplicación no falle
-        const cant = Number(item.cantidad) || 0;
-        const prec = Number(item.costo) || 0;
+        // 🟢 Aseguramos que sean números reales
+        const cant = parseFloat(item.cantidad) || 0;
+        const prec = parseFloat(item.costo) || 0;
+        
+        // 🟢 Realizamos la multiplicación
         const totalRenglon = (cant * prec).toFixed(2);
 
-        tbody.innerHTML += `
-            <tr style="background: white;">
-                <td style="text-align:center;">
+        htmlTemporal += `
+            <tr style="background: white; border-bottom: 1px solid #eee;">
+                <td style="text-align:center; padding: 5px;">
                     <img src="${img}" style="width:45px; height:45px; border-radius:8px; object-fit:cover;">
                 </td>
                 <td style="color:black;">${item.nombre}</td>
@@ -1073,14 +1080,20 @@ function renderMaterialesEdit() {
                 <td style="color:#00938f; text-align:right; font-weight:bold;">$${totalRenglon}</td>
                 
                 <td style="text-align:center;">
-                    <button type="button" onclick="materialesEditList.splice(${index},1); renderMaterialesEdit();" style="background:none; border:none; color:red; cursor:pointer; font-size:1.2rem;">✕</button>
+                    <button type="button" 
+                        onclick="materialesEditList.splice(${index},1); renderMaterialesEdit();" 
+                        style="background:none; border:none; color:red; cursor:pointer; font-size:1.2rem;">✕</button>
                 </td>
             </tr>
         `;
     });
+
+    // 3. Insertamos todo el HTML de una sola vez
+    tbody.innerHTML = htmlTemporal;
+    
+    // 4. Mandamos a calcular los totales de abajo (Subtotal, IVA, Total)
     calcularSaldoEdit();
 }
-
 // 5. CÁLCULOS DE IVA Y SALDO (Actualizado para el orden: Total, Anticipo, Saldo)
 function calcularSaldoEdit() {
     let totalMateriales = 0;
