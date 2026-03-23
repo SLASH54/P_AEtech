@@ -1195,28 +1195,43 @@ function calcularSaldoEdit() {
 
 // 6. GUARDAR CAMBIOS (PUT)
 async function actualizarCuentaFinal() {
-    // 1. CAMBIO AQUÍ: Usar materialesEditList
+    // 1. Verificamos que la lista de edición tenga materiales
     if (materialesEditList.length === 0) return alert("La nota no puede estar vacía amiko");
+
+    // Capturamos los valores de anticipo y fecha para validarlos antes de enviar
+    const anticipoInput = document.getElementById("levAnticipoEdit");
+    const fechaInput = document.getElementById("levFechaAnticipoEdit");
+    
+    const anticipoValor = anticipoInput ? anticipoInput.value : "";
+    const fechaValor = fechaInput ? fechaInput.value : "";
 
     const numeroActual = document.getElementById("labelNumeroNotaEdit").innerText;
 
+    // Construimos el objeto de datos
     const datos = {
         numeroNota: numeroActual,
         clienteNombre: document.getElementById("edit-clienteSelect").value,
-        anticipo: parseFloat(document.getElementById("levAnticipoEdit").value) || 0,
-        fecha_anticipo: document.getElementById("levFechaAnticipoEdit").value,
+
+        // 🟢 Si el anticipo está vacío, enviamos 0
+        anticipo: parseFloat(anticipoValor) || 0, 
+
+        // 🟢 Si la fecha está vacía, enviamos null para que la DB de Render no de error
+        fecha_anticipo: (fechaValor && fechaValor !== "") ? fechaValor : null,
+        
         subtotal: parseFloat(document.getElementById("levSubtotalEdit").value) || 0,
         total: parseFloat(document.getElementById("levTotalEdit").value) || 0,
         iva: document.getElementById("chkIvaEdit").checked,
         ivaPorcentaje: parseFloat(document.getElementById("levIvaPorcentajeEdit").value) || 0,
         factura: document.getElementById("chkFacturaEdit").checked,
         folioFactura: document.getElementById("levFolioFacturaEdit").value,
-        // 2. CAMBIO AQUÍ: Usar materialesEditList
+        
+        // 🟢 Usamos materialesEditList que es la variable de tu sistema de edición
         materiales: materialesEditList 
     };
 
     try {
         document.getElementById("loader").style.display = "flex";
+        
         const res = await fetch(`${API_BASE_URL}/cuentas/${editandoId}`, {
             method: 'PUT',
             headers: {
@@ -1229,20 +1244,24 @@ async function actualizarCuentaFinal() {
         if (res.ok) {
             alert("✅ ¡Listo! Nota actualizada en Render.");
             cerrarModalEditar();
-            if (typeof cargarCuentasTabla === "function") cargarCuentasTabla();
-            else location.reload();
+            
+            // Recargamos la tabla para ver los cambios
+            if (typeof cargarCuentasTabla === "function") {
+                cargarCuentasTabla();
+            } else {
+                location.reload();
+            }
         } else {
             const errData = await res.json();
             alert("❌ Error: " + (errData.message || "No se pudo actualizar"));
         }
     } catch (e) {
         console.error("Error en el PUT:", e);
-        alert("Falla de conexión");
+        alert("Falla de conexión con el servidor");
     } finally {
         document.getElementById("loader").style.display = "none";
     }
 }
-
 
 // FUNCIONES DE APOYO
 function levMostrarCampoExtraEdit() {
