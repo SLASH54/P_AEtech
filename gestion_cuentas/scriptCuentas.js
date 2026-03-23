@@ -999,14 +999,20 @@ async function prepararEdicion(id) {
             return;
         }
 
+        // 1. Mostrar el modal primero que nada
         document.getElementById("modalEditarCuenta").style.display = "flex";
         
         await cargarClientesSelectEdit(cuenta.clienteNombre);
 
+        // 2. Lógica de limpieza segura para el número de nota
         let valorNota = cuenta.numeroNota ? cuenta.numeroNota.toString() : "S/N";
+        
+        // Limpiamos solo si contiene "Nota" o "#", si no, lo dejamos igual
         let numeroSolo = valorNota.replace(/Nota /g, "").replace(/#/g, "").trim();
+        
         document.getElementById("labelNumeroNotaEdit").innerText = `Nota #${numeroSolo}`;
         
+        // 3. Estatus
         const badgeEdit = document.getElementById('editEstatusBadge');
         const esPagado = (parseFloat(cuenta.saldo) <= 0 || cuenta.estatus === 'Pagado');
         
@@ -1015,7 +1021,7 @@ async function prepararEdicion(id) {
             badgeEdit.className = `badge-status-tabla ${esPagado ? 'status-pagado' : 'status-pendiente'}`;
         }
 
-        // Llenar campos numéricos
+        // 4. Llenar campos numéricos
         document.getElementById("levAnticipoEdit").value = cuenta.anticipo || 0;
         document.getElementById("chkIvaEdit").checked = cuenta.iva || false;
         document.getElementById("levIvaPorcentajeEdit").value = cuenta.ivaPorcentaje || 16;
@@ -1024,27 +1030,16 @@ async function prepararEdicion(id) {
         
         toggleFacturaEdit(); 
 
-        // 🟢 CLAVE: Usamos levMaterialesList en lugar de materialesEditList
-        // Así todas las funciones de suma y multiplicación que hicimos funcionarán aquí también
-        levMaterialesList = (cuenta.materiales || []).map(m => ({
+        // 5. Cargar materiales
+        materialesEditList = (cuenta.materiales || []).map(m => ({
             nombre: m.nombre,
-            cantidad: parseFloat(m.cantidad) || 1, // Aseguramos que sea número
+            cantidad: m.cantidad,
             costo: parseFloat(m.costo) || 0,
-            fotoUrl: m.fotoUrl || m.foto, // Compatibilidad con ambos nombres
+            fotoUrl: m.fotoUrl,
             foto: null 
         }));
 
-        // 🟢 Renderizamos usando la función unificada
-        // Si tu función de dibujo para editar se llama renderMaterialesEdit, 
-        // asegúrate de que esa función use levMaterialesList por dentro.
-        if (typeof renderizarListaYTotales === "function") {
-            renderizarListaYTotales(); 
-        } else {
-            renderMaterialesEdit();
-        }
-
-        // 🟢 Recalcular los totales de la edición de inmediato
-        if (typeof calcularSaldo === "function") calcularSaldo();
+        renderMaterialesEdit();
 
     } catch (e) { 
         console.error("Error al abrir edición:", e);
@@ -1053,7 +1048,6 @@ async function prepararEdicion(id) {
         document.getElementById("loader").style.display = "none"; 
     }
 }
-
 
 
 // 2. FUNCIÓN PARA CARGAR CLIENTES DESDE LA API (La que faltaba)
