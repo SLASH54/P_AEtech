@@ -999,20 +999,14 @@ async function prepararEdicion(id) {
             return;
         }
 
-        // 1. Mostrar el modal primero que nada
         document.getElementById("modalEditarCuenta").style.display = "flex";
         
         await cargarClientesSelectEdit(cuenta.clienteNombre);
 
-        // 2. Lógica de limpieza segura para el número de nota
         let valorNota = cuenta.numeroNota ? cuenta.numeroNota.toString() : "S/N";
-        
-        // Limpiamos solo si contiene "Nota" o "#", si no, lo dejamos igual
         let numeroSolo = valorNota.replace(/Nota /g, "").replace(/#/g, "").trim();
-        
         document.getElementById("labelNumeroNotaEdit").innerText = `Nota #${numeroSolo}`;
         
-        // 3. Estatus
         const badgeEdit = document.getElementById('editEstatusBadge');
         const esPagado = (parseFloat(cuenta.saldo) <= 0 || cuenta.estatus === 'Pagado');
         
@@ -1021,7 +1015,7 @@ async function prepararEdicion(id) {
             badgeEdit.className = `badge-status-tabla ${esPagado ? 'status-pagado' : 'status-pendiente'}`;
         }
 
-        // 4. Llenar campos numéricos
+        // Llenar campos numéricos
         document.getElementById("levAnticipoEdit").value = cuenta.anticipo || 0;
         document.getElementById("chkIvaEdit").checked = cuenta.iva || false;
         document.getElementById("levIvaPorcentajeEdit").value = cuenta.ivaPorcentaje || 16;
@@ -1030,16 +1024,27 @@ async function prepararEdicion(id) {
         
         toggleFacturaEdit(); 
 
-        // 5. Cargar materiales
-        materialesEditList = (cuenta.materiales || []).map(m => ({
+        // 🟢 CLAVE: Usamos levMaterialesList en lugar de materialesEditList
+        // Así todas las funciones de suma y multiplicación que hicimos funcionarán aquí también
+        levMaterialesList = (cuenta.materiales || []).map(m => ({
             nombre: m.nombre,
-            cantidad: m.cantidad,
+            cantidad: parseFloat(m.cantidad) || 1, // Aseguramos que sea número
             costo: parseFloat(m.costo) || 0,
-            fotoUrl: m.fotoUrl,
+            fotoUrl: m.fotoUrl || m.foto, // Compatibilidad con ambos nombres
             foto: null 
         }));
 
-        renderMaterialesEdit();
+        // 🟢 Renderizamos usando la función unificada
+        // Si tu función de dibujo para editar se llama renderMaterialesEdit, 
+        // asegúrate de que esa función use levMaterialesList por dentro.
+        if (typeof renderizarListaYTotales === "function") {
+            renderizarListaYTotales(); 
+        } else {
+            renderMaterialesEdit();
+        }
+
+        // 🟢 Recalcular los totales de la edición de inmediato
+        if (typeof calcularSaldo === "function") calcularSaldo();
 
     } catch (e) { 
         console.error("Error al abrir edición:", e);
@@ -1048,6 +1053,7 @@ async function prepararEdicion(id) {
         document.getElementById("loader").style.display = "none"; 
     }
 }
+
 
 
 // 2. FUNCIÓN PARA CARGAR CLIENTES DESDE LA API (La que faltaba)
@@ -1195,15 +1201,15 @@ function calcularSaldoEdit() {
 
 // 6. GUARDAR CAMBIOS (PUT)
 async function actualizarCuentaFinal() {
-    // 🟢 Cambiamos a la lista que sí tiene los datos actualizados
-    if (levMaterialesList.length === 0) return alert("La nota no puede estar vacía");
+    // 🟢 CAMBIO CLAVE: Usamos levMaterialesList que es la que tiene los datos multiplicados
+    if (levMaterialesList.length === 0) return alert("La nota no puede estar vacía amiko");
 
     const numeroActual = document.getElementById("labelNumeroNotaEdit").innerText;
 
     const datos = {
         numeroNota: numeroActual,
-        // 🟢 Asegúrate que este ID sea el correcto en tu modal de edición
-        clienteNombre: document.getElementById("edit-clienteSelect").value, 
+        clienteNombre: document.getElementById("edit-clienteSelect").value,
+        // Usamos los IDs de tu modal de edición
         anticipo: parseFloat(document.getElementById("levAnticipoEdit").value) || 0,
         fecha_anticipo: document.getElementById("levFechaAnticipoEdit").value,
         subtotal: parseFloat(document.getElementById("levSubtotalEdit").value) || 0,
@@ -1212,7 +1218,7 @@ async function actualizarCuentaFinal() {
         ivaPorcentaje: parseFloat(document.getElementById("levIvaPorcentajeEdit").value) || 0,
         factura: document.getElementById("chkFacturaEdit").checked,
         folioFactura: document.getElementById("levFolioFacturaEdit").value,
-        // 🟢 Usamos la lista unificada
+        // 🟢 Enviamos la lista que sí tiene las cantidades
         materiales: levMaterialesList 
     };
 
@@ -1228,19 +1234,19 @@ async function actualizarCuentaFinal() {
         });
 
         if (res.ok) {
-            alert("✅ ¡Listo! Nota actualizada.");
+            alert("✅ ¡Listo! Nota actualizada en Render.");
             cerrarModalEditar();
             if (typeof cargarCuentasTabla === "function") cargarCuentasTabla();
-            else location.reload(); // Si no tienes la función a la mano, recarga
+            else location.reload();
         } else {
-            const errorData = await res.json();
-            alert("❌ No se pudo actualizar: " + (errorData.message || "Error del servidor"));
+            const errData = await res.json();
+            alert("❌ Error: " + (errData.message || "No se pudo actualizar"));
         }
-    } catch (e) { 
-        console.error("Error en PUT:", e);
-        alert("Error de conexión al servidor");
-    } finally { 
-        document.getElementById("loader").style.display = "none"; 
+    } catch (e) {
+        console.error("Error en el PUT:", e);
+        alert("Falla de conexión");
+    } finally {
+        document.getElementById("loader").style.display = "none";
     }
 }
 
@@ -1265,10 +1271,9 @@ function toggleFacturaEdit() {
 function cerrarModalEditar() {
     document.getElementById("modalEditarCuenta").style.display = "none";
     document.getElementById("levFormEditarCuenta").reset();
-    materialesEditList = [];
+    levMaterialesList = []; // 🟢 Limpiamos la lista global
     tempFotoEdit = null;
 }
-
 
 
 // 1. LLENAR EL FILTRO DE CLIENTES AL CARGAR LA PÁGINA
