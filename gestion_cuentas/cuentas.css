@@ -1281,5 +1281,12 @@ input:checked + .slider:before { transform: translateX(18px); }
 .status-pendiente { background: #fff3e0; color: #ef6c00; border: 1px solid #ffe0b2; }
 
 
-
+.modal-content-ios {
+    backdrop-filter: blur(2px);
+    background-color: #f0f8ffa1;
+    border-radius: 15px;
+    max-width: 300px;
+    padding: 20px;
+    text-align: center;
+}
 
