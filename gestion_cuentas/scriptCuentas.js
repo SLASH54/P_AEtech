@@ -288,7 +288,7 @@ document.getElementById("levBtnAgregarMaterial")?.addEventListener("click", () =
     const extra = document.getElementById("levInsumoExtra").value.trim();
     
     // 🟢 CAPTURAMOS LOS VALORES DE LOS INPUTS
-    const precioInput = document.getElementById("levProdCosto"); 
+    const precioInput = document.getElementById("levCosto"); 
     const cantInput = document.getElementById("levCantidad");   
     
     // Convertimos a números reales
