@@ -726,7 +726,7 @@ async function cargarCuentasTabla() {
                         <button onclick="compartirNota(${c.id})" class="btn-tabla-ios" style="background: rgba(50, 215, 255, 0.15); color: #00bcd4;" title="Compartir Link">🔗</button>
                         
                         ${!esPagado ? 
-                            `<button onclick="abrirModalAbono(${c.id})" class="btn-tabla-ios" style="background: rgba(58, 205, 0, 0.39); color: #000;" title="Liquidar Nota">💰</button>` : 
+                            `<button onclick="abrirModalAbono(${c.id}, ${c.saldo})" class="btn-tabla-ios" style="background: rgba(58, 205, 0, 0.39); color: #000;" title="Liquidar Nota">💰</button>` : 
                             '<span style="font-size: 1.2rem; margin-left: 5px;" title="Pagado">✅</span>'
                         }
                     </div>
