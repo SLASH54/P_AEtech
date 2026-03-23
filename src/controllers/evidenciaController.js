@@ -21,106 +21,96 @@ const subirMultiplesEvidencias = async (req, res) => {
     const usuarioId = req.user.id;
 
     const files = req.files?.archivos || [];
-    const firma = req.files?.firmaCliente?.[0] || null;
+    const firmaFile = req.files?.firmaCliente?.[0] || null;
     const titulos = req.body.titulos ? req.body.titulos.split(',') : [];
     const observaciones = req.body.observaciones || ""; 
-    
-    // ✍️ CAPTURAR EL NOMBRE DE QUIEN FIRMA
     const nombreFirma = req.body.nombreFirma || ""; 
 
-    // 🧱 Capturar materiales ocupados
-    const materiales = req.body.materiales ? JSON.parse(req.body.materiales) : [];
-
-    if (!tareaId) return res.status(400).json({ msg: 'Falta el ID de la tarea.' });
-    if (files.length === 0 && !firma)
-      return res.status(400).json({ msg: 'No se subieron archivos ni firma.' });
-
-    const evidencias = [];
-
-    // 📤 Subir imágenes a Cloudinary
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const titulo = titulos[i] || `Evidencia ${i + 1}`;
-
-      const result = await cloudinary.uploader.upload(file.path, {
-        folder: 'aetech_evidencias',
-        resource_type: 'auto'
-      });
-
-      let firmaUrl = null;
-
-      // 📤 Subir la firma del cliente (solo si existe)
-      if (firma) {
-        const firmaResult = await cloudinary.uploader.upload(firma.path, {
-          folder: 'aetech_firmas',
-          resource_type: 'auto'
-        });
-        firmaUrl = firmaResult.secure_url;
-      } 
-
-      // 💾 Guardar evidencia con su firma Y NOMBRE correspondientes
-      const evidencia = await Evidencia.create({
-        tareaId,
-        usuarioId,
-        titulo,
-        archivoUrl: result.secure_url,
-        firmaClienteUrl: firmaUrl,
-        nombreFirma: nombreFirma, // 👈 SE GUARDA EL NOMBRE AQUÍ
-        observaciones: i === 0 ? observaciones : null, 
-        materiales 
-      });
-
-      evidencias.push(evidencia);
+    // 🧱 PROTECCIÓN: Validar JSON de materiales
+    let materiales = [];
+    try {
+      if (req.body.materiales && req.body.materiales !== "undefined") {
+        materiales = typeof req.body.materiales === 'string' 
+          ? JSON.parse(req.body.materiales) 
+          : req.body.materiales;
+      }
+    } catch (e) {
+      console.error("❌ Error parseando materiales:", e);
+      materiales = []; // Evita que el server truene
     }
 
+    if (!tareaId) return res.status(400).json({ msg: 'Falta el ID de la tarea.' });
+    if (files.length === 0 && !firmaFile)
+      return res.status(400).json({ msg: 'No se subieron archivos ni firma.' });
 
+    // 1️⃣ SUBIR LA FIRMA UNA SOLA VEZ (Fuera del loop de fotos)
+    let firmaUrl = null;
+    if (firmaFile) {
+      const firmaResult = await cloudinary.uploader.upload(firmaFile.path, {
+        folder: 'aetech_firmas',
+        resource_type: 'auto'
+      });
+      firmaUrl = firmaResult.secure_url;
+    }
 
-    // ✅ Actualizar estado de la tarea
+    const evidencias creadas = [];
+
+    // 2️⃣ SUBIR LAS FOTOS Y CREAR REGISTROS
+    // Si no hay fotos pero hay firma, creamos al menos un registro para la firma
+    const totalIteraciones = files.length > 0 ? files.length : 1;
+
+    for (let i = 0; i < totalIteraciones; i++) {
+      let fotoUrl = null;
+      let tituloActual = titulos[i] || `Evidencia ${i + 1}`;
+
+      if (files[i]) {
+        const result = await cloudinary.uploader.upload(files[i].path, {
+          folder: 'aetech_evidencias',
+          resource_type: 'auto'
+        });
+        fotoUrl = result.secure_url;
+      }
+
+      // Guardamos en la DB
+      const nuevaEvidencia = await Evidencia.create({
+        tareaId,
+        usuarioId,
+        titulo: (i === 0 && !files[i]) ? "Firma de Conformidad" : tituloActual,
+        archivoUrl: fotoUrl,
+        firmaClienteUrl: i === 0 ? firmaUrl : null, // Solo guardamos la firma en el primer registro
+        nombreFirma: i === 0 ? nombreFirma : null,  // Solo en el primero para no duplicar en el PDF
+        observaciones: i === 0 ? observaciones : null, 
+        materiales: i === 0 ? materiales : []       // Solo en el primero
+      });
+
+      evidenciasCreadas.push(nuevaEvidencia);
+    }
+
+    // ✅ Actualizar estado de la tarea y notificaciones (Tu lógica original)
     await Tarea.update({ estado: 'Completada' }, { where: { id: tareaId } });
-
-    console.log(`✅ ${evidencias.length} evidencias subidas a Cloudinary`);
-
     
-// ... después de marcar la tarea "Completada"
-const tarea = await Tarea.findByPk(tareaId);
+    const tarea = await Tarea.findByPk(tareaId);
+    await Notificacion.update({ leida: true }, { where: { tareaId } });
 
-// Marcar como leídas/eliminar notificaciones previas de esa tarea
-await Notificacion.update(
-  { leida: true },
-  { where: { tareaId } }
-);
+    if (tarea?.usuarioAsignadoId) {
+      sendPushToUser(
+        tarea.usuarioAsignadoId,
+        'Tarea completada ✔',
+        `Se completó: ${tarea.nombre}`,
+        { tareaId: String(tarea.id) }
+      );
+    }
 
-// Enviar push al asignado (opcional también al admin)
-if (tarea?.usuarioAsignadoId) {
-  sendPushToUser(
-    tarea.usuarioAsignadoId,
-    'Tarea completada ✔',
-    `Se completó: ${tarea.nombre}`,
-    { tareaId: String(tarea.id) }
-  );
-}
-
-
-   res.status(201).json({
+    res.status(201).json({
       msg: 'Evidencias guardadas correctamente',
-      evidencias
+      evidencias: evidenciasCreadas
     });
 
   } catch (error) {
     console.error('❌ Error al subir evidencias:', error);
-    res.status(500).json({ msg: 'Error interno al subir evidencias.' });
+    res.status(500).json({ msg: 'Error interno al subir evidencias.', error: error.message });
   }
 };
-
-  console.log("REQ.FILES =>", req.files);
-console.log("REQ.BODY =>", req.body);
-console.log("REQ.PARAMS =>", req.params);
-
-console.log("🟢 Campos recibidos:", Object.keys(req.body));
-console.log("🟣 Archivos recibidos:", req.files?.map(f => f.fieldname));
-};
-
-
 
 // Configuración de inclusión para GET (mostrar detalles de la Tarea relacionada)
 const includeConfig = [

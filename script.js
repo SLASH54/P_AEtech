@@ -2872,32 +2872,28 @@ function initEvidencias(tareaId) {
 
 
 // Dentro de saveBtn.onclick en script.js
+// DENTRO DE saveBtn.onclick en script.js
 const formData = new FormData();
 
-// ✍️ CAPTURAR EL NOMBRE DE QUIEN FIRMA
-const nombreFirma = document.getElementById('inputNombreFirma')?.value;
+// 1. Validar y capturar nombre (Asegúrate que el ID sea exacto al del HTML)
+const nombreInput = document.getElementById('inputNombreFirma');
+const nombreFirma = nombreInput ? nombreInput.value.trim() : "";
+
 if (!nombreFirma) {
-    alert("⚠️ Por favor, escribe el nombre de la persona que firma.");
-    loader.style.display = 'none'; // Detener loader si falta el nombre
+    alert("⚠️ Por favor, escribe el nombre de quien firma.");
+    if(typeof loader !== 'undefined') loader.style.display = 'none';
     return;
 }
-formData.append('nombreFirma', nombreFirma); // Lo mandamos al server
+formData.append('nombreFirma', nombreFirma);
 
-// ... resto de tus appends (observaciones, titulos, archivos, materiales)
+// 2. Enviar materiales (Evitar el envío de "undefined" como texto)
+// Asumiendo que materialesList es tu array global de materiales
+const listaMateriales = (typeof materialesList !== 'undefined' && materialesList) 
+    ? JSON.stringify(materialesList) 
+    : "[]"; 
+formData.append('materiales', listaMateriales);
 
-
-    // === 🧱 Capturar materiales usados ===
-//const materiales = [];
-//document.querySelectorAll('#listaMateriales li').forEach(li => {
-//  materiales.push(li.textContent);
-//});
-
-// Agregar al FormData (como texto JSON)
-//formData.append('materiales', JSON.stringify(materiales));
-
-  formData.append("materiales", JSON.stringify(materialesList));
-
-
+// ... resto de tus appends (archivos, observaciones, etc.)
 
 
     console.log('🧾 Archivos a enviar:', archivos.map(f => f.files[0]?.name));
