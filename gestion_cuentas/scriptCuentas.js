@@ -88,6 +88,8 @@ function calcularSaldo() {
     document.getElementById('levPorLiquidar').value = saldo.toFixed(2);
 }
 
+
+
 // Escuchadores para el cálculo en tiempo real
 document.getElementById('levTotal')?.addEventListener('input', calcularSaldo);
 document.getElementById('levAnticipo')?.addEventListener('input', calcularSaldo);
@@ -469,40 +471,48 @@ function addMaterial() {
 function toggleIva() {
     const chk = document.getElementById('chkIva');
     const container = document.getElementById('ivaInputContainer');
-    container.style.display = chk.checked ? 'flex' : 'none';
-    calcularSaldo(); // Recalcular al activar/desactivar
+    if (container) {
+        container.style.display = chk.checked ? 'flex' : 'none';
+    }
+    calcularSaldo(); // Recalcular para que el total suba/baje al picar el check
 }
+
 
 // 2. Cálculo Maestro
 function calcularSaldo() {
-    // Calculamos la suma de todos los materiales (Subtotal)
-    const subtotal = levMaterialesList.reduce((sum, mat) => sum + mat.costo, 0);
+    // 🟢 1. Sumar todos los materiales multiplicando (Cantidad x Costo)
+    const subtotalReal = levMaterialesList.reduce((sum, mat) => {
+        const cant = parseFloat(mat.cantidad) || 1;
+        const precio = parseFloat(mat.costo) || 0;
+        return sum + (cant * precio);
+    }, 0);
     
     const chkIva = document.getElementById('chkIva');
     const inputPorcentaje = document.getElementById('levIvaPorcentaje');
+    
     const inputSubtotal = document.getElementById('levSubtotal');
     const inputTotal = document.getElementById('levTotal');
     const inputAnticipo = document.getElementById('levAnticipo');
     const inputLiquidar = document.getElementById('levPorLiquidar');
 
-    let montoConIva = subtotal;
+    let montoConIva = subtotalReal;
 
-    // Si el IVA está marcado, sumamos el %
+    // 🟢 2. Aplicar IVA si está marcado
     if (chkIva && chkIva.checked) {
         const porcentaje = parseFloat(inputPorcentaje.value) || 0;
-        montoConIva = subtotal * (1 + (porcentaje / 100));
+        montoConIva = subtotalReal * (1 + (porcentaje / 100));
     }
 
-    // Ponemos los valores en los cuadros
-    inputSubtotal.value = subtotal.toFixed(2);
-    inputTotal.value = montoConIva.toFixed(2);
+    // 🟢 3. Mostrar resultados en los inputs
+    if (inputSubtotal) inputSubtotal.value = subtotalReal.toFixed(2);
+    if (inputTotal) inputTotal.value = montoConIva.toFixed(2);
     
+    // 🟢 4. Calcular lo que falta por pagar
     const anticipo = parseFloat(inputAnticipo.value) || 0;
     const saldoFinal = montoConIva - anticipo;
     
-    inputLiquidar.value = saldoFinal.toFixed(2);
+    if (inputLiquidar) inputLiquidar.value = saldoFinal.toFixed(2);
 }
-
 
 // 1. Función para el switch de Factura
 function toggleFactura() {
@@ -1355,3 +1365,19 @@ function liquidarTotalDirecto() {
     document.getElementById("inputMontoAbono").value = saldoActualPendiente;
     procesarAbono();
 }
+
+
+// 🔍 ESCUCHADORES PARA CÁLCULO EN TIEMPO REAL
+document.addEventListener('DOMContentLoaded', () => {
+    // Escuchar cuando escriben el porcentaje de IVA
+    document.getElementById('levIvaPorcentaje')?.addEventListener('input', calcularSaldo);
+    
+    // Escuchar cuando escriben el anticipo
+    document.getElementById('levAnticipo')?.addEventListener('input', calcularSaldo);
+    
+    // Escuchar cuando activan/desactivan el checkbox de IVA
+    document.getElementById('chkIva')?.addEventListener('change', toggleIva);
+    
+    // Escuchar cuando activan/desactivan el checkbox de Factura
+    document.getElementById('chkFactura')?.addEventListener('change', toggleFactura);
+});
