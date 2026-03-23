@@ -210,11 +210,9 @@ function renderizarListaYTotales() {
 }
 
 
-// 🗑️ FUNCIÓN PARA ELIMINAR (Sincronizada con Render)
-window.eliminarMaterial = function(index) {
-    // Eliminamos el elemento en esa posición
-    levMaterialesList.splice(index, 1);
-    // Volvemos a dibujar para que los totales se actualicen (los $150, etc.)
+// 3. FUNCIÓN PARA ELIMINAR
+window.eliminarMaterial = function(id) {
+    levMaterialesList = levMaterialesList.filter(m => m.id !== id);
     renderizarListaYTotales();
 };
 
