@@ -48,7 +48,6 @@ function openNuevaCuenta() {
 
 
 //CERRAR MODAL NUEVA CUENTA//
-
 function cerrarNuevaCuentaModal() {
     document.getElementById("modalNuevaCuenta").style.display = "none";
     document.body.style.overflow = "auto";
@@ -284,58 +283,52 @@ const levUnidadesPorInsumo = {
 };
 
 // ➕ AGREGAR MATERIAL
-document.getElementById("levBtnAgregarMaterial")
-    ?.addEventListener("click", () => {
+document.getElementById("levBtnAgregarMaterial")?.addEventListener("click", () => {
+    const insumoBase = document.getElementById("levInsumo").value;
+    const extra = document.getElementById("levInsumoExtra").value.trim();
+    
+    // 🟢 PASO CLAVE: Obtener la cantidad y el costo del input
+    const cantidadInput = document.getElementById("levProdCant"); // Verifica que este sea el ID en tu HTML
+    const costoInput = document.getElementById("levProdCosto");
+    
+    const cantidad = parseFloat(cantidadInput.value) || 1;
+    const costo = parseFloat(costoInput.value) || 0;
 
-        const insumoBase = document.getElementById("levInsumo").value;
-        const extra = document.getElementById("levInsumoExtra").value.trim();
+    if (!insumoBase) return;
 
-        if (!insumoBase) {
-            //alert("Completa los campos de material");
-            return;
-        }
+    if ((insumoBase === "Fuente de poder centralizada" || insumoBase === "Otro") && !extra) {
+        alert("Especifica el modelo");
+        return;
+    }
 
-        if ((insumoBase === "Fuente de poder centralizada" || insumoBase === "Otro") && !extra) {
-            alert("Especifica el modelo");
-            return;
-        }
+    let unidad = (insumoBase === "Otro") 
+        ? document.getElementById("levUnidadOtro").value 
+        : (levUnidadesPorInsumo[insumoBase] || "Unidades");
 
-        let unidad;
-        if (insumoBase === "Otro") {
-            unidad = document.getElementById("levUnidadOtro").value;
-            if (!unidad) {
-                alert("Selecciona unidad");
-                return;
-            }
-        } else {
-            unidad = levUnidadesPorInsumo[insumoBase] || "Unidades";
-        }
+    const insumoFinal = extra ? `${insumoBase} (${extra})` : insumoBase;
+    const categoria = levCategoriaPorInsumo[insumoBase] || "Otros";
 
-        const insumoFinal = extra ? `${insumoBase} (${extra})` : insumoBase;
-        const categoria = levCategoriaPorInsumo[insumoBase] || "Otros";
+    // Detectar duplicado
+    const existente = levMaterialesList.find(m => m.insumo === insumoFinal && m.unidad === unidad);
 
-        // 🔁 detectar duplicado
-        const existente = levMaterialesList.find(
-            m => m.insumo === insumoFinal && m.unidad === unidad
-        );
-
-        if (existente) {
-            existente.cantidad += parseFloat(cantidad);
-            levRenderMateriales();
-            levLimpiarInputs();
-            return;
-        }
-
+    if (existente) {
+        existente.cantidad += cantidad; // Ahora 'cantidad' sí existe como número
+    } else {
         levMaterialesList.push({
             insumo: insumoFinal,
             categoria,
-            cantidad: parseFloat(cantidad),
+            cantidad: cantidad,
+            costo: costo, // 🟢 Guardamos el costo para el cálculo
             unidad
         });
+    }
 
-        levRenderMateriales();
-        levLimpiarInputs();
-    });
+    levRenderMateriales();
+    // Limpiar campos (asegúrate de tener esta función)
+    if (typeof levLimpiarInputs === "function") levLimpiarInputs();
+});
+
+
 
 // 🧹 LIMPIAR INPUTS
 function levLimpiarInputs() {
@@ -347,44 +340,77 @@ function levLimpiarInputs() {
     document.getElementById("levUnidadOtro").style.display = "none";
 }
 
+
+
 // 🖨️ RENDER MATERIALES
 function levRenderMateriales() {
     const ul = document.getElementById("levListaMateriales");
+    if(!ul) return;
     ul.innerHTML = "";
 
     const grupos = {};
-
     levMaterialesList.forEach(mat => {
         if (!grupos[mat.categoria]) grupos[mat.categoria] = [];
         grupos[mat.categoria].push(mat);
     });
 
     Object.keys(grupos).sort().forEach(cat => {
-
         const header = document.createElement("li");
-        header.innerHTML = `<strong>${cat}</strong>`;
+        header.innerHTML = `<strong style="color: #004b85;">${cat}</strong>`;
         header.style.marginTop = "10px";
+        header.style.listStyle = "none";
         ul.appendChild(header);
 
-        grupos[cat].forEach(mat => {
+        grupos[cat].forEach((mat, index) => {
+            // 🟢 CALCULAMOS EL TOTAL DE ESTE PRODUCTO
+            const totalRenglon = (mat.cantidad * mat.costo).toFixed(2);
+            
             const li = document.createElement("li");
+            li.style.display = "flex";
+            li.style.justifyContent = "space-between";
+            li.style.padding = "5px 0";
+            li.style.borderBottom = "1px solid #f0f0f0";
+
             li.innerHTML = `
-                ${mat.insumo} – ${mat.cantidad} ${mat.unidad}
-                <button class="levBtnEliminarMat">❌</button>
+                <div style="color: black;">
+                    <b>${mat.cantidad}</b> x ${mat.insumo} 
+                    <small style="color: #666;">($${mat.costo.toFixed(2)} c/u)</small>
+                </div>
+                <div style="font-weight: bold; color: #00938f;">
+                    $${totalRenglon}
+                    <button class="levBtnEliminarMat" style="background:none; border:none; color:red; cursor:pointer; margin-left:10px;">❌</button>
+                </div>
             `;
 
             li.querySelector(".levBtnEliminarMat").onclick = () => {
-                levMaterialesList = levMaterialesList.filter(
-                    m => !(m.insumo === mat.insumo && m.unidad === mat.unidad)
-                );
+                levMaterialesList = levMaterialesList.filter(m => m !== mat);
                 levRenderMateriales();
             };
 
             ul.appendChild(li);
         });
     });
+    
+    // Al terminar de dibujar, actualizamos el Subtotal y Total de la nota
+    actualizarTotalesNota();
 }
 
+//funcion de actulizar nota 
+function actualizarTotalesNota() {
+    let subtotal = 0;
+    levMaterialesList.forEach(m => {
+        subtotal += (m.cantidad * m.costo);
+    });
+
+    // Actualizamos los campos de texto del modal
+    const inputSubtotal = document.getElementById("levSubtotal");
+    const inputTotal = document.getElementById("levTotal");
+    
+    if(inputSubtotal) inputSubtotal.value = subtotal.toFixed(2);
+    if(inputTotal) inputTotal.value = subtotal.toFixed(2); // Ajusta si lleva IVA
+    
+    calcularSaldo(); // Tu función que resta el anticipo
+}
 
 
 // 👁️ MOSTRAR CAMPOS EXTRA
