@@ -53,7 +53,7 @@ const subirMultiplesEvidencias = async (req, res) => {
       firmaUrl = firmaResult.secure_url;
     }
 
-    const evidencias creadas = [];
+    const evidenciascreadas = [];
 
     // 2️⃣ SUBIR LAS FOTOS Y CREAR REGISTROS
     // Si no hay fotos pero hay firma, creamos al menos un registro para la firma

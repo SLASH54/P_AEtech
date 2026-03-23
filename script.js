@@ -2871,29 +2871,32 @@ function initEvidencias(tareaId) {
 // window.URL.revokeObjectURL(url);
 
 
-// Dentro de saveBtn.onclick en script.js
-// DENTRO DE saveBtn.onclick en script.js
-const formData = new FormData();
 
-// 1. Validar y capturar nombre (Asegúrate que el ID sea exacto al del HTML)
-const nombreInput = document.getElementById('inputNombreFirma');
-const nombreFirma = nombreInput ? nombreInput.value.trim() : "";
+    const formData = new FormData();
+     // Agregamos el comentario al envío
+    const observaciones = document.getElementById('tareaObservaciones').value;
+    formData.append('observaciones', observaciones);
 
-if (!nombreFirma) {
-    alert("⚠️ Por favor, escribe el nombre de quien firma.");
-    if(typeof loader !== 'undefined') loader.style.display = 'none';
-    return;
-}
-formData.append('nombreFirma', nombreFirma);
+    const titulos = [...document.querySelectorAll('.titulo')].map(i => i.value);
+    const archivos = [...document.querySelectorAll('.archivo')];//Posiblemente no lleve "s"(.archivo)
+    archivos.forEach(f => { if (f.files[0]) formData.append('archivos', f.files[0]); });
+    formData.append('titulos', titulos.join(','));
 
-// 2. Enviar materiales (Evitar el envío de "undefined" como texto)
-// Asumiendo que materialesList es tu array global de materiales
-const listaMateriales = (typeof materialesList !== 'undefined' && materialesList) 
-    ? JSON.stringify(materialesList) 
-    : "[]"; 
-formData.append('materiales', listaMateriales);
 
-// ... resto de tus appends (archivos, observaciones, etc.)
+
+
+    // === 🧱 Capturar materiales usados ===
+//const materiales = [];
+//document.querySelectorAll('#listaMateriales li').forEach(li => {
+//  materiales.push(li.textContent);
+//});
+
+// Agregar al FormData (como texto JSON)
+//formData.append('materiales', JSON.stringify(materiales));
+
+  formData.append("materiales", JSON.stringify(materialesList));
+
+
 
 
     console.log('🧾 Archivos a enviar:', archivos.map(f => f.files[0]?.name));
