@@ -26,12 +26,24 @@ function openNuevaCuenta() {
     const modal = document.getElementById("modalNuevaCuenta");
     editandoId = null; 
     levMaterialesList = [];
+    
+    // 1. Limpiamos la lista visual de materiales
     document.getElementById("levListaMateriales").innerHTML = "";
+
+    // 2. 🟢 REINICIAMOS LOS TOTALES (Esto es lo que faltaba para que sea como Editar)
+    if (document.getElementById("levSubtotal")) document.getElementById("levSubtotal").value = "0.00";
+    if (document.getElementById("levTotal")) document.getElementById("levTotal").value = "0.00";
+    if (document.getElementById("levAnticipo")) document.getElementById("levAnticipo").value = "0.00";
+    if (document.getElementById("levPorLiquidar")) document.getElementById("levPorLiquidar").value = "0.00";
+    
+    // 3. Reiniciamos los inputs de carga de material
+    if (document.getElementById("levProdCosto")) document.getElementById("levProdCosto").value = "";
+    if (document.getElementById("levProdCant")) document.getElementById("levProdCant").value = "1";
 
     cargarClientesSelect(); 
     setFechaHoraActual();
 
-    // 💡 Buscamos el número más alto en la tabla para dar el siguiente
+    // 💡 Lógica del número de nota correlativo
     const celdas = document.querySelectorAll(".tabla tbody tr td:first-child");
     let max = 0;
     celdas.forEach(td => {
@@ -40,12 +52,10 @@ function openNuevaCuenta() {
     });
 
     const siguiente = max + 1;
-    // Guardamos el texto exacto en el label del modal
     document.getElementById('labelNumeroNota').innerText = `Nota #${siguiente}`;
     
     modal.style.display = "flex";
 }
-
 
 //CERRAR MODAL NUEVA CUENTA//
 function cerrarNuevaCuentaModal() {
@@ -282,55 +292,52 @@ const levUnidadesPorInsumo = {
     "Otro": "Unidades"
 };
 
-// ➕ AGREGAR MATERIAL (Corregido para capturar precio y cantidad)
+
+
+// ➕ AGREGAR MATERIAL (MODAL NUEVA CUENTA)
 document.getElementById("levBtnAgregarMaterial")?.addEventListener("click", () => {
     const insumoBase = document.getElementById("levInsumo").value;
     const extra = document.getElementById("levInsumoExtra").value.trim();
     
-    // 🟢 CAPTURAMOS LOS VALORES DE LOS INPUTS
-    const precioInput = document.getElementById("levCosto"); 
-    const cantInput = document.getElementById("levCantidad");   
+    // 🟢 CAPTURAMOS LOS INPUTS (Esto es lo que faltaba)
+    const precioInput = document.getElementById("levProdCosto"); 
+    const cantInput = document.getElementById("levProdCant");   
     
-    // Convertimos a números reales
     const costo = parseFloat(precioInput.value) || 0;
     const cantidad = parseFloat(cantInput.value) || 1;
 
-    if (!insumoBase) return;
-
-    if ((insumoBase === "Fuente de poder centralizada" || insumoBase === "Otro") && !extra) {
-        alert("Especifica el modelo");
+    if (!insumoBase || costo <= 0) {
+        alert("Selecciona un material y ponle un precio.");
         return;
     }
-
-    let unidad = (insumoBase === "Otro") 
-        ? document.getElementById("levUnidadOtro").value 
-        : (levUnidadesPorInsumo[insumoBase] || "Unidades");
 
     const insumoFinal = extra ? `${insumoBase} (${extra})` : insumoBase;
     const categoria = levCategoriaPorInsumo[insumoBase] || "Otros";
 
-    // 🔁 Detectar duplicado y sumar
-    const existente = levMaterialesList.find(m => m.insumo === insumoFinal && m.unidad === unidad);
+    // Detectar duplicado
+    const existente = levMaterialesList.find(m => m.insumo === insumoFinal);
 
     if (existente) {
         existente.cantidad += cantidad;
     } else {
+        // 🟢 GUARDAMOS COSTO Y CANTIDAD EN EL OBJETO
         levMaterialesList.push({
             insumo: insumoFinal,
             categoria,
             cantidad: cantidad,
-            costo: costo, // 🟢 Guardamos el costo en el objeto
-            unidad
+            costo: costo, 
+            unidad: (insumoBase === "Otro") ? document.getElementById("levUnidadOtro").value : (levUnidadesPorInsumo[insumoBase] || "Unidades")
         });
     }
 
     levRenderMateriales();
     
-    // Limpiamos los inputs de precio y cantidad
+    // Limpiamos los campos
     precioInput.value = "";
     cantInput.value = "1";
-    if(typeof levLimpiarInputs === "function") levLimpiarInputs();
+    if (typeof levLimpiarInputs === "function") levLimpiarInputs();
 });
+
 
 // 🧹 LIMPIAR INPUTS
 function levLimpiarInputs() {
@@ -350,51 +357,40 @@ function levRenderMateriales() {
     if(!ul) return;
     ul.innerHTML = "";
 
-    const grupos = {};
-    levMaterialesList.forEach(mat => {
-        if (!grupos[mat.categoria]) grupos[mat.categoria] = [];
-        grupos[mat.categoria].push(mat);
-    });
+    levMaterialesList.forEach((mat, index) => {
+        // 🟢 MULTIPLICACIÓN PARA LA VISTA
+        const totalFila = (mat.cantidad * mat.costo).toFixed(2);
 
-    Object.keys(grupos).sort().forEach(cat => {
-        const header = document.createElement("li");
-        header.innerHTML = `<strong style="color: #004b85; display: block; margin-top: 10px; border-bottom: 1px solid #eee;">${cat}</strong>`;
-        ul.appendChild(header);
+        const li = document.createElement("li");
+        li.style.display = "flex";
+        li.style.justifyContent = "space-between";
+        li.style.alignItems = "center";
+        li.style.padding = "10px";
+        li.style.borderBottom = "1px solid #eee";
+        li.style.color = "black";
 
-        grupos[cat].forEach(mat => {
-            // 🟢 MULTIPLICACIÓN PARA LA VISTA
-            const totalFila = (mat.cantidad * mat.costo).toFixed(2);
+        li.innerHTML = `
+            <div style="flex: 1;">
+                <b style="color:#007aff;">${mat.cantidad}x</b> ${mat.insumo}
+                <br><small style="color: #666;">$${mat.costo.toFixed(2)} c/u</small>
+            </div>
+            <div style="text-align: right;">
+                <span style="color: #00938f; font-weight: bold; font-size: 1.1em;">$${totalFila}</span>
+                <button class="levBtnEliminarMat" style="background:none; border:none; color:red; cursor:pointer; margin-left:15px; font-size:1.2em;">❌</button>
+            </div>
+        `;
 
-            const li = document.createElement("li");
-            li.style.display = "flex";
-            li.style.justifyContent = "space-between";
-            li.style.alignItems = "center";
-            li.style.color = "black";
-            li.style.padding = "8px 0";
-            li.style.borderBottom = "1px solid #f9f9f9";
-
-            li.innerHTML = `
-                <div style="flex: 1;">
-                    <span style="font-weight: bold;">${mat.cantidad}</span> x ${mat.insumo}
-                    <br><small style="color: #666;">$${mat.costo.toFixed(2)} c/u</small>
-                </div>
-                <div style="text-align: right;">
-                    <span style="color: #00938f; font-weight: bold;">$${totalFila}</span>
-                    <button class="levBtnEliminarMat" style="background:none; border:none; color:red; cursor:pointer; margin-left:10px;">❌</button>
-                </div>
-            `;
-
-            li.querySelector(".levBtnEliminarMat").onclick = () => {
-                levMaterialesList = levMaterialesList.filter(m => m !== mat);
-                levRenderMateriales();
-            };
-            ul.appendChild(li);
-        });
+        li.querySelector(".levBtnEliminarMat").onclick = () => {
+            levMaterialesList.splice(index, 1);
+            levRenderMateriales();
+        };
+        ul.appendChild(li);
     });
     
-    // 🟢 Actualizamos el subtotal de la nota automáticamente
+    // 🟢 ACTUALIZAR LOS TOTALES GENERALES DE LA NOTA
     actualizarTotalesNuevaNota();
 }
+
 
 //total nota actualizado
 function actualizarTotalesNuevaNota() {
@@ -409,9 +405,10 @@ function actualizarTotalesNuevaNota() {
     if(sub) sub.value = subtotal.toFixed(2);
     if(tot) tot.value = subtotal.toFixed(2); 
     
-    // Llamamos a tu función de saldo para restar el anticipo
+    // Llamamos a tu función de saldo
     if (typeof calcularSaldo === "function") calcularSaldo();
 }
+
 
 
 
