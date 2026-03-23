@@ -1195,15 +1195,14 @@ function calcularSaldoEdit() {
 
 // 6. GUARDAR CAMBIOS (PUT)
 async function actualizarCuentaFinal() {
-    // 🟢 CAMBIO CLAVE: Usamos levMaterialesList que es la que tiene los datos multiplicados
-    if (levMaterialesList.length === 0) return alert("La nota no puede estar vacía amiko");
+    // 1. CAMBIO AQUÍ: Usar materialesEditList
+    if (materialesEditList.length === 0) return alert("La nota no puede estar vacía amiko");
 
     const numeroActual = document.getElementById("labelNumeroNotaEdit").innerText;
 
     const datos = {
         numeroNota: numeroActual,
         clienteNombre: document.getElementById("edit-clienteSelect").value,
-        // Usamos los IDs de tu modal de edición
         anticipo: parseFloat(document.getElementById("levAnticipoEdit").value) || 0,
         fecha_anticipo: document.getElementById("levFechaAnticipoEdit").value,
         subtotal: parseFloat(document.getElementById("levSubtotalEdit").value) || 0,
@@ -1212,8 +1211,8 @@ async function actualizarCuentaFinal() {
         ivaPorcentaje: parseFloat(document.getElementById("levIvaPorcentajeEdit").value) || 0,
         factura: document.getElementById("chkFacturaEdit").checked,
         folioFactura: document.getElementById("levFolioFacturaEdit").value,
-        // 🟢 Enviamos la lista que sí tiene las cantidades
-        materiales: levMaterialesList 
+        // 2. CAMBIO AQUÍ: Usar materialesEditList
+        materiales: materialesEditList 
     };
 
     try {
@@ -1264,11 +1263,13 @@ function toggleFacturaEdit() {
 
 function cerrarModalEditar() {
     document.getElementById("modalEditarCuenta").style.display = "none";
-    document.getElementById("levFormEditarCuenta").reset();
-    levMaterialesList = []; // 🟢 Limpiamos la lista global
+    if(document.getElementById("levFormEditarCuenta")) {
+        document.getElementById("levFormEditarCuenta").reset();
+    }
+    // 🟢 LIMPIAMOS LA LISTA CORRECTA
+    materialesEditList = []; 
     tempFotoEdit = null;
 }
-
 
 // 1. LLENAR EL FILTRO DE CLIENTES AL CARGAR LA PÁGINA
 async function cargarFiltroClientes() {
