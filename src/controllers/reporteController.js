@@ -325,29 +325,49 @@ if (resto.length > 0) {
 }
 
     // Firma
-    const evFirma = evidencias.find(e => e.firmaClienteUrl);
+  // === Sección de Firma en reporteController.js ===
+const evFirma = evidencias.find(e => e.firmaClienteUrl);
 
-    if (evFirma) {
-      nuevaPagina(doc, plantillaBuf);
-      doc.moveDown(3);
+if (evFirma) {
+  nuevaPagina(doc, plantillaBuf);
+  doc.moveDown(3);
 
-      doc.fontSize(16)
-        .fillColor("#00938f")
-        .text("FIRMA DEL CLIENTE", MARGIN_LEFT);
+  doc.fontSize(16)
+    .fillColor("#00938f")
+    .text("FIRMA DE CONFORMIDAD", MARGIN_LEFT); // Cambiado a Conformidad para que se vea más pro
 
-      doc.moveDown(0.5);
+  doc.moveDown(0.5);
 
-      const firmaBuf = await procesarImagen(evFirma.firmaClienteUrl, 380, 220, true);
+  const firmaBuf = await procesarImagen(evFirma.firmaClienteUrl, 380, 220, true);
 
-      if (firmaBuf) {
-        const img = doc.openImage(firmaBuf);
-        const x = (doc.page.width - img.width) / 2;
-        doc.image(firmaBuf, x, doc.y);
-      } else {
-        doc.fillColor("red").text("⚠ No se pudo cargar la firma.");
-      }
-    }
+  if (firmaBuf) {
+    const img = doc.openImage(firmaBuf);
+    const xCentral = (doc.page.width - 200) / 2; // Calculamos el centro para la línea y nombre
+    
+    // 1. Dibujar la imagen de la firma
+    const xImagen = (doc.page.width - img.width) / 2;
+    doc.image(firmaBuf, xImagen, doc.y);
+    
+    doc.moveDown(0.2);
 
+    // 2. Dibujar línea de firma
+    doc.strokeColor("#000")
+       .lineWidth(1)
+       .moveTo(xCentral, doc.y)
+       .lineTo(xCentral + 200, doc.y)
+       .stroke();
+
+    // 3. Poner el nombre de quien firma debajo de la línea
+    doc.moveDown(0.2);
+    doc.fontSize(11)
+       .fillColor("#000")
+       .text(evFirma.nombreFirma ? evFirma.nombreFirma.toUpperCase() : "FIRMA DEL CLIENTE", 
+             xCentral, doc.y, { width: 200, align: 'center' });
+
+  } else {
+    doc.fillColor("red").text("⚠ No se pudo cargar la firma.");
+  }
+}
     // Materiales
     const materiales = evidencias[0]?.materiales || [];
 

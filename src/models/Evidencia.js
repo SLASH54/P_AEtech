@@ -25,6 +25,12 @@ const Evidencia = sequelize.define('Evidencia', {
       allowNull: true
   },
 
+nombreFirma: {
+    type: DataTypes.STRING,
+    allowNull: true
+},
+// ...
+
 
 }, {
   tableName: 'Evidencias',

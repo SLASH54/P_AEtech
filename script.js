@@ -2871,18 +2871,19 @@ function initEvidencias(tareaId) {
 // window.URL.revokeObjectURL(url);
 
 
+// Dentro de saveBtn.onclick en script.js
+const formData = new FormData();
 
-    const formData = new FormData();
-     // Agregamos el comentario al envío
-    const observaciones = document.getElementById('tareaObservaciones').value;
-    formData.append('observaciones', observaciones);
+// ✍️ CAPTURAR EL NOMBRE DE QUIEN FIRMA
+const nombreFirma = document.getElementById('inputNombreFirma')?.value;
+if (!nombreFirma) {
+    alert("⚠️ Por favor, escribe el nombre de la persona que firma.");
+    loader.style.display = 'none'; // Detener loader si falta el nombre
+    return;
+}
+formData.append('nombreFirma', nombreFirma); // Lo mandamos al server
 
-    const titulos = [...document.querySelectorAll('.titulo')].map(i => i.value);
-    const archivos = [...document.querySelectorAll('.archivo')];//Posiblemente no lleve "s"(.archivo)
-    archivos.forEach(f => { if (f.files[0]) formData.append('archivos', f.files[0]); });
-    formData.append('titulos', titulos.join(','));
-
-
+// ... resto de tus appends (observaciones, titulos, archivos, materiales)
 
 
     // === 🧱 Capturar materiales usados ===
