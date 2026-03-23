@@ -185,7 +185,8 @@ function renderizarListaYTotales() {
             : `<div style="width:40px;height:40px;background:#eee;display:flex;align-items:center;justify-content:center;border-radius:5px;">📦</div>`;
 
         li.innerHTML = `
-            <div style="flex: 1; margin-left: 10px;">
+            <div style="flex: 1; margin-left: 10px;"> 
+            ${imgHTML}
                 <strong>${mat.cantidad}x ${mat.nombre}</strong>
                 <br><small style="color: #666;">$${mat.costo.toFixed(2)} c/u</small>
             </div>
@@ -202,6 +203,8 @@ function renderizarListaYTotales() {
     
     if (typeof calcularSaldo === "function") calcularSaldo();
 }
+
+
 
 // 3. FUNCIÓN PARA ELIMINAR MATERIALES
 window.eliminarMaterial = function(id) {
