@@ -1020,21 +1020,19 @@ function agregarMaterialEdit() {
 
     let nombre = (select.value === "Otro") ? campoExtra.value : select.value;
     
-    // 🟢 FORZAMOS NÚMEROS DESDE EL INICIO
-    const valorCosto = parseFloat(costoInput.value) || 0;
-    const valorCant = parseInt(cantInput.value) || 1;
+    // 🟢 FORZAMOS NÚMEROS AQUÍ
+    const costo = parseFloat(costoInput.value) || 0;
+    const cant = parseInt(cantInput.value) || 1; 
 
-    if (!nombre || valorCosto <= 0) {
+    if (!nombre || costo <= 0) {
         return alert("Selecciona un producto y ponle precio.");
     }
 
-    // 🟢 LOG DE SEGURIDAD (Revísalo en la consola F12)
-    console.log("Agregando:", nombre, "Cant:", valorCant, "Precio:", valorCosto);
-
+    // 🟢 IMPORTANTE: Usamos la lista de edición
     materialesEditList.push({
         nombre: nombre,
-        costo: valorCosto,      
-        cantidad: valorCant,    
+        costo: costo,
+        cantidad: cant, // <--- Aquí ya va como número
         foto: tempFotoEdit,
         fotoUrl: null
     });
@@ -1051,19 +1049,21 @@ function agregarMaterialEdit() {
     renderMaterialesEdit();
 }
 
+
+
 // 4. RENDERIZAR TABLA Y CALCULAR
 function renderMaterialesEdit() {
     const tbody = document.querySelector("#tablaMaterialesEdit tbody");
-    if(!tbody) return;
+    if (!tbody) return;
     tbody.innerHTML = "";
     
     materialesEditList.forEach((item, index) => {
         const img = item.foto || item.fotoUrl || 'img/logoAEtech.png';
         
-        // 🟢 CÁLCULO EXPLÍCITO
-        const c = parseFloat(item.cantidad) || 0;
-        const p = parseFloat(item.costo) || 0;
-        const subtotal = (c * p).toFixed(2); 
+        // 🟢 CÁLCULO MATEMÁTICO REAL
+        const cantidad = Number(item.cantidad) || 0;
+        const costoUnitario = Number(item.costo) || 0;
+        const totalRenglon = (cantidad * costoUnitario).toFixed(2);
 
         tbody.innerHTML += `
             <tr style="background: white;">
@@ -1071,18 +1071,18 @@ function renderMaterialesEdit() {
                     <img src="${img}" style="width:45px; height:45px; border-radius:8px; object-fit:cover;">
                 </td>
                 <td style="color:black;">${item.nombre}</td>
-                <td style="color:black; text-align:center;">${item.cantidad}</td>
-                <td style="color:black; text-align:right;">$${parseFloat(item.costo).toFixed(2)}</td>
-                <td style="color:#00938f; text-align:right; font-weight:bold;">$${subtotal}</td>
+                <td style="color:black; text-align:center;">${cantidad}</td>
+                <td style="color:black; text-align:right;">$${costoUnitario.toFixed(2)}</td>
+                <td style="color:#00938f; text-align:right; font-weight:bold;">$${totalRenglon}</td>
                 <td style="text-align:center;">
-                    <button type="button" onclick="materialesEditList.splice(${index},1); renderMaterialesEdit();" style="background:none; border:none; color:red; cursor:pointer; font-size:1.2rem;">✕</button>
+                    <button type="button" onclick="materialesEditList.splice(${index},1); renderMaterialesEdit();" 
+                        style="background:none; border:none; color:red; cursor:pointer; font-size:1.2rem;">✕</button>
                 </td>
             </tr>
         `;
     });
     calcularSaldoEdit();
 }
-
 
 
 // 5. CÁLCULOS DE IVA Y SALDO (Actualizado para el orden: Total, Anticipo, Saldo)
