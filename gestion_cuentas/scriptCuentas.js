@@ -210,7 +210,7 @@ function renderizarListaYTotales() {
 }
 
 
-// 3. FUNCIÓN PARA ELIMINAR
+// 3. FUNCIÓN PARA ELIMINAR MATERIALES
 window.eliminarMaterial = function(id) {
     levMaterialesList = levMaterialesList.filter(m => m.id !== id);
     renderizarListaYTotales();
