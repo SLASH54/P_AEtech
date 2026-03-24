@@ -24,6 +24,8 @@ const subirMultiplesEvidencias = async (req, res) => {
     const firmaFile = req.files?.firmaCliente?.[0] || null;
     const titulos = req.body.titulos ? req.body.titulos.split(',') : [];
     const observaciones = req.body.observaciones || ""; 
+    
+    // 🖊️ Capturamos el nombre que viene del input del frontend
     const nombreFirma = req.body.nombreFirma || ""; 
 
     // 🧱 PROTECCIÓN: Validar JSON de materiales
@@ -36,14 +38,14 @@ const subirMultiplesEvidencias = async (req, res) => {
       }
     } catch (e) {
       console.error("❌ Error parseando materiales:", e);
-      materiales = []; // Evita que el server truene
+      materiales = []; 
     }
 
     if (!tareaId) return res.status(400).json({ msg: 'Falta el ID de la tarea.' });
     if (files.length === 0 && !firmaFile)
       return res.status(400).json({ msg: 'No se subieron archivos ni firma.' });
 
-    // 1️⃣ SUBIR LA FIRMA UNA SOLA VEZ (Fuera del loop de fotos)
+    // 1️⃣ SUBIR LA FIRMA A CLOUDINARY
     let firmaUrl = null;
     if (firmaFile) {
       const firmaResult = await cloudinary.uploader.upload(firmaFile.path, {
@@ -53,10 +55,10 @@ const subirMultiplesEvidencias = async (req, res) => {
       firmaUrl = firmaResult.secure_url;
     }
 
-    const evidenciascreadas = [];
+    // 🟢 CORRECCIÓN DE VARIABLE (CamelCase)
+    const evidenciasCreadas = [];
 
-    // 2️⃣ SUBIR LAS FOTOS Y CREAR REGISTROS
-    // Si no hay fotos pero hay firma, creamos al menos un registro para la firma
+    // 2️⃣ CREAR REGISTROS EN LA DB
     const totalIteraciones = files.length > 0 ? files.length : 1;
 
     for (let i = 0; i < totalIteraciones; i++) {
@@ -71,24 +73,26 @@ const subirMultiplesEvidencias = async (req, res) => {
         fotoUrl = result.secure_url;
       }
 
-      // Guardamos en la DB
+      // 💾 Guardamos en la DB de Render
       const nuevaEvidencia = await Evidencia.create({
         tareaId,
         usuarioId,
+        // Si es el primer registro y no hay foto, le ponemos que es la firma
         titulo: (i === 0 && !files[i]) ? "Firma de Conformidad" : tituloActual,
         archivoUrl: fotoUrl,
-        firmaClienteUrl: i === 0 ? firmaUrl : null, // Solo guardamos la firma en el primer registro
-        nombreFirma: i === 0 ? nombreFirma : null,  // Solo en el primero para no duplicar en el PDF
+        firmaClienteUrl: i === 0 ? firmaUrl : null, 
+        nombreFirma: i === 0 ? nombreFirma : null,  // 👈 AQUÍ SE GUARDA EL NOMBRE
         observaciones: i === 0 ? observaciones : null, 
-        materiales: i === 0 ? materiales : []       // Solo en el primero
+        materiales: i === 0 ? materiales : []      
       });
 
       evidenciasCreadas.push(nuevaEvidencia);
     }
 
-    // ✅ Actualizar estado de la tarea y notificaciones (Tu lógica original)
+    // ✅ Actualizar estado de la tarea
     await Tarea.update({ estado: 'Completada' }, { where: { id: tareaId } });
     
+    // Notificaciones Push
     const tarea = await Tarea.findByPk(tareaId);
     await Notificacion.update({ leida: true }, { where: { tareaId } });
 
@@ -108,9 +112,10 @@ const subirMultiplesEvidencias = async (req, res) => {
 
   } catch (error) {
     console.error('❌ Error al subir evidencias:', error);
-    res.status(500).json({ msg: 'Error interno al subir evidencias.', error: error.message });
+    res.status(500).json({ msg: 'Error interno.', error: error.message });
   }
 };
+
 
 // Configuración de inclusión para GET (mostrar detalles de la Tarea relacionada)
 const includeConfig = [

@@ -67,4 +67,10 @@ router.get('/tarea/:tareaId', protect, evidenciaController.getEvidenciaByTareaId
 // 4️⃣ Obtener lista de evidencias de una tarea (para técnicos)
 router.get('/tarea/:tareaId/list', protect, rol(['Admin', 'Residente', 'Practicante']), evidenciaController.getEvidenciasByTarea);
 
+
+// Revisa que esté así (ya lo tienes, solo confírmalo):
+router.post('/upload-multiple/:id',protect, upload.fields([{ name: 'archivos', maxCount: 10 },{ name: 'firmaCliente', maxCount: 1 }]),
+  evidenciaController.subirMultiplesEvidencias);
+
+  
 module.exports = router;

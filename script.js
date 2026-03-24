@@ -3021,70 +3021,85 @@ function agregarEvidencia(tareaId) {
 // 🔹 FIRMA DEL CLIENTE
 const canvas = document.getElementById('signature-pad');
 if (canvas) {
-  const ctx = canvas.getContext('2d');
-  let drawing = false;
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
 
-  // 🔹 Configuración de estilo
-  ctx.strokeStyle = '#000';
-  ctx.lineWidth = 2;
-  ctx.lineCap = 'round';
+    // 🔹 Configuración de estilo
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
 
-  // 🔹 Eventos de ratón
-  canvas.addEventListener('mousedown', (e) => {
-    drawing = true;
-    ctx.beginPath();
-    ctx.moveTo(e.offsetX, e.offsetY);
-  });
+    // 🔹 Eventos de ratón
+    canvas.addEventListener('mousedown', (e) => {
+        drawing = true;
+        ctx.beginPath();
+        ctx.moveTo(e.offsetX, e.offsetY);
+    });
 
-  canvas.addEventListener('mousemove', (e) => {
-    if (!drawing) return;
-    ctx.lineTo(e.offsetX, e.offsetY);
-    ctx.stroke();
-  });
+    canvas.addEventListener('mousemove', (e) => {
+        if (!drawing) return;
+        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.stroke();
+    });
 
-  canvas.addEventListener('mouseup', () => (drawing = false));
-  canvas.addEventListener('mouseleave', () => (drawing = false));
+    canvas.addEventListener('mouseup', () => (drawing = false));
+    canvas.addEventListener('mouseleave', () => (drawing = false));
 
-  // 🔹 Eventos táctiles
-  const getTouchPos = (e) => {
-    const rect = canvas.getBoundingClientRect();
-    return {
-      x: e.touches[0].clientX - rect.left,
-      y: e.touches[0].clientY - rect.top,
+    // 🔹 Eventos táctiles
+    const getTouchPos = (e) => {
+        const rect = canvas.getBoundingClientRect();
+        return {
+            x: e.touches[0].clientX - rect.left,
+            y: e.touches[0].clientY - rect.top,
+        };
     };
-  };
 
-  canvas.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    drawing = true;
-    const pos = getTouchPos(e);
-    ctx.beginPath();
-    ctx.moveTo(pos.x, pos.y);
-  }, { passive: false });
+    canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        drawing = true;
+        const pos = getTouchPos(e);
+        ctx.beginPath();
+        ctx.moveTo(pos.x, pos.y);
+    }, { passive: false });
 
-  canvas.addEventListener('touchmove', (e) => {
-    e.preventDefault();
-    if (!drawing) return;
-    const pos = getTouchPos(e);
-    ctx.lineTo(pos.x, pos.y);
-    ctx.stroke();
-  }, { passive: false });
+    canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        if (!drawing) return;
+        const pos = getTouchPos(e);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+    }, { passive: false });
 
-  canvas.addEventListener('touchend', () => (drawing = false));
-  canvas.addEventListener('touchcancel', () => (drawing = false));
+    canvas.addEventListener('touchend', () => (drawing = false));
+    canvas.addEventListener('touchcancel', () => (drawing = false));
 
-  // 🔹 Botones de control
-  document.getElementById('btnLimpiarFirma').addEventListener('click', () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  });
+    // 🔹 Botones de control
+    document.getElementById('btnLimpiarFirma').addEventListener('click', () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // También limpiamos el nombre si quieres
+        const inputNombre = document.querySelector('input[label="lbClienteFirma"]');
+        if (inputNombre) inputNombre.value = "";
+    });
 
-  document.getElementById('btnGuardarFirma').addEventListener('click', () => {
-    const firmaData = canvas.toDataURL('image/png');
-    console.log('Firma capturada:', firmaData);
-    alert('✅ Firma guardada temporalmente.');
-  });
+    // 🟢 ESTE ES EL CAMBIO CLAVE PARA AEtech
+    document.getElementById('btnGuardarFirma').addEventListener('click', async () => {
+        // 1. Validamos que el nombre esté escrito
+        const inputNombre = document.querySelector('input[label="lbClienteFirma"]');
+        const nombreFirma = inputNombre ? inputNombre.value.trim() : "";
+
+        if (!nombreFirma) {
+            return alert("Amiko, por favor escribe el nombre de quien firma antes de guardar.");
+        }
+
+        // 2. Ejecutamos la subida completa (Firma + Fotos + Nombre)
+        // Usamos tareaIdActual que es la que ya debes tener definida al abrir la tarea
+        if (typeof tareaIdActual !== 'undefined' && tareaIdActual) {
+            await subirEvidencias(tareaIdActual);
+        } else {
+            alert("No se encontró el ID de la tarea. Asegúrate de haber seleccionado una.");
+        }
+    });
 }
-
 
 
 
@@ -3368,15 +3383,28 @@ function mostrarCampoExtra() {
 
 
 
-// === 1) función que sube evidencias ===
 async function subirEvidencias(tareaId) {
   const formData = new FormData();
+  
+  // 1. Capturamos los títulos y archivos como ya lo hacías
   const titulos = [...document.querySelectorAll('.titulo')].map(i => i.value);
   const archivos = [...document.querySelectorAll('.archivo')];
   archivos.forEach(f => { if (f.files[0]) formData.append('archivos', f.files[0]); });
   formData.append('titulos', titulos.join(','));
 
-  // Firma desde #signature-pad (si existe)
+  // 🟢 NUEVO: Capturamos el nombre de quien firma desde el input que pusimos
+  // Usamos el selector por el atributo label que tenías o por ID si se lo pusiste
+  const inputNombre = document.querySelector('input[label="lbClienteFirma"]');
+  const nombreFirma = inputNombre ? inputNombre.value : "";
+
+  if (!nombreFirma && document.getElementById('signature-pad')) {
+      return alert("Amiko, por favor escribe el nombre de quien firma antes de enviar.");
+  }
+
+  // Agregamos el nombre al formData para que el servidor de AEtech lo reciba
+  formData.append('nombreFirma', nombreFirma);
+
+  // 2. Firma desde #signature-pad
   const canvas = document.getElementById('signature-pad');
   if (canvas) {
     const firmaData = canvas.toDataURL('image/png');
@@ -3386,59 +3414,60 @@ async function subirEvidencias(tareaId) {
     formData.append('firmaCliente', new Blob([arr], { type: 'image/png' }), 'firma_cliente.png');
   }
 
-
-
-
-
   const token = localStorage.getItem('accessToken');
-const res = await fetch(`${API_BASE_URL}/evidencias/upload-multiple/${tareaId}`, {
-  method: 'POST',
-  headers: { Authorization: `Bearer ${token}` },
-  body: formData
-});
+  
+  try {
+    document.getElementById("loader").style.display = "flex"; // Mostramos carga
 
-const data = await res.json();
+    const res = await fetch(`${API_BASE_URL}/evidencias/upload-multiple/${tareaId}`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData
+    });
 
-if (res.ok) {
-  alert('✅ Evidencias subidas correctamente');
+    const data = await res.json();
 
-  actualizarEstadoTarea(tareaId, 'Completada');
-  await fetch(`${API_BASE_URL}/notificaciones/mark-read-by-tarea/${tareaId}`, {
-  method: 'PUT',
-  headers: { Authorization: `Bearer ${token}` }
-});
+    if (res.ok) {
+      alert('✅ Evidencias y firma guardadas correctamente');
 
-// 🔹 Vuelve a cargar las notificaciones para reflejar cambios
-cargarNotificaciones();
-
-
-  // 🕓 Esperar un poco antes de generar el PDF
-  setTimeout(async () => {
-    try {
-      const pdfUrl = `${API_BASE_URL}/reportes/pdf/${tareaId}`;
-      const response = await fetch(pdfUrl, {
+      actualizarEstadoTarea(tareaId, 'Completada');
+      
+      await fetch(`${API_BASE_URL}/notificaciones/mark-read-by-tarea/${tareaId}`, {
+        method: 'PUT',
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      if (!response.ok) throw new Error('Error al generar PDF');
+      cargarNotificaciones();
 
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+      // 🕓 Esperar para generar el PDF
+      setTimeout(async () => {
+        try {
+          const pdfUrl = `${API_BASE_URL}/reportes/pdf/${tareaId}`;
+          const response = await fetch(pdfUrl, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
 
-      // 🔹 Abre el PDF en una nueva pestaña
-      window.open(url, '_blank');
-    } catch (err) {
-      console.error('❌ Error al generar PDF:', err);
-      alert('Las evidencias se guardaron, pero no se pudo generar el PDF automáticamente.');
+          if (!response.ok) throw new Error('Error al generar PDF');
+
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          window.open(url, '_blank');
+        } catch (err) {
+          console.error('❌ Error al generar PDF:', err);
+          alert('Las evidencias se guardaron, pero no se pudo generar el PDF automáticamente.');
+        }
+      }, 1500);
+
+    } else {
+      alert(data.msg || 'Error al subir evidencias');
     }
-  }, 1500); // ⏱ Espera 1.5 segundos antes de generar el PDF
-
-} else {
-  alert(data.msg || 'Error al subir evidencias');
-}}
-
-
-
+  } catch (error) {
+    console.error("Error crítico:", error);
+    alert("Hubo una falla en la conexión con el servidor.");
+  } finally {
+    document.getElementById("loader").style.display = "none";
+  }
+}
 
 
 

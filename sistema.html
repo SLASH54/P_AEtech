@@ -882,21 +882,26 @@
     </div>
   </div>
 
-  <!-- FIRMA DEL CLIENTE -->
-    <section id="firma-cliente" class="firma-section">
+
+
+  
+  <section id="firma-cliente" class="firma-section">
     <h2>🖊️ Firma del Cliente</h2>
-    <canvas id="signature-pad" width="400" height="200"></canvas>
+    <canvas id="signature-pad" width="400" height="200" style="border: 1px solid #ccc; border-radius: 8px;"></canvas>
+    
     <div class="firma-botones">
         <button type="button" id="btnLimpiarFirma">
-        <i class="fa-solid fa-eraser"></i> Limpiar
+            <i class="fa-solid fa-eraser"></i> Limpiar
         </button>
 
-        
+        <input type="text" id="inputNombreFirma" placeholder="Nombre del cliente..." style="padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
+
         <button type="button" id="btnGuardarFirma">
-        <i class="fa-solid fa-floppy-disk"></i> Guardar Firma
+            <i class="fa-solid fa-floppy-disk"></i> Guardar Firma
         </button>
-        <input type="text" label="lbClienteFirma">
     </div>
+</section>
+
 
 
     </section>

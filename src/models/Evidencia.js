@@ -25,6 +25,15 @@ const Evidencia = sequelize.define('Evidencia', {
       allowNull: true
   },
 
+  
+
+  firmaClienteUrl: { type: DataTypes.STRING, allowNull: true },
+  
+  // 🟢 AGREGAMOS ESTA LÍNEA:
+  nombreFirma: { type: DataTypes.STRING, allowNull: true }, 
+
+  materiales: { type: DataTypes.JSON, allowNull: true },
+  observaciones: { type: DataTypes.TEXT, allowNull: true },
 
 }, {
   tableName: 'Evidencias',
