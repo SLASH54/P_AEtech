@@ -1,5 +1,5 @@
 // ===============================================================
-//   REPORTE PDF AETECH – VERSIÓN FINAL OPTIMIZADA
+//   REPORTE PDF AETECH – VERSIÓN MEJORADA (SIN PÁGINAS VACÍAS)
 // ===============================================================
 
 const PDFDocument = require("pdfkit");
@@ -16,11 +16,6 @@ const {
   ClienteDireccion
 } = require("../models/relations");
 
-// Margenes globales según tu plantilla
-const MARGIN_TOP = 180;
-const MARGIN_LEFT = 50;
-const MARGIN_RIGHT = 50;
-const MARGIN_BOTTOM = 120;
 
 // =========================================================
 //   Cargar imagen
@@ -40,21 +35,37 @@ async function cargarImagen(urlOrPath) {
 }
 
 // =========================================================
-//   Procesar imagen con Sharp para nitidez
+//   Procesar imagen
 // =========================================================
 async function procesarImagen(url, maxW, maxH, isSignature = false) {
   try {
     const res = await axios.get(url, { responseType: "arraybuffer" });
+
+    // 1. Iniciamos sharp
     let pipeline = sharp(res.data).rotate();
 
+    // 2. CONFIGURACIÓN DE CALIDAD
     if (isSignature) {
+      // Para firmas: PNG con máxima calidad para evitar bordes borrosos
       pipeline = pipeline.png({ compressionLevel: 9, adaptiveFiltering: true });
     } else {
-      pipeline = pipeline.jpeg({ quality: 95, chromaSubsampling: '4:4:4', force: true });
+      // Para fotos: JPEG con calidad 95 y chromaSubsampling 4:4:4 (clave para nitidez)
+      pipeline = pipeline.jpeg({ 
+        quality: 95, 
+        chromaSubsampling: '4:4:4', 
+        force: true 
+      });
     }
 
+    // 3. RESIZE Y SALIDA
+    // Tip: Asegúrate que maxW sea al menos 800 para evidencias
     return await pipeline
-      .resize({ width: maxW, height: maxH, fit: "cover", withoutEnlargement: false })
+      .resize({ 
+        width: maxW, 
+        height: maxH, 
+        fit: "cover", // 👈 Cambia "inside" por "cover" para uniformidad
+    withoutEnlargement: false // 👈 Permite que fotos chicas se ajusten al tamaño estándar
+  })
       .toBuffer();
   } catch (err) {
     console.log("⚠ Error procesando imagen:", url, err.message);
@@ -63,164 +74,351 @@ async function procesarImagen(url, maxW, maxH, isSignature = false) {
 }
 
 // =========================================================
-//   Plantilla de fondo PDF
+//   Marca de agua
+// =========================================================
+function aplicarMarcaAgua(doc, watermarkBuf) {
+  try {
+    const wm = doc.openImage(watermarkBuf);
+    doc.save();
+    doc.opacity(0.25);
+    const w = 620;
+    const x = (doc.page.width - w) / 2;
+    const y = 120;
+    doc.image(wm, x, y, { width: w });
+    doc.opacity(1);
+    doc.restore();
+  } catch (err) {
+    console.log("⚠ Error pintando marca de agua:", err.message);
+  }
+}
+
+// =========================================================
+//   Footer (por página)
+// =========================================================
+function footer(doc) {
+  doc.fontSize(10).fillColor("#555");
+  doc.text(
+    `AE TECH · Reporte oficial · Página ${doc.page.number}`,
+    40,
+    doc.page.height - 30, // 🔥 Más abajo aún
+    { width: doc.page.width - 80, align: "center" }
+  );
+}
+ 
+// =========================================================
+//   Encabezado cada página
+// =========================================================
+function encabezado(doc, logoBuf, watermarkBuf) {
+  aplicarMarcaAgua(doc, watermarkBuf);
+
+  if (logoBuf) {
+    const logo = doc.openImage(logoBuf);
+    doc.image(logo, 40, 20, { width: 110 });
+  }
+
+  doc.fontSize(28).fillColor("#004b85").text("AE TECH", 170, 30);
+  doc.fontSize(12).fillColor("#444").text("Reporte oficial de servicio", 170, 63);
+
+  doc.moveTo(40, 90).lineTo(doc.page.width - 40, 90).stroke("#CCCCCC");
+  doc.moveDown(2);
+}
+
+// =========================================================
+//   Plantilla de fondo PDF (por página)
 // =========================================================
 function fondoPlantilla(doc, plantillaBuf) {
   try {
     const bg = doc.openImage(plantillaBuf);
-    doc.image(bg, 0, 0, { width: doc.page.width, height: doc.page.height });
-    doc.y = MARGIN_TOP; 
-  } catch (err) {}
+    doc.image(bg, 0, 0, {
+      width: doc.page.width,
+      height: doc.page.height
+    });
+    doc.y = MARGIN_TOP; // 👈 AQUI COLOCAMOS EL CURSOR EN LA ZONA BLANCA
+  } catch (err) {
+    //console.log("⚠ Error aplicando plantilla:", err.message);
+  }
 }
 
+
+// =========================================================
+//   Nueva página sin páginas vacías
+// =========================================================
 function nuevaPagina(doc, plantillaBuf) {
   doc.addPage();
-  fondoPlantilla(doc, plantillaBuf);
+  fondoPlantilla(doc, plantillaBuf); // plantilla + posicionamiento correcto
 }
 
+
 // =========================================================
-//   GENERAR REPORTE PDF (Export)
+//   GENERAR REPORTE PDF
 // =========================================================
 exports.generateReportePDF = async (req, res) => {
+  // Margenes reales según la plantilla PDF
+const MARGIN_TOP = 180;
+const MARGIN_LEFT = 50;
+const MARGIN_RIGHT = 50;
+const MARGIN_BOTTOM = 120;
+
+
   const { tareaId } = req.params;
 
   try {
+
     const tarea = await Tarea.findOne({
       where: { id: tareaId },
-      include: [ 
-        Actividad, 
-        Sucursal, 
-        ClienteNegocio, 
-        { model: ClienteDireccion, as: 'DireccionEspecifica' }, 
-        { model: Usuario, as: "AsignadoA" }, 
-        Evidencia 
-      ]
+      include: [ Actividad, Sucursal, ClienteNegocio, { model: ClienteDireccion, as: 'DireccionEspecifica' }, { model: Usuario, as: "AsignadoA" }, Evidencia ]
     });
 
     if (!tarea) return res.status(404).json({ error: "Tarea no encontrada" });
 
     const evidencias = tarea.Evidencia || [];
+
+    const logoURL = "https://p-aetech.onrender.com/public/logo.png";
+    const watermarkURL = "https://p-aetech.onrender.com/public/watermark.png";
     const plantillaURL = "https://p-aetech.onrender.com/public/plantillas/PLANTILLAPDF.jpeg";
+
+
+    const logoBuf = await cargarImagen(logoURL);
+    const watermarkBuf = await cargarImagen(watermarkURL);
     const plantillaBuf = await cargarImagen(plantillaURL);
 
+
     const doc = new PDFDocument({ margin: 40, bufferPages: true });
-    doc.pipe(res);
 
-    let textoDireccion = tarea.DireccionEspecifica 
-      ? (tarea.DireccionEspecifica.alias || tarea.DireccionEspecifica.direccion) 
-      : "No especificada";
+doc.pipe(res);
 
-    // --- PÁGINA 1: INFORMACIÓN Y PRIMERAS FOTOS ---
+// Área útil
+const ANCHO_UTIL = doc.page.width - MARGIN_LEFT - MARGIN_RIGHT;
+
+// 1. Buscamos la dirección en los datos traídos
+
+//disque error del pdf de tareas
+//me dijo gemini que lo borrara sin miedo y que me fueera a dormir y que solo era eso de codigo 
+
+
+let textoDireccion = "No especificada";
+if (tarea.DireccionEspecifica) {
+    textoDireccion = tarea.DireccionEspecifica.alias || tarea.DireccionEspecifica.direccion;
+}
+
+
+
+    // Primera página
+    // Primera página con plantilla
     fondoPlantilla(doc, plantillaBuf);
+
     doc.moveDown(3);
 
-    doc.fontSize(16).fillColor("#00938f").text("INFORMACIÓN DEL SERVICIO", MARGIN_LEFT);
-    doc.moveDown(0.5);
-    doc.fontSize(11).fillColor("#000");
-    doc.text(`Cliente: ${tarea.ClienteNegocio.nombre}`);
-    doc.text(`Dirección: ${textoDireccion}`);
-    doc.text(`Sucursal: ${tarea.Sucursal.nombre}`);
-    doc.text(`Actividad: ${tarea.Actividad.nombre}`);
-    doc.text(`Técnico: ${tarea.AsignadoA.nombre}`);
-    doc.text(`Fecha: ${tarea.fechaLimite}`);
+    doc.fontSize(16)
+      .fillColor("#00938f")
+      .text("INFORMACION DEL SERVICIO", MARGIN_LEFT, doc.y);
 
-    doc.moveDown(1.5);
-    doc.fontSize(16).fillColor("#00938f").text("EVIDENCIAS FOTOGRÁFICAS", MARGIN_LEFT);
+    doc.moveDown(1);
 
-    const MAX_W = 240, MAX_H = 180, GAP = 220;
-    const primerasCuatro = evidencias.filter(e => e.archivoUrl).slice(0, 4);
-    
-    let yFotos = doc.y + 10;
-    for (let i = 0; i < primerasCuatro.length; i++) {
-      const ev = primerasCuatro[i];
-      const imgBuffer = await procesarImagen(ev.archivoUrl, MAX_W, MAX_H);
-      if (!imgBuffer) continue;
+    doc.fontSize(12).fillColor("#000");
 
-      const x = (i % 2 === 0) ? MARGIN_LEFT : (doc.page.width / 2 + 5);
-      doc.image(imgBuffer, x, yFotos, { width: MAX_W, height: MAX_H });
-      doc.fontSize(9).fillColor("#333").text(ev.titulo || "Evidencia", x, yFotos + MAX_H + 5, { width: MAX_W, align: "center" });
+    doc.text(`Cliente: ${tarea.ClienteNegocio.nombre}`, MARGIN_LEFT);
+    doc.text(`Dirección del Cliente: ${textoDireccion}`, MARGIN_LEFT, doc.y);
+    doc.text(`Sucursal: ${tarea.Sucursal.nombre}`, MARGIN_LEFT);
+    doc.text(`Dirección de Sucursal: ${tarea.Sucursal.direccion}`, MARGIN_LEFT);
+    doc.text(`Actividad: ${tarea.Actividad.nombre}`, MARGIN_LEFT);
+    doc.text(`Asignado a: ${tarea.AsignadoA.nombre}`, MARGIN_LEFT);
+    doc.text(`Fecha: ${tarea.fechaLimite}`, MARGIN_LEFT);
 
-      if (i === 1) yFotos += GAP;
-    }
+    // =============================================================
+// EVIDENCIAS EN LA PRIMERA PÁGINA (SOLO 2 PRIMERAS)
+// =============================================================
+const MAX_W = 240, MAX_H = 180;
+const GAP = 240;
+doc.moveDown(1);
 
-    // --- PÁGINAS SIGUIENTES: RESTO DE FOTOS ---
-    const resto = evidencias.filter(e => e.archivoUrl).slice(4);
-    if (resto.length > 0) {
-      nuevaPagina(doc, plantillaBuf);
-      let col = 0, y = MARGIN_TOP + 10;
-      for (const ev of resto) {
-        const imgBuffer = await procesarImagen(ev.archivoUrl, MAX_W, MAX_H);
-        if (!imgBuffer) continue;
-        if (y + MAX_H + 40 > doc.page.height - MARGIN_BOTTOM) {
-          nuevaPagina(doc, plantillaBuf);
-          y = MARGIN_TOP + 10; col = 0;
-        }
-        const x = col === 0 ? MARGIN_LEFT : (doc.page.width / 2 + 5);
-        doc.image(imgBuffer, x, y, { width: MAX_W, height: MAX_H });
-        doc.fontSize(9).text(ev.titulo || "Evidencia", x, y + MAX_H + 5, { width: MAX_W, align: "center" });
-        if (col === 0) { col = 1; } else { col = 0; y += GAP; }
-      }
-    }
+doc.fontSize(16)
+    .fillColor("#00938f")
+    .text("EVIDENCIAS", MARGIN_LEFT);
 
-    // --- SECCIÓN: FIRMA DEL CLIENTE ---
+  doc.moveDown(1);
+
+// Punto EXACTO donde empieza el hueco blanco:
+// =============================================================
+// EVIDENCIAS EN LA PRIMERA PÁGINA (MÁXIMO 4)
+// =============================================================
+const primerasCuatro = evidencias.slice(0, 4);
+
+// Punto de inicio para las fotos en la primera hoja
+let yFotos = doc.y + 10; 
+const xLeft = MARGIN_LEFT;
+const xRight = doc.page.width / 2 + 5;
+
+for (let i = 0; i < primerasCuatro.length; i++) {
+  const ev = primerasCuatro[i];
+  
+  // Usamos MAX_W (240) y MAX_H (180) que ya tienes definidos
+  const imgBuffer = await procesarImagen(ev.archivoUrl, MAX_W, MAX_H);
+  if (!imgBuffer) continue;
+
+  // Si i es 0 o 2 -> Izquierda | Si i es 1 o 3 -> Derecha
+  const x = (i % 2 === 0) ? xLeft : xRight;
+
+  // Dibujar imagen
+  doc.image(imgBuffer, x, yFotos, { width: MAX_W, height: MAX_H });
+
+  // Título de la evidencia
+  doc.fontSize(10)
+     .fillColor("#000")
+     .text(ev.titulo || "Evidencia", x, yFotos + MAX_H + 5, {
+       width: MAX_W,
+       align: "center"
+     });
+
+  // CRÍTICO: Si ya dibujamos 2 fotos (la 0 y la 1), bajamos yFotos para la siguiente fila
+  if (i === 1) {
+    yFotos += GAP; // Bajamos el cursor para las imágenes 3 y 4
+  }
+}
+
+// Al terminar el bucle, actualizamos la posición global 'doc.y' 
+// para que lo que siga (firmas o materiales) no se encime
+doc.y = yFotos + MAX_H + GAP;
+
+    // =============================================================
+// RESTO DE EVIDENCIAS (A PARTIR DE PÁGINA 2)
+// =============================================================
+const resto = evidencias.slice(4);
+
+if (resto.length > 0) {
+  nuevaPagina(doc, plantillaBuf);
+
+  let col = 0;
+  let y = MARGIN_TOP + 20;
+
+  for (const ev of resto) {
+  // Forzamos a sharp a darnos exactamente este tamaño
+  const imgBuffer = await procesarImagen(ev.archivoUrl, MAX_W, MAX_H);
+  if (!imgBuffer) continue;
+
+  const x = col === 0 ? MARGIN_LEFT : doc.page.width / 2 + 5;
+
+  // Salto de página: Si la siguiente foto + su texto se pasan del margen inferior
+  if (y + MAX_H + 40 > doc.page.height - MARGIN_BOTTOM) {
+    nuevaPagina(doc, plantillaBuf);
+    y = MARGIN_TOP + 20;
+    col = 0; // Reiniciar columna en página nueva
+  }
+
+   // Dibujamos la imagen con tamaño FIJO
+  doc.image(imgBuffer, x, y, { width: MAX_W, height: MAX_H });
+
+  doc.fontSize(10) // Un poco más chica la letra para que no ocupe tanto espacio
+    .fillColor("#333")
+    .text(ev.titulo || "Evidencia", x, y + MAX_H + 5, {
+      width: MAX_W,
+      align: "center"
+    });
+
+  if (col === 0) {
+    col = 1;
+  } else {
+    col = 0;
+    y += MAX_H + 50; // Bajamos a la siguiente fila (espacio para foto + texto + gap)
+  }
+}
+}
+
+// =============================================================
+    //   SECCIÓN DE FIRMA (MODIFICADA PARA MOSTRAR NOMBRE)
+    // =============================================================
     const evFirma = evidencias.find(e => e.firmaClienteUrl);
+
     if (evFirma) {
       nuevaPagina(doc, plantillaBuf);
-      doc.moveDown(2);
-      doc.fontSize(16).fillColor("#00938f").text("FIRMA DE CONFORMIDAD", MARGIN_LEFT, doc.y, { align: 'center' });
-      doc.moveDown(1);
+      doc.moveDown(3);
 
-      const firmaBuf = await procesarImagen(evFirma.firmaClienteUrl, 300, 150, true);
+      doc.fontSize(16)
+        .fillColor("#00938f")
+        .text("FIRMA DE CONFORMIDAD", MARGIN_LEFT);
+
+      doc.moveDown(0.5);
+
+      // Procesamos la firma con Sharp (isSignature = true)
+      const firmaBuf = await procesarImagen(evFirma.firmaClienteUrl, 380, 220, true);
+
       if (firmaBuf) {
-        const xCentrado = (doc.page.width - 300) / 2;
-        doc.image(firmaBuf, xCentrado, doc.y, { width: 300 });
-        doc.moveDown(0.5);
+        const img = doc.openImage(firmaBuf);
+        // Calculamos el centro para que la línea y el nombre queden alineados
+        const xCentral = (doc.page.width - 200) / 2; 
+        const xImagen = (doc.page.width - 300) / 2; // Ajuste para centrar la imagen de la firma
+
+        // 1. Dibujar la imagen de la firma
+        doc.image(firmaBuf, xImagen, doc.y, { width: 300 });
         
-        // Línea de firma
-        const xLinea = (doc.page.width - 250) / 2;
-        doc.strokeColor("#000").lineWidth(1).moveTo(xLinea, doc.y).lineTo(xLinea + 250, doc.y).stroke();
-        
-        // Nombre del Cliente (Desde Neon 🟢)
         doc.moveDown(0.2);
-        doc.fontSize(12).fillColor("#000").text(
-          evFirma.nombreFirma ? evFirma.nombreFirma.toUpperCase() : "NOMBRE NO PROPORCIONADO",
-          xLinea, doc.y, { width: 250, align: 'center' }
-        );
-        doc.fontSize(10).fillColor("#666").text("NOMBRE Y FIRMA DEL CLIENTE", { align: 'center' });
+
+        // 2. Dibujar línea de firma
+        doc.strokeColor("#000")
+           .lineWidth(1)
+           .moveTo(xCentral, doc.y)
+           .lineTo(xCentral + 200, doc.y)
+           .stroke();
+
+        // 3. Poner el nombre de quien firma debajo de la línea (Extraído de nombreFirma)
+        doc.moveDown(0.3);
+        doc.fontSize(11)
+           .fillColor("#000")
+           .text(evFirma.nombreFirma ? evFirma.nombreFirma.toUpperCase() : "FIRMA DEL CLIENTE", 
+                 xCentral, doc.y, { width: 200, align: 'center' });
+
+      } else {
+        doc.fillColor("red").text("⚠ No se pudo cargar la firma.");
       }
     }
 
-    // --- SECCIÓN: MATERIALES ---
-    const evMat = evidencias.find(e => e.materiales && e.materiales.length > 0);
-    if (evMat) {
-      // Si la firma dejó poco espacio, agregamos página
-      if (doc.y > 500) nuevaPagina(doc, plantillaBuf);
-      
-      doc.moveDown(2);
-      doc.fontSize(16).fillColor("#00938f").text("MATERIAL OCUPADO", MARGIN_LEFT);
-      doc.moveDown(0.5);
 
-      const lista = Array.isArray(evMat.materiales) ? evMat.materiales : JSON.parse(evMat.materiales || '[]');
+    
+    // Materiales
+    const materiales = evidencias[0]?.materiales || [];
+
+    if (materiales.length > 0) {
+      //nuevaPagina(doc, plantillaBuf);
+      doc.moveDown(11.5);                                                                                                 
+
+      doc.fontSize(16)
+        .fillColor("#00938f")
+        .text("MATERIAL OCUPADO", MARGIN_LEFT);
+
+      doc.moveDown(1);
+
       const grupos = {};
-      lista.forEach(m => {
-        const cat = m.categoria || "Otros";
-        if (!grupos[cat]) grupos[cat] = [];
-        grupos[cat].push(m);
+      materiales.forEach(m => {
+        if (!grupos[m.categoria]) grupos[m.categoria] = [];
+        grupos[m.categoria].push(m);
       });
 
       for (const cat of Object.keys(grupos)) {
-        doc.fontSize(13).fillColor("#004b85").text(`• ${cat}`, { indent: 10 });
+        doc.fontSize(14).fillColor("#004b85").text(`• ${cat}`);
+        doc.moveDown(0.3);
+
         grupos[cat].forEach(m => {
-          doc.fontSize(11).fillColor("#333").text(`${m.insumo} — ${m.cantidad} ${m.unidad}`, { indent: 30 });
+          doc.fontSize(12).fillColor("#000").text(
+            `${m.insumo} — ${m.cantidad} ${m.unidad}`,
+            { indent: 20 }
+          );
         });
-        doc.moveDown(0.5);
+
+        doc.moveDown(1);
       }
     }
 
-    doc.end();
+    // ================= FOOTER EN TODAS LAS PÁGINAS =================
+//const pages = doc.bufferedPageRange();
+//for (let i = 0; i < pages.count; i++) {
+//  doc.switchToPage(i);
+//  footer(doc);
+//}
+
+doc.end();
 
   } catch (error) {
     console.error("❌ Error generando PDF:", error);
-    if (!res.headersSent) res.status(500).json({ error: "No se pudo generar el PDF" });
+    return res.status(500).json({ error: "No se pudo generar el PDF" });
   }
 };
