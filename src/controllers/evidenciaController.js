@@ -73,18 +73,20 @@ const subirMultiplesEvidencias = async (req, res) => {
         fotoUrl = result.secure_url;
       }
 
-      // 💾 Guardamos en la DB de Render
-      const nuevaEvidencia = await Evidencia.create({
-        tareaId,
-        usuarioId,
-        // Si es el primer registro y no hay foto, le ponemos que es la firma
-        titulo: (i === 0 && !files[i]) ? "Firma de Conformidad" : tituloActual,
-        archivoUrl: fotoUrl,
-        firmaClienteUrl: i === 0 ? firmaUrl : null, 
-        nombreFirma: i === 0 ? nombreFirma : null,  // 👈 AQUÍ SE GUARDA EL NOMBRE
-        observaciones: i === 0 ? observaciones : null, 
-        materiales: i === 0 ? materiales : []      
-      });
+ // Prueba esto para ver si así sí llega a Neon:
+const nuevaEvidencia = await Evidencia.create({
+  tareaId,
+  usuarioId,
+  titulo: (i === 0 && !files[i]) ? "Firma de Conformidad" : tituloActual,
+  archivoUrl: fotoUrl,
+  firmaClienteUrl: i === 0 ? firmaUrl : null, 
+  
+  // 🟢 PRUEBA: Quítale el "i === 0" solo para ver si el dato viaja
+  nombreFirma: nombreFirma, 
+  
+  observaciones: i === 0 ? observaciones : null, 
+  materiales: i === 0 ? materiales : []      
+});
 
       evidenciasCreadas.push(nuevaEvidencia);
     }

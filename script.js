@@ -2872,15 +2872,28 @@ function initEvidencias(tareaId) {
 
 
 
-    const formData = new FormData();
-     // Agregamos el comentario al envío
-    const observaciones = document.getElementById('tareaObservaciones').value;
-    formData.append('observaciones', observaciones);
 
-    const titulos = [...document.querySelectorAll('.titulo')].map(i => i.value);
-    const archivos = [...document.querySelectorAll('.archivo')];//Posiblemente no lleve "s"(.archivo)
-    archivos.forEach(f => { if (f.files[0]) formData.append('archivos', f.files[0]); });
-    formData.append('titulos', titulos.join(','));
+
+
+   const formData = new FormData();
+
+// 1. Capturamos las observaciones
+const observaciones = document.getElementById('tareaObservaciones').value;
+formData.append('observaciones', observaciones);
+
+// 🟢 2. CAPTURAMOS Y AGREGAMOS EL NOMBRE (Esto es lo que faltaba)
+const inputNombre = document.getElementById("inputNombreFirma");
+const nombreFirma = inputNombre ? inputNombre.value.trim() : "";
+formData.append('nombreFirma', nombreFirma); // 👈 ¡Ahora sí viaja a Neon!
+
+// 3. Títulos y archivos
+const titulos = [...document.querySelectorAll('.titulo')].map(i => i.value);
+const archivos = [...document.querySelectorAll('.archivo')];
+archivos.forEach(f => { 
+    if (f.files[0]) formData.append('archivos', f.files[0]); 
+});
+formData.append('titulos', titulos.join(','));
+
 
 
 
@@ -3376,7 +3389,16 @@ function mostrarCampoExtra() {
 
 
 
+// Agrega esto en tu script para debuguear:
+const inputNombre = document.getElementById("inputNombreFirma");
+const nombreFirma = inputNombre ? inputNombre.value.trim() : "";
 
+console.log("Valores que van para Neon:", {
+    tareaId: tareaId,
+    nombreExtraido: nombreFirma
+});
+
+formData.append('nombreFirma', nombreFirma);
 
 
 
