@@ -66,7 +66,6 @@ app.get('/api/keep-alive', (req, res) => {
 
 
 // === INICIO DEL SERVIDOR – SOLO UNA VEZ ===
-// En tu server.js
 connectDB()
   .then(async () => {
     console.log('✅ Base de datos conectada correctamente');
