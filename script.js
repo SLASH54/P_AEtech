@@ -2750,6 +2750,39 @@ let firmaCanvas = null;
 
 
 
+// =============================================================
+// FUNCIÓN PARA REDUCIR PESO DE IMÁGENES (Evita errores de subida)
+// =============================================================
+async function optimizarImagen(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (e) => {
+      const img = new Image();
+      img.src = e.target.result;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 1280; // Resolución suficiente para el PDF de AEtech
+        let width = img.width;
+        let height = img.height;
+
+        if (width > MAX_WIDTH) {
+          height *= MAX_WIDTH / width;
+          width = MAX_WIDTH;
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        canvas.toBlob((blob) => {
+          resolve(blob);
+        }, 'image/jpeg', 0.7); // Comprimimos al 70% de calidad
+      };
+    };
+  });
+}
+
 // ============================
 // Subida múltiple de evidencias
 // ============================
@@ -2759,58 +2792,29 @@ function initEvidencias(tareaId) {
   const saveBtn = document.getElementById('btnGuardarEvidencias');
   const token = localStorage.getItem('accessToken');
 
-  if (!container) {
-    console.error('No se encontró el contenedor de evidencias');
-    return;
-  }
+  if (!container) return;
+  container.innerHTML = ''; 
 
-  container.innerHTML = ''; // limpia el contenido anterior
-
-  // 1. Contenedor para fotos
   const fotosContainer = document.createElement('div');
   fotosContainer.id = 'fotos-lista-container';
   container.appendChild(fotosContainer);
 
-  // 2. Campo de Observaciones (Se enviará como un título sin foto)
+  // 1. Observaciones
   const divObs = document.createElement('div');
   divObs.className = 'card-evidencia';
-  divObs.style.borderLeft = "5px solid #4285F4"; // Color distintivo
+  divObs.style.borderLeft = "5px solid #4285F4";
   divObs.innerHTML = `
     <label><i class="fa-solid fa-comment"></i> Observaciones Finales</label>
     <textarea id="tareaObservaciones" class="titulo titulo-observacion" 
       placeholder="Escribe aquí comentarios sobre el servicio..." 
       style="width: 100%; height: 80px; margin-top: 10px; border-radius: 8px; padding: 10px; border: 1px solid #ccc;"></textarea>
-    
-    <input type="file" id="tareaObservaciones" class="tareaObservaciones" style="display:none;">
   `;
   container.appendChild(divObs);
 
-  // 3. Foto Fija (Ubicación)
-  const divFija = document.createElement('div');
-  divFija.className = 'card-evidencia';
-  // 🍎 Agregamos este estilo para separar las tarjetas
-    divFija.style.marginBottom = "20px"; 
-    divFija.style.padding = "15px";
-    divFija.style.border = "1px solid #ddd";
-    divFija.style.borderRadius = "10px";
-    divFija.style.backgroundColor = "#f9f9f9";
-  divFija.innerHTML = `
-    <label>Título de la evidencia</label>
-    <input type="text" name="titulo[]" class="titulo" value="Foto de Confirmacion de Ubicacion" Readonly>
-    <label class="label-file">
-      <i class="fa-solid fa-camera"></i> Tomar Foto / Elegir Archivo
-      <input type="file" name="archivos" class="archivo" accept="image/*">
-    </label>
-    <div class="preview-container">
-      <img class="preview-img" src="" alt="Vista previa" style="display:none;">
-    </div>
-  `;
-  fotosContainer.appendChild(divFija);
-
-  function agregarCampo() {
+  // 2. Función para agregar campos de foto
+  function agregarCampo(tituloPredeterminado = "") {
     const div = document.createElement('div');
     div.className = 'card-evidencia';
-    // 🍎 Agregamos este estilo para separar las tarjetas
     div.style.marginBottom = "20px"; 
     div.style.padding = "15px";
     div.style.border = "1px solid #ddd";
@@ -2818,118 +2822,77 @@ function initEvidencias(tareaId) {
     div.style.backgroundColor = "#f9f9f9";
     div.innerHTML = `
       <label>Título de la evidencia</label>
-      <input type="text" name="titulo[]" class="titulo" placeholder="Ej: Foto antes de la instalación">
+      <input type="text" name="titulo[]" class="titulo" value="${tituloPredeterminado}" placeholder="Ej: Foto antes de la instalación">
       <label class="label-file">
         <i class="fa-solid fa-camera"></i> Tomar Foto / Elegir Archivo
         <input type="file" name="archivos" class="archivo" accept="image/*">
       </label>
       <div class="preview-container">
-        <img class="preview-img" src="" alt="Vista previa" style="display:none;">
+        <img class="preview-img" src="" alt="Vista previa" style="display:none; max-width: 100%; margin-top: 10px; border-radius: 5px;">
       </div>
     `;
     fotosContainer.appendChild(div);
   }
 
+  // Inicializar con la foto de ubicación y 2 extras
+  agregarCampo("Foto de Confirmacion de Ubicacion");
   for (let i = 0; i < 2; i++) agregarCampo();
-  addBtn.onclick = agregarCampo;
+  addBtn.onclick = () => agregarCampo();
 
-
-
-  // 🔹 Previsualización de imágenes
+  // Previsualización
   document.addEventListener("change", (e) => {
-  if (e.target.classList.contains("archivo") && e.target.files[0]) {
-    const reader = new FileReader();
-    const preview = e.target.closest(".card-evidencia").querySelector(".preview-img");
-    reader.onload = () => {
-      preview.src = reader.result;
-      preview.style.display = "block";
-    };
-    reader.readAsDataURL(e.target.files[0]);
-  }
-});
+    if (e.target.classList.contains("archivo") && e.target.files[0]) {
+      const reader = new FileReader();
+      const preview = e.target.closest(".card-evidencia").querySelector(".preview-img");
+      reader.onload = () => {
+        preview.src = reader.result;
+        preview.style.display = "block";
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  });
 
-
-  
-
-  // 🔹 Guardar evidencias
+  // 🔹 GUARDAR EVIDENCIAS (MODIFICADO)
   saveBtn.onclick = async (e) => {
     e.preventDefault();
-
-    
-
-// 🔹 Guardar evidencias pdf
- //   const pdfUrl = `${API_BASE_URL}/reportes/pdf/${tareaId}?token=${token}`;
-// const responsePDF = await fetch(pdfUrl, { headers: { Authorization: `Bearer ${token}` } });
-// const blob = await responsePDF.blob();
-//const url = window.URL.createObjectURL(blob);
-// const a = document.createElement('a');
-//a.href = url;
-//a.download = `Reporte_Tarea_${tareaId}.pdf`;
-//document.body.appendChild(a);
-//a.click();
-// a.remove();
-// window.URL.revokeObjectURL(url);
-
-
-
-
-
-
-   const formData = new FormData();
-
-// 1. Capturamos las observaciones
-const observaciones = document.getElementById('tareaObservaciones').value;
-formData.append('observaciones', observaciones);
-
-// 🟢 2. CAPTURAMOS Y AGREGAMOS EL NOMBRE (Esto es lo que faltaba)
-const inputNombre = document.getElementById("inputNombreFirma");
-const nombreFirma = inputNombre ? inputNombre.value.trim() : "";
-formData.append('nombreFirma', nombreFirma); // 👈 ¡Ahora sí viaja a Neon!
-
-// 3. Títulos y archivos
-const titulos = [...document.querySelectorAll('.titulo')].map(i => i.value);
-const archivos = [...document.querySelectorAll('.archivo')];
-archivos.forEach(f => { 
-    if (f.files[0]) formData.append('archivos', f.files[0]); 
-});
-formData.append('titulos', titulos.join(','));
-
-
-
-
-
-    // === 🧱 Capturar materiales usados ===
-//const materiales = [];
-//document.querySelectorAll('#listaMateriales li').forEach(li => {
-//  materiales.push(li.textContent);
-//});
-
-// Agregar al FormData (como texto JSON)
-//formData.append('materiales', JSON.stringify(materiales));
-
-  formData.append("materiales", JSON.stringify(materialesList));
-
-
-
-
-    console.log('🧾 Archivos a enviar:', archivos.map(f => f.files[0]?.name));
-
-
-    // Firma del cliente
-    const canvas = document.getElementById('signature-pad');
-    if (canvas) {
-      const firmaData = canvas.toDataURL('image/png');
-      const blobBin = atob(firmaData.split(',')[1]);
-      const array = [];
-      for (let i = 0; i < blobBin.length; i++) array.push(blobBin.charCodeAt(i));
-      const firmaFile = new Blob([new Uint8Array(array)], { type: 'image/png' });
-      formData.append('firmaCliente', firmaFile, 'firma_cliente.png');
-    }
-    
-    // Mostrar loader
     loader.style.display = 'flex';
 
+    const formData = new FormData();
+
     try {
+      // 1. Observaciones y Nombre
+      formData.append('observaciones', document.getElementById('tareaObservaciones').value);
+      const inputNombre = document.getElementById("inputNombreFirma");
+      formData.append('nombreFirma', inputNombre ? inputNombre.value.trim() : "");
+
+      // 2. Procesar Títulos y COMPRIMIR Archivos
+      const titulos = [...document.querySelectorAll('.titulo')].map(i => i.value);
+      const archivosInputs = [...document.querySelectorAll('.archivo')];
+      
+      // USAMOS FOR...OF para esperar la compresión de cada imagen
+      for (const input of archivosInputs) {
+        if (input.files[0]) {
+          const fotoOptimizada = await optimizarImagen(input.files[0]);
+          formData.append('archivos', fotoOptimizada, 'evidencia.jpg');
+        }
+      }
+      formData.append('titulos', titulos.join(','));
+
+      // 3. Materiales
+      formData.append("materiales", JSON.stringify(materialesList));
+
+      // 4. Firma
+      const canvas = document.getElementById('signature-pad');
+      if (canvas) {
+        const firmaData = canvas.toDataURL('image/png');
+        const blobBin = atob(firmaData.split(',')[1]);
+        const array = [];
+        for (let i = 0; i < blobBin.length; i++) array.push(blobBin.charCodeAt(i));
+        const firmaFile = new Blob([new Uint8Array(array)], { type: 'image/png' });
+        formData.append('firmaCliente', firmaFile, 'firma_cliente.png');
+      }
+
+      // 5. Envío
       const res = await fetch(`${API_BASE_URL}/evidencias/upload-multiple/${tareaId}`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
@@ -2938,59 +2901,25 @@ formData.append('titulos', titulos.join(','));
 
       const data = await res.json();
 
-      
-      
       if (res.ok) {
         alert('✅ Evidencias subidas correctamente');
         actualizarEstadoTarea(tareaId, 'Completada');
-        await cargarNotificaciones();
-
-        // 🔹 Limpiar inputs
-  document.querySelectorAll('.titulo').forEach(i => i.value = '');
-  document.querySelectorAll('.archivo').forEach(f => f.value = '');
-  
-  // 🔹 Limpiar firma
-  const firmaCanvas = document.getElementById('signature-pad');
-  if (firmaCanvas) {
-    const ctx = firmaCanvas.getContext('2d');
-    ctx.clearRect(0, 0, firmaCanvas.width, firmaCanvas.height);
-  }
-
-  // 🔹 Ocultar sección de evidencias
-  const seccionEvidencias = document.getElementById('Actividades'); // cambia el ID si tu contenedor tiene otro nombre
-  if (seccionEvidencias) {
-    seccionEvidencias.style.opacity = '0';
-    setTimeout(() => {
-      seccionEvidencias.style.display = 'none';
-      seccionEvidencias.style.opacity = '1';
-    }, 400);
-  }
-
-if (typeof mostrarContenido === 'function') {
-  mostrarContenido('Tablero'); // 🔹 Esto redirige directamente al Tablero
-} else {
-  const tablero = document.getElementById('Tablero');
-  if (tablero) {
-    tablero.style.display = 'block';
-    tablero.scrollIntoView({ behavior: 'smooth' });
-  }
-}
-
-
+        
+        // Limpiar y Redirigir
+        if (typeof mostrarContenido === 'function') {
+          mostrarContenido('Tablero');
+        }
       } else {
-        console.error('Error del servidor:', data);
         alert(data.msg || 'Error al subir evidencias');
       }
     } catch (err) {
-      console.error('❌ Error en fetch:', err);
-      alert('Error de conexión con el servidor.');
+      console.error('❌ Error:', err);
+      alert('Error de conexión. Las fotos podrían ser demasiado pesadas.');
     } finally {
-    // Ocultar loader
-    loader.style.display = 'none';
-  }
+      loader.style.display = 'none';
+    }
   };
 }
-
 
 function actualizarEstadoTarea(tareaId, nuevoEstado) {
   const fila = document.querySelector(`[data-tarea-id="${tareaId}"]`);
