@@ -324,7 +324,7 @@ if (resto.length > 0) {
 }
 }
 
-// === Sección de Firma en reporteController.js CORREGIDA ===
+// === Sección de Firma CORREGIDA (Firma arriba de la línea) ===
     const evFirma = evidencias.find(e => e.firmaClienteUrl);
 
     if (evFirma) {
@@ -335,42 +335,45 @@ if (resto.length > 0) {
         .fillColor("#00938f")
         .text("FIRMA DE CONFORMIDAD", MARGIN_LEFT);
 
-      doc.moveDown(1); // Espacio después del título
+      doc.moveDown(1);
 
-      const firmaBuf = await procesarImagen(evFirma.firmaClienteUrl, 380, 220, true);
+      // Aumentamos un poco el tamaño máximo en el procesamiento para que sea legible
+      const firmaBuf = await procesarImagen(evFirma.firmaClienteUrl, 400, 250, true);
 
       if (firmaBuf) {
-        const xCentral = (doc.page.width - 200) / 2;
-        const yBaseFirma = doc.y + 60; // Punto donde estará la línea horizontal
+        const xCentral = (doc.page.width - 250) / 2; // Línea un poco más larga (250)
+        const yEspacioFirma = doc.y + 20; // Donde empieza el área de la firma
 
-        // 1. Dibujar la imagen de la firma (la ponemos un poco más arriba de la línea)
-        const img = doc.openImage(firmaBuf);
-        const xImagen = (doc.page.width - 150) / 2; // Centramos la imagen
-        doc.image(firmaBuf, xImagen, yBaseFirma - 45, { width: 150 }); 
+        // 1. Dibujar la IMAGEN de la firma (ARRIBA)
+        // La centramos y le damos un tamaño bueno (200 de ancho)
+        doc.image(firmaBuf, (doc.page.width - 200) / 2, yEspacioFirma, { width: 200 });
         
-        // 2. Dibujar línea de firma (en la base)
+        // 2. Dibujar la LÍNEA (DEBAJO de la imagen)
+        // Calculamos la Y de la línea sumando un espacio después de la imagen
+        const yLinea = yEspacioFirma + 110; 
+
         doc.strokeColor("#000")
-           .lineWidth(1)
-           .moveTo(xCentral, yBaseFirma)
-           .lineTo(xCentral + 200, yBaseFirma)
+           .lineWidth(1.5) // Línea un poquito más gruesa para que resalte
+           .moveTo(xCentral, yLinea)
+           .lineTo(xCentral + 250, yLinea)
            .stroke();
 
-        // 3. Poner el nombre del cliente DEBAJO de la línea
-        doc.y = yBaseFirma + 5; // Bajamos el cursor justo debajo de la línea
-        doc.fontSize(11)
+        // 3. Poner el NOMBRE (DEBAJO de la línea)
+        doc.moveDown(0.5);
+        doc.fontSize(12)
            .fillColor("#000")
            .text(evFirma.nombreFirma ? evFirma.nombreFirma.toUpperCase() : "FIRMA DEL CLIENTE", 
-                 xCentral, doc.y, { width: 200, align: 'center' });
+                 xCentral, yLinea + 8, { width: 250, align: 'center' });
 
-        // Actualizamos doc.y para que los materiales no se encimen
-        doc.y += 20;
+        // Actualizamos la posición final del cursor para materiales
+        doc.y = yLinea + 40;
 
       } else {
         doc.fillColor("red").text("⚠ No se pudo cargar la firma.");
       }
     }
 
-    
+
     // Materiales
     const materiales = evidencias[0]?.materiales || [];
 
