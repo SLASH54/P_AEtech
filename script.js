@@ -3106,11 +3106,11 @@ if (canvas) {
         }
 
         // 3. Ejecutamos la subida a Render
-        if (typeof tareaIdActual !== 'undefined' && tareaIdActual) {
-            await subirEvidencias(tareaIdActual);
-        } else {
-            alert("Error: No se detectó el ID de la tarea. Intenta abrir de nuevo la tarea.");
-        }
+      //  if (typeof tareaIdActual !== 'undefined' && tareaIdActual) {
+          //  await subirEvidencias(tareaIdActual);
+       // } else {
+         //   alert("Error: No se detectó el ID de la tarea. Intenta abrir de nuevo la tarea.");
+       // }
     });
 }
 
@@ -3528,7 +3528,7 @@ async function verEvidencias(tareaId) {
   const token = localStorage.getItem('accessToken');
   const modal = document.getElementById('modalEvidencias');
   const contenedor = document.getElementById('contenedorEvidencias');
-  contenedor.innerHTML = '<p>📸 Cargando evidencias...</p>';
+  contenedor.innerHTML = '<p style="text-align:center; padding:20px;">📸 Cargando evidencias...</p>';
 
   modal.style.display = 'flex';
 
@@ -3543,184 +3543,99 @@ async function verEvidencias(tareaId) {
     if (!Array.isArray(evidencias)) evidencias = [evidencias];
 
     if (evidencias.length === 0) {
-      contenedor.innerHTML = '<p>No hay evidencias disponibles para esta tarea.</p>';
+      contenedor.innerHTML = '<p style="text-align:center; padding:20px;">No hay evidencias disponibles para esta tarea.</p>';
       return;
     }
 
-    // ====== FORMATEAR MATERIALES ======
+    // ====== PROCESAR MATERIALES (Igual que antes) ======
     const materialesRaw = evidencias[0]?.materiales
-      ? (Array.isArray(evidencias[0].materiales)
-          ? evidencias[0].materiales
-          : JSON.parse(evidencias[0].materiales || '[]'))
+      ? (Array.isArray(evidencias[0].materiales) ? evidencias[0].materiales : JSON.parse(evidencias[0].materiales || '[]'))
       : [];
 
-    // Si el backend guarda objetos, todo ok
-    // Si guarda solo strings, conviértelos en objetos básicos
     const materiales = materialesRaw.map(m => {
       if (typeof m === "string") {
-        // ejemplo: "Cable - 5 Metros"
         const [insumoPart, cantidadPart] = m.split(" - ");
-        const [cantidad, unidad] = cantidadPart.split(" ");
-        return {
-          insumo: insumoPart,
-          cantidad,
-          unidad,
-          categoria: "Otros" // fallback
-        };
+        const [cantidad, unidad] = cantidadPart ? cantidadPart.split(" ") : ["1", "Pz"];
+        return { insumo: insumoPart, cantidad, unidad, categoria: "Otros" };
       }
       return m;
     });
 
-    // AGRUPAR POR CATEGORÍA
     const grupos = {};
     materiales.forEach(m => {
       if (!grupos[m.categoria]) grupos[m.categoria] = [];
       grupos[m.categoria].push(m);
     });
-
-    // ORDENAR CATEGORÍAS A-Z
     const categoriasOrdenadas = Object.keys(grupos).sort();
 
+    // ====== GENERAR HTML ======
     let html = `
-  <div style="text-align:center; margin-bottom:25px;">
-    <h2 style="color:#003366; font-size:26px; margin:0;">📸 Evidencias</h2>
-  </div>
-`;
-
-// ========== Evidencias (fotos) ==========
-html += evidencias
-  .map(ev => `
-    <div style="
-      background:#fff;
-      padding:18px;
-      margin:15px auto;
-      border-radius:12px;
-      box-shadow:0 3px 10px rgba(0,0,0,0.12);
-      max-width:90%;
-      text-align:center;
-    ">
-      <h3 style="color:#003366; margin:0 0 12px;">
-        ${ev.titulo || 'Sin título'}
-      </h3>
-
-      ${
-        ev.archivoUrl
-          ? `<img src="${ev.archivoUrl}" 
-                style="max-width:95%; border-radius:12px;
-                box-shadow:0 3px 10px rgba(0,0,0,0.2);" />`
-          : '<p style="color:#777;">📄 Imagen no disponible</p>'
-      }
-    </div>
-  `)
-  .join('');
-
-
-// ========== Observaciones ==========
-const evidenciaConObservaciones = evidencias.find(ev => ev.observaciones);
-if (evidenciaConObservaciones?.observaciones) {
-  html += `
-    <div style="
-      background:#fff;
-      padding:18px;
-      margin:15px auto;
-      border-radius:12px;
-      box-shadow:0 3px 10px rgba(0,0,0,0.12);
-      max-width:90%;
-      text-align:center;
-    ">
-      <h3 style="color:#003366; margin-bottom:10px;">
-        Observaciones Finales
-      </h3>
-
-      <h4 style="color:#003366; margin:0 0 12px;">
-        ${evidenciaConObservaciones.observaciones || 'Sin Observaciones'}
-      </h4>
-
-    </div>
-  `;
-}
-
-// ========== Firma del cliente ==========
-const evidenciaConFirma = evidencias.find(ev => ev.firmaClienteUrl);
-if (evidenciaConFirma?.firmaClienteUrl) {
-  html += `
-    <div style="
-      background:#fff;
-      padding:18px;
-      margin:15px auto;
-      border-radius:12px;
-      box-shadow:0 3px 10px rgba(0,0,0,0.12);
-      max-width:90%;
-      text-align:center;
-    ">
-      <h3 style="color:#003366; margin-bottom:10px;">
-        ✍️ Firma del Cliente
-      </h3>
-
-      <img src="${evidenciaConFirma.firmaClienteUrl}"
-           style="max-width:80%; border-radius:8px;
-           box-shadow:0 2px 6px rgba(0,0,0,0.15);" />
-    </div>
-  `;
-}
-
-
-// ========== MATERIAL OCUPADO AGRUPADO ==========
-if (materiales.length > 0) {
-  html += `
-    <div style="
-      background:#fff;
-      padding:22px;
-      margin:18px auto 30px;
-      border-radius:12px;
-      box-shadow:0 3px 10px rgba(0,0,0,0.12);
-      max-width:90%;
-    ">
-      <h3 style="color:#003366; margin-bottom:15px;">
-        🧱 Material Ocupado
-      </h3>
-      <ul style="list-style:none; padding-left:0; margin:0;">
-  `;
-
-  categoriasOrdenadas.forEach(cat => {
-    html += `
-      <li style="margin-top:15px;">
-        <strong style="color:#444; font-size:16px;">• ${cat}</strong>
-        <ul style="list-style:disc; margin-left:35px; margin-top:8px;">
+      <div style="text-align:center; margin-bottom:25px;">
+        <h2 style="color:#003366; font-size:26px; margin:0;">📸 Reporte de Evidencias</h2>
+      </div>
     `;
 
-    grupos[cat]
-      .sort((a, b) => a.insumo.localeCompare(b.insumo))
-      .forEach(m => {
-        html += `
-          <li style="margin:5px 0; font-size:15px;">
-            ${m.insumo} — ${m.cantidad} ${m.unidad}
-          </li>
-        `;
+    // 1. FOTOS DE EVIDENCIA
+    html += evidencias
+      .filter(ev => ev.archivoUrl) // Solo las que tienen foto de trabajo
+      .map(ev => `
+        <div style="background:#fff; padding:18px; margin:15px auto; border-radius:12px; box-shadow:0 3px 10px rgba(0,0,0,0.12); max-width:90%; text-align:center;">
+          <h3 style="color:#003366; margin:0 0 12px;">${ev.titulo || 'Evidencia de Trabajo'}</h3>
+          <img src="${ev.archivoUrl}" style="max-width:95%; border-radius:12px; box-shadow:0 3px 10px rgba(0,0,0,0.2);" />
+        </div>
+      `).join('');
+
+    // 2. OBSERVACIONES
+    const evObs = evidencias.find(ev => ev.observaciones);
+    if (evObs?.observaciones) {
+      html += `
+        <div style="background:#f9f9f9; padding:18px; margin:15px auto; border-radius:12px; border-left:5px solid #003366; max-width:90%;">
+          <h3 style="color:#003366; margin-top:0;">📝 Observaciones Finales</h3>
+          <p style="font-size:16px; color:#333; line-height:1.5;">${evObs.observaciones}</p>
+        </div>
+      `;
+    }
+
+    // 3. FIRMA DEL CLIENTE (Aquí está el cambio 🟢)
+    const evFirma = evidencias.find(ev => ev.firmaClienteUrl);
+    if (evFirma?.firmaClienteUrl) {
+      html += `
+        <div style="background:#fff; padding:18px; margin:15px auto; border-radius:12px; box-shadow:0 3px 10px rgba(0,0,0,0.12); max-width:90%; text-align:center; border: 1px solid #eee;">
+          <h3 style="color:#003366; margin-bottom:15px;">✍️ Firma de Conformidad</h3>
+          
+          <img src="${evFirma.firmaClienteUrl}" style="max-width:80%; border-bottom:2px solid #ccc; margin-bottom:10px;" />
+          
+          <div style="background:#e7f3ff; padding:10px; border-radius:8px; display:inline-block; min-width:200px; margin-top:10px;">
+            <p style="margin:0; color:#555; font-size:12px; text-transform:uppercase; letter-spacing:1px;">Nombre del Cliente</p>
+            <p style="margin:5px 0 0; color:#003366; font-size:18px; font-weight:bold;">
+                ${evFirma.nombreFirma || 'No especificado'}
+            </p>
+          </div>
+        </div>
+      `;
+    }
+
+    // 4. MATERIALES (Igual que antes)
+    if (materiales.length > 0) {
+      html += `<div style="background:#fff; padding:22px; margin:18px auto; border-radius:12px; box-shadow:0 3px 10px rgba(0,0,0,0.12); max-width:90%;">
+                <h3 style="color:#003366; margin-bottom:15px;">🧱 Material Ocupado</h3>`;
+      categoriasOrdenadas.forEach(cat => {
+        html += `<li style="list-style:none; margin-top:15px;"><strong style="color:#444;">• ${cat}</strong><ul style="margin-left:20px;">`;
+        grupos[cat].sort((a,b)=>a.insumo.localeCompare(b.insumo)).forEach(m => {
+          html += `<li style="margin:5px 0;">${m.insumo} — ${m.cantidad} ${m.unidad}</li>`;
+        });
+        html += `</ul></li>`;
       });
+      html += `</div>`;
+    }
 
-    html += `
-        </ul>
-      </li>
-    `;
-  });
-
-  html += `
-      </ul>
-    </div>
-  `;
-}
-
-contenedor.innerHTML = html;
-
+    contenedor.innerHTML = html;
 
   } catch (err) {
     console.error('❌ Error al cargar evidencias:', err);
-    contenedor.innerHTML = `<p style="color:red;">❌ ${err.message}</p>`;
+    contenedor.innerHTML = `<p style="color:red; text-align:center;">❌ ${err.message}</p>`;
   }
 }
-
-
 function cerrarModalEvidencias() {
   document.getElementById('modalEvidencias').style.display = 'none';
 }
