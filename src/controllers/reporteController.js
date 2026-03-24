@@ -324,9 +324,7 @@ if (resto.length > 0) {
 }
 }
 
-// =============================================================
-    //   SECCIÓN DE FIRMA (MODIFICADA PARA MOSTRAR NOMBRE)
-    // =============================================================
+// === Sección de Firma en reporteController.js CORREGIDA ===
     const evFirma = evidencias.find(e => e.firmaClienteUrl);
 
     if (evFirma) {
@@ -337,41 +335,40 @@ if (resto.length > 0) {
         .fillColor("#00938f")
         .text("FIRMA DE CONFORMIDAD", MARGIN_LEFT);
 
-      doc.moveDown(0.5);
+      doc.moveDown(1); // Espacio después del título
 
-      // Procesamos la firma con Sharp (isSignature = true)
       const firmaBuf = await procesarImagen(evFirma.firmaClienteUrl, 380, 220, true);
 
       if (firmaBuf) {
+        const xCentral = (doc.page.width - 200) / 2;
+        const yBaseFirma = doc.y + 60; // Punto donde estará la línea horizontal
+
+        // 1. Dibujar la imagen de la firma (la ponemos un poco más arriba de la línea)
         const img = doc.openImage(firmaBuf);
-        // Calculamos el centro para que la línea y el nombre queden alineados
-        const xCentral = (doc.page.width - 200) / 2; 
-        const xImagen = (doc.page.width - 300) / 2; // Ajuste para centrar la imagen de la firma
-
-        // 1. Dibujar la imagen de la firma
-        doc.image(firmaBuf, xImagen, doc.y, { width: 300 });
+        const xImagen = (doc.page.width - 150) / 2; // Centramos la imagen
+        doc.image(firmaBuf, xImagen, yBaseFirma - 45, { width: 150 }); 
         
-        doc.moveDown(0.2);
-
-        // 2. Dibujar línea de firma
+        // 2. Dibujar línea de firma (en la base)
         doc.strokeColor("#000")
            .lineWidth(1)
-           .moveTo(xCentral, doc.y)
-           .lineTo(xCentral + 200, doc.y)
+           .moveTo(xCentral, yBaseFirma)
+           .lineTo(xCentral + 200, yBaseFirma)
            .stroke();
 
-        // 3. Poner el nombre de quien firma debajo de la línea (Extraído de nombreFirma)
-        doc.moveDown(0.3);
+        // 3. Poner el nombre del cliente DEBAJO de la línea
+        doc.y = yBaseFirma + 5; // Bajamos el cursor justo debajo de la línea
         doc.fontSize(11)
            .fillColor("#000")
            .text(evFirma.nombreFirma ? evFirma.nombreFirma.toUpperCase() : "FIRMA DEL CLIENTE", 
                  xCentral, doc.y, { width: 200, align: 'center' });
 
+        // Actualizamos doc.y para que los materiales no se encimen
+        doc.y += 20;
+
       } else {
         doc.fillColor("red").text("⚠ No se pudo cargar la firma.");
       }
     }
-
 
     
     // Materiales
