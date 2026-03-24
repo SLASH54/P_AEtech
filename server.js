@@ -65,18 +65,28 @@ app.get('/api/keep-alive', (req, res) => {
 });
 
 
-// === INICIO DEL SERVIDOR – SOLO UNA VEZ ===
+// === INICIO DEL SERVIDOR EN NEON ===
 connectDB()
   .then(async () => {
-    console.log('✅ Base de datos conectada correctamente');
+    console.log('✅ Base de datos Neon conectada');
 
-    // 🟢 ESTE ES EL CAMBIO:
-    await sequelize.sync({ alter: true }); 
-    console.log('🚀 Base de datos actualizada con las nuevas columnas (nombreFirma)');
+    try {
+      // 🛠️ ESTO CREA LA COLUMNA SI NO EXISTE (PARA EVITAR EL ERROR ROJO)
+      await sequelize.query(`
+        ALTER TABLE "Evidencias" ADD COLUMN IF NOT EXISTS "nombreFirma" VARCHAR(255);
+      `);
+      console.log('✅ Columna nombreFirma verificada/creada en Neon');
+      
+      // Sincronización normal
+      await sequelize.sync(); 
+      console.log('🚀 Servidor sincronizado y listo');
+    } catch (dbError) {
+      console.error('⚠️ Error al actualizar tablas en Neon:', dbError.message);
+    }
 
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
-      console.log(`🚀 Servidor iniciado en puerto ${PORT}`);
+      console.log(`🚀 Servidor iniciado en puerto: ${PORT}`);
     });
   })
   .catch(err => {
