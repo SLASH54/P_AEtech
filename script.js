@@ -3024,7 +3024,7 @@ if (canvas) {
     const ctx = canvas.getContext('2d');
     let drawing = false;
 
-    // 🔹 Configuración de estilo
+    // 🔹 Configuración de estilo (Se mantiene igual para que no deje de funcionar)
     ctx.strokeStyle = '#000';
     ctx.lineWidth = 2;
     ctx.lineCap = 'round';
@@ -3076,32 +3076,30 @@ if (canvas) {
     // 🔹 Botones de control
     document.getElementById('btnLimpiarFirma').addEventListener('click', () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        // También limpiamos el nombre si quieres
-        const inputNombre = document.querySelector('input[label="lbClienteFirma"]');
+        // 🟢 Corregido para usar tu ID: inputNombreFirma
+        const inputNombre = document.getElementById("inputNombreFirma");
         if (inputNombre) inputNombre.value = "";
     });
 
-    // 🟢 ESTE ES EL CAMBIO CLAVE PARA AEtech
+    // 🟢 GUARDAR FIRMA Y NOMBRE EN AETECH
     document.getElementById('btnGuardarFirma').addEventListener('click', async () => {
-        // 1. Validamos que el nombre esté escrito
-        const inputNombre = document.querySelector('input[label="lbClienteFirma"]');
+        // 1. Buscamos el input por su ID real
+        const inputNombre = document.getElementById("inputNombreFirma");
         const nombreFirma = inputNombre ? inputNombre.value.trim() : "";
 
+        // 2. Validación amigable
         if (!nombreFirma) {
-            return alert("Amiko, por favor escribe el nombre de quien firma antes de guardar.");
+            return alert(" por favor escribe el nombre de quien firma antes de guardar.");
         }
 
-        // 2. Ejecutamos la subida completa (Firma + Fotos + Nombre)
-        // Usamos tareaIdActual que es la que ya debes tener definida al abrir la tarea
+        // 3. Ejecutamos la subida a Render
         if (typeof tareaIdActual !== 'undefined' && tareaIdActual) {
             await subirEvidencias(tareaIdActual);
         } else {
-            alert("No se encontró el ID de la tarea. Asegúrate de haber seleccionado una.");
+            alert("Error: No se detectó el ID de la tarea. Intenta abrir de nuevo la tarea.");
         }
     });
 }
-
-
 
 
 
@@ -3386,22 +3384,22 @@ function mostrarCampoExtra() {
 async function subirEvidencias(tareaId) {
   const formData = new FormData();
   
-  // 1. Capturamos los títulos y archivos como ya lo hacías
+  // 1. Capturamos los títulos y archivos
   const titulos = [...document.querySelectorAll('.titulo')].map(i => i.value);
   const archivos = [...document.querySelectorAll('.archivo')];
   archivos.forEach(f => { if (f.files[0]) formData.append('archivos', f.files[0]); });
   formData.append('titulos', titulos.join(','));
 
-  // 🟢 NUEVO: Capturamos el nombre de quien firma desde el input que pusimos
-  // Usamos el selector por el atributo label que tenías o por ID si se lo pusiste
-  const inputNombre = document.querySelector('input[label="lbClienteFirma"]');
-  const nombreFirma = inputNombre ? inputNombre.value : "";
+  // 🟢 CORREGIDO: Usamos el ID real que pusiste en el HTML
+  const inputNombre = document.getElementById("inputNombreFirma");
+  const nombreFirma = inputNombre ? inputNombre.value.trim() : "";
 
+  // Validación: Si hay firma pero no hay nombre, detenemos todo
   if (!nombreFirma && document.getElementById('signature-pad')) {
       return alert("Amiko, por favor escribe el nombre de quien firma antes de enviar.");
   }
 
-  // Agregamos el nombre al formData para que el servidor de AEtech lo reciba
+  // Agregamos el nombre al formData
   formData.append('nombreFirma', nombreFirma);
 
   // 2. Firma desde #signature-pad
@@ -3417,7 +3415,8 @@ async function subirEvidencias(tareaId) {
   const token = localStorage.getItem('accessToken');
   
   try {
-    document.getElementById("loader").style.display = "flex"; // Mostramos carga
+    const loader = document.getElementById("loader");
+    if (loader) loader.style.display = "flex"; 
 
     const res = await fetch(`${API_BASE_URL}/evidencias/upload-multiple/${tareaId}`, {
       method: 'POST',
@@ -3465,11 +3464,10 @@ async function subirEvidencias(tareaId) {
     console.error("Error crítico:", error);
     alert("Hubo una falla en la conexión con el servidor.");
   } finally {
-    document.getElementById("loader").style.display = "none";
+    const loader = document.getElementById("loader");
+    if (loader) loader.style.display = "none";
   }
 }
-
-
 
 
 
