@@ -1031,25 +1031,17 @@
     
 
     <!-- MODAL PARA VISUALIZAR EVIDENCIAS -->
-<div id="modalEvidencias" class="modal" style="display:none; align-items:flex-start; padding-top:50px;">
-  <div class="modal-content" style="max-width: 600px; width: 95%; position: relative; border-radius: 15px; overflow: hidden;">
-    
-    <span class="close" onclick="cerrarModalEvidencias()" 
-          style="position: absolute; right: 20px; top: 15px; font-size: 30px; cursor: pointer; z-index: 10;">&times;</span>
-    
-    <div id="contenedorEvidencias" style="max-height: 75vh; overflow-y: auto; padding: 20px; background: #f4f7f6;">
-      </div>
+<div id="modalEvidencias" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="cerrarModalEvidencias()">&times;</span>
+    <h2>📸 Evidencias</h2>
 
-    <div style="background: white; padding: 15px; text-align: center; border-top: 1px solid #eee;">
-      <button id="btnDescargarEvidencias" class="btn-descargar" onclick="descargarEvidencias()"
-              style="background: #003366; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%;">
-        ⬇️ Descargar Reporte Completo
-      </button>
-      <button onclick="cerrarModalEvidencias()" 
-              style="margin-top: 10px; background: none; border: none; color: #777; cursor: pointer;">
-        Cerrar vista
-      </button>
-    </div>
+    <div id="contenedorEvidencias"></div>
+
+    <!-- 🔹 Botón de descarga -->
+    <button id="btnDescargarEvidencias" class="btn-descargar" onclick="descargarEvidencias()">
+      ⬇️ Descargar todas
+    </button>
   </div>
 </div>
 
