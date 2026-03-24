@@ -6,40 +6,19 @@ const { sequelize } = require('../config/database');
 
 
 const Evidencia = sequelize.define('Evidencia', {
-  
   id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
   tareaId: { type: DataTypes.INTEGER, allowNull: false },
   usuarioId: { type: DataTypes.INTEGER, allowNull: false },
   titulo: { type: DataTypes.STRING, allowNull: false },
   archivoUrl: { type: DataTypes.STRING, allowNull: true },
   firmaClienteUrl: { type: DataTypes.STRING, allowNull: true },
-
-
-  materiales: {
-  type: DataTypes.JSON, // o DataTypes.TEXT si tu DB no soporta JSON
-  allowNull: true
-  },
-
-  observaciones: {
-      type: DataTypes.TEXT,
-      allowNull: true
-  },
-
-  
-
-  firmaClienteUrl: { type: DataTypes.STRING, allowNull: true },
-  
-  // 🟢 AGREGAMOS ESTA LÍNEA:
-  nombreFirma: { type: DataTypes.STRING, allowNull: true }, 
-
+  nombreFirma: { type: DataTypes.STRING, allowNull: true }, // 👈 Solo una vez
   materiales: { type: DataTypes.JSON, allowNull: true },
   observaciones: { type: DataTypes.TEXT, allowNull: true },
-
 }, {
   tableName: 'Evidencias',
   timestamps: true,
 });
-
 
 
 

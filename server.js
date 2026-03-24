@@ -66,19 +66,23 @@ app.get('/api/keep-alive', (req, res) => {
 
 
 // === INICIO DEL SERVIDOR – SOLO UNA VEZ ===
+// En tu server.js
 connectDB()
-  .then(() => {
-   console.log('✅ Base de datos conectada correctamente');
+  .then(async () => {
+    console.log('✅ Base de datos conectada correctamente');
+
+    // 🟢 ESTE ES EL CAMBIO:
+    await sequelize.sync({ alter: true }); 
+    console.log('🚀 Base de datos actualizada con las nuevas columnas (nombreFirma)');
 
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
-      console.log(`🚀 Servidor iniciado en http://localhost:${PORT}`);
+      console.log(`🚀 Servidor iniciado en puerto ${PORT}`);
     });
   })
   .catch(err => {
     console.error('❌ No se pudo iniciar el servidor:', err);
   });
-
 
 // server.js final
 
