@@ -791,6 +791,8 @@ async function verDetalleCuenta(id) {
         const fechaAnticipoCont = document.getElementById('detFechaAnticipoCont')
         const divDetIVA = document.getElementById('divDetIVA');
         const detIVA = document.getElementById('detIVA');
+      const detFecha = document.getElementById('detFechaAnticipoCont');
+
         
         // Badge de Estatus (Pendiente/Pagado)
         const estatusActual = (cuenta.estatus || 'Pendiente').toUpperCase();
@@ -824,6 +826,48 @@ async function verDetalleCuenta(id) {
         } else {
             fechaAnticipoCont.style.display = "none";
         }
+
+
+                //FECHA DE ANTICIPO
+        if (cuenta.detFecha) {
+            fechaAnticipoCont.style.display = "block";
+            const fAnt = new Date(cuenta.detFecha).toLocaleString('es-MX', {
+                day: '2-digit', month: '2-digit', year: 'numeric'
+            });
+            document.getElementById('detFecha').innerHTML = `<b>Anticipo dado el:</b> ${fAnt}`;
+        } else {
+            fechaAnticipoCont.style.display = "none";
+        }
+
+        // --- LÓGICA DE FECHAS ---
+const fechaCreacionCont = document.getElementById('detFechaCreacionCont');
+const fechaCreacionTexto = document.getElementById('detFechaCreacionTexto');
+
+// 1. FECHA DE CREACIÓN (Registro inicial de la nota)
+if (cuenta.createdAt) {
+    fechaCreacionCont.style.display = "block";
+    const fCreacion = new Date(cuenta.createdAt).toLocaleString('es-MX', {
+        day: '2-digit', 
+        month: '2-digit', 
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    fechaCreacionTexto.innerHTML = `<b>Registrada el:</b> ${fCreacion}`;
+} else {
+    fechaCreacionCont.style.display = "none";
+}
+
+// 2. FECHA DE ANTICIPO (Tu código existente corregido)
+if (cuenta.fecha_anticipo) {
+    fechaAnticipoCont.style.display = "block";
+    const fAnt = new Date(cuenta.fecha_anticipo).toLocaleString('es-MX', {
+        day: '2-digit', month: '2-digit', year: 'numeric'
+    });
+    document.getElementById('detFechaAnticipoTexto').innerHTML = `<b>Anticipo dado el:</b> ${fAnt}`;
+} else {
+    fechaAnticipoCont.style.display = "none";
+}
 
         // Badges de IVA/Factura
         if (cuenta.iva) badgesContainer.innerHTML += `<span class="badge badge-iva">CON IVA</span>`;
