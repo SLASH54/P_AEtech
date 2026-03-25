@@ -1406,6 +1406,7 @@ function liquidarTotalDirecto() {
 
 //AQUI EMPIEZA EL SCRIPT DEL 
 
+let editandoProductoId = null; // Para saber si el formulario está en modo editar
 let catalogoProductos = []; // Almacena los productos de la DB
 
 function openCatalogoProductos() {
@@ -1428,37 +1429,39 @@ async function cargarCatalogo() {
 }
 
 // Guardar nuevo producto en el catálogo maestro
+// Modificamos la función que ya tenías para que decida si CREA o EDITA
 async function guardarProductoEnCatalogo() {
     const nombre = document.getElementById("catNombre").value;
     const costo = document.getElementById("catCosto").value;
     const fotoFile = document.getElementById("catFoto").files[0];
 
-    if (!nombre || !costo) return alert("Nombre y costo son obligatorios");
+    if (!nombre || !costo) return alert("Nombre y costo obligatorios");
 
     const formData = new FormData();
     formData.append("nombre", nombre);
     formData.append("costo", costo);
     if (fotoFile) formData.append("foto", fotoFile);
 
+    const url = editandoProductoId 
+        ? `${API_BASE_URL}/productos/${editandoProductoId}` 
+        : `${API_BASE_URL}/productos`;
+    const method = editandoProductoId ? "PUT" : "POST";
+
     try {
         document.getElementById("loader").style.display = "flex";
-        const res = await fetch(`${API_BASE_URL}/productos`, {
-            method: "POST",
+        const res = await fetch(url, {
+            method: method,
             headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` },
             body: formData
         });
 
         if (res.ok) {
-            alert("✅ Producto agregado al inventario");
-            // Limpiar campos
-            document.getElementById("catNombre").value = "";
-            document.getElementById("catCosto").value = "";
-            document.getElementById("catFoto").value = "";
-            cargarCatalogo(); // Recargar lista
+            alert(editandoProductoId ? "✅ Actualizado" : "✅ Creado");
+            resetFormularioCatalogo();
+            cargarCatalogo();
         }
     } catch (err) {
         console.error(err);
-        alert("Error al guardar en catálogo");
     } finally {
         document.getElementById("loader").style.display = "none";
     }
@@ -1477,16 +1480,17 @@ function renderizarCatalogo() {
         
         div.innerHTML = `
             <div style="display: flex; align-items: center; gap: 10px;">
-                <img src="${p.fotoUrl || 'img/default-product.png'}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 5px; border: 1px solid #ddd;">
+                <img src="${p.fotoUrl || 'img/default-product.png'}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 5px;">
                 <div>
-                    <b style="color: #333; display: block;">${p.nombre}</b>
+                    <b style="color: #333;">${p.nombre}</b><br>
                     <span style="color: #28a745; font-weight: bold;">$${parseFloat(p.costo).toFixed(2)}</span>
                 </div>
             </div>
-            <button onclick="agregarAlPedidoDesdeCatalogo(${p.id})" 
-                style="background: #007aff; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">
-                +
-            </button>
+            <div style="display: flex; gap: 5px;">
+                <button onclick="prepararEdicionProducto(${p.id})" style="background: #ffcc00; border: none; border-radius: 5px; padding: 5px 8px; cursor: pointer;">✏️</button>
+                <button onclick="eliminarProductoDelCatalogo(${p.id})" style="background: #ff3b30; border: none; border-radius: 5px; padding: 5px 8px; cursor: pointer; color: white;">🗑️</button>
+                <button onclick="agregarAlPedidoDesdeCatalogo(${p.id})" style="background: #007aff; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-weight: bold;">+</button>
+            </div>
         `;
         contenedor.appendChild(div);
     });
@@ -1515,6 +1519,49 @@ function agregarAlPedidoDesdeCatalogo(id) {
     // Feedback visual (opcional)
     console.log(`Agregado: ${prod.nombre}`);
 }
+
+// Carga los datos del producto en el formulario del modal para editarlos
+function prepararEdicionProducto(id) {
+    const prod = catalogoProductos.find(p => p.id === id);
+    if (!prod) return;
+
+    editandoProductoId = id;
+    document.getElementById("catNombre").value = prod.nombre;
+    document.getElementById("catCosto").value = prod.costo;
+    
+    // Cambiamos el texto del botón para que el usuario sepa que está editando
+    const btnGuardar = document.querySelector("#modalCatalogo .btn-ver");
+    btnGuardar.innerText = "Actualizar Producto";
+    btnGuardar.style.background = "#ffcc00";
+}
+
+function resetFormularioCatalogo() {
+    editandoProductoId = null;
+    document.getElementById("catNombre").value = "";
+    document.getElementById("catCosto").value = "";
+    document.getElementById("catFoto").value = "";
+    const btnGuardar = document.querySelector("#modalCatalogo .btn-ver");
+    btnGuardar.innerText = "Añadir al Inventario";
+    btnGuardar.style.background = ""; // Color original
+}
+
+async function eliminarProductoDelCatalogo(id) {
+    if (!confirm("¿Seguro que quieres quitar este producto del catálogo maestro?")) return;
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/productos/${id}`, {
+            method: "DELETE",
+            headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` }
+        });
+        if (res.ok) {
+            alert("Eliminado");
+            cargarCatalogo();
+        }
+    } catch (err) {
+        console.error(err);
+    }
+}
+
 
 
 let catalogoCompleto = []; // Aquí guardaremos los productos de la DB

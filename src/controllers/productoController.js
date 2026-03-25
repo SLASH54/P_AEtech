@@ -39,11 +39,38 @@ exports.crearProducto = async (req, res) => {
   }
 };
 
+// Editar producto
+exports.editarProducto = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nombre, costo, categoria } = req.body;
+    const producto = await Producto.findByPk(id);
+
+    if (!producto) return res.status(404).json({ msg: 'Producto no encontrado' });
+
+    let fotoUrl = producto.fotoUrl;
+
+    // Si suben una nueva foto, la reemplazamos en Cloudinary
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: 'aetech_catalogo',
+      });
+      fotoUrl = result.secure_url;
+    }
+
+    await producto.update({ nombre, costo, categoria, fotoUrl });
+    res.json(producto);
+  } catch (error) {
+    res.status(500).json({ msg: 'Error al editar' });
+  }
+};
+
 // Eliminar producto
 exports.eliminarProducto = async (req, res) => {
   try {
-    await Producto.destroy({ where: { id: req.params.id } });
-    res.json({ msg: 'Producto eliminado del catálogo' });
+    const { id } = req.params;
+    await Producto.destroy({ where: { id } });
+    res.json({ msg: 'Producto eliminado' });
   } catch (error) {
     res.status(500).json({ msg: 'Error al eliminar' });
   }

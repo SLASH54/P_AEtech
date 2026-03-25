@@ -13,4 +13,7 @@ router.post('/', protect, upload.single('foto'), productoController.crearProduct
 // DELETE /api/productos/:id
 router.delete('/:id', protect, productoController.eliminarProducto);
 
+//PUT /api/productos/:id
+router.put('/:id', protect, upload.single('foto'), productoController.editarProducto);
+
 module.exports = router;
