@@ -1562,48 +1562,6 @@ async function eliminarProductoDelCatalogo(id) {
     }
 }
 
-
-
-let catalogoCompleto = []; // Aquí guardaremos los productos de la DB
-
-// 1. Cargar el catálogo desde la DB
-async function cargarCatalogo() {
-    try {
-        const res = await fetch(`${API_BASE_URL}/productos`, {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` }
-        });
-        catalogoCompleto = await res.json();
-        renderizarCatalogo();
-    } catch (err) {
-        console.error("Error al cargar catálogo", err);
-    }
-}
-
-// 2. Mostrar los productos en el modal
-
-
-// 3. Al hacer clic en "+", se añade a la cuenta actual
-function seleccionarDelCatalogo(id) {
-    const prod = catalogoCompleto.find(p => p.id === id);
-    if (!prod) return;
-
-    // Esta parte conecta con tu lógica de "levMaterialesList"
-    const nuevoMaterial = {
-        idTemp: Date.now(),
-        nombre: prod.nombre,
-        cantidad: 1,
-        costo: prod.costo,
-        foto: prod.fotoUrl // Ya tiene la URL, no hay que subir nada
-    };
-
-    levMaterialesList.push(nuevoMaterial);
-    actualizarTablaMateriales(); // La función que ya tienes para pintar la lista
-    calcularSaldo(); 
-    
-    // Opcional: cerrar el catálogo o mandar un aviso
-    console.log("Añadido:", prod.nombre);
-}
-
 //AQUI TERMINA XDD
 
 
