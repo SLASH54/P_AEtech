@@ -2749,6 +2749,32 @@ let firmaCanvas = null;
 
 
 
+// 1. Función de compresión (DEBE IR FUERA DE initEvidencias)
+async function comprimirArchivo(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (e) => {
+      const img = new Image();
+      img.src = e.target.result;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 1200; 
+        let width = img.width;
+        let height = img.height;
+        if (width > MAX_WIDTH) {
+          height *= MAX_WIDTH / width;
+          width = MAX_WIDTH;
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.7);
+      };
+    };
+  });
+}
 
 // ============================
 // Subida múltiple de evidencias
@@ -2759,124 +2785,145 @@ function initEvidencias(tareaId) {
   const saveBtn = document.getElementById('btnGuardarEvidencias');
   const token = localStorage.getItem('accessToken');
 
-  if (!container) return;
+  if (!container) {
+    console.error('No se encontró el contenedor de evidencias');
+    return;
+  }
+
   container.innerHTML = ''; 
 
   const fotosContainer = document.createElement('div');
   fotosContainer.id = 'fotos-lista-container';
   container.appendChild(fotosContainer);
 
-  // --- FUNCIÓN PARA SUBIR UNA SOLA FOTO ---
-  async function subirFotoIndividual(archivo, titulo, previewImg, loaderElement) {
-    const formData = new FormData();
-    formData.append('archivo', archivo);
-    formData.append('titulo', titulo);
+  // Campo de Observaciones
+  const divObs = document.createElement('div');
+  divObs.className = 'card-evidencia';
+  divObs.style.borderLeft = "5px solid #4285F4";
+  divObs.innerHTML = `
+    <label><i class="fa-solid fa-comment"></i> Observaciones Finales</label>
+    <textarea id="tareaObservaciones" class="titulo-observacion" 
+      placeholder="Escribe aquí comentarios sobre el servicio..." 
+      style="width: 100%; height: 80px; margin-top: 10px; border-radius: 8px; padding: 10px; border: 1px solid #ccc;"></textarea>
+  `;
+  container.appendChild(divObs);
+
+  // Foto Fija (Ubicación)
+  const divFija = document.createElement('div');
+  divFija.className = 'card-evidencia';
+  divFija.style = "margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 10px; background-color: #f9f9f9;";
+  divFija.innerHTML = `
+    <label>Título de la evidencia</label>
+    <input type="text" class="titulo" value="Foto de Confirmacion de Ubicacion" Readonly>
+    <label class="label-file">
+      <i class="fa-solid fa-camera"></i> Tomar Foto / Elegir Archivo
+      <input type="file" class="archivo" accept="image/*">
+    </label>
+    <div class="preview-container">
+      <img class="preview-img" src="" alt="Vista previa" style="display:none;">
+    </div>
+  `;
+  fotosContainer.appendChild(divFija);
+
+  function agregarCampo() {
+    const div = document.createElement('div');
+    div.className = 'card-evidencia';
+    div.style = "margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 10px; background-color: #f9f9f9;";
+    div.innerHTML = `
+      <label>Título de la evidencia</label>
+      <input type="text" class="titulo" placeholder="Ej: Foto antes de la instalación">
+      <label class="label-file">
+        <i class="fa-solid fa-camera"></i> Tomar Foto / Elegir Archivo
+        <input type="file" class="archivo" accept="image/*">
+      </label>
+      <div class="preview-container">
+        <img class="preview-img" src="" alt="Vista previa" style="display:none;">
+      </div>
+    `;
+    fotosContainer.appendChild(div);
+  }
+
+  for (let i = 0; i < 2; i++) agregarCampo();
+  addBtn.onclick = agregarCampo;
+
+  // Previsualización
+  document.addEventListener("change", (e) => {
+    if (e.target.classList.contains("archivo") && e.target.files[0]) {
+      const reader = new FileReader();
+      const preview = e.target.closest(".card-evidencia").querySelector(".preview-img");
+      reader.onload = () => {
+        preview.src = reader.result;
+        preview.style.display = "block";
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  });
+
+  // 🔹 BOTÓN GUARDAR (REPARADO Y LIGERO)
+  saveBtn.onclick = async (e) => {
+    e.preventDefault();
+    loader.style.display = 'flex'; // Mostrar loader desde el inicio
 
     try {
-      // Ponemos la imagen en opacidad baja mientras sube
-      previewImg.style.opacity = "0.5";
-      
-      const res = await fetch(`${API_BASE_URL}/evidencias/upload-single-instant/${tareaId}`, {
+      const formData = new FormData();
+
+      // 1. Datos básicos
+      formData.append('observaciones', document.getElementById('tareaObservaciones').value);
+      const inputNombre = document.getElementById("inputNombreFirma");
+      formData.append('nombreFirma', inputNombre ? inputNombre.value.trim() : "");
+      formData.append("materiales", JSON.stringify(materialesList));
+
+      // 2. Títulos y Archivos COMPRIMIDOS
+      const titulos = [...document.querySelectorAll('.titulo')].map(i => i.value);
+      formData.append('titulos', titulos.join(','));
+
+      const archivosInputs = [...document.querySelectorAll('.archivo')];
+      for (const input of archivosInputs) {
+        if (input.files[0]) {
+          const fotoLigera = await comprimirArchivo(input.files[0]);
+          formData.append('archivos', fotoLigera, 'evidencia.jpg');
+        }
+      }
+
+      // 3. Firma
+      const canvas = document.getElementById('signature-pad');
+      if (canvas) {
+        const firmaData = canvas.toDataURL('image/png');
+        const blobBin = atob(firmaData.split(',')[1]);
+        const array = [];
+        for (let i = 0; i < blobBin.length; i++) array.push(blobBin.charCodeAt(i));
+        formData.append('firmaCliente', new Blob([new Uint8Array(array)], { type: 'image/png' }), 'firma_cliente.png');
+      }
+
+      // 4. Envío
+      const res = await fetch(`${API_BASE_URL}/evidencias/upload-multiple/${tareaId}`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: formData
       });
 
+      const data = await res.json();
+
       if (res.ok) {
-        previewImg.style.opacity = "1";
-        previewImg.style.border = "3px solid #28a745"; // Verde si subió bien
+        alert('✅ Evidencias subidas correctamente');
+        actualizarEstadoTarea(tareaId, 'Completada');
+        
+        // Limpiar
+        document.querySelectorAll('.archivo').forEach(f => f.value = '');
+        if (typeof mostrarContenido === 'function') mostrarContenido('Tablero');
       } else {
-        alert("Error al subir esta imagen, intenta de nuevo");
-        previewImg.style.border = "3px solid #dc3545"; // Rojo si falló
+        alert(data.msg || 'Error al subir');
       }
     } catch (err) {
-      console.error("Error en subida instantánea:", err);
-    }
-  }
-
-  function agregarCampo(tituloFijo = "") {
-    const div = document.createElement('div');
-    div.className = 'card-evidencia';
-    div.style = "margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 10px; background: #f9f9f9;";
-    
-    div.innerHTML = `
-      <label>Título de la evidencia</label>
-      <input type="text" class="titulo" value="${tituloFijo}" ${tituloFijo ? 'readonly' : ''} placeholder="Ej: Foto antes">
-      <label class="label-file">
-        <i class="fa-solid fa-camera"></i> Seleccionar
-        <input type="file" class="archivo-input" accept="image/*" style="display:none;">
-      </label>
-      <div class="status-msg" style="font-size: 12px; color: #666;"></div>
-      <div class="preview-container">
-        <img class="preview-img" src="" style="display:none; width:100px; margin-top:10px; border-radius:5px;">
-      </div>
-    `;
-
-    // Evento cuando seleccionan la foto
-    const input = div.querySelector('.archivo-input');
-    input.onchange = async (e) => {
-      if (e.target.files[0]) {
-        const file = e.target.files[0];
-        const titulo = div.querySelector('.titulo').value || "Evidencia";
-        const preview = div.querySelector('.preview-img');
-        const status = div.querySelector('.status-msg');
-
-        // Mostrar vista previa
-        preview.src = URL.createObjectURL(file);
-        preview.style.display = "block";
-        status.innerText = "⏳ Subiendo...";
-
-        // SUBIR AL MOMENTO ✨
-        await subirFotoIndividual(file, titulo, preview);
-        status.innerText = "✅ Subida";
-      }
-    };
-
-    fotosContainer.appendChild(div);
-  }
-
-  // Inicialización
-  agregarCampo("Foto de Confirmacion de Ubicacion");
-  for (let i = 0; i < 2; i++) agregarCampo();
-  addBtn.onclick = () => agregarCampo();
-
-  // --- BOTÓN FINAL (SOLO FIRMA Y CIERRE) ---
-  saveBtn.onclick = async (e) => {
-    e.preventDefault();
-    loader.style.display = 'flex';
-
-    const formDataFinal = new FormData();
-    formDataFinal.append('observaciones', document.getElementById('tareaObservaciones').value);
-    formDataFinal.append('nombreFirma', document.getElementById("inputNombreFirma")?.value || "");
-    formDataFinal.append("materiales", JSON.stringify(materialesList));
-
-    const canvas = document.getElementById('signature-pad');
-    if (canvas) {
-      const firmaData = canvas.toDataURL('image/png');
-      const blobBin = atob(firmaData.split(',')[1]);
-      const array = [];
-      for (let i = 0; i < blobBin.length; i++) array.push(blobBin.charCodeAt(i));
-      formDataFinal.append('firmaCliente', new Blob([new Uint8Array(array)], { type: 'image/png' }), 'firma.png');
-    }
-
-    try {
-      const res = await fetch(`${API_BASE_URL}/evidencias/finalizar-reporte/${tareaId}`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: formDataFinal
-      });
-
-      if (res.ok) {
-        alert('✅ Reporte Finalizado con éxito');
-        mostrarContenido('Tablero');
-      }
-    } catch (err) {
-      alert('Error al cerrar el reporte');
+      console.error('❌ Error:', err);
+      alert('Error de conexión con el servidor.');
     } finally {
       loader.style.display = 'none';
     }
   };
 }
+
+
 
 
 function actualizarEstadoTarea(tareaId, nuevoEstado) {
