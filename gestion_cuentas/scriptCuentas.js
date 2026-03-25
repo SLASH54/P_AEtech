@@ -1497,28 +1497,7 @@ function renderizarCatalogo() {
 }
 
 // ESTA FUNCIÓN CONECTA EL CATÁLOGO CON TU NOTA DE CUENTA
-function agregarAlPedidoDesdeCatalogo(id) {
-    const prod = catalogoProductos.find(p => p.id === id);
-    if (!prod) return;
 
-    // Estructura compatible con tu levMaterialesList actual
-    const nuevoItem = {
-        idTemp: Date.now() + Math.random(),
-        nombre: prod.nombre,
-        cantidad: 1,
-        costo: parseFloat(prod.costo),
-        foto: prod.fotoUrl // Ya viene la URL de Cloudinary del catálogo
-    };
-
-    levMaterialesList.push(nuevoItem);
-    
-    // Llamamos a tus funciones existentes en scriptCuentas.js
-    actualizarTablaMateriales(); 
-    calcularSaldo(); 
-    
-    // Feedback visual (opcional)
-    console.log(`Agregado: ${prod.nombre}`);
-}
 
 // Carga los datos del producto en el formulario del modal para editarlos
 function prepararEdicionProducto(id) {
@@ -1562,6 +1541,50 @@ async function eliminarProductoDelCatalogo(id) {
     }
 }
 
+// Variable para saber si el catálogo debe "devolver" el producto a la cuenta
+let modoSeleccionCatalogo = false;
+
+function abrirCatalogoParaSeleccion() {
+    modoSeleccionCatalogo = true;
+    document.getElementById("modalCatalogo").style.display = "flex";
+    cargarCatalogo(); // Asegura que los productos estén frescos
+}
+
+// Esta es la función que llamaremos cuando el usuario dé clic en el "+" del catálogo
+function agregarAlPedidoDesdeCatalogo(id) {
+    const producto = catalogoProductos.find(p => p.id === id);
+    if (!producto) return;
+
+    if (modoSeleccionCatalogo) {
+        // Creamos el objeto con el formato que espera tu lista de materiales
+        const nuevoMaterial = {
+            nombre: producto.nombre,
+            cantidad: 1,
+            costo: parseFloat(producto.costo),
+            foto: producto.fotoUrl // Pasamos la URL de Cloudinary
+        };
+
+        // Lo añadimos a tu array global de materiales de la cuenta actual
+        levMaterialesList.push(nuevoMaterial);
+        
+        // Refrescamos la tablita de materiales del modal de cuenta
+        renderizarMateriales(); 
+        
+        // Cerramos el catálogo para seguir con la cuenta
+        cerrarModalCatalogo();
+        
+        alert(`Añadido: ${producto.nombre}`);
+    } else {
+        // Aquí podrías poner lógica por si quieres usar el "+" en el modo administrador
+        alert("Producto: " + producto.nombre);
+    }
+}
+
+function cerrarModalCatalogo() {
+    document.getElementById("modalCatalogo").style.display = "none";
+    modoSeleccionCatalogo = false; // Resetear el modo
+    resetFormularioCatalogo(); // Limpiar inputs del catálogo
+}
 //AQUI TERMINA XDD
 
 
