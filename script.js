@@ -2925,7 +2925,6 @@ function initEvidencias(tareaId) {
 
 
 
-
 function actualizarEstadoTarea(tareaId, nuevoEstado) {
   const fila = document.querySelector(`[data-tarea-id="${tareaId}"]`);
   if (fila) fila.querySelector('.estado').textContent = nuevoEstado;
@@ -3718,6 +3717,7 @@ if (tarea && tarea.estado !== 'Completada') {
 
 const token = localStorage.getItem('accessToken');
 
+// 1️⃣ Tu lógica original de Cargar Notificaciones (Sin cambiar ni una coma de la lógica)
 async function cargarNotificaciones() {
   try {
     const jwt = localStorage.getItem('accessToken');
@@ -3728,6 +3728,8 @@ async function cargarNotificaciones() {
 
     const num = document.getElementById('numNotificaciones');
     const lista = document.getElementById('listaNotificaciones');
+
+    if (!num || !lista) return; // Protección por si no estás en el tablero
 
     const activas = data.filter(n => !n.leida);
     num.textContent = activas.length;
@@ -3745,45 +3747,31 @@ async function cargarNotificaciones() {
       texto.style.fontWeight = 'bold';
       li.appendChild(texto);
 
-      // Si la notificación es una solicitud de tarea express
-      // Dentro del activas.forEach en cargarNotificaciones
-      if (n.mensaje.toLowerCase().includes('solicitud') || n.mensaje.toLowerCase().includes('solicitud')) {
+      // Tu lógica de botones de Autorizar/Rechazar
+      if (n.mensaje.toLowerCase().includes('solicitud')) {
           const contenedorBotones = document.createElement('div');
           contenedorBotones.style.display = 'flex';
           contenedorBotones.style.gap = '8px';
           contenedorBotones.style.marginTop = '8px';
 
-          // Botón Autorizar
           const btnAutorizar = document.createElement('button');
           btnAutorizar.textContent = '✅ Autorizar';
-          btnAutorizar.style.backgroundColor = '#28a745';
-          btnAutorizar.style.color = 'white';
-          btnAutorizar.style.border = 'none';
-          btnAutorizar.style.padding = '5px 10px';
-          btnAutorizar.style.borderRadius = '4px';
-          btnAutorizar.style.cursor = 'pointer';
+          btnAutorizar.style.cssText = 'background-color: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;';
           btnAutorizar.onclick = () => ejecutarAutorizacionDesdeNotificacion(n.tareaId, n.id);
 
-          // Botón Rechazar
           const btnRechazar = document.createElement('button');
           btnRechazar.textContent = '❌ Rechazar';
-          btnRechazar.style.backgroundColor = '#dc3545';
-          btnRechazar.style.color = 'white';
-          btnRechazar.style.border = 'none';
-          btnRechazar.style.padding = '5px 10px';
-          btnRechazar.style.borderRadius = '4px';
-          btnRechazar.style.cursor = 'pointer';
+          btnRechazar.style.cssText = 'background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;';
           btnRechazar.onclick = () => ejecutarRechazoDesdeNotificacion(n.tareaId, n.id);
 
           contenedorBotones.appendChild(btnAutorizar);
           contenedorBotones.appendChild(btnRechazar);
           li.appendChild(contenedorBotones);
       }
-
       lista.appendChild(li);
     });
 
-    // Limpieza de huérfanos
+    // Tu limpieza de huérfanos
     await fetch(`${API_BASE_URL}/notificaciones/clean-orphans`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${jwt}` }
@@ -3794,23 +3782,25 @@ async function cargarNotificaciones() {
   }
 }
 
+// 2️⃣ La parte que hacía que no funcionara el Click
+// Envolvemos los Listeners en DOMContentLoaded para que el botón "despierte"
+document.addEventListener('DOMContentLoaded', () => {
+    
+    const btnNotis = document.getElementById('btnNotificaciones');
+    const listaNotis = document.getElementById('listaNotificaciones');
 
+    if (btnNotis && listaNotis) {
+        // Usamos onclick para asegurar que no se dupliquen eventos
+        btnNotis.onclick = () => {
+            console.log("Click en notificaciones"); // Para que veas en consola que ya jala
+            listaNotis.style.display = (listaNotis.style.display === 'block') ? 'none' : 'block';
+        };
+    }
 
-
-// Mostrar/ocultar lista
-document.getElementById('btnNotificaciones').addEventListener('click', () => {
-  const lista = document.getElementById('listaNotificaciones');
-  lista.style.display = lista.style.display === 'block' ? 'none' : 'block';
+    // Cargas iniciales
+    cargarNotificaciones();
+    setInterval(cargarNotificaciones, 30000);
 });
-
-// Recargar automáticamente cada 30 segundos
-setInterval(cargarNotificaciones, 30000);
-
-// Cargar al iniciar
-cargarNotificaciones();
-//await cargarNotificaciones();
-
-
 
 
 
@@ -3984,114 +3974,116 @@ messaging.onMessage((payload) => {
 
 
 
-// === MANTENEMOS TU CÓDIGO ORIGINAL TAL CUAL ===
 
-function inicializarTableroAEtech() {
-    // 1️⃣ Mostrar nombre del usuario logeado
-    const nombreUsuario = localStorage.getItem('userName') || 'Usuario';
-    const nombreElt = document.getElementById('nombreUsuario');
-    if(nombreElt) nombreElt.textContent = nombreUsuario;
+/* Animaciones y cosas para que se vea chida la pagina*/
+// === TABLERO AEtech ===
 
-    // 2️⃣ Fecha y hora actual
-    function actualizarFechaHora() {
-        const ahora = new Date();
-        const hora = ahora.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
-        const fecha = ahora.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
-        
-        const hElt = document.getElementById('horaActual');
-        const fElt = document.getElementById('fechaActual');
-        
-        if(hElt) hElt.textContent = hora;
-        if(fElt) fElt.textContent = fecha.charAt(0).toUpperCase() + fecha.slice(1);
-    }
-    setInterval(actualizarFechaHora, 1000);
-    actualizarFechaHora();
+// 1️⃣ Mostrar nombre del usuario logeado
+const nombreUsuario = localStorage.getItem('userName') || 'Usuario';
+document.getElementById('nombreUsuario').textContent = nombreUsuario;
 
-    // 3️⃣ Frase del día aleatoria
-    const frases = [
-        "La innovación comienza con una idea.",
-        "Crea, falla, aprende, mejora. Ese es el ciclo.",
-        "Cada línea de código es un paso hacia el futuro.",
-        "La tecnología es mejor cuando une a las personas.",
-        "El límite no está en la máquina, está en la mente."
-    ];
-    const fraseElt = document.getElementById('fraseDia');
-    if(fraseElt) fraseElt.textContent = frases[Math.floor(Math.random() * frases.length)];
+// 2️⃣ Fecha y hora actual
+function actualizarFechaHora() {
+  const ahora = new Date();
+  const hora = ahora.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+  const fecha = ahora.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
+  document.getElementById('horaActual').textContent = hora;
+  document.getElementById('fechaActual').textContent =
+    fecha.charAt(0).toUpperCase() + fecha.slice(1);
+}
+setInterval(actualizarFechaHora, 1000);
+actualizarFechaHora();
 
-    // 4️⃣ Clima actual en Atlixco, Puebla (usando Open Meteo API)
-    async function obtenerClima() {
-        try {
-            const res = await fetch(
-                'https://api.open-meteo.com/v1/forecast?latitude=18.9&longitude=-98.43&current_weather=true'
-            );
-            const data = await res.json();
-            const temp = data.current_weather.temperature;
-            const codigo = data.current_weather.weathercode;
+// 3️⃣ Frase del día aleatoria
+const frases = [
+  "La innovación comienza con una idea.",
+  "Crea, falla, aprende, mejora. Ese es el ciclo.",
+  "Cada línea de código es un paso hacia el futuro.",
+  "La tecnología es mejor cuando une a las personas.",
+  "El límite no está en la máquina, está en la mente."
+];
+document.getElementById('fraseDia').textContent =
+  frases[Math.floor(Math.random() * frases.length)];
 
-            let icono = "☀️";
-            if (codigo >= 2 && codigo <= 3) icono = "⛅";
-            else if (codigo >= 45 && codigo <= 48) icono = "🌫️";
-            else if (codigo >= 51 && codigo <= 67) icono = "🌧️";
-            else if (codigo >= 71 && codigo <= 77) icono = "❄️";
-            else if (codigo >= 80) icono = "🌦️";
+// 4️⃣ Clima actual en Atlixco, Puebla (usando Open Meteo API)
+async function obtenerClima() {
+  try {
+    const res = await fetch(
+      'https://api.open-meteo.com/v1/forecast?latitude=18.9&longitude=-98.43&current_weather=true'
+    );
+    const data = await res.json();
+    const temp = data.current_weather.temperature;
+    const codigo = data.current_weather.weathercode;
 
-            const climaElt = document.getElementById('climaActual');
-            if(climaElt) climaElt.textContent = `${icono} ${temp}°C en Atlixco, Puebla`;
-        } catch {
-            const climaElt = document.getElementById('climaActual');
-            if(climaElt) climaElt.textContent = "No se pudo obtener el clima.";
-        }
-    }
-    obtenerClima();
+    let icono = "☀️";
+    if (codigo >= 2 && codigo <= 3) icono = "⛅";
+    else if (codigo >= 45 && codigo <= 48) icono = "🌫️";
+    else if (codigo >= 51 && codigo <= 67) icono = "🌧️";
+    else if (codigo >= 71 && codigo <= 77) icono = "❄️";
+    else if (codigo >= 80) icono = "🌦️";
 
-    // 5️⃣ Saludo dinámico según la hora
-    function obtenerSaludo() {
-        const hora = new Date().getHours();
-        if (hora >= 5 && hora < 12) return "🌅 Buenos días";
-        if (hora >= 12 && hora < 19) return "☀️ Buenas tardes";
-        return "🌙 Buenas noches";
-    }
+    document.getElementById('climaActual').textContent =
+      `${icono} ${temp}°C en Atlixco, Puebla`;
+  } catch {
+    document.getElementById('climaActual').textContent =
+      "No se pudo obtener el clima.";
+  }
+}
+obtenerClima();
 
-    // 6️⃣ Mostrar saludo + nombre de usuario
-    function mostrarSaludoPersonalizado() {
-        const nombre = localStorage.getItem('userName') || 'Usuario';
-        const saludoElt = document.getElementById('nombreUsuario');
-        if(saludoElt) saludoElt.textContent = `${obtenerSaludo()}, ${nombre}`;
-    }
-
-    mostrarSaludoPersonalizado();
-    setInterval(mostrarSaludoPersonalizado, 60000); 
-
-    // === Cambiar fondo del tablero según la hora ===
-    function cambiarFondoSegunHora() {
-        const hora = new Date().getHours();
-        const card = document.getElementById("TableroAetech");
-
-        if (!card) return;
-
-        card.classList.remove("tablero-manana", "tablero-tarde", "tablero-noche");
-
-        if (hora >= 6 && hora < 12) {
-            card.classList.add("tablero-manana");
-        }
-        else if (hora >= 12 && hora < 18) {
-            card.classList.add("tablero-tarde");
-        }
-        else {
-            card.classList.add("tablero-noche");
-        }
-    }
-
-    cambiarFondoSegunHora();
-    setInterval(cambiarFondoSegunHora, 3600000);
+// 5️⃣ Saludo dinámico según la hora
+function obtenerSaludo() {
+  const hora = new Date().getHours();
+  if (hora >= 5 && hora < 12) return "🌅 Buenos días";
+  if (hora >= 12 && hora < 19) return "☀️ Buenas tardes";
+  return "🌙 Buenas noches";
 }
 
-// 🚀 LANZADOR: Esto asegura que tu código original corra sin errores
-document.addEventListener('DOMContentLoaded', () => {
-    inicializarTableroAEtech();
-    // Aquí puedes llamar a cargarNotificaciones() también
-    if(typeof cargarNotificaciones === 'function') cargarNotificaciones();
-});
+// 6️⃣ Mostrar saludo + nombre de usuario
+function mostrarSaludoPersonalizado() {
+  const nombre = localStorage.getItem('userName') || 'Usuario';
+  document.getElementById('nombreUsuario').textContent = `${obtenerSaludo()}, ${nombre}`;
+}
+
+mostrarSaludoPersonalizado();
+setInterval(mostrarSaludoPersonalizado, 60000); // se actualiza cada minuto
+
+
+// === Cambiar fondo del tablero según la hora ===
+function cambiarFondoSegunHora() {
+    const hora = new Date().getHours();
+    const card = document.getElementById("TableroAetech");
+
+
+    console.log("Función ejecutada. Hora detectada:", hora);
+    
+    if (!card) {
+        console.log("Dashboard-card NO encontrado!");
+        return;
+    }
+
+    card.classList.remove("tablero-manana", "tablero-tarde", "tablero-noche");
+    console.log("Clases eliminadas");
+
+    if (hora >= 6 && hora < 12) {
+        card.classList.add("tablero-manana");
+        console.log("Clase aplicada: fondo-manana");
+    }
+    else if (hora >= 12 && hora < 18) {
+        card.classList.add("tablero-tarde");
+        console.log("Clase aplicada: fondo-tarde");
+    }
+    else {
+        card.classList.add("tablero-noche");
+        console.log("Clase aplicada: fondo-noche");
+    }
+}
+
+
+cambiarFondoSegunHora();
+setInterval(cambiarFondoSegunHora, 3600000);
+
+
 
 
 
