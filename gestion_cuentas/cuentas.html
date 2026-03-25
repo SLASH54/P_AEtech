@@ -9,6 +9,26 @@
 </head>
 <body>
 
+    <div id="modalCatalogo" class="loader-overlay" style="display: none;">
+        <div class="modal-content-ios" style="max-width: 600px;">
+            <h3>📦 Catálogo de Productos</h3>
+            
+            <div style="background: rgba(0,0,0,0.05); padding: 10px; border-radius: 10px; margin-bottom: 15px;">
+                <input type="text" id="catNombre" placeholder="Nombre del producto">
+                <input type="number" id="catCosto" placeholder="Costo $0.00">
+                <input type="file" id="catFoto" accept="image/*">
+                <button onclick="guardarProductoEnCatalogo()" class="btn-ver">Añadir al Inventario</button>
+            </div>
+
+            <input type="text" id="busquedaCatalogo" placeholder="🔍 Buscar producto..." oninput="renderizarCatalogo()">
+
+            <div id="listaProductosCatalogo" style="max-height: 300px; overflow-y: auto;">
+                </div>
+
+            <button onclick="document.getElementById('modalCatalogo').style.display='none'" class="btn-cancelar">Cerrar</button>
+        </div>
+    </div>
+
     <div id="loader" class="loader-overlay" style="display: none;">
         <div class="loader-container">
             <div class="spinner"></div>
@@ -46,25 +66,6 @@
     📦 Catálogo de Productos
     </button>
 
-    <div id="modalCatalogo" class="loader-overlay" style="display: none;">
-        <div class="modal-content-ios" style="max-width: 600px;">
-            <h3>📦 Catálogo de Productos</h3>
-            
-            <div style="background: rgba(0,0,0,0.05); padding: 10px; border-radius: 10px; margin-bottom: 15px;">
-                <input type="text" id="catNombre" placeholder="Nombre del producto">
-                <input type="number" id="catCosto" placeholder="Costo $0.00">
-                <input type="file" id="catFoto" accept="image/*">
-                <button onclick="guardarProductoEnCatalogo()" class="btn-ver">Añadir al Inventario</button>
-            </div>
-
-            <input type="text" id="busquedaCatalogo" placeholder="🔍 Buscar producto..." oninput="renderizarCatalogo()">
-
-            <div id="listaProductosCatalogo" style="max-height: 300px; overflow-y: auto;">
-                </div>
-
-            <button onclick="document.getElementById('modalCatalogo').style.display='none'" class="btn-cancelar">Cerrar</button>
-        </div>
-    </div>
 
     <div style="display: flex; gap: 5px; align-items: center;">
         <select id="filtroCliente" onchange="filtrarNotasPorCliente()" class="glass-select-ios">
