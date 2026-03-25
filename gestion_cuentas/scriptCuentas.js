@@ -1404,7 +1404,118 @@ function liquidarTotalDirecto() {
 
 
 
-//AQUI EMPIEZA EL SCRIPT DEL INVENTARIO
+//AQUI EMPIEZA EL SCRIPT DEL 
+
+let catalogoProductos = []; // Almacena los productos de la DB
+
+function openCatalogoProductos() {
+    document.getElementById("modalCatalogo").style.display = "flex";
+    cargarCatalogo(); // Cargamos los datos cada que se abre
+}
+
+// Cargar productos desde el backend
+async function cargarCatalogo() {
+    try {
+        const res = await fetch(`${API_BASE_URL}/productos`, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` }
+        });
+        if (!res.ok) throw new Error("No se pudo obtener el catálogo");
+        catalogoProductos = await res.json();
+        renderizarCatalogo();
+    } catch (err) {
+        console.error("Error catálogo:", err);
+    }
+}
+
+// Guardar nuevo producto en el catálogo maestro
+async function guardarProductoEnCatalogo() {
+    const nombre = document.getElementById("catNombre").value;
+    const costo = document.getElementById("catCosto").value;
+    const fotoFile = document.getElementById("catFoto").files[0];
+
+    if (!nombre || !costo) return alert("Nombre y costo son obligatorios");
+
+    const formData = new FormData();
+    formData.append("nombre", nombre);
+    formData.append("costo", costo);
+    if (fotoFile) formData.append("foto", fotoFile);
+
+    try {
+        document.getElementById("loader").style.display = "flex";
+        const res = await fetch(`${API_BASE_URL}/productos`, {
+            method: "POST",
+            headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` },
+            body: formData
+        });
+
+        if (res.ok) {
+            alert("✅ Producto agregado al inventario");
+            // Limpiar campos
+            document.getElementById("catNombre").value = "";
+            document.getElementById("catCosto").value = "";
+            document.getElementById("catFoto").value = "";
+            cargarCatalogo(); // Recargar lista
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Error al guardar en catálogo");
+    } finally {
+        document.getElementById("loader").style.display = "none";
+    }
+}
+
+function renderizarCatalogo() {
+    const contenedor = document.getElementById("listaProductosCatalogo");
+    const busqueda = document.getElementById("busquedaCatalogo").value.toLowerCase();
+    contenedor.innerHTML = "";
+
+    const filtrados = catalogoProductos.filter(p => p.nombre.toLowerCase().includes(busqueda));
+
+    filtrados.forEach(p => {
+        const div = document.createElement("div");
+        div.style = "display: flex; align-items: center; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; background: white; margin: 5px; border-radius: 8px;";
+        
+        div.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <img src="${p.fotoUrl || 'img/default-product.png'}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 5px; border: 1px solid #ddd;">
+                <div>
+                    <b style="color: #333; display: block;">${p.nombre}</b>
+                    <span style="color: #28a745; font-weight: bold;">$${parseFloat(p.costo).toFixed(2)}</span>
+                </div>
+            </div>
+            <button onclick="agregarAlPedidoDesdeCatalogo(${p.id})" 
+                style="background: #007aff; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">
+                +
+            </button>
+        `;
+        contenedor.appendChild(div);
+    });
+}
+
+// ESTA FUNCIÓN CONECTA EL CATÁLOGO CON TU NOTA DE CUENTA
+function agregarAlPedidoDesdeCatalogo(id) {
+    const prod = catalogoProductos.find(p => p.id === id);
+    if (!prod) return;
+
+    // Estructura compatible con tu levMaterialesList actual
+    const nuevoItem = {
+        idTemp: Date.now() + Math.random(),
+        nombre: prod.nombre,
+        cantidad: 1,
+        costo: parseFloat(prod.costo),
+        foto: prod.fotoUrl // Ya viene la URL de Cloudinary del catálogo
+    };
+
+    levMaterialesList.push(nuevoItem);
+    
+    // Llamamos a tus funciones existentes en scriptCuentas.js
+    actualizarTablaMateriales(); 
+    calcularSaldo(); 
+    
+    // Feedback visual (opcional)
+    console.log(`Agregado: ${prod.nombre}`);
+}
+
 
 let catalogoCompleto = []; // Aquí guardaremos los productos de la DB
 
