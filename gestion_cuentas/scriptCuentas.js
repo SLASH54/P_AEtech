@@ -1580,32 +1580,7 @@ async function cargarCatalogo() {
 }
 
 // 2. Mostrar los productos en el modal
-function renderizarCatalogo() {
-    const contenedor = document.getElementById("listaProductosCatalogo");
-    const busqueda = document.getElementById("busquedaCatalogo").value.toLowerCase();
-    
-    contenedor.innerHTML = "";
 
-    const filtrados = catalogoCompleto.filter(p => p.nombre.toLowerCase().includes(busqueda));
-
-    filtrados.forEach(p => {
-        const div = document.createElement("div");
-        div.className = "item-catalogo"; // Agrega estilos en CSS
-        div.innerHTML = `
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee;">
-                <div style="display: flex; align-items: center;">
-                    <img src="${p.fotoUrl || 'img/default-prod.png'}" width="40" height="40" style="border-radius: 5px; margin-right: 10px;">
-                    <div>
-                        <strong>${p.nombre}</strong><br>
-                        <span style="color: #28a745;">$${p.costo}</span>
-                    </div>
-                </div>
-                <button onclick="seleccionarDelCatalogo(${p.id})" class="btn-add">+</button>
-            </div>
-        `;
-        contenedor.appendChild(div);
-    });
-}
 
 // 3. Al hacer clic en "+", se añade a la cuenta actual
 function seleccionarDelCatalogo(id) {
