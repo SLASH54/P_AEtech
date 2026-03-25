@@ -4092,7 +4092,53 @@ cambiarFondoSegunHora();
 setInterval(cambiarFondoSegunHora, 3600000);
 
 
+// 🚀 ENVOLVEMOS SOLO LA LÓGICA VISUAL DEL TABLERO
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // === 1. Saludo Personalizado ===
+    // (Tu función original pero protegida para que no truene)
+    function mostrarSaludoPersonalizado() {
+        const nombre = localStorage.getItem('userName') || 'Usuario';
+        const elemento = document.getElementById('nombreUsuario');
+        
+        if (elemento) {
+            // Usamos tu función obtenerSaludo() que ya tienes definida
+            elemento.textContent = `${obtenerSaludo()}, ${nombre}`;
+        }
+    }
 
+    // === 2. Fondo Dinámico (La que mencionas) ===
+    function cambiarFondoSegunHora() {
+        const hora = new Date().getHours();
+        const card = document.getElementById("TableroAetech");
+
+        if (!card) {
+            console.log("TableroAetech no encontrado, saltando fondo...");
+            return;
+        }
+
+        card.classList.remove("tablero-manana", "tablero-tarde", "tablero-noche");
+
+        if (hora >= 6 && hora < 12) {
+            card.classList.add("tablero-manana");
+        } else if (hora >= 12 && hora < 18) {
+            card.classList.add("tablero-tarde");
+        } else {
+            card.classList.add("tablero-noche");
+        }
+    }
+
+    // === 3. Ejecución y Ciclos ===
+    // Ejecutamos una vez al cargar
+    mostrarSaludoPersonalizado();
+    cambiarFondoSegunHora();
+    if (typeof obtenerClima === 'function') obtenerClima();
+    if (typeof actualizarFechaHora === 'function') actualizarFechaHora();
+
+    // Seteamos los intervalos para que sigan funcionando solitos
+    setInterval(mostrarSaludoPersonalizado, 60000);
+    setInterval(cambiarFondoSegunHora, 3600000);
+});
 
 
 // estados y municpios xd 
