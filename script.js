@@ -3717,7 +3717,6 @@ if (tarea && tarea.estado !== 'Completada') {
 
 const token = localStorage.getItem('accessToken');
 
-// 1️⃣ Tu lógica original de Cargar Notificaciones (Sin cambiar ni una coma de la lógica)
 async function cargarNotificaciones() {
   try {
     const jwt = localStorage.getItem('accessToken');
@@ -3728,8 +3727,6 @@ async function cargarNotificaciones() {
 
     const num = document.getElementById('numNotificaciones');
     const lista = document.getElementById('listaNotificaciones');
-
-    if (!num || !lista) return; // Protección por si no estás en el tablero
 
     const activas = data.filter(n => !n.leida);
     num.textContent = activas.length;
@@ -3747,31 +3744,45 @@ async function cargarNotificaciones() {
       texto.style.fontWeight = 'bold';
       li.appendChild(texto);
 
-      // Tu lógica de botones de Autorizar/Rechazar
-      if (n.mensaje.toLowerCase().includes('solicitud')) {
+      // Si la notificación es una solicitud de tarea express
+      // Dentro del activas.forEach en cargarNotificaciones
+      if (n.mensaje.toLowerCase().includes('solicitud') || n.mensaje.toLowerCase().includes('solicitud')) {
           const contenedorBotones = document.createElement('div');
           contenedorBotones.style.display = 'flex';
           contenedorBotones.style.gap = '8px';
           contenedorBotones.style.marginTop = '8px';
 
+          // Botón Autorizar
           const btnAutorizar = document.createElement('button');
           btnAutorizar.textContent = '✅ Autorizar';
-          btnAutorizar.style.cssText = 'background-color: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;';
+          btnAutorizar.style.backgroundColor = '#28a745';
+          btnAutorizar.style.color = 'white';
+          btnAutorizar.style.border = 'none';
+          btnAutorizar.style.padding = '5px 10px';
+          btnAutorizar.style.borderRadius = '4px';
+          btnAutorizar.style.cursor = 'pointer';
           btnAutorizar.onclick = () => ejecutarAutorizacionDesdeNotificacion(n.tareaId, n.id);
 
+          // Botón Rechazar
           const btnRechazar = document.createElement('button');
           btnRechazar.textContent = '❌ Rechazar';
-          btnRechazar.style.cssText = 'background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;';
+          btnRechazar.style.backgroundColor = '#dc3545';
+          btnRechazar.style.color = 'white';
+          btnRechazar.style.border = 'none';
+          btnRechazar.style.padding = '5px 10px';
+          btnRechazar.style.borderRadius = '4px';
+          btnRechazar.style.cursor = 'pointer';
           btnRechazar.onclick = () => ejecutarRechazoDesdeNotificacion(n.tareaId, n.id);
 
           contenedorBotones.appendChild(btnAutorizar);
           contenedorBotones.appendChild(btnRechazar);
           li.appendChild(contenedorBotones);
       }
+
       lista.appendChild(li);
     });
 
-    // Tu limpieza de huérfanos
+    // Limpieza de huérfanos
     await fetch(`${API_BASE_URL}/notificaciones/clean-orphans`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${jwt}` }
@@ -3782,25 +3793,22 @@ async function cargarNotificaciones() {
   }
 }
 
-// 2️⃣ La parte que hacía que no funcionara el Click
-// Envolvemos los Listeners en DOMContentLoaded para que el botón "despierte"
-document.addEventListener('DOMContentLoaded', () => {
-    
-    const btnNotis = document.getElementById('btnNotificaciones');
-    const listaNotis = document.getElementById('listaNotificaciones');
 
-    if (btnNotis && listaNotis) {
-        // Usamos onclick para asegurar que no se dupliquen eventos
-        btnNotis.onclick = () => {
-            console.log("Click en notificaciones"); // Para que veas en consola que ya jala
-            listaNotis.style.display = (listaNotis.style.display === 'block') ? 'none' : 'block';
-        };
-    }
 
-    // Cargas iniciales
-    cargarNotificaciones();
-    setInterval(cargarNotificaciones, 30000);
+// Mostrar/ocultar lista
+document.getElementById('btnNotificaciones').addEventListener('click', () => {
+  const lista = document.getElementById('listaNotificaciones');
+  lista.style.display = lista.style.display === 'block' ? 'none' : 'block';
 });
+
+// Recargar automáticamente cada 30 segundos
+setInterval(cargarNotificaciones, 30000);
+
+// Cargar al iniciar
+cargarNotificaciones();
+//await cargarNotificaciones();
+
+
 
 
 
