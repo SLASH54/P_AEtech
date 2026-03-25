@@ -57,6 +57,8 @@ app.use('/api/upload', require('./src/routes/uploadRoutes'));
 app.use('/api/notificaciones', require('./src/routes/NotificacionRoutes'));
 app.use("/api/levantamientos", require("./src/routes/LevantamientosRoutes"));
 app.use('/api/cuentas', require('./src/routes/cuentaRoutes'));
+app.use('/api/productos', require('./routes/productoRoutes'));
+
 
 // Ruta exclusiva para el Cronjob - NO TOCA LA BASE DE DATOS
 app.get('/api/keep-alive', (req, res) => {
