@@ -2759,235 +2759,122 @@ function initEvidencias(tareaId) {
   const saveBtn = document.getElementById('btnGuardarEvidencias');
   const token = localStorage.getItem('accessToken');
 
-  if (!container) {
-    console.error('No se encontró el contenedor de evidencias');
-    return;
-  }
+  if (!container) return;
+  container.innerHTML = ''; 
 
-  container.innerHTML = ''; // limpia el contenido anterior
-
-  // 1. Contenedor para fotos
   const fotosContainer = document.createElement('div');
   fotosContainer.id = 'fotos-lista-container';
   container.appendChild(fotosContainer);
 
-  // 2. Campo de Observaciones (Se enviará como un título sin foto)
-  const divObs = document.createElement('div');
-  divObs.className = 'card-evidencia';
-  divObs.style.borderLeft = "5px solid #4285F4"; // Color distintivo
-  divObs.innerHTML = `
-    <label><i class="fa-solid fa-comment"></i> Observaciones Finales</label>
-    <textarea id="tareaObservaciones" class="titulo titulo-observacion" 
-      placeholder="Escribe aquí comentarios sobre el servicio..." 
-      style="width: 100%; height: 80px; margin-top: 10px; border-radius: 8px; padding: 10px; border: 1px solid #ccc;"></textarea>
-    
-    <input type="file" id="tareaObservaciones" class="tareaObservaciones" style="display:none;">
-  `;
-  container.appendChild(divObs);
+  // --- FUNCIÓN PARA SUBIR UNA SOLA FOTO ---
+  async function subirFotoIndividual(archivo, titulo, previewImg, loaderElement) {
+    const formData = new FormData();
+    formData.append('archivo', archivo);
+    formData.append('titulo', titulo);
 
-  // 3. Foto Fija (Ubicación)
-  const divFija = document.createElement('div');
-  divFija.className = 'card-evidencia';
-  // 🍎 Agregamos este estilo para separar las tarjetas
-    divFija.style.marginBottom = "20px"; 
-    divFija.style.padding = "15px";
-    divFija.style.border = "1px solid #ddd";
-    divFija.style.borderRadius = "10px";
-    divFija.style.backgroundColor = "#f9f9f9";
-  divFija.innerHTML = `
-    <label>Título de la evidencia</label>
-    <input type="text" name="titulo[]" class="titulo" value="Foto de Confirmacion de Ubicacion" Readonly>
-    <label class="label-file">
-      <i class="fa-solid fa-camera"></i> Tomar Foto / Elegir Archivo
-      <input type="file" name="archivos" class="archivo" accept="image/*">
-    </label>
-    <div class="preview-container">
-      <img class="preview-img" src="" alt="Vista previa" style="display:none;">
-    </div>
-  `;
-  fotosContainer.appendChild(divFija);
+    try {
+      // Ponemos la imagen en opacidad baja mientras sube
+      previewImg.style.opacity = "0.5";
+      
+      const res = await fetch(`${API_BASE_URL}/evidencias/upload-single-instant/${tareaId}`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData
+      });
 
-  function agregarCampo() {
+      if (res.ok) {
+        previewImg.style.opacity = "1";
+        previewImg.style.border = "3px solid #28a745"; // Verde si subió bien
+      } else {
+        alert("Error al subir esta imagen, intenta de nuevo");
+        previewImg.style.border = "3px solid #dc3545"; // Rojo si falló
+      }
+    } catch (err) {
+      console.error("Error en subida instantánea:", err);
+    }
+  }
+
+  function agregarCampo(tituloFijo = "") {
     const div = document.createElement('div');
     div.className = 'card-evidencia';
-    // 🍎 Agregamos este estilo para separar las tarjetas
-    div.style.marginBottom = "20px"; 
-    div.style.padding = "15px";
-    div.style.border = "1px solid #ddd";
-    div.style.borderRadius = "10px";
-    div.style.backgroundColor = "#f9f9f9";
+    div.style = "margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 10px; background: #f9f9f9;";
+    
     div.innerHTML = `
       <label>Título de la evidencia</label>
-      <input type="text" name="titulo[]" class="titulo" placeholder="Ej: Foto antes de la instalación">
+      <input type="text" class="titulo" value="${tituloFijo}" ${tituloFijo ? 'readonly' : ''} placeholder="Ej: Foto antes">
       <label class="label-file">
-        <i class="fa-solid fa-camera"></i> Tomar Foto / Elegir Archivo
-        <input type="file" name="archivos" class="archivo" accept="image/*">
+        <i class="fa-solid fa-camera"></i> Seleccionar
+        <input type="file" class="archivo-input" accept="image/*" style="display:none;">
       </label>
+      <div class="status-msg" style="font-size: 12px; color: #666;"></div>
       <div class="preview-container">
-        <img class="preview-img" src="" alt="Vista previa" style="display:none;">
+        <img class="preview-img" src="" style="display:none; width:100px; margin-top:10px; border-radius:5px;">
       </div>
     `;
+
+    // Evento cuando seleccionan la foto
+    const input = div.querySelector('.archivo-input');
+    input.onchange = async (e) => {
+      if (e.target.files[0]) {
+        const file = e.target.files[0];
+        const titulo = div.querySelector('.titulo').value || "Evidencia";
+        const preview = div.querySelector('.preview-img');
+        const status = div.querySelector('.status-msg');
+
+        // Mostrar vista previa
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = "block";
+        status.innerText = "⏳ Subiendo...";
+
+        // SUBIR AL MOMENTO ✨
+        await subirFotoIndividual(file, titulo, preview);
+        status.innerText = "✅ Subida";
+      }
+    };
+
     fotosContainer.appendChild(div);
   }
 
+  // Inicialización
+  agregarCampo("Foto de Confirmacion de Ubicacion");
   for (let i = 0; i < 2; i++) agregarCampo();
-  addBtn.onclick = agregarCampo;
+  addBtn.onclick = () => agregarCampo();
 
-
-
-  // 🔹 Previsualización de imágenes
-  document.addEventListener("change", (e) => {
-  if (e.target.classList.contains("archivo") && e.target.files[0]) {
-    const reader = new FileReader();
-    const preview = e.target.closest(".card-evidencia").querySelector(".preview-img");
-    reader.onload = () => {
-      preview.src = reader.result;
-      preview.style.display = "block";
-    };
-    reader.readAsDataURL(e.target.files[0]);
-  }
-});
-
-
-  
-
-  // 🔹 Guardar evidencias
+  // --- BOTÓN FINAL (SOLO FIRMA Y CIERRE) ---
   saveBtn.onclick = async (e) => {
     e.preventDefault();
+    loader.style.display = 'flex';
 
-    
+    const formDataFinal = new FormData();
+    formDataFinal.append('observaciones', document.getElementById('tareaObservaciones').value);
+    formDataFinal.append('nombreFirma', document.getElementById("inputNombreFirma")?.value || "");
+    formDataFinal.append("materiales", JSON.stringify(materialesList));
 
-// 🔹 Guardar evidencias pdf
- //   const pdfUrl = `${API_BASE_URL}/reportes/pdf/${tareaId}?token=${token}`;
-// const responsePDF = await fetch(pdfUrl, { headers: { Authorization: `Bearer ${token}` } });
-// const blob = await responsePDF.blob();
-//const url = window.URL.createObjectURL(blob);
-// const a = document.createElement('a');
-//a.href = url;
-//a.download = `Reporte_Tarea_${tareaId}.pdf`;
-//document.body.appendChild(a);
-//a.click();
-// a.remove();
-// window.URL.revokeObjectURL(url);
-
-
-
-
-
-
-   const formData = new FormData();
-
-// 1. Capturamos las observaciones
-const observaciones = document.getElementById('tareaObservaciones').value;
-formData.append('observaciones', observaciones);
-
-// 🟢 2. CAPTURAMOS Y AGREGAMOS EL NOMBRE (Esto es lo que faltaba)
-const inputNombre = document.getElementById("inputNombreFirma");
-const nombreFirma = inputNombre ? inputNombre.value.trim() : "";
-formData.append('nombreFirma', nombreFirma); // 👈 ¡Ahora sí viaja a Neon!
-
-// 3. Títulos y archivos
-const titulos = [...document.querySelectorAll('.titulo')].map(i => i.value);
-const archivos = [...document.querySelectorAll('.archivo')];
-archivos.forEach(f => { 
-    if (f.files[0]) formData.append('archivos', f.files[0]); 
-});
-formData.append('titulos', titulos.join(','));
-
-
-
-
-
-    // === 🧱 Capturar materiales usados ===
-//const materiales = [];
-//document.querySelectorAll('#listaMateriales li').forEach(li => {
-//  materiales.push(li.textContent);
-//});
-
-// Agregar al FormData (como texto JSON)
-//formData.append('materiales', JSON.stringify(materiales));
-
-  formData.append("materiales", JSON.stringify(materialesList));
-
-
-
-
-    console.log('🧾 Archivos a enviar:', archivos.map(f => f.files[0]?.name));
-
-
-    // Firma del cliente
     const canvas = document.getElementById('signature-pad');
     if (canvas) {
       const firmaData = canvas.toDataURL('image/png');
       const blobBin = atob(firmaData.split(',')[1]);
       const array = [];
       for (let i = 0; i < blobBin.length; i++) array.push(blobBin.charCodeAt(i));
-      const firmaFile = new Blob([new Uint8Array(array)], { type: 'image/png' });
-      formData.append('firmaCliente', firmaFile, 'firma_cliente.png');
+      formDataFinal.append('firmaCliente', new Blob([new Uint8Array(array)], { type: 'image/png' }), 'firma.png');
     }
-    
-    // Mostrar loader
-    loader.style.display = 'flex';
 
     try {
-      const res = await fetch(`${API_BASE_URL}/evidencias/upload-multiple/${tareaId}`, {
+      const res = await fetch(`${API_BASE_URL}/evidencias/finalizar-reporte/${tareaId}`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
-        body: formData
+        body: formDataFinal
       });
 
-      const data = await res.json();
-
-      
-      
       if (res.ok) {
-        alert('✅ Evidencias subidas correctamente');
-        actualizarEstadoTarea(tareaId, 'Completada');
-        await cargarNotificaciones();
-
-        // 🔹 Limpiar inputs
-  document.querySelectorAll('.titulo').forEach(i => i.value = '');
-  document.querySelectorAll('.archivo').forEach(f => f.value = '');
-  
-  // 🔹 Limpiar firma
-  const firmaCanvas = document.getElementById('signature-pad');
-  if (firmaCanvas) {
-    const ctx = firmaCanvas.getContext('2d');
-    ctx.clearRect(0, 0, firmaCanvas.width, firmaCanvas.height);
-  }
-
-  // 🔹 Ocultar sección de evidencias
-  const seccionEvidencias = document.getElementById('Actividades'); // cambia el ID si tu contenedor tiene otro nombre
-  if (seccionEvidencias) {
-    seccionEvidencias.style.opacity = '0';
-    setTimeout(() => {
-      seccionEvidencias.style.display = 'none';
-      seccionEvidencias.style.opacity = '1';
-    }, 400);
-  }
-
-if (typeof mostrarContenido === 'function') {
-  mostrarContenido('Tablero'); // 🔹 Esto redirige directamente al Tablero
-} else {
-  const tablero = document.getElementById('Tablero');
-  if (tablero) {
-    tablero.style.display = 'block';
-    tablero.scrollIntoView({ behavior: 'smooth' });
-  }
-}
-
-
-      } else {
-        console.error('Error del servidor:', data);
-        alert(data.msg || 'Error al subir evidencias');
+        alert('✅ Reporte Finalizado con éxito');
+        mostrarContenido('Tablero');
       }
     } catch (err) {
-      console.error('❌ Error en fetch:', err);
-      alert('Error de conexión con el servidor.');
+      alert('Error al cerrar el reporte');
     } finally {
-    // Ocultar loader
-    loader.style.display = 'none';
-  }
+      loader.style.display = 'none';
+    }
   };
 }
 
