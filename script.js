@@ -4092,53 +4092,7 @@ cambiarFondoSegunHora();
 setInterval(cambiarFondoSegunHora, 3600000);
 
 
-// 🚀 ENVOLVEMOS SOLO LA LÓGICA VISUAL DEL TABLERO
-document.addEventListener('DOMContentLoaded', () => {
-    
-    // === 1. Saludo Personalizado ===
-    // (Tu función original pero protegida para que no truene)
-    function mostrarSaludoPersonalizado() {
-        const nombre = localStorage.getItem('userName') || 'Usuario';
-        const elemento = document.getElementById('nombreUsuario');
-        
-        if (elemento) {
-            // Usamos tu función obtenerSaludo() que ya tienes definida
-            elemento.textContent = `${obtenerSaludo()}, ${nombre}`;
-        }
-    }
 
-    // === 2. Fondo Dinámico (La que mencionas) ===
-    function cambiarFondoSegunHora() {
-        const hora = new Date().getHours();
-        const card = document.getElementById("TableroAetech");
-
-        if (!card) {
-            console.log("TableroAetech no encontrado, saltando fondo...");
-            return;
-        }
-
-        card.classList.remove("tablero-manana", "tablero-tarde", "tablero-noche");
-
-        if (hora >= 6 && hora < 12) {
-            card.classList.add("tablero-manana");
-        } else if (hora >= 12 && hora < 18) {
-            card.classList.add("tablero-tarde");
-        } else {
-            card.classList.add("tablero-noche");
-        }
-    }
-
-    // === 3. Ejecución y Ciclos ===
-    // Ejecutamos una vez al cargar
-    mostrarSaludoPersonalizado();
-    cambiarFondoSegunHora();
-    if (typeof obtenerClima === 'function') obtenerClima();
-    if (typeof actualizarFechaHora === 'function') actualizarFechaHora();
-
-    // Seteamos los intervalos para que sigan funcionando solitos
-    setInterval(mostrarSaludoPersonalizado, 60000);
-    setInterval(cambiarFondoSegunHora, 3600000);
-});
 
 
 // estados y municpios xd 
@@ -4481,6 +4435,35 @@ document.addEventListener("DOMContentLoaded", revisarAccionesUrl);
 
 
 
+// 🚀 LANZADOR DE EVENTOS DEL TABLERO
+// Esto solo "enciende" las funciones cuando el HTML está listo
+document.addEventListener("DOMContentLoaded", () => {
+    
+    // 1️⃣ Ejecutar funciones visuales de inmediato
+    mostrarSaludoPersonalizado();
+    actualizarFechaHora();
+    obtenerClima();
+    cambiarFondoSegunHora();
+    
+    // 2️⃣ Activar el evento de click del botón
+    const btnNotis = document.getElementById('btnNotificaciones');
+    if (btnNotis) {
+        btnNotis.onclick = () => {
+            const lista = document.getElementById('listaNotificaciones');
+            if (lista) {
+                lista.style.display = lista.style.display === 'block' ? 'none' : 'block';
+            }
+        };
+    }
 
+    // 3️⃣ Dejar programados los ciclos de actualización
+    setInterval(actualizarFechaHora, 1000);
+    setInterval(mostrarSaludoPersonalizado, 60000);
+    setInterval(cambiarFondoSegunHora, 3600000);
+    setInterval(cargarNotificaciones, 30000);
+
+    // 4️⃣ Carga inicial de datos
+    cargarNotificaciones();
+});
 
 
