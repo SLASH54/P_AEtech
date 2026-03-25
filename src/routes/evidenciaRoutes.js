@@ -44,7 +44,7 @@ router.post(
   '/upload-multiple/:id',
   protect,  // ✅ primero verificamos el token y cargamos req.user
   upload.fields([
-    { name: 'archivos', maxCount: 10 },
+    { name: 'archivos', maxCount: 50 },
     { name: 'firmaCliente', maxCount: 1 }
   ]),
   evidenciaController.subirMultiplesEvidencias
