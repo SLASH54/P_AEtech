@@ -1604,4 +1604,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Escuchar cuando activan/desactivan el checkbox de Factura
     document.getElementById('chkFactura')?.addEventListener('change', toggleFactura);
+
+    //ver fecha 
+        document.getElementById("verFecha").textContent = new Date(lev.fecha).toLocaleString();
+
 });
