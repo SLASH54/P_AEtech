@@ -907,6 +907,7 @@ main {
     width: 100%;
     overflow-x: auto; /* Para hacer la tabla horizontalmente scrollable si es necesario */
     margin-bottom: 20px; /* Espacio entre las tablas */
+    background-color: #0066cc;
 }
 
 .datagrid-container table {

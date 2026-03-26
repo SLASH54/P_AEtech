@@ -1323,7 +1323,7 @@ button.btn.btn-secondary {
     padding-bottom: 10px;
     margin-bottom: 5px;
 }
-.datagrid-container{
+.container{
     display: flex;
     background-color: #b4dfbe1f;
     max-width: none;
