@@ -3636,110 +3636,101 @@ Total de evidencias: ${imagenes.length}
 
 
 
-// 1. VARIABLE GLOBAL (¡PONLA HASTA ARRIBA DEL ARCHIVO!)
-// Usamos window. para asegurarnos que sea accesible desde cualquier lugar
+
+
+// Cargar datos y asignar funcionalidad al botón al cargar la página
+document.addEventListener("DOMContentLoaded", function() {
+    cargarActividades();
+    cargarEvidencias();
+
+    const btnImprimirPDF = document.getElementById("btnImprimirPDF");
+    btnImprimirPDF.addEventListener("click", imprimirPDF);
+});
+
+
+
+// 1. Variable global para el ID (Ponla al inicio del archivo)
 window.tareaIdParaPDF = null;
 
-// 2. FUNCIONES DE MODAL (Deben estar afuera de cualquier DOMContentLoaded)
-function abrirConfiguracionPDF(id) {
-    console.log("Abriendo configuración para tarea:", id); // Para que veas en consola que sí llega
-    window.tareaIdParaPDF = id; 
-    const modal = document.getElementById('modalConfigPDF');
-    if (modal) {
-        modal.style.display = 'block';
-    } else {
-        console.error("No se encontró el modal con ID 'modalConfigPDF'");
+document.addEventListener("DOMContentLoaded", () => {
+    // Buscamos el botón naranja del modal
+    const btnFinalDescarga = document.getElementById('btnConfirmarGenerar');
+
+    if (btnFinalDescarga) {
+        btnFinalDescarga.onclick = async function() {
+            // 1. Sacamos el ID de la variable global
+            const id = window.tareaIdParaPDF;
+
+            if (!id || id === "undefined") {
+                alert("⚠️ Error: No se seleccionó una tarea válida.");
+                return;
+            }
+
+            // 2. Leemos los checks del modal (los que están en sistema.html)
+            const incluirMat = document.getElementById('checkMateriales')?.checked ?? true;
+            const incluirCom = document.getElementById('checkComentarios')?.checked ?? true;
+
+            // 3. Cerramos el modal
+            cerrarModalPDF();
+            
+            // 4. Ejecutamos TU FUNCIÓN que sí funciona
+            await descargarReportePDF(id, incluirMat, incluirCom);
+        };
     }
+});
+
+
+
+// 🔹 Otras funciones como abrirModalEvidencias(), renderTareasTable(), etc...
+
+async function descargarReportePDF(tareaId, incluirMateriales = true, incluirComentarios = true) {
+  const token = localStorage.getItem('accessToken');
+  if (!token) return alert('No hay sesión activa.');
+
+  const loader = document.getElementById('loader');
+  if (loader) loader.style.display = 'flex';
+  
+  try {
+    // 🛡️ Tu validación de estado (Muy importante para AEtech)
+    const tarea = (window.tareasList || []).find(t => Number(t.id) === Number(tareaId));
+    if (tarea && tarea.estado !== 'Completada') {
+      alert('⚠️ No puedes generar un PDF hasta que la tarea esté completada.');
+      return;
+    }
+
+    const pdfUrl = `${API_BASE_URL}/reportes/pdf/${tareaId}?materiales=${incluirMateriales}&comentarios=${incluirComentarios}`;
+    
+    const response = await fetch(pdfUrl, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!response.ok) throw new Error('Error al generar PDF');
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Reporte_AEtech_Tarea_${tareaId}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+
+  } catch (err) {
+    console.error('❌ Error al descargar PDF:', err);
+    alert('No se pudo generar el PDF. Verifica las evidencias o la conexión.');
+  } finally {
+    if (loader) loader.style.display = 'none';
+  }
 }
+// Si tienes algo como initApp() o window.onload, deja esto después
+
 
 function cerrarModalPDF() {
     const modal = document.getElementById('modalConfigPDF');
     if (modal) modal.style.display = 'none';
 }
-
-// =============================================================
-// 3. CONFIGURACIÓN DE EVENTOS (Cuando carga la página)
-// =============================================================
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. Cargamos tus funciones iniciales si existen
-    if (typeof cargarActividades === 'function') cargarActividades();
-    if (typeof cargarEvidencias === 'function') cargarEvidencias();
-
-    // 2. Localizamos el botón naranja "Generar PDF" del modal
-    const btnConfirmar = document.getElementById('btnConfirmarGenerar');
-
-    if (btnConfirmar) {
-        btnConfirmar.onclick = async function() {
-            // Recuperamos el ID guardado globalmente
-            const id = window.tareaIdParaPDF;
-
-            // Validación de seguridad: Si no hay ID o es la palabra "undefined"
-            if (!id || id === "undefined") {
-                console.error("❌ Error: No se pudo recuperar el tareaId de la variable global.");
-                alert("No se detectó el ID de la tarea. Por favor, cierra el modal e intenta de nuevo.");
-                return;
-            }
-
-            // Capturamos los valores de los checkboxes de tu HTML
-            // Usamos los IDs reales: 'checkMateriales' y 'checkComentarios'
-            const incluirMat = document.getElementById('checkMateriales')?.checked ?? true;
-            const incluirCom = document.getElementById('checkComentarios')?.checked ?? true;
-
-            console.log(`🚀 Generando PDF para Tarea: ${id} | Materiales: ${incluirMat} | Comentarios: ${incluirCom}`);
-
-            // Cerramos el modal antes de empezar la descarga
-            cerrarModalPDF();
-            
-            // Disparamos la función principal con los 3 datos necesarios
-            try {
-                await descargarReportePDF(id, incluirMat, incluirCom);
-            } catch (error) {
-                console.error("❌ Falló la llamada a descargarReportePDF:", error);
-            }
-        };
-    } else {
-        console.warn("⚠️ Advertencia: No se encontró el botón 'btnConfirmarGenerar' en el DOM.");
-    }
-});
-
-// 4. LA FUNCIÓN DE DESCARGA (Tal cual me la pasaste, está excelente)
-async function descargarReportePDF(tareaId, incluirMateriales = true, incluirComentarios = true) {
-    const token = localStorage.getItem('accessToken');
-    if (!token) return alert('No hay sesión activa.');
-
-    const loader = document.getElementById('loader');
-    if (loader) loader.style.display = 'flex';
-    
-    try {
-        const pdfUrl = `${API_BASE_URL}/reportes/pdf/${tareaId}?materiales=${incluirMateriales}&comentarios=${incluirComentarios}`;
-        
-        const response = await fetch(pdfUrl, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!response.ok) throw new Error('Error al generar PDF');
-
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `Reporte_AEtech_${tareaId}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        window.URL.revokeObjectURL(url);
-
-    } catch (err) {
-        console.error('❌ Error:', err);
-        alert('No se pudo generar el PDF. Revisa la consola (F12).');
-    } finally {
-        if (loader) loader.style.display = 'none';
-    }
-}
-
-
-
 
 
 
@@ -4500,3 +4491,5 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
+
+//
