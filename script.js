@@ -3657,26 +3657,48 @@ function cerrarModalPDF() {
     if (modal) modal.style.display = 'none';
 }
 
+// =============================================================
 // 3. CONFIGURACIÓN DE EVENTOS (Cuando carga la página)
+// =============================================================
 document.addEventListener('DOMContentLoaded', () => {
-    // Tus otras cargas...
+    // 1. Cargamos tus funciones iniciales si existen
     if (typeof cargarActividades === 'function') cargarActividades();
-    
+    if (typeof cargarEvidencias === 'function') cargarEvidencias();
+
+    // 2. Localizamos el botón naranja "Generar PDF" del modal
     const btnConfirmar = document.getElementById('btnConfirmarGenerar');
+
     if (btnConfirmar) {
         btnConfirmar.onclick = async function() {
+            // Recuperamos el ID guardado globalmente
             const id = window.tareaIdParaPDF;
-            if (!id) return alert("No se detectó el ID de la tarea.");
 
-            // Obtenemos valores de los checks
+            // Validación de seguridad: Si no hay ID o es la palabra "undefined"
+            if (!id || id === "undefined") {
+                console.error("❌ Error: No se pudo recuperar el tareaId de la variable global.");
+                alert("No se detectó el ID de la tarea. Por favor, cierra el modal e intenta de nuevo.");
+                return;
+            }
+
+            // Capturamos los valores de los checkboxes de tu HTML
+            // Usamos los IDs reales: 'checkMateriales' y 'checkComentarios'
             const incluirMat = document.getElementById('checkMateriales')?.checked ?? true;
             const incluirCom = document.getElementById('checkComentarios')?.checked ?? true;
 
+            console.log(`🚀 Generando PDF para Tarea: ${id} | Materiales: ${incluirMat} | Comentarios: ${incluirCom}`);
+
+            // Cerramos el modal antes de empezar la descarga
             cerrarModalPDF();
             
-            // Llamamos a la función de descarga
-            await descargarReportePDF(id, incluirMat, incluirCom);
+            // Disparamos la función principal con los 3 datos necesarios
+            try {
+                await descargarReportePDF(id, incluirMat, incluirCom);
+            } catch (error) {
+                console.error("❌ Falló la llamada a descargarReportePDF:", error);
+            }
         };
+    } else {
+        console.warn("⚠️ Advertencia: No se encontró el botón 'btnConfirmarGenerar' en el DOM.");
     }
 });
 
