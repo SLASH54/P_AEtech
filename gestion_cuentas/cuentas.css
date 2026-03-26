@@ -1287,7 +1287,7 @@ input:checked + .slider:before { transform: translateX(18px); }
 
 .modal-content-ios {
     backdrop-filter: blur(2px);
-    background-color: #f0f8ffa1;
+    background-color: #043a68e3;
     border-radius: 15px;
     max-width: 300px;
     padding: 20px;
@@ -1314,4 +1314,17 @@ button.btn.btn-secondary {
     background: rgb(48 209 81 / 54%) !important;
     border-radius: 0.5rem;
     height: 45px;
+}
+
+.bucarCatalogo{
+    padding: 10px 12px;
+    height: 20px;
+}
+.catNombre{
+    padding: 12px 10px;
+    height: 20px;
+}
+.item-costo{
+    padding: 10px 12px;
+    height: 20px;
 }
