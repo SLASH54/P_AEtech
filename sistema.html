@@ -1047,9 +1047,6 @@
 
 
 
-
-
-
 <!-- ========== LISTA DE LEVANTAMIENTOS ========== -->
 <div id="listaLevantamientos" class="main-content show">
 
@@ -2448,35 +2445,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 4️⃣ Carga inicial de datos
     cargarNotificaciones();
-
-
-
 });
 </script>
 
 
-<div id="modalConfigPDF" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.6); backdrop-filter: blur(2px);">
-  <div style="background:#fff; margin:10% auto; padding:25px; border-radius:15px; width:320px; box-shadow:0 10px 25px rgba(0,0,0,0.3); font-family: sans-serif;">
-    <h3 style="margin-top:0; color:#333; display:flex; align-items:center; gap:10px;">
-        <i class="fa-solid fa-file-pdf" style="color:#e67e22;"></i> Configurar Reporte
-    </h3>
-    <p style="font-size:14px; color:#666; margin-bottom:20px;">Selecciona qué información deseas incluir en el documento:</p>
-    
-    <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:25px;">
-      <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:15px;">
-        <input type="checkbox" id="checkMateriales" checked style="width:18px; height:18px;"> Incluir Materiales
-      </label>
-      <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:15px;">
-        <input type="checkbox" id="checkComentarios" checked style="width:18px; height:18px;"> Incluir Observaciones
-      </label>
-    </div>
-
-    <div style="display:flex; gap:10px;">
-      <button onclick="cerrarModalPDF()" style="flex:1; padding:10px; border:none; border-radius:8px; background:#f0f0f0; cursor:pointer; font-weight:bold;">Cancelar</button>
-      <button id="btnConfirmarGenerar" style="flex:1; padding:10px; border:none; border-radius:8px; background:#e67e22; color:white; cursor:pointer; font-weight:bold;">Generar PDF</button>
-    </div>
-  </div>
-</div>
 
 
 

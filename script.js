@@ -1714,17 +1714,17 @@ const clienteMapsLink = clienteMaps
                     </button>`
                 }
                 
-         ${tarea.estado === 'Completada'
-  ? `<button onclick="abrirConfiguracionPDF(${tarea.id})" 
-             class="inline-block px-3 py-1 text-sm rounded bg-green-600 text-white hover:bg-green-700 ml-2">
-         📄 PDF
-     </button>`
-  : `<button disabled title="Solo disponible cuando la tarea esté completada" 
-             class="inline-block px-3 py-1 text-sm rounded bg-gray-300 text-gray-600 cursor-not-allowed ml-2" 
-             style="width: 95%;">
-         📄 PDF
-     </button>`
-}
+                <!-- Botón PDF (solo activo si la tarea está completada) -->
+                ${tarea.estado === 'Completada'
+                ? `<button onclick="descargarReportePDF(${tarea.id})" 
+                        class="inline-block px-3 py-1 text-sm rounded bg-green-600 text-white hover:bg-green-700 ml-2">
+                        📄 PDF
+                    </button>`
+                : `<button disabled title="Solo disponible cuando la tarea esté completada" 
+                        class="inline-block px-3 py-1 text-sm rounded bg-gray-300 text-gray-600 cursor-not-allowed ml-2 width: 90%;" style="width: 95%; >
+                        📄 PDF
+                    </button>`
+                  }
                 <!-- Botón Ver Evidencias (solo activo si la tarea está completada) -->
                 ${tarea.estado === 'Completada'
                   ? `<button onclick="verEvidencias(${tarea.id})"
@@ -3655,28 +3655,28 @@ document.addEventListener("DOMContentLoaded", function() {
 
 // 🔹 Otras funciones como abrirModalEvidencias(), renderTareasTable(), etc...
 
-async function descargarReportePDF(tareaId, incluirMateriales = true, incluirComentarios = true) {
+// ---------------------------------------------------------
+// 📄 Función para descargar reporte PDF de una tarea
+// ---------------------------------------------------------
+async function descargarReportePDF(tareaId) {
   const token = localStorage.getItem('accessToken');
   if (!token) {
     alert('No hay sesión activa.');
     return;
   }
-
-  // Mostrar loader (asegúrate de tener el elemento con id="loader")
-  const loader = document.getElementById('loader');
-  if (loader) loader.style.display = 'flex';
+  // Mostrar loader
+  loader.style.display = 'flex';
   
   try {
-    // Validar estado localmente
-    const tarea = (window.tareasList || []).find(t => Number(t.id) === Number(tareaId));
-    if (tarea && tarea.estado !== 'Completada') {
-      alert('⚠️ No puedes generar un PDF hasta que la tarea esté completada.');
-      return;
-    }
+    // Validar que la tarea esté completada antes de generar PDF
+const tarea = (window.tareasList || []).find(t => Number(t.id) === Number(tareaId));
+if (tarea && tarea.estado !== 'Completada') {
+  alert('⚠️ No puedes generar un PDF hasta que la tarea esté completada.');
+  return;
+}
 
-    // 🚀 URL Corregida: Agregamos materiales y comentarios a la petición
-    const pdfUrl = `${API_BASE_URL}/reportes/pdf/${tareaId}?materiales=${incluirMateriales}&comentarios=${incluirComentarios}`;
-    
+
+    const pdfUrl = `${API_BASE_URL}/reportes/pdf/${tareaId}`;
     const response = await fetch(pdfUrl, {
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -3688,7 +3688,7 @@ async function descargarReportePDF(tareaId, incluirMateriales = true, incluirCom
 
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Reporte_AEtech_Tarea_${tareaId}.pdf`;
+    a.download = `Reporte_Tarea_${tareaId}.pdf`;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -3696,11 +3696,13 @@ async function descargarReportePDF(tareaId, incluirMateriales = true, incluirCom
     window.URL.revokeObjectURL(url);
   } catch (err) {
     console.error('❌ Error al descargar PDF:', err);
-    alert('No se pudo generar el PDF. Verifica las evidencias o la conexión.');
+    alert('No se pudo generar el PDF. Asegúrate de que la tarea tenga evidencias.');
   } finally {
-    if (loader) loader.style.display = 'none';
+    // Ocultar loader
+    loader.style.display = 'none';
   }
 }
+
 // Si tienes algo como initApp() o window.onload, deja esto después
 
 
