@@ -4466,93 +4466,57 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-//confirmacion de materiales y comentarios en el pdf 
-let tareaIdParaPDF = null;
+// =============================================================
+//   CONFIGURACIÓN DE REPORTES PDF AETECH
+// =============================================================
 
+// 1. Variable global única para el ID
+window.tareaIdParaPDF = null;
+
+// 2. Función para abrir el modal (se llama desde el botón de la tabla)
 function abrirConfiguracionPDF(id) {
-    // Usamos window para asegurar que la variable sea accesible globalmente
     window.tareaIdParaPDF = id; 
-    
     const modal = document.getElementById('modalConfigPDF');
-    if (modal) modal.style.display = 'block';
+    if (modal) {
+        modal.style.display = 'block';
+    }
 }
 
+// 3. Función para cerrar el modal
 function cerrarModalPDF() {
     const modal = document.getElementById('modalConfigPDF');
-    if (modal) modal.style.display = 'none';
+    if (modal) {
+        modal.style.display = 'none';
+    }
 }
 
-// Configurar la acción del botón "Generar" dentro del modal
-document.addEventListener('DOMContentLoaded', () => {
-    const btnConfirmar = document.getElementById('btnConfirmarGenerar');
-    if (btnConfirmar) {
-        btnConfirmar.onclick = () => {
-            const incMateriales = document.getElementById('checkMateriales').checked;
-            const incComentarios = document.getElementById('checkComentarios').checked;
-            
-            cerrarModalPDF();
-            
-            // Aquí llamas a tu función original de descarga pero con los nuevos parámetros
-            // Si tu función original se llamaba descargarReportePDF, la usamos así:
-            descargarReportePDF(tareaIdParaPDF, incMateriales, incComentarios);
-        };
-    }
-});
-
-
-function procesarGeneracionPDF() {
-    // 1. Obtenemos el ID que guardamos al abrir el modal
-    const id = window.tareaIdParaPDF;
-    
-    if (!id) {
-        alert("Error: No se encontró el ID de la tarea");
-        return;
-    }
-
-    // 2. Revisamos qué seleccionó el usuario en los checkboxes
-    // Asegúrate que los IDs coincidan con tu HTML (checkMateriales y checkObservaciones)
-    const incluirMat = document.getElementById('checkMateriales').checked;
-    const incluirObs = document.getElementById('checkObservaciones').checked;
-
-    // 3. Construimos la URL con los parámetros para el controlador
-    const url = `/api/reportes/pdf/${id}?materiales=${incluirMat}&comentarios=${incluirObs}`;
-
-    // 4. Abrimos el PDF en una pestaña nueva
-    window.open(url, '_blank');
-
-    // 5. Cerramos el modal
-    cerrarModalPDF();
-}
-
-
+// 4. Lógica del botón "Generar PDF" (El botón naranja del modal)
 document.addEventListener('DOMContentLoaded', () => {
     const btnConfirmar = document.getElementById('btnConfirmarGenerar');
 
     if (btnConfirmar) {
-        btnConfirmar.addEventListener('click', () => {
-            // 1. Recuperamos el ID de la tarea que guardamos al abrir el modal
-            const tareaId = window.tareaIdParaPDF;
+        btnConfirmar.onclick = function() {
+            const id = window.tareaIdParaPDF;
 
-            if (!tareaId) {
-                alert("Error: No se encontró el ID de la tarea.");
+            if (!id) {
+                alert("Error: No se encontró el ID de la tarea. Intenta abrir el modal de nuevo.");
                 return;
             }
 
-            // 2. Obtenemos el estado de los checkboxes
-            // Asegúrate que los IDs coincidan con tu HTML (ej: checkMateriales y checkObservaciones)
+            // Capturamos los valores de los checkboxes
+            // IMPORTANTE: Asegúrate que los IDs coincidan con tu HTML
             const incluirMat = document.getElementById('checkMateriales')?.checked || false;
             const incluirObs = document.getElementById('checkObservaciones')?.checked || false;
 
-            // 3. Construimos la URL con los parámetros para el controlador
-            const url = `/api/reportes/pdf/${tareaId}?materiales=${incluirMat}&comentarios=${incluirObs}`;
+            // Construimos la URL con los parámetros que espera tu controlador
+            // Tu reporteController.js usa: req.query.materiales y req.query.comentarios
+            const url = `/api/reportes/pdf/${id}?materiales=${incluirMat}&comentarios=${incluirObs}`;
 
-            // 4. Abrimos el reporte en una nueva pestaña
+            // Abrimos el PDF en una pestaña nueva
             window.open(url, '_blank');
 
-            // 5. Cerramos el modal (opcional, si tienes la función cerrarModalPDF)
-            if (typeof cerrarModalPDF === 'function') {
-                cerrarModalPDF();
-            }
-        });
+            // Cerramos el modal al finalizar
+            cerrarModalPDF();
+        };
     }
 });
