@@ -5027,3 +5027,125 @@ label[for="tareaAsignadoA"] {
     margin-bottom: 0.5rem;
     font-weight: 500;
 }
+
+
+
+
+
+
+
+/* === MODAL CONFIGURACIÓN PDF AEtech === */
+#modalConfigPDF {
+    display: none; 
+    position: fixed; 
+    z-index: 9999; 
+    left: 0; 
+    top: 0; 
+    width: 100%; 
+    height: 100%; 
+    background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro semitransparente */
+    backdrop-filter: blur(4px); /* Efecto de desenfoque al fondo */
+    transition: all 0.3s ease;
+}
+
+.modal-content-pdf {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 25px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 350px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-content-pdf h3 {
+    margin-top: 0;
+    color: #333;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.modal-content-pdf p {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.option-group {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.option-group label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #444;
+    transition: color 0.2s;
+}
+
+.option-group label:hover {
+    color: #e67e22; /* Color naranja al pasar el mouse */
+}
+
+/* Estilo para los checkboxes */
+.option-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #e67e22; /* Color naranja de AEtech */
+    cursor: pointer;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-pdf-cancel {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background-color: #f0f0f0;
+    color: #555;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-pdf-cancel:hover {
+    background-color: #e0e0e0;
+}
+
+.btn-pdf-confirm {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background-color: #28a745; /* Verde como tu botón original */
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.btn-pdf-confirm:hover {
+    background-color: #218838;
+}

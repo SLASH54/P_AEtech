@@ -126,7 +126,7 @@ function encabezado(doc, logoBuf, watermarkBuf) {
 // =========================================================
 //   Plantilla de fondo PDF (por página)
 // =========================================================
-function fondoPlantilla(doc, plantillaBuf) {
+function fondoPlantilla(doc, plantillaBuf, MARGIN_TOP) {
   try {
     const bg = doc.openImage(plantillaBuf);
     doc.image(bg, 0, 0, {
@@ -143,9 +143,9 @@ function fondoPlantilla(doc, plantillaBuf) {
 // =========================================================
 //   Nueva página sin páginas vacías
 // =========================================================
-function nuevaPagina(doc, plantillaBuf) {
+function nuevaPagina(doc, plantillaBuf, MARGIN_TOP) {
   doc.addPage();
-  fondoPlantilla(doc, plantillaBuf); // plantilla + posicionamiento correcto
+  fondoPlantilla(doc, plantillaBuf, MARGIN_TOP); // plantilla + posicionamiento correcto
 }
 
 
@@ -161,6 +161,10 @@ const MARGIN_BOTTOM = 120;
 
 
   const { tareaId } = req.params;
+
+  // 📥 AGREGADO: CAPTURAMOS LOS PARÁMETROS DEL MODAL
+  const incluirMateriales = req.query.materiales !== 'false';
+  const incluirComentarios = req.query.comentarios !== 'false';
 
   try {
 
@@ -205,7 +209,7 @@ if (tarea.DireccionEspecifica) {
 
     // Primera página
     // Primera página con plantilla
-    fondoPlantilla(doc, plantillaBuf);
+    fondoPlantilla(doc, plantillaBuf, MARGIN_TOP);
 
     doc.moveDown(3);
 
@@ -286,7 +290,7 @@ doc.y = yFotos + MAX_H + GAP;
 const resto = evidencias.slice(4);
 
 if (resto.length > 0) {
-  nuevaPagina(doc, plantillaBuf);
+  nuevaPagina(doc, plantillaBuf, MARGIN_TOP);
 
   let col = 0;
   let y = MARGIN_TOP + 20;
@@ -300,7 +304,7 @@ if (resto.length > 0) {
 
   // Salto de página: Si la siguiente foto + su texto se pasan del margen inferior
   if (y + MAX_H + 40 > doc.page.height - MARGIN_BOTTOM) {
-    nuevaPagina(doc, plantillaBuf);
+    nuevaPagina(doc, plantillaBuf, MARGIN_TOP);
     y = MARGIN_TOP + 20;
     col = 0; // Reiniciar columna en página nueva
   }
@@ -324,11 +328,20 @@ if (resto.length > 0) {
 }
 }
 
+// 💬 AGREGADO: SECCIÓN DE OBSERVACIONES (Solo si incluirComentarios es true)
+if (incluirComentarios && evidencias[0]?.observaciones) {
+  nuevaPagina(doc, plantillaBuf, MARGIN_TOP);
+  doc.moveDown(3);
+  doc.fontSize(16).fillColor("#00938f").text("OBSERVACIONES", MARGIN_LEFT);
+  doc.moveDown(1);
+  doc.fontSize(12).fillColor("#000").text(evidencias[0].observaciones, { align: 'justify' });
+}
+
 // === Sección de Firma CORREGIDA (Firma arriba de la línea) ===
     const evFirma = evidencias.find(e => e.firmaClienteUrl);
 
     if (evFirma) {
-      nuevaPagina(doc, plantillaBuf);
+      nuevaPagina(doc, plantillaBuf, MARGIN_TOP);
       doc.moveDown(3);
 
       doc.fontSize(16)
@@ -374,11 +387,11 @@ if (resto.length > 0) {
     }
 
 
-    // Materiales
+    // 🧱 MATERIALES (AGREGADO: Solo si incluirMateriales es true)
     const materiales = evidencias[0]?.materiales || [];
 
-    if (materiales.length > 0) {
-      //nuevaPagina(doc, plantillaBuf);
+    if (incluirMateriales && materiales.length > 0) {
+      //nuevaPagina(doc, plantillaBuf, MARGIN_TOP);
       doc.moveDown(11.5);                                                                                                 
 
       doc.fontSize(16)
@@ -407,13 +420,6 @@ if (resto.length > 0) {
         doc.moveDown(1);
       }
     }
-
-    // ================= FOOTER EN TODAS LAS PÁGINAS =================
-//const pages = doc.bufferedPageRange();
-//for (let i = 0; i < pages.count; i++) {
-//  doc.switchToPage(i);
-//  footer(doc);
-//}
 
 doc.end();
 

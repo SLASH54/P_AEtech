@@ -1714,17 +1714,17 @@ const clienteMapsLink = clienteMaps
                     </button>`
                 }
                 
-                <!-- Botón PDF (solo activo si la tarea está completada) -->
-                ${tarea.estado === 'Completada'
-                ? `<button onclick="descargarReportePDF(${tarea.id})" 
-                        class="inline-block px-3 py-1 text-sm rounded bg-green-600 text-white hover:bg-green-700 ml-2">
-                        📄 PDF
-                    </button>`
-                : `<button disabled title="Solo disponible cuando la tarea esté completada" 
-                        class="inline-block px-3 py-1 text-sm rounded bg-gray-300 text-gray-600 cursor-not-allowed ml-2 width: 90%;" style="width: 95%; >
-                        📄 PDF
-                    </button>`
-                  }
+         ${tarea.estado === 'Completada'
+  ? `<button onclick="abrirConfiguracionPDF(${tarea.id})" 
+             class="inline-block px-3 py-1 text-sm rounded bg-green-600 text-white hover:bg-green-700 ml-2">
+         📄 PDF
+     </button>`
+  : `<button disabled title="Solo disponible cuando la tarea esté completada" 
+             class="inline-block px-3 py-1 text-sm rounded bg-gray-300 text-gray-600 cursor-not-allowed ml-2" 
+             style="width: 95%;">
+         📄 PDF
+     </button>`
+}
                 <!-- Botón Ver Evidencias (solo activo si la tarea está completada) -->
                 ${tarea.estado === 'Completada'
                   ? `<button onclick="verEvidencias(${tarea.id})"
@@ -3655,28 +3655,28 @@ document.addEventListener("DOMContentLoaded", function() {
 
 // 🔹 Otras funciones como abrirModalEvidencias(), renderTareasTable(), etc...
 
-// ---------------------------------------------------------
-// 📄 Función para descargar reporte PDF de una tarea
-// ---------------------------------------------------------
-async function descargarReportePDF(tareaId) {
+async function descargarReportePDF(tareaId, incluirMateriales = true, incluirComentarios = true) {
   const token = localStorage.getItem('accessToken');
   if (!token) {
     alert('No hay sesión activa.');
     return;
   }
-  // Mostrar loader
-  loader.style.display = 'flex';
+
+  // Mostrar loader (asegúrate de tener el elemento con id="loader")
+  const loader = document.getElementById('loader');
+  if (loader) loader.style.display = 'flex';
   
   try {
-    // Validar que la tarea esté completada antes de generar PDF
-const tarea = (window.tareasList || []).find(t => Number(t.id) === Number(tareaId));
-if (tarea && tarea.estado !== 'Completada') {
-  alert('⚠️ No puedes generar un PDF hasta que la tarea esté completada.');
-  return;
-}
+    // Validar estado localmente
+    const tarea = (window.tareasList || []).find(t => Number(t.id) === Number(tareaId));
+    if (tarea && tarea.estado !== 'Completada') {
+      alert('⚠️ No puedes generar un PDF hasta que la tarea esté completada.');
+      return;
+    }
 
-
-    const pdfUrl = `${API_BASE_URL}/reportes/pdf/${tareaId}`;
+    // 🚀 URL Corregida: Agregamos materiales y comentarios a la petición
+    const pdfUrl = `${API_BASE_URL}/reportes/pdf/${tareaId}?materiales=${incluirMateriales}&comentarios=${incluirComentarios}`;
+    
     const response = await fetch(pdfUrl, {
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -3688,7 +3688,7 @@ if (tarea && tarea.estado !== 'Completada') {
 
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Reporte_Tarea_${tareaId}.pdf`;
+    a.download = `Reporte_AEtech_Tarea_${tareaId}.pdf`;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -3696,13 +3696,11 @@ if (tarea && tarea.estado !== 'Completada') {
     window.URL.revokeObjectURL(url);
   } catch (err) {
     console.error('❌ Error al descargar PDF:', err);
-    alert('No se pudo generar el PDF. Asegúrate de que la tarea tenga evidencias.');
+    alert('No se pudo generar el PDF. Verifica las evidencias o la conexión.');
   } finally {
-    // Ocultar loader
-    loader.style.display = 'none';
+    if (loader) loader.style.display = 'none';
   }
 }
-
 // Si tienes algo como initApp() o window.onload, deja esto después
 
 
@@ -4467,3 +4465,34 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
+
+//confirmacion de materiales y comentarios en el pdf 
+let tareaIdParaPDF = null;
+
+function abrirConfiguracionPDF(id) {
+    tareaIdParaPDF = id;
+    const modal = document.getElementById('modalConfigPDF');
+    if (modal) modal.style.display = 'block';
+}
+
+function cerrarModalPDF() {
+    const modal = document.getElementById('modalConfigPDF');
+    if (modal) modal.style.display = 'none';
+}
+
+// Configurar la acción del botón "Generar" dentro del modal
+document.addEventListener('DOMContentLoaded', () => {
+    const btnConfirmar = document.getElementById('btnConfirmarGenerar');
+    if (btnConfirmar) {
+        btnConfirmar.onclick = () => {
+            const incMateriales = document.getElementById('checkMateriales').checked;
+            const incComentarios = document.getElementById('checkComentarios').checked;
+            
+            cerrarModalPDF();
+            
+            // Aquí llamas a tu función original de descarga pero con los nuevos parámetros
+            // Si tu función original se llamaba descargarReportePDF, la usamos así:
+            descargarReportePDF(tareaIdParaPDF, incMateriales, incComentarios);
+        };
+    }
+});
