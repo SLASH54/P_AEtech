@@ -3655,57 +3655,82 @@ document.addEventListener("DOMContentLoaded", function() {
 
 // 🔹 Otras funciones como abrirModalEvidencias(), renderTareasTable(), etc...
 
-async function descargarReportePDF(tareaId, incluirMateriales = true, incluirComentarios = true) {
-  const token = localStorage.getItem('accessToken');
-  if (!token) {
-    alert('No hay sesión activa.');
-    return;
-  }
+// 1. Aseguramos la variable global al inicio
+window.tareaIdParaPDF = null;
 
-  // Mostrar loader (asegúrate de tener el elemento con id="loader")
-  const loader = document.getElementById('loader');
-  if (loader) loader.style.display = 'flex';
-  
-  try {
-    // Validar estado localmente
-    const tarea = (window.tareasList || []).find(t => Number(t.id) === Number(tareaId));
-    if (tarea && tarea.estado !== 'Completada') {
-      alert('⚠️ No puedes generar un PDF hasta que la tarea esté completada.');
-      return;
-    }
-
-    // 🚀 URL Corregida: Agregamos materiales y comentarios a la petición
-    const pdfUrl = `${API_BASE_URL}/reportes/pdf/${tareaId}?materiales=${incluirMateriales}&comentarios=${incluirComentarios}`;
-    
-    const response = await fetch(pdfUrl, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (!response.ok) throw new Error('Error al generar PDF');
-
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Reporte_AEtech_Tarea_${tareaId}.pdf`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-
-    window.URL.revokeObjectURL(url);
-  } catch (err) {
-    console.error('❌ Error al descargar PDF:', err);
-    alert('No se pudo generar el PDF. Verifica las evidencias o la conexión.');
-  } finally {
-    if (loader) loader.style.display = 'none';
-  }
+// 2. Función para abrir el modal (la que ya tienes)
+function abrirConfiguracionPDF(id) {
+    window.tareaIdParaPDF = id; 
+    const modal = document.getElementById('modalConfigPDF');
+    if (modal) modal.style.display = 'block';
 }
-// Si tienes algo como initApp() o window.onload, deja esto después
 
+// 3. Función para cerrar el modal
+function cerrarModalPDF() {
+    const modal = document.getElementById('modalConfigPDF');
+    if (modal) modal.style.display = 'none';
+}
 
+// 4. CORRECCIÓN DEL BOTÓN NARANJA (btnConfirmarGenerar)
+document.addEventListener('DOMContentLoaded', () => {
+    const btnConfirmar = document.getElementById('btnConfirmarGenerar');
+    if (btnConfirmar) {
+        btnConfirmar.onclick = () => {
+            // Sacamos el ID de la variable global
+            const id = window.tareaIdParaPDF;
+            
+            if (!id) {
+                alert("Selecciona una tarea primero.");
+                return;
+            }
 
+            // Capturamos los checks del modal
+            const incMateriales = document.getElementById('checkMateriales').checked;
+            const incComentarios = document.getElementById('checkComentarios').checked;
+            
+            // Cerramos el modal antes de empezar
+            cerrarModalPDF();
+            
+            // 🚀 LLAMAMOS A TU FUNCIÓN DE DESCARGA CON LOS PARÁMETROS
+            descargarReportePDF(id, incMateriales, incComentarios);
+        };
+    }
+});
 
+// 5. TU FUNCIÓN descargarReportePDF (Asegúrate de que sea esta la que tienes)
+async function descargarReportePDF(tareaId, incluirMateriales = true, incluirComentarios = true) {
+    const token = localStorage.getItem('accessToken');
+    if (!token) return alert('No hay sesión activa.');
+
+    const loader = document.getElementById('loader');
+    if (loader) loader.style.display = 'flex';
+    
+    try {
+        // 🔗 Aquí usamos la URL con los filtros que pide tu controlador
+        const pdfUrl = `${API_BASE_URL}/reportes/pdf/${tareaId}?materiales=${incluirMateriales}&comentarios=${incluirComentarios}`;
+        
+        const response = await fetch(pdfUrl, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!response.ok) throw new Error('Error al generar PDF');
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+
+        // Abrir en pestaña nueva (es más cómodo para AEtech)
+        window.open(url, '_blank');
+        
+        // Limpieza del objeto URL
+        setTimeout(() => window.URL.revokeObjectURL(url), 100);
+
+    } catch (err) {
+        console.error('❌ Error al descargar PDF:', err);
+        alert('No se pudo generar el PDF. Verifica que la tarea esté completada.');
+    } finally {
+        if (loader) loader.style.display = 'none';
+    }
+}
 
 
 
@@ -4465,7 +4490,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-
 // =============================================================
 //   CONFIGURACIÓN DE REPORTES PDF AETECH
 // =============================================================
@@ -4503,20 +4527,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Capturamos los valores de los checkboxes
-            // IMPORTANTE: Asegúrate que los IDs coincidan con tu HTML
+            // ✅ CORREGIDO: Usamos los IDs exactos de tu HTML
             const incluirMat = document.getElementById('checkMateriales')?.checked || false;
-            const incluirObs = document.getElementById('checkObservaciones')?.checked || false;
-
-            // Construimos la URL con los parámetros que espera tu controlador
-            // Tu reporteController.js usa: req.query.materiales y req.query.comentarios
-            const url = `/api/reportes/pdf/${id}?materiales=${incluirMat}&comentarios=${incluirObs}`;
-
-            // Abrimos el PDF en una pestaña nueva
-            window.open(url, '_blank');
+            const incluirCom = document.getElementById('checkComentarios')?.checked || false;
 
             // Cerramos el modal al finalizar
             cerrarModalPDF();
+
+            // ✅ URL CORREGIDA: Usamos 'incluirCom' que viene de 'checkComentarios'
+            // Esto es lo que recibe tu reporteController.js como req.query.comentarios
+            const url = `/api/reportes/pdf/${id}?materiales=${incluirMat}&comentarios=${incluirCom}`;
+
+            // Abrimos el PDF en una pestaña nueva
+            window.open(url, '_blank');
         };
     }
 });
