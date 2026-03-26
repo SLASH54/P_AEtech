@@ -126,7 +126,7 @@ function encabezado(doc, logoBuf, watermarkBuf) {
 // =========================================================
 //   Plantilla de fondo PDF (por página)
 // =========================================================
-function fondoPlantilla(doc, plantillaBuf, MARGIN_TOP) {
+function fondoPlantilla(doc, plantillaBuf) {
   try {
     const bg = doc.openImage(plantillaBuf);
     doc.image(bg, 0, 0, {
@@ -143,9 +143,9 @@ function fondoPlantilla(doc, plantillaBuf, MARGIN_TOP) {
 // =========================================================
 //   Nueva página sin páginas vacías
 // =========================================================
-function nuevaPagina(doc, plantillaBuf, MARGIN_TOP) {
+function nuevaPagina(doc, plantillaBuf) {
   doc.addPage();
-  fondoPlantilla(doc, plantillaBuf, MARGIN_TOP); // plantilla + posicionamiento correcto
+  fondoPlantilla(doc, plantillaBuf); // plantilla + posicionamiento correcto
 }
 
 
@@ -154,40 +154,22 @@ function nuevaPagina(doc, plantillaBuf, MARGIN_TOP) {
 // =========================================================
 exports.generateReportePDF = async (req, res) => {
   // Margenes reales según la plantilla PDF
-  const MARGIN_TOP = 180;
-  const MARGIN_LEFT = 50;
-  const MARGIN_RIGHT = 50;
-  const MARGIN_BOTTOM = 120;
+const MARGIN_TOP = 180;
+const MARGIN_LEFT = 50;
+const MARGIN_RIGHT = 50;
+const MARGIN_BOTTOM = 120;
+
 
   const { tareaId } = req.params;
 
-  // 🛡️ ESCUDO PROTECTOR: Evita el error 500 de PostgreSQL
-  if (!tareaId || tareaId === 'undefined' || isNaN(tareaId)) {
-      console.error("❌ Error: Se recibió un tareaId inválido en el servidor:", tareaId);
-      return res.status(400).json({ 
-          error: "ID de tarea no válido. No se puede generar el PDF." 
-      });
-  }
-
-  // 📥 CAPTURAMOS LOS PARÁMETROS DEL MODAL
-  const incluirMateriales = req.query.materiales !== 'false';
-  const incluirComentarios = req.query.comentarios !== 'false';
-
   try {
-      // Tu consulta de Sequelize sigue igual...
-      const tarea = await Tarea.findOne({
-        where: { id: tareaId },
-        include: [ 
-            Actividad, 
-            Sucursal, 
-            ClienteNegocio, 
-            { model: ClienteDireccion, as: 'DireccionEspecifica' }, 
-            { model: Usuario, as: "AsignadoA" }, 
-            Evidencia 
-        ]
-      });
 
-      if (!tarea) return res.status(404).json({ error: "Tarea no encontrada" });
+    const tarea = await Tarea.findOne({
+      where: { id: tareaId },
+      include: [ Actividad, Sucursal, ClienteNegocio, { model: ClienteDireccion, as: 'DireccionEspecifica' }, { model: Usuario, as: "AsignadoA" }, Evidencia ]
+    });
+
+    if (!tarea) return res.status(404).json({ error: "Tarea no encontrada" });
 
     const evidencias = tarea.Evidencia || [];
 
@@ -223,7 +205,7 @@ if (tarea.DireccionEspecifica) {
 
     // Primera página
     // Primera página con plantilla
-    fondoPlantilla(doc, plantillaBuf, MARGIN_TOP);
+    fondoPlantilla(doc, plantillaBuf);
 
     doc.moveDown(3);
 
@@ -304,7 +286,7 @@ doc.y = yFotos + MAX_H + GAP;
 const resto = evidencias.slice(4);
 
 if (resto.length > 0) {
-  nuevaPagina(doc, plantillaBuf, MARGIN_TOP);
+  nuevaPagina(doc, plantillaBuf);
 
   let col = 0;
   let y = MARGIN_TOP + 20;
@@ -318,7 +300,7 @@ if (resto.length > 0) {
 
   // Salto de página: Si la siguiente foto + su texto se pasan del margen inferior
   if (y + MAX_H + 40 > doc.page.height - MARGIN_BOTTOM) {
-    nuevaPagina(doc, plantillaBuf, MARGIN_TOP);
+    nuevaPagina(doc, plantillaBuf);
     y = MARGIN_TOP + 20;
     col = 0; // Reiniciar columna en página nueva
   }
@@ -342,20 +324,11 @@ if (resto.length > 0) {
 }
 }
 
-// 💬 AGREGADO: SECCIÓN DE OBSERVACIONES (Solo si incluirComentarios es true)
-if (incluirComentarios && evidencias[0]?.observaciones) {
-  nuevaPagina(doc, plantillaBuf, MARGIN_TOP);
-  doc.moveDown(3);
-  doc.fontSize(16).fillColor("#00938f").text("OBSERVACIONES", MARGIN_LEFT);
-  doc.moveDown(1);
-  doc.fontSize(12).fillColor("#000").text(evidencias[0].observaciones, { align: 'justify' });
-}
-
 // === Sección de Firma CORREGIDA (Firma arriba de la línea) ===
     const evFirma = evidencias.find(e => e.firmaClienteUrl);
 
     if (evFirma) {
-      nuevaPagina(doc, plantillaBuf, MARGIN_TOP);
+      nuevaPagina(doc, plantillaBuf);
       doc.moveDown(3);
 
       doc.fontSize(16)
@@ -401,11 +374,11 @@ if (incluirComentarios && evidencias[0]?.observaciones) {
     }
 
 
-    // 🧱 MATERIALES (AGREGADO: Solo si incluirMateriales es true)
+    // Materiales
     const materiales = evidencias[0]?.materiales || [];
 
-    if (incluirMateriales && materiales.length > 0) {
-      //nuevaPagina(doc, plantillaBuf, MARGIN_TOP);
+    if (materiales.length > 0) {
+      //nuevaPagina(doc, plantillaBuf);
       doc.moveDown(11.5);                                                                                                 
 
       doc.fontSize(16)
@@ -434,6 +407,13 @@ if (incluirComentarios && evidencias[0]?.observaciones) {
         doc.moveDown(1);
       }
     }
+
+    // ================= FOOTER EN TODAS LAS PÁGINAS =================
+//const pages = doc.bufferedPageRange();
+//for (let i = 0; i < pages.count; i++) {
+//  doc.switchToPage(i);
+//  footer(doc);
+//}
 
 doc.end();
 
