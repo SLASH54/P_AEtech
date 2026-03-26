@@ -2449,31 +2449,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // 4️⃣ Carga inicial de datos
     cargarNotificaciones();
 
-    // Variable para saber qué tarea procesar
-let tareaIdParaPDF = null;
-
-function abrirConfiguracionPDF(id) {
-    tareaIdParaPDF = id;
-    const modal = document.getElementById('modalConfigPDF');
-    if (modal) modal.style.display = 'block';
-}
-
-function cerrarModalPDF() {
-    const modal = document.getElementById('modalConfigPDF');
-    if (modal) modal.style.display = 'none';
-}
-
-// Configurar el botón del modal
-document.getElementById('btnConfirmarGenerar').onclick = function() {
-    const incMateriales = document.getElementById('checkMateriales').checked;
-    const incComentarios = document.getElementById('checkComentarios').checked;
-    
-    cerrarModalPDF();
-    
-    if (tareaIdParaPDF) {
-        descargarReportePDF(tareaIdParaPDF, incMateriales, incComentarios);
-    }
-};
 
 
 });
