@@ -3636,68 +3636,51 @@ Total de evidencias: ${imagenes.length}
 
 
 
-
-
-// Cargar datos y asignar funcionalidad al botón al cargar la página
-document.addEventListener("DOMContentLoaded", function() {
-    cargarActividades();
-    cargarEvidencias();
-
-    const btnImprimirPDF = document.getElementById("btnImprimirPDF");
-    btnImprimirPDF.addEventListener("click", imprimirPDF);
-});
-
-
-
-
-
-
-
-// 🔹 Otras funciones como abrirModalEvidencias(), renderTareasTable(), etc...
-
-// 1. Aseguramos la variable global al inicio
+// 1. VARIABLE GLOBAL (¡PONLA HASTA ARRIBA DEL ARCHIVO!)
+// Usamos window. para asegurarnos que sea accesible desde cualquier lugar
 window.tareaIdParaPDF = null;
 
-// 2. Función para abrir el modal (la que ya tienes)
+// 2. FUNCIONES DE MODAL (Deben estar afuera de cualquier DOMContentLoaded)
 function abrirConfiguracionPDF(id) {
+    console.log("Abriendo configuración para tarea:", id); // Para que veas en consola que sí llega
     window.tareaIdParaPDF = id; 
     const modal = document.getElementById('modalConfigPDF');
-    if (modal) modal.style.display = 'block';
+    if (modal) {
+        modal.style.display = 'block';
+    } else {
+        console.error("No se encontró el modal con ID 'modalConfigPDF'");
+    }
 }
 
-// 3. Función para cerrar el modal
 function cerrarModalPDF() {
     const modal = document.getElementById('modalConfigPDF');
     if (modal) modal.style.display = 'none';
 }
 
-// 4. CORRECCIÓN DEL BOTÓN NARANJA (btnConfirmarGenerar)
+// 3. CONFIGURACIÓN DE EVENTOS (Cuando carga la página)
 document.addEventListener('DOMContentLoaded', () => {
+    // Tus otras cargas...
+    if (typeof cargarActividades === 'function') cargarActividades();
+    
     const btnConfirmar = document.getElementById('btnConfirmarGenerar');
     if (btnConfirmar) {
-        btnConfirmar.onclick = () => {
-            // Sacamos el ID de la variable global
+        btnConfirmar.onclick = async function() {
             const id = window.tareaIdParaPDF;
-            
-            if (!id) {
-                alert("Selecciona una tarea primero.");
-                return;
-            }
+            if (!id) return alert("No se detectó el ID de la tarea.");
 
-            // Capturamos los checks del modal
-            const incMateriales = document.getElementById('checkMateriales').checked;
-            const incComentarios = document.getElementById('checkComentarios').checked;
-            
-            // Cerramos el modal antes de empezar
+            // Obtenemos valores de los checks
+            const incluirMat = document.getElementById('checkMateriales')?.checked ?? true;
+            const incluirCom = document.getElementById('checkComentarios')?.checked ?? true;
+
             cerrarModalPDF();
             
-            // 🚀 LLAMAMOS A TU FUNCIÓN DE DESCARGA CON LOS PARÁMETROS
-            descargarReportePDF(id, incMateriales, incComentarios);
+            // Llamamos a la función de descarga
+            await descargarReportePDF(id, incluirMat, incluirCom);
         };
     }
 });
 
-// 5. TU FUNCIÓN descargarReportePDF (Asegúrate de que sea esta la que tienes)
+// 4. LA FUNCIÓN DE DESCARGA (Tal cual me la pasaste, está excelente)
 async function descargarReportePDF(tareaId, incluirMateriales = true, incluirComentarios = true) {
     const token = localStorage.getItem('accessToken');
     if (!token) return alert('No hay sesión activa.');
@@ -3706,7 +3689,6 @@ async function descargarReportePDF(tareaId, incluirMateriales = true, incluirCom
     if (loader) loader.style.display = 'flex';
     
     try {
-        // 🔗 Aquí usamos la URL con los filtros que pide tu controlador
         const pdfUrl = `${API_BASE_URL}/reportes/pdf/${tareaId}?materiales=${incluirMateriales}&comentarios=${incluirComentarios}`;
         
         const response = await fetch(pdfUrl, {
@@ -3718,19 +3700,25 @@ async function descargarReportePDF(tareaId, incluirMateriales = true, incluirCom
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
 
-        // Abrir en pestaña nueva (es más cómodo para AEtech)
-        window.open(url, '_blank');
-        
-        // Limpieza del objeto URL
-        setTimeout(() => window.URL.revokeObjectURL(url), 100);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Reporte_AEtech_${tareaId}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
 
     } catch (err) {
-        console.error('❌ Error al descargar PDF:', err);
-        alert('No se pudo generar el PDF. Verifica que la tarea esté completada.');
+        console.error('❌ Error:', err);
+        alert('No se pudo generar el PDF. Revisa la consola (F12).');
     } finally {
         if (loader) loader.style.display = 'none';
     }
 }
+
+
+
+
 
 
 
@@ -4490,56 +4478,3 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-// =============================================================
-//   CONFIGURACIÓN DE REPORTES PDF AETECH
-// =============================================================
-
-// 1. Variable global única para el ID
-window.tareaIdParaPDF = null;
-
-// 2. Función para abrir el modal (se llama desde el botón de la tabla)
-function abrirConfiguracionPDF(id) {
-    window.tareaIdParaPDF = id; 
-    const modal = document.getElementById('modalConfigPDF');
-    if (modal) {
-        modal.style.display = 'block';
-    }
-}
-
-// 3. Función para cerrar el modal
-function cerrarModalPDF() {
-    const modal = document.getElementById('modalConfigPDF');
-    if (modal) {
-        modal.style.display = 'none';
-    }
-}
-
-// 4. Lógica del botón "Generar PDF" (El botón naranja del modal)
-document.addEventListener('DOMContentLoaded', () => {
-    const btnConfirmar = document.getElementById('btnConfirmarGenerar');
-
-    if (btnConfirmar) {
-        btnConfirmar.onclick = function() {
-            const id = window.tareaIdParaPDF;
-
-            if (!id) {
-                alert("Error: No se encontró el ID de la tarea. Intenta abrir el modal de nuevo.");
-                return;
-            }
-
-            // ✅ CORREGIDO: Usamos los IDs exactos de tu HTML
-            const incluirMat = document.getElementById('checkMateriales')?.checked || false;
-            const incluirCom = document.getElementById('checkComentarios')?.checked || false;
-
-            // Cerramos el modal al finalizar
-            cerrarModalPDF();
-
-            // ✅ URL CORREGIDA: Usamos 'incluirCom' que viene de 'checkComentarios'
-            // Esto es lo que recibe tu reporteController.js como req.query.comentarios
-            const url = `/api/reportes/pdf/${id}?materiales=${incluirMat}&comentarios=${incluirCom}`;
-
-            // Abrimos el PDF en una pestaña nueva
-            window.open(url, '_blank');
-        };
-    }
-});
