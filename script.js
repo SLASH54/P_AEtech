@@ -4498,3 +4498,61 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 });
+
+
+function procesarGeneracionPDF() {
+    // 1. Obtenemos el ID que guardamos al abrir el modal
+    const id = window.tareaIdParaPDF;
+    
+    if (!id) {
+        alert("Error: No se encontró el ID de la tarea");
+        return;
+    }
+
+    // 2. Revisamos qué seleccionó el usuario en los checkboxes
+    // Asegúrate que los IDs coincidan con tu HTML (checkMateriales y checkObservaciones)
+    const incluirMat = document.getElementById('checkMateriales').checked;
+    const incluirObs = document.getElementById('checkObservaciones').checked;
+
+    // 3. Construimos la URL con los parámetros para el controlador
+    const url = `/api/reportes/pdf/${id}?materiales=${incluirMat}&comentarios=${incluirObs}`;
+
+    // 4. Abrimos el PDF en una pestaña nueva
+    window.open(url, '_blank');
+
+    // 5. Cerramos el modal
+    cerrarModalPDF();
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const btnConfirmar = document.getElementById('btnConfirmarGenerar');
+
+    if (btnConfirmar) {
+        btnConfirmar.addEventListener('click', () => {
+            // 1. Recuperamos el ID de la tarea que guardamos al abrir el modal
+            const tareaId = window.tareaIdParaPDF;
+
+            if (!tareaId) {
+                alert("Error: No se encontró el ID de la tarea.");
+                return;
+            }
+
+            // 2. Obtenemos el estado de los checkboxes
+            // Asegúrate que los IDs coincidan con tu HTML (ej: checkMateriales y checkObservaciones)
+            const incluirMat = document.getElementById('checkMateriales')?.checked || false;
+            const incluirObs = document.getElementById('checkObservaciones')?.checked || false;
+
+            // 3. Construimos la URL con los parámetros para el controlador
+            const url = `/api/reportes/pdf/${tareaId}?materiales=${incluirMat}&comentarios=${incluirObs}`;
+
+            // 4. Abrimos el reporte en una nueva pestaña
+            window.open(url, '_blank');
+
+            // 5. Cerramos el modal (opcional, si tienes la función cerrarModalPDF)
+            if (typeof cerrarModalPDF === 'function') {
+                cerrarModalPDF();
+            }
+        });
+    }
+});
