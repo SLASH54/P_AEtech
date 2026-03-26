@@ -3652,6 +3652,22 @@ document.addEventListener("DOMContentLoaded", function() {
 // 1. Variable global para el ID (Ponla al inicio del archivo)
 window.tareaIdParaPDF = null;
 
+// Variable global (una sola vez)
+window.tareaIdParaPDF = null;
+
+function abrirConfiguracionPDF(id) {
+    console.log("📂 Abriendo configuración para tarea:", id);
+    if (!id) return;
+
+    window.tareaIdParaPDF = id; 
+    
+    const modal = document.getElementById('modalConfigPDF');
+    if (modal) {
+        modal.style.display = 'block';
+    } else {
+        console.error("No se encontró el modal 'modalConfigPDF'");
+    }
+}
 document.addEventListener("DOMContentLoaded", () => {
     // Buscamos el botón naranja del modal
     const btnFinalDescarga = document.getElementById('btnConfirmarGenerar');
@@ -3691,35 +3707,52 @@ async function descargarReportePDF(tareaId, incluirMateriales = true, incluirCom
   if (loader) loader.style.display = 'flex';
   
   try {
-    // 🛡️ Tu validación de estado (Muy importante para AEtech)
+    // 🛡️ VALIDACIÓN DE ESTADO: Buscamos en la lista global de AEtech
     const tarea = (window.tareasList || []).find(t => Number(t.id) === Number(tareaId));
+    
     if (tarea && tarea.estado !== 'Completada') {
       alert('⚠️ No puedes generar un PDF hasta que la tarea esté completada.');
-      return;
+      if (loader) loader.style.display = 'none'; // Cerramos el loader si falla
+      return; // Detenemos la ejecución aquí
     }
 
+    // 🚀 URL con los parámetros del modal
     const pdfUrl = `${API_BASE_URL}/reportes/pdf/${tareaId}?materiales=${incluirMateriales}&comentarios=${incluirComentarios}`;
     
+    console.log("📡 Solicitando PDF a:", pdfUrl);
+
     const response = await fetch(pdfUrl, {
-      headers: { Authorization: `Bearer ${token}` },
+      method: 'GET',
+      headers: { 
+        'Authorization': `Bearer ${token}` 
+      },
     });
 
-    if (!response.ok) throw new Error('Error al generar PDF');
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Error al generar el archivo en el servidor');
+    }
 
+    // Procesamos el archivo recibido
     const blob = await response.blob();
     const url = window.URL.createObjectURL(blob);
 
+    // MODO DESCARGA AUTOMÁTICA
     const a = document.createElement('a');
     a.href = url;
     a.download = `Reporte_AEtech_Tarea_${tareaId}.pdf`;
     document.body.appendChild(a);
     a.click();
-    a.remove();
-    window.URL.revokeObjectURL(url);
+    
+    // Limpieza
+    setTimeout(() => {
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    }, 100);
 
   } catch (err) {
-    console.error('❌ Error al descargar PDF:', err);
-    alert('No se pudo generar el PDF. Verifica las evidencias o la conexión.');
+    console.error('❌ Error crítico en descargarReportePDF:', err);
+    alert('Error: ' + err.message);
   } finally {
     if (loader) loader.style.display = 'none';
   }
