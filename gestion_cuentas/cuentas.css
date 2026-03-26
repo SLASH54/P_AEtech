@@ -1327,4 +1327,6 @@ button.btn.btn-secondary {
     display: flex;
     background-color: #b4dfbe1f;
     max-width: none;
+    border: 2px;
+    margin: 2px;
 }
