@@ -154,26 +154,40 @@ function nuevaPagina(doc, plantillaBuf, MARGIN_TOP) {
 // =========================================================
 exports.generateReportePDF = async (req, res) => {
   // Margenes reales según la plantilla PDF
-const MARGIN_TOP = 180;
-const MARGIN_LEFT = 50;
-const MARGIN_RIGHT = 50;
-const MARGIN_BOTTOM = 120;
-
+  const MARGIN_TOP = 180;
+  const MARGIN_LEFT = 50;
+  const MARGIN_RIGHT = 50;
+  const MARGIN_BOTTOM = 120;
 
   const { tareaId } = req.params;
 
-  // 📥 AGREGADO: CAPTURAMOS LOS PARÁMETROS DEL MODAL
+  // 🛡️ ESCUDO PROTECTOR: Evita el error 500 de PostgreSQL
+  if (!tareaId || tareaId === 'undefined' || isNaN(tareaId)) {
+      console.error("❌ Error: Se recibió un tareaId inválido en el servidor:", tareaId);
+      return res.status(400).json({ 
+          error: "ID de tarea no válido. No se puede generar el PDF." 
+      });
+  }
+
+  // 📥 CAPTURAMOS LOS PARÁMETROS DEL MODAL
   const incluirMateriales = req.query.materiales !== 'false';
   const incluirComentarios = req.query.comentarios !== 'false';
 
   try {
+      // Tu consulta de Sequelize sigue igual...
+      const tarea = await Tarea.findOne({
+        where: { id: tareaId },
+        include: [ 
+            Actividad, 
+            Sucursal, 
+            ClienteNegocio, 
+            { model: ClienteDireccion, as: 'DireccionEspecifica' }, 
+            { model: Usuario, as: "AsignadoA" }, 
+            Evidencia 
+        ]
+      });
 
-    const tarea = await Tarea.findOne({
-      where: { id: tareaId },
-      include: [ Actividad, Sucursal, ClienteNegocio, { model: ClienteDireccion, as: 'DireccionEspecifica' }, { model: Usuario, as: "AsignadoA" }, Evidencia ]
-    });
-
-    if (!tarea) return res.status(404).json({ error: "Tarea no encontrada" });
+      if (!tarea) return res.status(404).json({ error: "Tarea no encontrada" });
 
     const evidencias = tarea.Evidencia || [];
 
