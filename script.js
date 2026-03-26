@@ -4470,7 +4470,9 @@ document.addEventListener("DOMContentLoaded", () => {
 let tareaIdParaPDF = null;
 
 function abrirConfiguracionPDF(id) {
-    tareaIdParaPDF = id;
+    // Usamos window para asegurar que la variable sea accesible globalmente
+    window.tareaIdParaPDF = id; 
+    
     const modal = document.getElementById('modalConfigPDF');
     if (modal) modal.style.display = 'block';
 }
