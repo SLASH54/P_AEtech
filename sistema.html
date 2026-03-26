@@ -2416,9 +2416,36 @@ async function pdfLevantamiento(id) {
     }
 }
 
+// 🚀 LANZADOR DE EVENTOS DEL TABLERO
+// Esto solo "enciende" las funciones cuando el HTML está listo
+document.addEventListener("DOMContentLoaded", () => {
+    
+    // 1️⃣ Ejecutar funciones visuales de inmediato
+    mostrarSaludoPersonalizado();
+    actualizarFechaHora();
+    obtenerClima();
+    cambiarFondoSegunHora();
+    
+    // 2️⃣ Activar el evento de click del botón
+    const btnNotis = document.getElementById('btnNotificaciones');
+    if (btnNotis) {
+        btnNotis.onclick = () => {
+            const lista = document.getElementById('listaNotificaciones');
+            if (lista) {
+                lista.style.display = lista.style.display === 'block' ? 'none' : 'block';
+            }
+        };
+    }
 
-//si llegas a leer esto me aburri tanto que empece a poner cosas bien randoms por que me aburri y gemini me dijo que pusiera cosas clave xd 
+    // 3️⃣ Dejar programados los ciclos de actualización
+    setInterval(actualizarFechaHora, 1000);
+    setInterval(mostrarSaludoPersonalizado, 60000);
+    setInterval(cambiarFondoSegunHora, 3600000);
+    setInterval(cargarNotificaciones, 30000);
 
+    // 4️⃣ Carga inicial de datos
+    cargarNotificaciones();
+});
 </script>
 
 
