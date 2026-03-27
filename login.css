@@ -926,7 +926,7 @@ main {
 }
 
 .datagrid-container th {
-    background-color: #333; /* Un gris más oscuro para el encabezado */
+    background-color: #5e7550; /* Un gris más oscuro para el encabezado */
     font-weight: bold;
     color: #fff; /* Texto blanco para el encabezado */
 }
