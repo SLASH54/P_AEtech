@@ -932,7 +932,7 @@ main {
 }
 
 .datagrid-container tbody tr:nth-child(even) {
-    background-color: #111; /* Un gris muy oscuro para las filas pares */
+    background-color: #99bb89; /* Un gris muy oscuro para las filas pares */
 }
 
 .datagrid-container tbody tr:hover {
