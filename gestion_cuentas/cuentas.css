@@ -1325,3 +1325,113 @@ button.btn.btn-secondary {
     padding-bottom: 10px;
     margin-bottom: 5px;
 }
+/*catalogo*/
+:root {
+  --primary: #6366f1;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --success: #10b981;
+  --bg-glass: rgba(255, 255, 255, 0.1);
+  --border-glass: rgba(255, 255, 255, 0.2);
+}
+
+.modal-container {
+  background: linear-gradient(135deg, #1e293b, #334155);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.modal-content {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px); /* Efecto cristal */
+  border: 1px solid var(--border-glass);
+  border-radius: 20px;
+  padding: 2rem;
+  width: 90%;
+  max-width: 600px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  color: white;
+}
+
+/* Inputs y Formulario */
+.form-add {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+input[type="text"], input[type="number"] {
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  outline: none;
+}
+
+.btn-add {
+  grid-column: span 2;
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.btn-add:hover { transform: translateY(-2px); }
+
+/* Lista de productos */
+.product-item {
+  background: white;
+  color: #333;
+  margin-bottom: 12px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+}
+
+.product-item img {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.info { flex-grow: 1; }
+.info .name { display: block; font-weight: 600; font-size: 1.1rem; }
+.info .price { color: var(--success); font-weight: bold; }
+
+/* Botones de acción circular */
+.actions button {
+  border: none;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  margin-left: 5px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.edit { background: var(--warning); color: white; }
+.delete { background: var(--danger); color: white; }
+.plus { background: var(--primary); color: white; }
+
+.btn-close {
+  display: block;
+  margin: 20px auto 0;
+  background: #475569;
+  border: none;
+  padding: 8px 30px;
+  border-radius: 20px;
+  color: white;
+  cursor: pointer;
+}
