@@ -2143,27 +2143,8 @@ function eliminarLevantamiento(id) {
 
 
 
-//ver 
-
-async function guardarLevantamiento(nuevoLevantamiento) {
-    try {
-        const respuesta = await fetch('https://tu-app-en-render.com/api/levantamientos', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(nuevoLevantamiento)
-        });
-
-        if (respuesta.ok) {
-            console.log("¡Guardado en la base de datos!");
-            // Aquí ya puedes actualizar la tabla
-        }
-    } catch (error) {
-        console.error("Error al conectar con el servidor:", error);
-    }
-}
-/*async function verLevantamiento(id) {
+//ver levantamiento
+async function verLevantamiento(id) {
   try {
     const res = await fetch(`${API_BASE_URL}/levantamientos/${id}`, {
       headers: { 
@@ -2173,7 +2154,7 @@ async function guardarLevantamiento(nuevoLevantamiento) {
 
     if (!res.ok) throw new Error("No se encontró el registro");
 
-    const lev = await res.json();*/
+    const lev = await res.json();
 
     // 1. Datos básicos
     document.getElementById("verCliente").textContent = lev.cliente_nombre || "Sin nombre";
