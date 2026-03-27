@@ -30,12 +30,10 @@ h3{
     color: white;
 }
 .catNombre{
-    font-size: 12 px;
-    padding: 12px;
-    display: 10px;
-    font: sans-serif;
-    background-color: #ffe0b2;
-    
+    left: 12px;
+    font-size: 12px;
+    position: absolute;
+    padding: 0px 5px;
 
 }
 /* Estilos para la cabecera */
