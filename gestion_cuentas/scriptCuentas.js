@@ -184,7 +184,7 @@ function renderizarListaYTotales() {
         
         const imgHTML = mat.foto 
             ? `<img src="${mat.foto}" class="img-miniatura" style="width:40px;height:40px;border-radius:5px;">` 
-            : `<div style="width:40px;height:40px;background:#eee;display:flex;align-items:center;justify-content:center;border-radius:5px;" src="img/libro.png"></div>`;
+            : `<div style="width:40px;height:40px;background:#eee;display:flex;align-items:center;justify-content:center;border-radius:5px;">📦</div>`;
 
         li.innerHTML = `
             <div style="flex: 1; margin-left: 10px;"> 
