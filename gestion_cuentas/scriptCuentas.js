@@ -164,7 +164,6 @@ document.getElementById("levBtnAgregarMaterial")?.addEventListener("click", () =
 
 
 
-// 2. FUNCIÓN PARA RENDERIZAR Y SUMAR (Corregida)
 function renderizarListaYTotales() {
     const listaUI = document.getElementById("levListaMateriales");
     const inputTotal = document.getElementById("levTotal");
@@ -173,37 +172,43 @@ function renderizarListaYTotales() {
     listaUI.innerHTML = "";
     let sumaTotalNota = 0;
 
-    levMaterialesList.forEach((mat) => {
-        // 🟢 MULTIPLICAMOS AQUÍ
+    levMaterialesList.forEach((mat, index) => {
         const subtotalFila = mat.costo * mat.cantidad;
         sumaTotalNota += subtotalFila;
 
         const li = document.createElement("li");
-        li.className = "ios-list-item";
-        li.style = "display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee; color: black;";
+        li.style = "display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #eee; background: white; margin-bottom: 5px; border-radius: 8px;";
         
-        const imgHTML = mat.foto 
-            ? `<img src="${mat.foto}" class="img-miniatura" style="width:40px;height:40px;border-radius:5px;">` 
-            : `<div style="width:40px;height:40px;background:#eee;display:flex;align-items:center;justify-content:center;border-radius:5px;">📦</div>`;
+        // Separamos la lógica de la imagen para que sea limpia
+        const imagenSource = (mat.foto && mat.foto !== "") ? mat.foto : 'img/default.png';
 
         li.innerHTML = `
-            <div style="flex: 1; margin-left: 10px;"> 
-            ${imgHTML}
-                <strong>${mat.cantidad}x ${mat.nombre}</strong>
-                <br><small style="color: #666;">$${mat.costo.toFixed(2)} c/u</small>
+            <img src="${imagenSource}" style="width:45px; height:45px; border-radius:8px; object-fit:cover; margin-right:12px; border: 1px solid #eee;">
+            
+            <div style="flex: 1; display: flex; flex-direction: column;"> 
+                <span style="font-weight: bold; color: #333; font-size: 14px;">${mat.nombre}</span>
+                <span style="color: #666; font-size: 12px;">${mat.cantidad}x $${mat.costo.toFixed(2)} c/u</span>
             </div>
-            <div style="font-weight: bold; color: #00938f; margin-right: 10px;">
-                $${subtotalFila.toFixed(2)}
+
+            <div style="text-align: right; margin-right: 15px;">
+                <div style="font-weight: bold; color: #00938f;">$${subtotalFila.toFixed(2)}</div>
             </div>
-            <button class="btn-eliminar" onclick="eliminarMaterial(${mat.id})" style="background:none;border:none;color:red;cursor:pointer;">❌</button>
+
+            <button onclick="eliminarMaterial(${index})" style="background:none; border:none; font-size: 18px; cursor:pointer; padding: 5px;">
+                🗑️
+            </button>
         `;
         listaUI.appendChild(li);
     });
 
+    // Actualizamos los inputs de la interfaz
     if (inputSubtotal) inputSubtotal.value = sumaTotalNota.toFixed(2);
     if (inputTotal) inputTotal.value = sumaTotalNota.toFixed(2);
     
-    if (typeof calcularSaldo === "function") calcularSaldo();
+    // Si tienes la función de calcular saldo (IVA, anticipo, etc.), la llamamos
+    if (typeof calcularSaldo === "function") {
+        calcularSaldo();
+    }
 }
 
 
@@ -1618,33 +1623,31 @@ function abrirCatalogoParaSeleccion() {
 
 // Esta es la función que llamaremos cuando el usuario dé clic en el "+" del catálogo
 function agregarAlPedidoDesdeCatalogo(id) {
+    // IMPORTANTE: Asegúrate que el array se llame catalogoProductos o productosCatalogo
     const producto = catalogoProductos.find(p => p.id === id);
     if (!producto) return;
 
     if (modoSeleccionCatalogo) {
-        // Creamos el objeto con el formato que espera tu lista de materiales
         const nuevoMaterial = {
+            id: producto.id, // Lo necesitamos para el botón eliminar
             nombre: producto.nombre,
             cantidad: 1,
             costo: parseFloat(producto.costo),
-            foto: producto.fotoUrl // Pasamos la URL de Cloudinary
+            foto: producto.fotoUrl // Guardamos la URL de la imagen
         };
 
-        // Lo añadimos a tu array global de materiales de la cuenta actual
         levMaterialesList.push(nuevoMaterial);
         
-        // Refrescamos la tablita de materiales del modal de cuenta
         renderizarListaYTotales(); 
-        
-        // Cerramos el catálogo para seguir con la cuenta
         cerrarModalCatalogo();
         
-        alert(`Añadido: ${producto.nombre}`);
-    } else {
-        // Aquí podrías poner lógica por si quieres usar el "+" en el modo administrador
-        alert("Producto: " + producto.nombre);
+        // El alert funciona, así que el nombre SI está llegando aquí
+        console.log("Añadido con éxito:", nuevoMaterial.nombre);
     }
 }
+
+
+
 
 function cerrarModalCatalogo() {
     document.getElementById("modalCatalogo").style.display = "none";
