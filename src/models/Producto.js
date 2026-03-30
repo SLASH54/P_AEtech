@@ -24,11 +24,16 @@ const Producto = sequelize.define('Producto', {
     type: DataTypes.STRING, 
     defaultValue: 'General' 
   },
+  // Busca donde defines las columnas de Producto y agrega estas:
   clasificacion: {
-    type: DataTypes.STRING,
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: 'Producto'
   },
-  Stock: {
-    type: DataTypes.INTEGER
+  stock: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 0
   }
 }, {
   tableName: 'Productos',

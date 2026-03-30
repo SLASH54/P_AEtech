@@ -45,14 +45,14 @@ exports.crearProducto = async (req, res) => {
 exports.editarProducto = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nombre, costo, categoria } = req.body;
+    // ✅ Agregamos stock y clasificacion aquí también
+    const { nombre, costo, categoria, stock, clasificacion } = req.body; 
     const producto = await Producto.findByPk(id);
 
     if (!producto) return res.status(404).json({ msg: 'Producto no encontrado' });
 
     let fotoUrl = producto.fotoUrl;
 
-    // Si suben una nueva foto, la reemplazamos en Cloudinary
     if (req.file) {
       const result = await cloudinary.uploader.upload(req.file.path, {
         folder: 'aetech_catalogo',
@@ -60,10 +60,20 @@ exports.editarProducto = async (req, res) => {
       fotoUrl = result.secure_url;
     }
 
-    await producto.update({ nombre, costo, categoria, fotoUrl });
+    // ✅ Actualizamos todos los campos
+    await producto.update({ 
+        nombre, 
+        costo, 
+        categoria, 
+        fotoUrl, 
+        stock, 
+        clasificacion 
+    });
+    
     res.json(producto);
   } catch (error) {
-    res.status(500).json({ msg: 'Error al editar' });
+    console.error(error);
+    res.status(500).json({ msg: 'Error al editar producto' });
   }
 };
 
