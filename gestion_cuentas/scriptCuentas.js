@@ -1506,7 +1506,6 @@ async function guardarProductoEnCatalogo() {
 
         if (res.ok) {
             alert(editandoId ? "¡Producto actualizado!" : "¡Producto guardado!");
-            cerrarModalCatalogo();
             cargarCatalogo(); // Refresca la lista
         } else {
             alert("Hubo un error al guardar.");
@@ -1559,7 +1558,6 @@ function renderizarCatalogo() {
                     <br><small style="color: #28a745;">Stock: ${p.stock || 0} pzs</small>
                 </div>
                 <div style="font-weight: bold;">$${p.costo}</div>
-                <button onclick="agregarAlPedidoDesdeCatalogo(${p.id})">➕</button>
             </div>
 
             <div style="display: flex; gap: 5px;">
