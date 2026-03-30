@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/database');
+const { strokeColor } = require('pdfkit');
 
 const Producto = sequelize.define('Producto', {
   id: { 
@@ -22,6 +23,13 @@ const Producto = sequelize.define('Producto', {
   categoria: { 
     type: DataTypes.STRING, 
     defaultValue: 'General' 
+  },
+  clasificacion: {
+    type: DataTypes.STRING,
+    defaultValue: 'Producto'
+  },
+  stock: {
+    type:DataTypes.INTEGER
   }
 }, {
   tableName: 'Productos',
