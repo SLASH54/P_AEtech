@@ -1542,13 +1542,13 @@ function renderizarCatalogo() {
             <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee;">
                 <div style="flex: 1;">
                     <span style="font-size: 0.7rem; background: ${badgeColor}; color: white; padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">
-                        ${prod.clasificacion || 'Gral'}
+                        ${p.clasificacion || 'Gral'}
                     </span>
-                    <br><strong>${prod.nombre}</strong>
-                    <br><small style="color: #28a745;">Stock: ${prod.stock || 0} pzs</small>
+                    <br><strong>${p.nombre}</strong>
+                    <br><small style="color: #28a745;">Stock: ${p.stock || 0} pzs</small>
                 </div>
-                <div style="font-weight: bold;">$${prod.costo}</div>
-                <button onclick="agregarAlPedidoDesdeCatalogo(${prod.id})">➕</button>
+                <div style="font-weight: bold;">$${p.costo}</div>
+                <button onclick="agregarAlPedidoDesdeCatalogo(${p.id})">➕</button>
             </div>
 
             <div style="display: flex; gap: 5px;">
