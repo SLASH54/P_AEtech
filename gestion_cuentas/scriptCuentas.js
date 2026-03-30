@@ -179,14 +179,19 @@ function renderizarListaYTotales() {
         const li = document.createElement("li");
         li.style = "display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #eee; background: white; margin-bottom: 5px; border-radius: 8px;";
         
-        // Separamos la lógica de la imagen para que sea limpia
-        const imagenSource = (mat.foto && mat.foto !== "") ? mat.foto : 'img/default.png';
+        // 🔥 CORRECCIÓN AQUÍ: Buscamos en .foto (cámara) O en .fotoUrl (catálogo)
+        // Si mat.foto existe y no está vacío, úsalo. Si no, intenta con mat.fotoUrl.
+        const imagenSource = (mat.foto && mat.foto !== "") 
+            ? mat.foto 
+            : (mat.fotoUrl && mat.fotoUrl !== "" ? mat.fotoUrl : 'img/default.png');
 
         li.innerHTML = `
-            <img src="${imagenSource}" style="width:45px; height:45px; border-radius:8px; object-fit:cover; margin-right:12px; border: 1px solid #eee;">
+            <img src="${imagenSource}" 
+                 onerror="this.src='img/default.png'" 
+                 style="width:45px; height:45px; border-radius:8px; object-fit:cover; margin-right:12px; border: 1px solid #eee;">
             
             <div style="flex: 1; display: flex; flex-direction: column;"> 
-                <span style="font-weight: bold; color: #333; font-size: 14px;">${mat.nombre}</span>
+                <span style="font-weight: bold; color: #333; font-size: 14px;">${mat.nombre || mat.insumo}</span>
                 <span style="color: #666; font-size: 12px;">${mat.cantidad}x $${mat.costo.toFixed(2)} c/u</span>
             </div>
 
@@ -201,17 +206,13 @@ function renderizarListaYTotales() {
         listaUI.appendChild(li);
     });
 
-    // Actualizamos los inputs de la interfaz
     if (inputSubtotal) inputSubtotal.value = sumaTotalNota.toFixed(2);
     if (inputTotal) inputTotal.value = sumaTotalNota.toFixed(2);
     
-    // Si tienes la función de calcular saldo (IVA, anticipo, etc.), la llamamos
     if (typeof calcularSaldo === "function") {
         calcularSaldo();
     }
 }
-
-
 
 // 3. FUNCIÓN PARA ELIMINAR MATERIALES
 window.eliminarMaterial = function(id) {
@@ -556,11 +557,11 @@ async function guardarCuentaFinal() {
     btnGuardar.style.opacity = "0.5";
     btnGuardar.innerText = "Guardando...";
 
-    // 🔥 CAPTURA DIRECTA DEL MODAL (Esto asegura que no vaya vacío)
     const textoNota = document.getElementById('labelNumeroNota').innerText;
 
+    // 🚀 PREPARAMOS LOS DATOS CHIDO
     const datos = {
-        numeroNota: textoNota, // <--- Aquí ya va "Nota #5" por ejemplo
+        numeroNota: textoNota,
         clienteNombre: selectCliente.options[selectCliente.selectedIndex].text,
         subtotal: parseFloat(document.getElementById('levSubtotal').value) || 0,
         total: parseFloat(document.getElementById('levTotal').value) || 0,
@@ -570,11 +571,22 @@ async function guardarCuentaFinal() {
         ivaPorcentaje: parseInt(document.getElementById('levIvaPorcentaje').value) || 16,
         factura: document.getElementById('chkFactura').checked,
         folioFactura: document.getElementById('levFolioFactura').value,
-        materiales: levMaterialesList 
+        
+        // 🔥 AQUÍ ESTÁ LA MAGIA PARA LAS IMÁGENES:
+        // Convertimos la lista local al formato que el Backend entiende perfectamente
+        materiales: levMaterialesList.map(m => ({
+            nombre: m.nombre || m.insumo,
+            cantidad: m.cantidad,
+            costo: m.costo,
+            unidad: m.unidad || 'Pza',
+            // Si m.foto tiene algo (Base64), lo usa. Si no, intenta con m.fotoUrl (Cloudinary)
+            fotoUrl: m.foto || m.fotoUrl || null 
+        }))
     };
 
     try {
         document.getElementById("loader").style.display = "flex";
+        
         const response = await fetch(`${API_BASE_URL}/cuentas`, {
             method: 'POST',
             headers: {
@@ -589,18 +601,22 @@ async function guardarCuentaFinal() {
             location.reload(); 
         } else {
             const res = await response.json();
-            alert("❌ Error: " + res.message);
+            alert("❌ Error: " + (res.message || "No se pudo guardar"));
             btnGuardar.disabled = false;
             btnGuardar.style.opacity = "1";
+            btnGuardar.innerText = "Guardar Cuenta";
         }
     } catch (error) {
-        console.error("Error:", error);
+        console.error("Error al guardar:", error);
+        alert("❌ Error de conexión con el servidor.");
         btnGuardar.disabled = false;
         btnGuardar.style.opacity = "1";
+        btnGuardar.innerText = "Guardar Cuenta";
     } finally {
         document.getElementById("loader").style.display = "none";
     }
 }
+
 
 // Variable para guardar la foto del material que se está agregando actualmente
 let fotoMaterialTemporal = null;
@@ -1622,31 +1638,22 @@ function abrirCatalogoParaSeleccion() {
 }
 
 // Esta es la función que llamaremos cuando el usuario dé clic en el "+" del catálogo
+// Busca la función agregarAlPedidoDesdeCatalogo y asegúrate de que use 'foto'
 function agregarAlPedidoDesdeCatalogo(id) {
-    // IMPORTANTE: Asegúrate que el array se llame catalogoProductos o productosCatalogo
-    const producto = catalogoProductos.find(p => p.id === id);
-    if (!producto) return;
-
-    if (modoSeleccionCatalogo) {
+    const producto = productosCatalogo.find(p => p.id === id);
+    if (producto) {
         const nuevoMaterial = {
-            id: producto.id, // Lo necesitamos para el botón eliminar
+            id: Date.now(),
             nombre: producto.nombre,
+            insumo: producto.nombre,
             cantidad: 1,
             costo: parseFloat(producto.costo),
-            foto: producto.fotoUrl // Guardamos la URL de la imagen
+            foto: producto.fotoUrl // Aquí ya viene el link de Cloudinary (https://res.cloudinary.com/...)
         };
-
         levMaterialesList.push(nuevoMaterial);
-        
-        renderizarListaYTotales(); 
-        cerrarModalCatalogo();
-        
-        // El alert funciona, así que el nombre SI está llegando aquí
-        console.log("Añadido con éxito:", nuevoMaterial.nombre);
+        renderizarListaYTotales();
     }
 }
-
-
 
 
 function cerrarModalCatalogo() {
