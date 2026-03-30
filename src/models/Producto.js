@@ -26,7 +26,6 @@ const Producto = sequelize.define('Producto', {
   },
   clasificacion: {
     type: DataTypes.STRING,
-    defaultValue: 'Producto'
   },
   Stock: {
     type: DataTypes.INTEGER

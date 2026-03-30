@@ -29,7 +29,9 @@ exports.crearProducto = async (req, res) => {
       nombre,
       costo,
       categoria,
-      fotoUrl
+      fotoUrl,
+      clasificacion,
+      stock
     });
 
     res.status(201).json(nuevoProducto);
