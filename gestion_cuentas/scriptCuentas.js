@@ -1477,47 +1477,57 @@ async function cargarCatalogo() {
 async function guardarProductoEnCatalogo() {
     const nombre = document.getElementById("catNombre").value;
     const costo = document.getElementById("catCosto").value;
-    const stock = document.getElementById("catStock").value; // <--- Existencia
-    const clasificacion = document.getElementById("catClasificacion").value; // <--- Categoría
+    const stock = document.getElementById("catStock").value; // ✅ Nueva existencia
+    const clasificacion = document.getElementById("catClasificacion").value; // ✅ Nueva clasificación
     const fotoFile = document.getElementById("catFoto").files[0];
 
-    if (!nombre || !costo) return alert("Nombre y costo son obligatorios, padrino");
+    if (!nombre || !costo) return alert("Nombre y costo son obligatorios, amiko.");
 
     const formData = new FormData();
     formData.append("nombre", nombre);
     formData.append("costo", costo);
-    formData.append("stock", stock || 0); // Si está vacío, manda 0
+    formData.append("stock", stock || 0); // Enviamos 0 si no ponen nada
     formData.append("clasificacion", clasificacion);
+    
     if (fotoFile) formData.append("foto", fotoFile);
 
     try {
         document.getElementById("loader").style.display = "flex";
-        const res = await fetch(`${API_BASE_URL}/productos`, {
-            method: "POST",
+        
+        // Si editandoId tiene valor, es un PUT, si no, es un POST
+        const url = editandoId ? `${API_BASE_URL}/productos/${editandoId}` : `${API_BASE_URL}/productos`;
+        const method = editandoId ? "PUT" : "POST";
+
+        const res = await fetch(url, {
+            method: method,
             headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` },
             body: formData
         });
 
         if (res.ok) {
-            alert("¡Guardado en Catalogo!");
-            limpiarFormCatalogo();
-            cargarCatalogo(); // Recarga la lista
+            alert(editandoId ? "¡Producto actualizado!" : "¡Producto guardado!");
+            cerrarModalCatalogo();
+            cargarCatalogo(); // Refresca la lista
+        } else {
+            alert("Hubo un error al guardar.");
         }
     } catch (err) {
         console.error(err);
-        alert("Valió barriga, no se pudo guardar");
+        alert("Error de conexión con el servidor.");
     } finally {
         document.getElementById("loader").style.display = "none";
     }
 }
 
 // Para limpiar el formulario después de guardar
-function limpiarFormCatalogo() {
+
+function resetFormularioCatalogo() {
     document.getElementById("catNombre").value = "";
     document.getElementById("catCosto").value = "";
     document.getElementById("catStock").value = "";
-    document.getElementById("catClasificacion").value = "Producto";
+    document.getElementById("catClasificacion").value = "Producto"; // Valor por defecto
     document.getElementById("catFoto").value = "";
+    editandoId = null;
 }
 
 function renderizarCatalogo() {
@@ -1534,7 +1544,7 @@ function renderizarCatalogo() {
             'Herramienta': '#5856d6',
             'Insumo': '#ff9500',
             'Servicio': '#34c759'
-        }[p.clasificacion] || '#8e8e93';
+        }[p.categoria] || '#8e8e93';
         const div = document.createElement("div");
         div.style = "display: flex; align-items: center; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; background: white; margin: 5px; border-radius: 8px;";
         
@@ -1543,7 +1553,7 @@ function renderizarCatalogo() {
             <img src="${p.fotoUrl || 'img/default-product.png'}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 5px;">
                 <div style="flex: 1;">
                     <span style="font-size: 0.7rem; background: ${badgeColor}; color: white; padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">
-                        ${p.clasificacion}
+                        ${p.categoria}
                     </span>
                     <br><strong>${p.nombre}</strong>
                     <br><small style="color: #28a745;">Stock: ${p.stock || 0} pzs</small>
