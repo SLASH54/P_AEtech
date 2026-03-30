@@ -1499,7 +1499,7 @@ async function guardarProductoEnCatalogo() {
         });
 
         if (res.ok) {
-            alert("¡Guardado en caliente!");
+            alert("¡Guardado en Catalogo!");
             limpiarFormCatalogo();
             cargarCatalogo(); // Recarga la lista
         }
@@ -1543,7 +1543,7 @@ function renderizarCatalogo() {
             <img src="${p.fotoUrl || 'img/default-product.png'}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 5px;">
                 <div style="flex: 1;">
                     <span style="font-size: 0.7rem; background: ${badgeColor}; color: white; padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">
-                        ${p.clasificacion || 'Gral'}
+                        ${p.clasificacion}
                     </span>
                     <br><strong>${p.nombre}</strong>
                     <br><small style="color: #28a745;">Stock: ${p.stock || 0} pzs</small>
