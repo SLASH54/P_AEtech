@@ -4,10 +4,15 @@ const cloudinary = require('cloudinary').v2;
 // Listar productos
 exports.obtenerProductos = async (req, res) => {
   try {
-    const productos = await Producto.findAll({ order: [['nombre', 'ASC']] });
+    console.log("Intentando obtener productos...");
+    const productos = await Producto.findAll({ 
+        order: [['nombre', 'ASC']],
+        logging: console.log // 👈 Esto imprimirá el SELECT exacto en tu terminal
+    });
     res.json(productos);
   } catch (error) {
-    res.status(500).json({ msg: 'Error al obtener productos' });
+    console.error("ERROR DETALLADO:", error); // 👈 Esto te dirá si el problema es de SQL
+    res.status(500).json({ msg: 'Error al obtener productos', error: error.message });
   }
 };
 

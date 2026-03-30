@@ -86,6 +86,11 @@ connectDB()
       console.error('⚠️ Error al actualizar tablas en Neon:', dbError.message);
     }
 
+    // Cambia esto temporalmente
+sequelize.sync({ alter: true }) 
+  .then(() => console.log("🔥 Columnas sincronizadas a la fuerza"))
+  .catch(err => console.log("Error sincronizando:", err));
+
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
       console.log(`🚀 Servidor iniciado en puerto: ${PORT}`);
