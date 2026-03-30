@@ -178,19 +178,22 @@ function renderizarListaYTotales() {
         const li = document.createElement("li");
         li.style = "display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #eee; background: white; margin-bottom: 5px; border-radius: 8px;";
         
-        // 🔥 CORRECCIÓN AQUÍ: Buscamos en .foto (cámara) O en .fotoUrl (catálogo)
-        // Si mat.foto existe y no está vacío, úsalo. Si no, intenta con mat.fotoUrl.
-        const imagenSource = (mat.foto && mat.foto !== "") 
-            ? mat.foto 
-            : (mat.fotoUrl && mat.fotoUrl !== "" ? mat.fotoUrl : 'img/default.png');
+        // 🔥 CORRECCIÓN: Triple verificación de imagen
+        // Buscamos en .foto (catálogo/cámara) o .fotoUrl (respaldo)
+        let imagenSource = 'img/default.png';
+        const fuentePrioritaria = mat.foto || mat.fotoUrl;
+        
+        if (fuentePrioritaria && fuentePrioritaria !== "") {
+            imagenSource = fuentePrioritaria;
+        }
 
         li.innerHTML = `
             <img src="${imagenSource}" 
-                 onerror="this.src='img/default.png'" 
+                 onerror="this.src='img/default.png'"
                  style="width:45px; height:45px; border-radius:8px; object-fit:cover; margin-right:12px; border: 1px solid #eee;">
             
             <div style="flex: 1; display: flex; flex-direction: column;"> 
-                <span style="font-weight: bold; color: #333; font-size: 14px;">${mat.nombre || mat.insumo}</span>
+                <span style="font-weight: bold; color: #333; font-size: 14px;">${mat.nombre || mat.insumo || 'Sin nombre'}</span>
                 <span style="color: #666; font-size: 12px;">${mat.cantidad}x $${mat.costo.toFixed(2)} c/u</span>
             </div>
 
@@ -558,7 +561,6 @@ async function guardarCuentaFinal() {
 
     const textoNota = document.getElementById('labelNumeroNota').innerText;
 
-    // 🚀 PREPARAMOS LOS DATOS CHIDO
     const datos = {
         numeroNota: textoNota,
         clienteNombre: selectCliente.options[selectCliente.selectedIndex].text,
@@ -571,14 +573,13 @@ async function guardarCuentaFinal() {
         factura: document.getElementById('chkFactura').checked,
         folioFactura: document.getElementById('levFolioFactura').value,
         
-        // 🔥 AQUÍ ESTÁ LA MAGIA PARA LAS IMÁGENES:
-        // Convertimos la lista local al formato que el Backend entiende perfectamente
+        // 🚀 MAPEADO CORRECTO PARA EL BACKEND
         materiales: levMaterialesList.map(m => ({
             nombre: m.nombre || m.insumo,
             cantidad: m.cantidad,
             costo: m.costo,
             unidad: m.unidad || 'Pza',
-            // Si m.foto tiene algo (Base64), lo usa. Si no, intenta con m.fotoUrl (Cloudinary)
+            // Enviamos como fotoUrl lo que tengamos en 'foto' (link de Cloudinary o Base64)
             fotoUrl: m.foto || m.fotoUrl || null 
         }))
     };
@@ -596,7 +597,7 @@ async function guardarCuentaFinal() {
         });
 
         if (response.ok) {
-            alert("✅ Nota guardada: " + textoNota);
+            alert("✅ Nota guardada correctamente");
             location.reload(); 
         } else {
             const res = await response.json();
@@ -607,7 +608,6 @@ async function guardarCuentaFinal() {
         }
     } catch (error) {
         console.error("Error al guardar:", error);
-        alert("❌ Error de conexión con el servidor.");
         btnGuardar.disabled = false;
         btnGuardar.style.opacity = "1";
         btnGuardar.innerText = "Guardar Cuenta";
@@ -615,6 +615,8 @@ async function guardarCuentaFinal() {
         document.getElementById("loader").style.display = "none";
     }
 }
+
+
 
 // Variable para guardar la foto del material que se está agregando actualmente
 let fotoMaterialTemporal = null;
@@ -1635,19 +1637,29 @@ function abrirCatalogoParaSeleccion() {
     cargarCatalogo(); // Asegura que los productos estén frescos
 }
 
-// Esta es la función que llamaremos cuando el usuario dé clic en el "+" del catálogo
+
+
+
 function agregarAlPedidoDesdeCatalogo(id) {
-    // IMPORTANTE: Asegúrate que el array se llame catalogoProductos o productosCatalogo
-    const producto = catalogoProductos.find(p => p.id === id);
-    if (!producto) return;
+    // Usamos == (doble igual) en lugar de === para que no importe si uno es string y otro número
+    // O mejor aún, convertimos el ID que llega a Número
+    const idNumerico = parseInt(id);
+    const producto = catalogoProductos.find(p => p.id == id || p.id == idNumerico);
+    
+    if (!producto) {
+        console.error("No se encontró el producto con ID:", id);
+        return;
+    }
 
     if (modoSeleccionCatalogo) {
         const nuevoMaterial = {
-            id: producto.id, // Lo necesitamos para el botón eliminar
+            id: Date.now(), // Generamos un ID único para la lista (evita errores al eliminar repetidos)
+            idOriginal: producto.id, 
             nombre: producto.nombre,
             cantidad: 1,
             costo: parseFloat(producto.costo),
-            foto: producto.fotoUrl // Guardamos la URL de la imagen
+            // 🔥 ASEGURAMOS EL LINK:
+            foto: producto.fotoUrl || producto.foto || null 
         };
 
         levMaterialesList.push(nuevoMaterial);
@@ -1655,11 +1667,9 @@ function agregarAlPedidoDesdeCatalogo(id) {
         renderizarListaYTotales(); 
         cerrarModalCatalogo();
         
-        // El alert funciona, así que el nombre SI está llegando aquí
-        console.log("Añadido con éxito:", nuevoMaterial.nombre);
+        console.log("Añadido con éxito:", nuevoMaterial.nombre, "URL Imagen:", nuevoMaterial.foto);
     }
 }
-
 
 
 
