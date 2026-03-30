@@ -1477,38 +1477,47 @@ async function cargarCatalogo() {
 async function guardarProductoEnCatalogo() {
     const nombre = document.getElementById("catNombre").value;
     const costo = document.getElementById("catCosto").value;
+    const stock = document.getElementById("catStock").value; // <--- Existencia
+    const clasificacion = document.getElementById("catClasificacion").value; // <--- Categoría
     const fotoFile = document.getElementById("catFoto").files[0];
 
-    if (!nombre || !costo) return alert("Nombre y costo obligatorios");
+    if (!nombre || !costo) return alert("Nombre y costo son obligatorios, padrino");
 
     const formData = new FormData();
     formData.append("nombre", nombre);
     formData.append("costo", costo);
+    formData.append("stock", stock || 0); // Si está vacío, manda 0
+    formData.append("clasificacion", clasificacion);
     if (fotoFile) formData.append("foto", fotoFile);
-
-    const url = editandoProductoId 
-        ? `${API_BASE_URL}/productos/${editandoProductoId}` 
-        : `${API_BASE_URL}/productos`;
-    const method = editandoProductoId ? "PUT" : "POST";
 
     try {
         document.getElementById("loader").style.display = "flex";
-        const res = await fetch(url, {
-            method: method,
+        const res = await fetch(`${API_BASE_URL}/productos`, {
+            method: "POST",
             headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` },
             body: formData
         });
 
         if (res.ok) {
-            alert(editandoProductoId ? "✅ Actualizado" : "✅ Creado");
-            resetFormularioCatalogo();
-            cargarCatalogo();
+            alert("¡Guardado en caliente!");
+            limpiarFormCatalogo();
+            cargarCatalogo(); // Recarga la lista
         }
     } catch (err) {
         console.error(err);
+        alert("Valió barriga, no se pudo guardar");
     } finally {
         document.getElementById("loader").style.display = "none";
     }
+}
+
+// Para limpiar el formulario después de guardar
+function limpiarFormCatalogo() {
+    document.getElementById("catNombre").value = "";
+    document.getElementById("catCosto").value = "";
+    document.getElementById("catStock").value = "";
+    document.getElementById("catClasificacion").value = "Producto";
+    document.getElementById("catFoto").value = "";
 }
 
 function renderizarCatalogo() {

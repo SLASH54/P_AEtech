@@ -13,12 +13,25 @@
         <div class="modal-content-ios" style="max-width: 600px;">
             <h3>📦 Catálogo de Productos</h3>
             
-            <div style="background: rgba(0,0,0,0.05); padding: 10px; border-radius: 10px; margin-bottom: 15px;">
-                <input type="text" id="catNombre" placeholder="Nombre del producto">
-                <input type="number" id="catCosto" placeholder="Costo $0.00">
-                <input type="number" id="catPiezas" placeholder="Piezas:" style="width: 10%;">
+            <div style="background: rgba(0,0,0,0.05); padding: 15px; border-radius: 10px; margin-bottom: 15px; display: grid; gap: 10px;">
+                <input type="text" id="catNombre" placeholder="Nombre del producto/servicio">
+                
+                <div style="display: flex; gap: 10px;">
+                    <input type="number" id="catCosto" placeholder="Costo $0.00" style="flex: 1;">
+                    <input type="number" id="catStock" placeholder="Existencia (Piezas)" style="flex: 1;">
+                </div>
+
+                <select id="catClasificacion" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #ccc;">
+                    <option value="Producto">📦 Producto</option>
+                    <option value="Herramienta">🛠️ Herramienta</option>
+                    <option value="Insumo">📑 Insumo</option>
+                    <option value="Servicio">💡 Servicio</option>
+                </select>
+
                 <input type="file" id="catFoto" accept="image/*">
-                <button onclick="guardarProductoEnCatalogo()" class="btn-ver">Añadir al Inventario</button>
+                <button onclick="guardarProductoEnCatalogo()" class="btn-ver" style="width: 100%; background: #00938f;">
+                    Añadir al Inventario
+                </button>
             </div>
 
             <input type="text" id="busquedaCatalogo" placeholder="🔍 Buscar producto..." oninput="renderizarCatalogo()">
