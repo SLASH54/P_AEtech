@@ -1569,7 +1569,7 @@ function resetFormularioCatalogo() {
 }
 
 async function eliminarProductoDelCatalogo(id) {
-    if (!confirm("¿Seguro que quieres quitar este producto del catálogo maestro?")) return;
+    if (!confirm("¿Seguro que quieres quitar este producto del catálogo?")) return;
 
     try {
         const res = await fetch(`${API_BASE_URL}/productos/${id}`, {
