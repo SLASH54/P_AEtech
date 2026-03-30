@@ -1528,17 +1528,29 @@ function renderizarCatalogo() {
     const filtrados = catalogoProductos.filter(p => p.nombre.toLowerCase().includes(busqueda));
 
     filtrados.forEach(p => {
+        // Dentro del .forEach de renderizarCatalogo
+        const badgeColor = {
+            'Producto': '#007aff',
+            'Herramienta': '#5856d6',
+            'Insumo': '#ff9500',
+            'Servicio': '#34c759'
+        }[prod.clasificacion] || '#8e8e93';
         const div = document.createElement("div");
         div.style = "display: flex; align-items: center; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; background: white; margin: 5px; border-radius: 8px;";
         
         div.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <img src="${p.fotoUrl || 'img/default-product.png'}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 5px;">
-                <div>
-                    <b style="color: #333;">${p.nombre}</b><br>
-                    <span style="color: #28a745; font-weight: bold;">$${parseFloat(p.costo).toFixed(2)}</span>
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee;">
+                <div style="flex: 1;">
+                    <span style="font-size: 0.7rem; background: ${badgeColor}; color: white; padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">
+                        ${prod.clasificacion || 'Gral'}
+                    </span>
+                    <br><strong>${prod.nombre}</strong>
+                    <br><small style="color: #28a745;">Stock: ${prod.stock || 0} pzs</small>
                 </div>
+                <div style="font-weight: bold;">$${prod.costo}</div>
+                <button onclick="agregarAlPedidoDesdeCatalogo(${prod.id})">➕</button>
             </div>
+
             <div style="display: flex; gap: 5px;">
                 <button onclick="prepararEdicionProducto(${p.id})" style="background: #ffcc00; border: none; border-radius: 5px; padding: 5px 8px; cursor: pointer;">✏️</button>
                 <button onclick="eliminarProductoDelCatalogo(${p.id})" style="background: #ff3b30; border: none; border-radius: 5px; padding: 5px 8px; cursor: pointer; color: white;">🗑️</button>
