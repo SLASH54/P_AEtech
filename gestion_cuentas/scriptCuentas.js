@@ -1590,15 +1590,7 @@ function prepararEdicionProducto(id) {
     btnGuardar.style.background = "#ffcc00";
 }
 
-function resetFormularioCatalogo() {
-    editandoProductoId = null;
-    document.getElementById("catNombre").value = "";
-    document.getElementById("catCosto").value = "";
-    document.getElementById("catFoto").value = "";
-    const btnGuardar = document.querySelector("#modalCatalogo .btn-ver");
-    btnGuardar.innerText = "Añadir al Inventario";
-    btnGuardar.style.background = ""; // Color original
-}
+
 
 async function eliminarProductoDelCatalogo(id) {
     if (!confirm("¿Seguro que quieres quitar este producto del catálogo?")) return;
