@@ -163,7 +163,6 @@ document.getElementById("levBtnAgregarMaterial")?.addEventListener("click", () =
 });
 
 
-
 function renderizarListaYTotales() {
     const listaUI = document.getElementById("levListaMateriales");
     const inputTotal = document.getElementById("levTotal");
@@ -616,7 +615,6 @@ async function guardarCuentaFinal() {
         document.getElementById("loader").style.display = "none";
     }
 }
-
 
 // Variable para guardar la foto del material que se está agregando actualmente
 let fotoMaterialTemporal = null;
@@ -1638,22 +1636,31 @@ function abrirCatalogoParaSeleccion() {
 }
 
 // Esta es la función que llamaremos cuando el usuario dé clic en el "+" del catálogo
-// Busca la función agregarAlPedidoDesdeCatalogo y asegúrate de que use 'foto'
 function agregarAlPedidoDesdeCatalogo(id) {
-    const producto = productosCatalogo.find(p => p.id === id);
-    if (producto) {
+    // IMPORTANTE: Asegúrate que el array se llame catalogoProductos o productosCatalogo
+    const producto = catalogoProductos.find(p => p.id === id);
+    if (!producto) return;
+
+    if (modoSeleccionCatalogo) {
         const nuevoMaterial = {
-            id: Date.now(),
+            id: producto.id, // Lo necesitamos para el botón eliminar
             nombre: producto.nombre,
-            insumo: producto.nombre,
             cantidad: 1,
             costo: parseFloat(producto.costo),
-            foto: producto.fotoUrl // Aquí ya viene el link de Cloudinary (https://res.cloudinary.com/...)
+            foto: producto.fotoUrl // Guardamos la URL de la imagen
         };
+
         levMaterialesList.push(nuevoMaterial);
-        renderizarListaYTotales();
+        
+        renderizarListaYTotales(); 
+        cerrarModalCatalogo();
+        
+        // El alert funciona, así que el nombre SI está llegando aquí
+        console.log("Añadido con éxito:", nuevoMaterial.nombre);
     }
 }
+
+
 
 
 function cerrarModalCatalogo() {
