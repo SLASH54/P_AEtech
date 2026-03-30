@@ -14,7 +14,7 @@ exports.obtenerProductos = async (req, res) => {
 // Crear producto con imagen
 exports.crearProducto = async (req, res) => {
   try {
-    const { nombre, costo, categoria } = req.body;
+    const { nombre, costo, categoria, clasificacion, stock } = req.body;
     let fotoUrl = null;
 
     // Si viene una foto, la subimos a una carpeta especial en Cloudinary
