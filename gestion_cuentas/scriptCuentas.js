@@ -1544,7 +1544,7 @@ function renderizarCatalogo() {
             'Herramienta': '#5856d6',
             'Insumo': '#ff9500',
             'Servicio': '#34c759'
-        }[p.categoria] || '#8e8e93';
+        }[p.clasificacion] || '#8e8e93';
         const div = document.createElement("div");
         div.style = "display: flex; align-items: center; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; background: white; margin: 5px; border-radius: 8px;";
         
@@ -1553,7 +1553,7 @@ function renderizarCatalogo() {
             <img src="${p.fotoUrl || 'img/default-product.png'}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 5px;">
                 <div style="flex: 1;">
                     <span style="font-size: 0.7rem; background: ${badgeColor}; color: white; padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">
-                        ${p.categoria}
+                        ${p.clasificacion}
                     </span>
                     <br><strong>${p.nombre}</strong>
                     <br><small style="color: #28a745;">Stock: ${p.stock || 0} pzs</small>
