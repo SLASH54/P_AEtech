@@ -1540,6 +1540,7 @@ function renderizarCatalogo() {
         
         div.innerHTML = `
             <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee;">
+            <img src="${p.fotoUrl || 'img/default-product.png'}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 5px;">
                 <div style="flex: 1;">
                     <span style="font-size: 0.7rem; background: ${badgeColor}; color: white; padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">
                         ${p.clasificacion || 'Gral'}
