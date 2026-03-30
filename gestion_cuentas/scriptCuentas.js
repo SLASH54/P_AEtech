@@ -1534,7 +1534,7 @@ function renderizarCatalogo() {
             'Herramienta': '#5856d6',
             'Insumo': '#ff9500',
             'Servicio': '#34c759'
-        }[prod.clasificacion] || '#8e8e93';
+        }[p.clasificacion] || '#8e8e93';
         const div = document.createElement("div");
         div.style = "display: flex; align-items: center; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; background: white; margin: 5px; border-radius: 8px;";
         
