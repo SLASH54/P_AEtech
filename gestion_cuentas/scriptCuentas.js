@@ -1612,7 +1612,7 @@ function agregarAlPedidoDesdeCatalogo(id) {
         levMaterialesList.push(nuevoMaterial);
         
         // Refrescamos la tablita de materiales del modal de cuenta
-        renderizarMateriales(); 
+        renderizarListaYTotales(); 
         
         // Cerramos el catálogo para seguir con la cuenta
         cerrarModalCatalogo();
