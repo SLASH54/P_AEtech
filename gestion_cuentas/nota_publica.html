@@ -223,9 +223,9 @@ const estatusActual = (c.estatus || 'Pendiente').toUpperCase();
         }
 
         //fecha de creacion de  la nota
-        if (cuenta.createdAt) {
+        if (c.createdAt) {
     fechaNota.style.display = "block";
-    const fCreacion = new Date(cuenta.createdAt).toLocaleString('es-MX', {
+    const fCreacion = new Date(c.createdAt).toLocaleString('es-MX', {
         day: '2-digit', 
         month: '2-digit', 
         year: 'numeric',
