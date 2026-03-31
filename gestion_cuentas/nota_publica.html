@@ -115,7 +115,7 @@
     <span id="detFechaAnticipoTexto"></span>
 </div>
 <div id="fechaNota" style="display: none; text-align: center; margin-bottom: 15px; font-size: 0.85rem; color: #666; background: #f0f0f5; padding: 5px; border-radius: 10px;">
-    <span id="FechaNota"></span>
+    <span id="fechaNotaTexto"></span>
 </div>
         </header>
 
@@ -195,7 +195,8 @@ if (containerEstatus) {
 
 const fechaPagoCont = document.getElementById('detFechaPagoCont');
 const fechaAnticipoCont = document.getElementById('detFechaAnticipoCont');
-const fechaNota = document.getElementById('fechaNota');
+const fechaNota = document.getElementById('FechaNota');
+const fechaNotaTexto = document.getElementById('fechaNotaTexto')
 
 
 const estatusActual = (c.estatus || 'Pendiente').toUpperCase();
