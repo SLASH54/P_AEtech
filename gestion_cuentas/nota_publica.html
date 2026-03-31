@@ -222,6 +222,22 @@ const estatusActual = (c.estatus || 'Pendiente').toUpperCase();
             fechaAnticipoCont.style.display = "none";
         }
 
+        //fecha de creacion de  la nota
+        if (cuenta.createdAt) {
+    fechaNota.style.display = "block";
+    const fCreacion = new Date(cuenta.createdAt).toLocaleString('es-MX', {
+        day: '2-digit', 
+        month: '2-digit', 
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    fechaNotaTexto.innerHTML = `<b>Registrada el:</b> ${fCreacion}`;
+} else {
+    fechaNota.style.display = "none";
+}
+
+
             // 1. Manejo de Badges (Factura y IVA) - Usando clases CSS iOS
             let badgesHtml = '';
             if (c.factura) {
