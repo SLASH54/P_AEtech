@@ -1715,16 +1715,24 @@ const clienteMapsLink = clienteMaps
                 }
                 
                 <!-- Botón PDF (solo activo si la tarea está completada) -->
-                ${tarea.estado === 'Completada'
-                ? `<button onclick="descargarReportePDF(${tarea.id})" 
-                        class="inline-block px-3 py-1 text-sm rounded bg-green-600 text-white hover:bg-green-700 ml-2">
-                        📄 PDF
-                    </button>`
-                : `<button disabled title="Solo disponible cuando la tarea esté completada" 
-                        class="inline-block px-3 py-1 text-sm rounded bg-gray-300 text-gray-600 cursor-not-allowed ml-2 width: 90%;" style="width: 95%; >
-                        📄 PDF
-                    </button>`
-                  }
+              ${tarea.estado === 'Completada'
+  ? `<button onclick="descargarReportePDF(${tarea.id})" 
+             class="inline-block px-3 py-1 text-sm rounded bg-green-600 text-white hover:bg-green-700 ml-2">
+         📄 PDF
+     </button>
+
+     <button onclick="abrirConfiguracionPDF(${tarea.id})" 
+             class="inline-block px-3 py-1 text-sm rounded bg-blue-600 text-white hover:bg-blue-700 ml-2">
+         ⚙️ Opciones
+     </button>`
+  : `<button disabled title="Solo disponible cuando la tarea esté completada" 
+             class="inline-block px-3 py-1 text-sm rounded bg-gray-300 text-gray-600 cursor-not-allowed ml-2" 
+             style="width: 95%;">
+         📄 PDF
+     </button>`
+}
+
+
                 <!-- Botón Ver Evidencias (solo activo si la tarea está completada) -->
                 ${tarea.estado === 'Completada'
                   ? `<button onclick="verEvidencias(${tarea.id})"
@@ -4467,3 +4475,89 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
+// ==========================================
+// 📄 SECCIÓN DE REPORTES PDF - AEtech
+// ==========================================
+
+// 1. Variable global para no perder el ID
+window.tareaIdParaPDF = null;
+
+// 2. Función que abre el modal (la llama el botón de la tabla)
+function abrirConfiguracionPDF(id) {
+    console.log("📂 Abriendo configuración para tarea:", id);
+    window.tareaIdParaPDF = id; 
+    const modal = document.getElementById('modalConfigPDF');
+    if (modal) {
+        modal.style.display = 'block';
+    }
+}
+
+// 3. Función que cierra el modal
+function cerrarModalPDF() {
+    const modal = document.getElementById('modalConfigPDF');
+    if (modal) modal.style.display = 'none';
+}
+
+// 4. ESTA ES LA FUNCIÓN DEL BOTÓN NARANJA (La que tenías en el script)
+async function generarPDFConFiltros() {
+    const id = window.tareaIdParaPDF;
+    
+    if (!id) {
+        alert("⚠️ Error: No se seleccionó una tarea.");
+        return;
+    }
+
+    // Capturamos los valores de los checkboxes del modal
+    const incluirMat = document.getElementById('checkMateriales')?.checked ?? true;
+    const incluirCom = document.getElementById('checkComentarios')?.checked ?? true;
+
+    cerrarModalPDF();
+    
+    // Ejecutamos la descarga con los filtros
+    await descargarReportePDF(id, incluirMat, incluirCom);
+}
+
+// 5. TU FUNCIÓN DE DESCARGA (La que genera bien el PDF)
+async function descargarReportePDF(tareaId, incluirMateriales = true, incluirComentarios = true) {
+  const token = localStorage.getItem('accessToken');
+  if (!token) return alert('No hay sesión activa.');
+
+  const loader = document.getElementById('loader');
+  if (loader) loader.style.display = 'flex';
+  
+  try {
+    // Validación de estado en la lista global
+    const tarea = (window.tareasList || []).find(t => Number(t.id) === Number(tareaId));
+    if (tarea && tarea.estado !== 'Completada') {
+      alert('⚠️ No puedes generar un PDF hasta que la tarea esté completada.');
+      return;
+    }
+
+    // URL con parámetros para el controlador
+    const pdfUrl = `${API_BASE_URL}/reportes/pdf/${tareaId}?materiales=${incluirMateriales}&comentarios=${incluirComentarios}`;
+    
+    const response = await fetch(pdfUrl, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!response.ok) throw new Error('Error al generar PDF');
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    // Lógica de descarga que ya te funcionaba
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Reporte_AEtech_Tarea_${tareaId}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+
+  } catch (err) {
+    console.error('❌ Error al descargar PDF:', err);
+    alert('No se pudo generar el PDF. Verifica las evidencias o la conexión.');
+  } finally {
+    if (loader) loader.style.display = 'none';
+  }
+}

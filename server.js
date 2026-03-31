@@ -95,6 +95,9 @@ connectDB()
     console.error('❌ No se pudo iniciar el servidor:', err);
   });
 
+
+
+  
 // server.js final
 
 // === INICIO DEL SERVIDOR – CON CREACIÓN MANUAL DE TABLA ===

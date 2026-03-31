@@ -2416,6 +2416,9 @@ async function pdfLevantamiento(id) {
     }
 }
 
+
+
+
 // 🚀 LANZADOR DE EVENTOS DEL TABLERO
 // Esto solo "enciende" las funciones cuando el HTML está listo
 document.addEventListener("DOMContentLoaded", () => {
@@ -2450,6 +2453,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
+
+<div id="modalConfigPDF">
+    <div class="modal-config-content">
+        <h3><i class="fa-solid fa-file-pdf"></i> Configurar Reporte</h3>
+        <p>¿Qué deseas incluir en el PDF?</p>
+        
+        <div class="modal-options">
+            <label>
+                <input type="checkbox" id="checkMateriales" checked> Incluir Materiales
+            </label>
+            <label>
+                <input type="checkbox" id="checkComentarios" checked> Incluir Observaciones
+            </label>
+        </div>
+
+        <div class="modal-actions">
+            <button onclick="generarPDFConFiltros()" class="btn-naranja">Confirmar y Generar</button>
+            <button onclick="cerrarModalPDF()" class="btn-cancelar">Tal vez luego</button>
+        </div>
+    </div>
+</div>
 
 
 
