@@ -56,21 +56,70 @@ const API_BASE_URL = 'https://p-aetech.onrender.com/api'; // Esto lo reemplazar�
 
 //refresh del token 
 async function refreshAccessToken() {
-  const rt = localStorage.getItem('refreshToken');
-  if (!rt) return false;
+    const rt = localStorage.getItem('refreshToken');
+    if (!rt) return false;
 
-  const res = await fetch(`${API_BASE_URL}/auth/refresh`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ refreshToken: rt })
-  });
+    try {
+        const res = await fetch(`${API_BASE_URL}/auth/refresh`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refreshToken: rt })
+        });
 
-  if (!res.ok) return false;
+        if (!res.ok) {
+            // Si el refresh token ya no es válido, limpiamos todo
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            return false;
+        }
 
-  const data = await res.json();
-  localStorage.setItem('accessToken', data.accessToken);
-  return true;
+        const data = await res.json();
+        if (data.accessToken) {
+            localStorage.setItem('accessToken', data.accessToken);
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error("Error de red al refrescar:", error);
+        return false;
+    }
 }
+
+
+async function peticionSegura(url, opciones = {}) {
+    // 1. Añadimos el token actual a los headers
+    const token = localStorage.getItem('accessToken');
+    opciones.headers = {
+        ...opciones.headers,
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+    };
+
+    let respuesta = await fetch(url, opciones);
+
+    // 2. Si el token expiró (401)
+    if (respuesta.status === 401) {
+        console.log("Token expirado, intentando renovar...");
+        
+        const exito = await refreshAccessToken();
+        
+        if (exito) {
+            // 3. Si se renovó, reintentamos la peticion con el NUEVO token
+            const nuevoToken = localStorage.getItem('accessToken');
+            opciones.headers['Authorization'] = `Bearer ${nuevoToken}`;
+            return await fetch(url, opciones);
+        } else {
+            // 4. Si el refresh falló, mandamos al login de verdad
+            alert("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
+            window.location.href = 'login.html';
+        }
+    }
+
+    return respuesta;
+}
+
+
+
 
 
 function initCrudGlobal() {
