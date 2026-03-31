@@ -114,8 +114,8 @@
 <div id="detFechaAnticipoCont" style="display: none; text-align: center; margin-bottom: 15px; font-size: 0.85rem; color: #666; background: #f0f0f5; padding: 5px; border-radius: 10px;">
     <span id="detFechaAnticipoTexto"></span>
 </div>
-<div id="NotaTime" style="display: none; text-align: center; margin-bottom: 15px; font-size: 0.85rem; color: #666; background: #f0f0f5; padding: 5px; border-radius: 10px;">
-    <span id="NotaTime"></span>
+<div id="fechaNota" style="display: none; text-align: center; margin-bottom: 15px; font-size: 0.85rem; color: #666; background: #f0f0f5; padding: 5px; border-radius: 10px;">
+    <span id="FechaNota"></span>
 </div>
         </header>
 
@@ -195,7 +195,8 @@ if (containerEstatus) {
 
 const fechaPagoCont = document.getElementById('detFechaPagoCont');
 const fechaAnticipoCont = document.getElementById('detFechaAnticipoCont');
-const NotaTime = document.getElementById('Notatime').innerText = new Date().toLocaleDateString();
+const fechaNota = document.getElementById('fechaNota');
+
 
 const estatusActual = (c.estatus || 'Pendiente').toUpperCase();
 
@@ -220,10 +221,6 @@ const estatusActual = (c.estatus || 'Pendiente').toUpperCase();
         } else {
             fechaAnticipoCont.style.display = "none";
         }
-
-        //fecha de la nota creada
-        const ahora = Date();
-        console.log(ahora.toLocaleSring())
 
             // 1. Manejo de Badges (Factura y IVA) - Usando clases CSS iOS
             let badgesHtml = '';
