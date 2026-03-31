@@ -195,7 +195,7 @@ if (containerEstatus) {
 
 const fechaPagoCont = document.getElementById('detFechaPagoCont');
 const fechaAnticipoCont = document.getElementById('detFechaAnticipoCont');
-const NotaTime = document.getElementById('Notatime')
+const NotaTime = document.getElementById('Notatime').innerText = new Date().toLocaleDateString();
 
 const estatusActual = (c.estatus || 'Pendiente').toUpperCase();
 
@@ -224,6 +224,7 @@ const estatusActual = (c.estatus || 'Pendiente').toUpperCase();
         //fecha de la nota creada
         const ahora = Date();
         console.log(ahora.toLocaleSring())
+
             // 1. Manejo de Badges (Factura y IVA) - Usando clases CSS iOS
             let badgesHtml = '';
             if (c.factura) {
