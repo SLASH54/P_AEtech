@@ -1,10 +1,8 @@
 const { Sequelize } = require('sequelize');
 require('dotenv').config();
 
-// Detectar entorno
 const isProduction = process.env.NODE_ENV === 'production';
 
-// === Configuración para producción (Render) ===
 let sequelize;
 
 if (isProduction) {
@@ -17,11 +15,17 @@ if (isProduction) {
         rejectUnauthorized: false
       }
     },
+    // 🔥 CONFIGURACIÓN DEL POOL PARA PRODUCCIÓN
+    pool: {
+      max: 10,        // Permite hasta 10 conexiones simultáneas
+      min: 0,         // Cierra conexiones si nadie las usa
+      acquire: 30000, // Tiempo máximo (ms) para intentar conectar antes de dar error
+      idle: 10000     // Tiempo (ms) para que una conexión se cierre si está inactiva
+    },
     native: false,
     logging: false
   });
 } else {
-  // === Configuración para desarrollo local ===
   sequelize = new Sequelize(
     process.env.DB_NAME,
     process.env.DB_USER,
@@ -36,6 +40,13 @@ if (isProduction) {
           rejectUnauthorized: false
         }
       },
+      // 🔥 TAMBIÉN EN DESARROLLO PARA EVITAR BLOQUEOS
+      pool: {
+        max: 5,
+        min: 0,
+        acquire: 30000,
+        idle: 10000
+      },
       logging: false
     }
   );
@@ -44,14 +55,10 @@ if (isProduction) {
 async function connectDB() {
   try {
     await sequelize.authenticate();
-    console.log("✅ Conectado correctamente a PostgreSQL");
-
-    // NO sincronizar en producción
-    if (!isProduction) {
-      await sequelize.sync({});
-      console.log("⚙ Sincronización local completada");
-    }
-
+    console.log("✅ Conectado correctamente a PostgreSQL (Neon)");
+    
+    // Ojo: En tu server.js vi que haces sync() global. 
+    // Si ya lo tienes allá, aquí podrías quitarlo para no duplicar carga.
   } catch (error) {
     console.error("❌ Error al conectar:", error.message);
   }
