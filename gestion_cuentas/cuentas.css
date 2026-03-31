@@ -1435,3 +1435,99 @@ input[type="text"], input[type="number"] {
   color: white;
   cursor: pointer;
 }
+
+/*Catalogo en moviles*/
+/* Contenedor principal del Modal */
+.modal-container {
+    width: 95%; /* Ocupa casi todo el ancho en móvil */
+    max-width: 450px;
+    margin: 10px auto;
+    padding: 20px;
+    background-color: #2c5282; /* Tono azul del fondo */
+    border-radius: 15px;
+    box-sizing: border-box;
+}
+
+/* Título con icono */
+.modal-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+}
+
+/* Ajuste de los Inputs para que se apilen */
+.form-group {
+    display: flex;
+    flex-direction: column; /* Apila nombre, costo y existencia */
+    gap: 12px;
+}
+
+input[type="text"], 
+input[type="number"], 
+select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    font-size: 16px; /* Evita el zoom automático en iOS */
+}
+
+/* Contenedor de Costo y Existencia (en móviles mejor uno bajo el otro) */
+.input-row {
+    display: flex;
+    flex-direction: column; 
+    gap: 12px;
+}
+
+/* Botón Añadir al Inventario */
+.btn-add {
+    width: 100%;
+    padding: 15px;
+    background-color: #6b46c1; /* Púrpura de la imagen */
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    margin-top: 15px;
+}
+
+/* Tarjeta de producto (el área blanca de abajo) */
+.product-card {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column; /* Apila imagen y botones en pantallas muy pequeñas */
+    align-items: center;
+    gap: 10px;
+}
+
+/* Ajuste para los botones de acción (Amarillo, Rojo, Azul) */
+.action-buttons {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.action-buttons button {
+    flex: 1;
+    margin: 0 5px;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+/* Media Query para tablets o pantallas un poco más anchas */
+@media (min-width: 480px) {
+    .input-row {
+        flex-direction: row; /* Aquí sí pueden ir a la par Costo y Existencia */
+    }
+    .product-card {
+        flex-direction: row; /* Imagen a la izquierda, botones a la derecha */
+        justify-content: space-between;
+    }
+}
