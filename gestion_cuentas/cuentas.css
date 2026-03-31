@@ -1298,10 +1298,9 @@ input:checked + .slider:before { transform: translateX(18px); }
 
 
 button.btn-cancelar {
-    border-color: rgba(48, 209, 88, 0.3);
-    background: rgba(48, 209, 88, 0.25) !important;
-    border-radius: 0.5rem;
-    height: 35px;
+        display: flex;
+    justify-content: flex-start;
+    flex: 1 1 0%;
 }
 
 button.btn-ver {
