@@ -1,6 +1,9 @@
 // src/controllers/cuentaController.js
+// src/controllers/cuentaController.js
+const { sequelize } = require('../config/database'); // ✅ DEBE LLEVAR LLAVES { }
 const { Cuenta, CuentaMaterial, Usuario, Producto } = require('../models/cuentasRelations');
-const { sequelize } = require('../config/database');
+// ... el resto sigue igual
+
 const cloudinary = require('cloudinary').v2;
 
 
