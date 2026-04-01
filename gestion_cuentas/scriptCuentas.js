@@ -1050,72 +1050,72 @@ let materialesEditList = []; // Array exclusivo para edición
 
 // 1. CARGAR DATOS EN EL MODAL (Incluye IVA, Factura y Clientes) edicion de cuenta optimizado 
 
-// --- FUNCIONES DE APOYO PARA EDICIÓN ---
+async function prepararEdicion(id) {
+    try {
+        document.getElementById("loader").style.display = "flex";
+        editandoId = id;
 
-function procesarFotoEdit(input) {
-    if (!input.files || !input.files[0]) return;
+        const response = await fetch(`${API_BASE_URL}/cuentas`, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` }
+        });
+        const cuentas = await response.json();
+        const cuenta = cuentas.find(c => c.id === id);
 
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        // Usamos la variable que YA tienes declarada
-        tempFotoEdit = e.target.result; 
+        if (!cuenta) {
+            alert("No se encontró la nota");
+            return;
+        }
+
+        // 1. Mostrar el modal primero que nada
+        document.getElementById("modalEditarCuenta").style.display = "flex";
         
-        const previewDiv = document.getElementById("previewFotoEdit");
-        const imgPreview = document.getElementById("imgPreviewEdit");
+        await cargarClientesSelectEdit(cuenta.clienteNombre);
+
+        // 2. Lógica de limpieza segura para el número de nota
+        let valorNota = cuenta.numeroNota ? cuenta.numeroNota.toString() : "S/N";
         
-        if (imgPreview) imgPreview.src = e.target.result;
-        if (previewDiv) previewDiv.style.display = "block";
-    };
-    reader.readAsDataURL(input.files[0]);
-}
+        // Limpiamos solo si contiene "Nota" o "#", si no, lo dejamos igual
+        let numeroSolo = valorNota.replace(/Nota /g, "").replace(/#/g, "").trim();
+        
+        document.getElementById("labelNumeroNotaEdit").innerText = `Nota #${numeroSolo}`;
+        
+        // 3. Estatus
+        const badgeEdit = document.getElementById('editEstatusBadge');
+        const esPagado = (parseFloat(cuenta.saldo) <= 0 || cuenta.estatus === 'Pagado');
+        
+        if (badgeEdit) {
+            badgeEdit.innerText = esPagado ? "PAGADO" : "PENDIENTE";
+            badgeEdit.className = `badge-status-tabla ${esPagado ? 'status-pagado' : 'status-pendiente'}`;
+        }
 
-function agregarMaterialEdit() {
-    const select = document.getElementById("edit-levInsumo");
-    const campoExtra = document.getElementById("edit-levInsumoExtra");
-    const costoInput = document.getElementById("edit-prodCosto");
-    const cantInput = document.getElementById("edit-prodCant");
+        // 4. Llenar campos numéricos
+        document.getElementById("levAnticipoEdit").value = cuenta.anticipo || 0;
+        document.getElementById("chkIvaEdit").checked = cuenta.iva || false;
+        document.getElementById("levIvaPorcentajeEdit").value = cuenta.ivaPorcentaje || 16;
+        document.getElementById("chkFacturaEdit").checked = cuenta.factura || false;
+        document.getElementById("levFolioFacturaEdit").value = cuenta.folioFactura || "";
+        
+        toggleFacturaEdit(); 
 
-    if (!select || !costoInput || !cantInput) return;
+        // 5. Cargar materiales
+        materialesEditList = (cuenta.materiales || []).map(m => ({
+            nombre: m.nombre,
+            cantidad: m.cantidad,
+            costo: parseFloat(m.costo) || 0,
+            fotoUrl: m.fotoUrl,
+            foto: null 
+        }));
 
-    let nombre = (select.value === "Otro") ? campoExtra.value : select.value;
-    const costo = parseFloat(costoInput.value) || 0;
-    const cant = parseInt(cantInput.value) || 1; 
-
-    if (!nombre || costo <= 0) {
-        return alert("Selecciona un producto y ponle precio.");
-    }
-
-    // Agregamos a la lista que YA tienes declarada
-    materialesEditList.push({
-        nombre: nombre,
-        costo: costo,
-        cantidad: cant,
-        foto: tempFotoEdit, 
-        fotoUrl: null
-    });
-
-    // --- LIMPIEZA SEGURA ---
-    select.value = "";
-    if (campoExtra) {
-        campoExtra.value = "";
-        campoExtra.style.display = "none";
-    }
-    costoInput.value = "";
-    cantInput.value = "1";
-    
-    tempFotoEdit = null; 
-    
-    const pView = document.getElementById("previewFotoEdit");
-    if (pView) pView.style.display = "none";
-    
-    const fInput = document.getElementById("edit-prodFoto");
-    if (fInput) fInput.value = ""; 
-
-    // Solo ejecuta si la función existe
-    if (typeof renderMaterialesEdit === 'function') {
         renderMaterialesEdit();
+
+    } catch (e) { 
+        console.error("Error al abrir edición:", e);
+        alert("Hubo un error al cargar los datos del modal.");
+    } finally { 
+        document.getElementById("loader").style.display = "none"; 
     }
 }
+
 
 
 
@@ -1149,43 +1149,42 @@ async function cargarClientesSelectEdit(clienteActual) {
 
 
 // 3. AGREGAR MATERIAL (Con lógica de Select de Insumos)
-//function agregarMaterialEdit() {
-  //  const select = document.getElementById("edit-levInsumo");
-    //const campoExtra = document.getElementById("edit-levInsumoExtra");
-    //const costoInput = document.getElementById("edit-prodCosto");
-    //const cantInput = document.getElementById("edit-prodCant");
+function agregarMaterialEdit() {
+    const select = document.getElementById("edit-levInsumo");
+    const campoExtra = document.getElementById("edit-levInsumoExtra");
+    const costoInput = document.getElementById("edit-prodCosto");
+    const cantInput = document.getElementById("edit-prodCant");
 
-    //let nombre = (select.value === "Otro") ? campoExtra.value : select.value;
+    let nombre = (select.value === "Otro") ? campoExtra.value : select.value;
     
     // 🟢 FORZAMOS NÚMEROS AQUÍ
-    //const costo = parseFloat(costoInput.value) || 0;
-    //const cant = parseInt(cantInput.value) || 1; 
+    const costo = parseFloat(costoInput.value) || 0;
+    const cant = parseInt(cantInput.value) || 1; 
 
-    //if (!nombre || costo <= 0) {
-     //   return alert("Selecciona un producto y ponle precio.");
-   // }
+    if (!nombre || costo <= 0) {
+        return alert("Selecciona un producto y ponle precio.");
+    }
 
     // 🟢 IMPORTANTE: Usamos la lista de edición
-    //materialesEditList.push({
-        //nombre: nombre,
-        //costo: costo,
-        //cantidad: cant,// <--- Aquí ya va como número
-        //foto: tempFotoEdit,
-      
-      //  fotoUrl: null
-    //});
+    materialesEditList.push({
+        nombre: nombre,
+        costo: costo,
+        cantidad: cant,// <--- Aquí ya va como número
+        foto: tempFotoEdit,
+        fotoUrl: null
+    });
 
     // Limpiar campos
-    //select.value = "";
-    //campoExtra.value = "";
-    //campoExtra.style.display = "none";
-   // costoInput.value = "";
-    //cantInput.value = "1";
-    //document.getElementById("previewFotoEdit").style.display = "none";
-    //tempFotoEdit = null;
+    select.value = "";
+    campoExtra.value = "";
+    campoExtra.style.display = "none";
+    costoInput.value = "";
+    cantInput.value = "1";
+    document.getElementById("previewFotoEdit").style.display = "none";
+    tempFotoEdit = null;
 
-  //  renderMaterialesEdit();
-//}
+    renderMaterialesEdit();
+}
 
 
 
