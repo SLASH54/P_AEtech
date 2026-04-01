@@ -169,13 +169,21 @@ exports.eliminarCuenta = async (req, res) => {
     }
 };
 
+
+
+
 exports.editarCuenta = async (req, res) => {
     try {
-        const { id } = req.params;
+        const { id } = req.params; // Verifica que en tu routes sea /:id
         const { clienteNombre, subtotal, total, anticipo, iva, ivaPorcentaje, factura, folioFactura, materiales, fecha_anticipo } = req.body;
 
-        const cuenta = await Cuenta.findByPk(id);
-        if (!cuenta) return res.status(404).json({ message: "Cuenta no encontrada" });
+        // Si el ID llega como undefined, lanzamos error antes de fallar en la DB
+        if (!id || id === 'undefined') {
+            console.error("❌ Error: ID de cuenta no recibido");
+            return res.status(400).json({ message: "ID de cuenta no válido" });
+        }
+        
+ 
 
         // 1. Recalcular saldo y estatus
         const nSubtotal = parseFloat(subtotal) || 0;
@@ -226,6 +234,11 @@ exports.editarCuenta = async (req, res) => {
         res.status(500).json({ message: "Error al editar la cuenta" });
     }
 };
+
+
+
+
+
 
 // Agrega esto a tu controlador
 exports.liquidarCuenta = async (req, res) => {

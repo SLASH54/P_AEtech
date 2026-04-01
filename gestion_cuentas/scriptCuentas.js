@@ -1267,44 +1267,26 @@ function calcularSaldoEdit() {
 
 // 6. GUARDAR CAMBIOS (PUT)
 async function actualizarCuentaFinal() {
-    // 1. Verificamos que la lista de edición tenga materiales
-    if (materialesEditList.length === 0) return alert("La nota no puede estar vacía amiko");
-
-    // Capturamos los valores de anticipo y fecha para validarlos antes de enviar
-    const anticipoInput = document.getElementById("levAnticipoEdit");
-    const fechaInput = document.getElementById("levFechaAnticipoEdit");
-    
-    const anticipoValor = anticipoInput ? anticipoInput.value : "";
-    const fechaValor = fechaInput ? fechaInput.value : "";
-
-    const numeroActual = document.getElementById("labelNumeroNotaEdit").innerText;
-
-    // Construimos el objeto de datos
-    const datos = {
-        numeroNota: numeroActual,
-        clienteNombre: document.getElementById("edit-clienteSelect").value,
-
-        // 🟢 Si el anticipo está vacío, enviamos 0
-        anticipo: parseFloat(anticipoValor) || 0, 
-
-        // 🟢 Si la fecha está vacía, enviamos null para que la DB de Render no de error
-        fecha_anticipo: (fechaValor && fechaValor !== "") ? fechaValor : null,
-        
-        subtotal: parseFloat(document.getElementById("levSubtotalEdit").value) || 0,
-        total: parseFloat(document.getElementById("levTotalEdit").value) || 0,
-        iva: document.getElementById("chkIvaEdit").checked,
-        ivaPorcentaje: parseFloat(document.getElementById("levIvaPorcentajeEdit").value) || 0,
-        factura: document.getElementById("chkFacturaEdit").checked,
-        folioFactura: document.getElementById("levFolioFacturaEdit").value,
-        
-        // 🟢 Usamos materialesEditList que es la variable de tu sistema de edición
-        materiales: materialesEditList 
-    };
+    if (!editandoId) return alert("No hay un ID de cuenta seleccionado");
 
     try {
-        document.getElementById("loader").style.display = "flex";
-        
-        const res = await fetch(`${API_BASE_URL}/cuentas/${editandoId}`, {
+        mostrarCargando(true);
+
+        const datos = {
+            clienteNombre: document.getElementById("edit-clienteSelect").value,
+            subtotal: parseFloat(document.getElementById("levSubtotalEdit").value) || 0,
+            total: parseFloat(document.getElementById("levTotalEdit").value) || 0,
+            anticipo: parseFloat(document.getElementById("levAnticipoEdit").value) || 0,
+            iva: document.getElementById("chkIvaEdit").checked,
+            ivaPorcentaje: document.getElementById("levIvaPorcentajeEdit").value,
+            factura: document.getElementById("chkFacturaEdit").checked,
+            folioFactura: document.getElementById("levFolioFacturaEdit").value,
+            fecha_anticipo: document.getElementById("levFechaAnticipoEdit").value,
+            materiales: materialesEditList // Aquí van los objetos con .foto (Base64)
+        };
+
+        // URL CORRECTA: Usamos editandoId
+        const response = await fetch(`${API_BASE_URL}/cuentas/${editandoId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -1313,27 +1295,21 @@ async function actualizarCuentaFinal() {
             body: JSON.stringify(datos)
         });
 
-        if (res.ok) {
-            alert("✅ ¡Listo! Nota actualizada en Render.");
-            cerrarModalEditar();
-            
-            // Recargamos la tabla para ver los cambios
-            if (typeof cargarCuentasTabla === "function") {
-                cargarCuentasTabla();
-            } else {
-                location.reload();
-            }
-        } else {
-            const errData = await res.json();
-            alert("❌ Error: " + (errData.message || "No se pudo actualizar"));
-        }
-    } catch (e) {
-        console.error("Error en el PUT:", e);
-        alert("Falla de conexión con el servidor");
+        const res = await response.json();
+        if (!response.ok) throw new Error(res.message || "Error al actualizar");
+
+        alert("✅ Cuenta y materiales actualizados");
+        cerrarModalEditar();
+        obtenerCuentas(); // Refrescar la tabla
+
+    } catch (error) {
+        console.error("Error al actualizar:", error);
+        alert(error.message);
     } finally {
-        document.getElementById("loader").style.display = "none";
+        mostrarCargando(false);
     }
 }
+
 
 // FUNCIONES DE APOYO
 function levMostrarCampoExtraEdit() {
