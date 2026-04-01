@@ -163,6 +163,8 @@ document.getElementById("levBtnAgregarMaterial")?.addEventListener("click", () =
 });
 
 
+
+// 2. FUNCIÓN PARA RENDERIZAR Y SUMAR (Corregida)
 function renderizarListaYTotales() {
     const listaUI = document.getElementById("levListaMateriales");
     const inputTotal = document.getElementById("levTotal");
@@ -171,39 +173,29 @@ function renderizarListaYTotales() {
     listaUI.innerHTML = "";
     let sumaTotalNota = 0;
 
-    levMaterialesList.forEach((mat, index) => {
+    levMaterialesList.forEach((mat) => {
+        // 🟢 MULTIPLICAMOS AQUÍ
         const subtotalFila = mat.costo * mat.cantidad;
         sumaTotalNota += subtotalFila;
 
         const li = document.createElement("li");
-        li.style = "display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #eee; background: white; margin-bottom: 5px; border-radius: 8px;";
+        li.className = "ios-list-item";
+        li.style = "display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee; color: black;";
         
-        // 🔥 CORRECCIÓN: Triple verificación de imagen
-        // Buscamos en .foto (catálogo/cámara) o .fotoUrl (respaldo)
-        let imagenSource = 'img/default.png';
-        const fuentePrioritaria = mat.foto || mat.fotoUrl;
-        
-        if (fuentePrioritaria && fuentePrioritaria !== "") {
-            imagenSource = fuentePrioritaria;
-        }
+        const imgHTML = mat.foto 
+            ? `<img src="${mat.foto}" class="img-miniatura" style="width:40px;height:40px;border-radius:5px;">` 
+            : `<div style="width:40px;height:40px;background:#eee;display:flex;align-items:center;justify-content:center;border-radius:5px;">📦</div>`;
 
         li.innerHTML = `
-            <img src="${imagenSource}" 
-                 onerror="this.src='img/default.png'"
-                 style="width:45px; height:45px; border-radius:8px; object-fit:cover; margin-right:12px; border: 1px solid #eee;">
-            
-            <div style="flex: 1; display: flex; flex-direction: column;"> 
-                <span style="font-weight: bold; color: #333; font-size: 14px;">${mat.nombre || mat.insumo || 'Sin nombre'}</span>
-                <span style="color: #666; font-size: 12px;">${mat.cantidad}x $${mat.costo.toFixed(2)} c/u</span>
+            <div style="flex: 1; margin-left: 10px;"> 
+            ${imgHTML}
+                <strong>${mat.cantidad}x ${mat.nombre}</strong>
+                <br><small style="color: #666;">$${mat.costo.toFixed(2)} c/u</small>
             </div>
-
-            <div style="text-align: right; margin-right: 15px;">
-                <div style="font-weight: bold; color: #00938f;">$${subtotalFila.toFixed(2)}</div>
+            <div style="font-weight: bold; color: #00938f; margin-right: 10px;">
+                $${subtotalFila.toFixed(2)}
             </div>
-
-            <button onclick="eliminarMaterial(${index})" style="background:none; border:none; font-size: 18px; cursor:pointer; padding: 5px;">
-                🗑️
-            </button>
+            <button class="btn-eliminar" onclick="eliminarMaterial(${mat.id})" style="background:none;border:none;color:red;cursor:pointer;">❌</button>
         `;
         listaUI.appendChild(li);
     });
@@ -211,10 +203,10 @@ function renderizarListaYTotales() {
     if (inputSubtotal) inputSubtotal.value = sumaTotalNota.toFixed(2);
     if (inputTotal) inputTotal.value = sumaTotalNota.toFixed(2);
     
-    if (typeof calcularSaldo === "function") {
-        calcularSaldo();
-    }
+    if (typeof calcularSaldo === "function") calcularSaldo();
 }
+
+
 
 // 3. FUNCIÓN PARA ELIMINAR MATERIALES
 window.eliminarMaterial = function(id) {
@@ -559,10 +551,11 @@ async function guardarCuentaFinal() {
     btnGuardar.style.opacity = "0.5";
     btnGuardar.innerText = "Guardando...";
 
+    // 🔥 CAPTURA DIRECTA DEL MODAL (Esto asegura que no vaya vacío)
     const textoNota = document.getElementById('labelNumeroNota').innerText;
 
     const datos = {
-        numeroNota: textoNota,
+        numeroNota: textoNota, // <--- Aquí ya va "Nota #5" por ejemplo
         clienteNombre: selectCliente.options[selectCliente.selectedIndex].text,
         subtotal: parseFloat(document.getElementById('levSubtotal').value) || 0,
         total: parseFloat(document.getElementById('levTotal').value) || 0,
@@ -572,21 +565,11 @@ async function guardarCuentaFinal() {
         ivaPorcentaje: parseInt(document.getElementById('levIvaPorcentaje').value) || 16,
         factura: document.getElementById('chkFactura').checked,
         folioFactura: document.getElementById('levFolioFactura').value,
-        
-        // 🚀 MAPEADO CORRECTO PARA EL BACKEND
-        materiales: levMaterialesList.map(m => ({
-            nombre: m.nombre || m.insumo,
-            cantidad: m.cantidad,
-            costo: m.costo,
-            unidad: m.unidad || 'Pza',
-            // Enviamos como fotoUrl lo que tengamos en 'foto' (link de Cloudinary o Base64)
-            fotoUrl: m.foto || m.fotoUrl || null 
-        }))
+        materiales: levMaterialesList 
     };
 
     try {
         document.getElementById("loader").style.display = "flex";
-        
         const response = await fetch(`${API_BASE_URL}/cuentas`, {
             method: 'POST',
             headers: {
@@ -597,26 +580,22 @@ async function guardarCuentaFinal() {
         });
 
         if (response.ok) {
-            alert("✅ Nota guardada correctamente");
+            alert("✅ Nota guardada: " + textoNota);
             location.reload(); 
         } else {
             const res = await response.json();
-            alert("❌ Error: " + (res.message || "No se pudo guardar"));
+            alert("❌ Error: " + res.message);
             btnGuardar.disabled = false;
             btnGuardar.style.opacity = "1";
-            btnGuardar.innerText = "Guardar Cuenta";
         }
     } catch (error) {
-        console.error("Error al guardar:", error);
+        console.error("Error:", error);
         btnGuardar.disabled = false;
         btnGuardar.style.opacity = "1";
-        btnGuardar.innerText = "Guardar Cuenta";
     } finally {
         document.getElementById("loader").style.display = "none";
     }
 }
-
-
 
 // Variable para guardar la foto del material que se está agregando actualmente
 let fotoMaterialTemporal = null;
@@ -1047,8 +1026,7 @@ let materialesEditList = []; // Array exclusivo para edición
    SISTEMA DE EDICIÓN UNIFICADO (AEtech)
    ========================================== */
 
-   
-// 1. CARGAR DATOS EN EL MODAL (Incluye IVA, Factura y Clientes) edicion de cuenta
+// 1. CARGAR DATOS EN EL MODAL (Incluye IVA, Factura y Clientes)
 async function prepararEdicion(id) {
     try {
         document.getElementById("loader").style.display = "flex";
@@ -1114,12 +1092,6 @@ async function prepararEdicion(id) {
         document.getElementById("loader").style.display = "none"; 
     }
 }
-
-
-
-
-
-
 
 
 // 2. FUNCIÓN PARA CARGAR CLIENTES DESDE LA API (La que faltaba)
@@ -1267,26 +1239,44 @@ function calcularSaldoEdit() {
 
 // 6. GUARDAR CAMBIOS (PUT)
 async function actualizarCuentaFinal() {
-    if (!editandoId) return alert("No hay un ID de cuenta seleccionado");
+    // 1. Verificamos que la lista de edición tenga materiales
+    if (materialesEditList.length === 0) return alert("La nota no puede estar vacía amiko");
+
+    // Capturamos los valores de anticipo y fecha para validarlos antes de enviar
+    const anticipoInput = document.getElementById("levAnticipoEdit");
+    const fechaInput = document.getElementById("levFechaAnticipoEdit");
+    
+    const anticipoValor = anticipoInput ? anticipoInput.value : "";
+    const fechaValor = fechaInput ? fechaInput.value : "";
+
+    const numeroActual = document.getElementById("labelNumeroNotaEdit").innerText;
+
+    // Construimos el objeto de datos
+    const datos = {
+        numeroNota: numeroActual,
+        clienteNombre: document.getElementById("edit-clienteSelect").value,
+
+        // 🟢 Si el anticipo está vacío, enviamos 0
+        anticipo: parseFloat(anticipoValor) || 0, 
+
+        // 🟢 Si la fecha está vacía, enviamos null para que la DB de Render no de error
+        fecha_anticipo: (fechaValor && fechaValor !== "") ? fechaValor : null,
+        
+        subtotal: parseFloat(document.getElementById("levSubtotalEdit").value) || 0,
+        total: parseFloat(document.getElementById("levTotalEdit").value) || 0,
+        iva: document.getElementById("chkIvaEdit").checked,
+        ivaPorcentaje: parseFloat(document.getElementById("levIvaPorcentajeEdit").value) || 0,
+        factura: document.getElementById("chkFacturaEdit").checked,
+        folioFactura: document.getElementById("levFolioFacturaEdit").value,
+        
+        // 🟢 Usamos materialesEditList que es la variable de tu sistema de edición
+        materiales: materialesEditList 
+    };
 
     try {
-        mostrarCargando(true);
-
-        const datos = {
-            clienteNombre: document.getElementById("edit-clienteSelect").value,
-            subtotal: parseFloat(document.getElementById("levSubtotalEdit").value) || 0,
-            total: parseFloat(document.getElementById("levTotalEdit").value) || 0,
-            anticipo: parseFloat(document.getElementById("levAnticipoEdit").value) || 0,
-            iva: document.getElementById("chkIvaEdit").checked,
-            ivaPorcentaje: document.getElementById("levIvaPorcentajeEdit").value,
-            factura: document.getElementById("chkFacturaEdit").checked,
-            folioFactura: document.getElementById("levFolioFacturaEdit").value,
-            fecha_anticipo: document.getElementById("levFechaAnticipoEdit").value,
-            materiales: materialesEditList // Aquí van los objetos con .foto (Base64)
-        };
-
-        // URL CORRECTA: Usamos editandoId
-        const response = await fetch(`${API_BASE_URL}/cuentas/${editandoId}`, {
+        document.getElementById("loader").style.display = "flex";
+        
+        const res = await fetch(`${API_BASE_URL}/cuentas/${editandoId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -1295,21 +1285,27 @@ async function actualizarCuentaFinal() {
             body: JSON.stringify(datos)
         });
 
-        const res = await response.json();
-        if (!response.ok) throw new Error(res.message || "Error al actualizar");
-
-        alert("✅ Cuenta y materiales actualizados");
-        cerrarModalEditar();
-        obtenerCuentas(); // Refrescar la tabla
-
-    } catch (error) {
-        console.error("Error al actualizar:", error);
-        alert(error.message);
+        if (res.ok) {
+            alert("✅ ¡Listo! Nota actualizada en Render.");
+            cerrarModalEditar();
+            
+            // Recargamos la tabla para ver los cambios
+            if (typeof cargarCuentasTabla === "function") {
+                cargarCuentasTabla();
+            } else {
+                location.reload();
+            }
+        } else {
+            const errData = await res.json();
+            alert("❌ Error: " + (errData.message || "No se pudo actualizar"));
+        }
+    } catch (e) {
+        console.error("Error en el PUT:", e);
+        alert("Falla de conexión con el servidor");
     } finally {
-        mostrarCargando(false);
+        document.getElementById("loader").style.display = "none";
     }
 }
-
 
 // FUNCIONES DE APOYO
 function levMostrarCampoExtraEdit() {
@@ -1620,41 +1616,35 @@ function abrirCatalogoParaSeleccion() {
     cargarCatalogo(); // Asegura que los productos estén frescos
 }
 
-
-
-
+// Esta es la función que llamaremos cuando el usuario dé clic en el "+" del catálogo
 function agregarAlPedidoDesdeCatalogo(id) {
-    // Usamos == (doble igual) en lugar de === para que no importe si uno es string y otro número
-    // O mejor aún, convertimos el ID que llega a Número
-    const idNumerico = parseInt(id);
-    const producto = catalogoProductos.find(p => p.id == id || p.id == idNumerico);
-    
-    if (!producto) {
-        console.error("No se encontró el producto con ID:", id);
-        return;
-    }
+    const producto = catalogoProductos.find(p => p.id === id);
+    if (!producto) return;
 
     if (modoSeleccionCatalogo) {
+        // Creamos el objeto con el formato que espera tu lista de materiales
         const nuevoMaterial = {
-            id: Date.now(), // Generamos un ID único para la lista (evita errores al eliminar repetidos)
-            idOriginal: producto.id, 
             nombre: producto.nombre,
             cantidad: 1,
             costo: parseFloat(producto.costo),
-            // 🔥 ASEGURAMOS EL LINK:
-            foto: producto.fotoUrl || producto.foto || null 
+            foto: producto.fotoUrl // Pasamos la URL de Cloudinary
         };
 
+        // Lo añadimos a tu array global de materiales de la cuenta actual
         levMaterialesList.push(nuevoMaterial);
         
+        // Refrescamos la tablita de materiales del modal de cuenta
         renderizarListaYTotales(); 
+        
+        // Cerramos el catálogo para seguir con la cuenta
         cerrarModalCatalogo();
         
-        console.log("Añadido con éxito:", nuevoMaterial.nombre, "URL Imagen:", nuevoMaterial.foto);
+        alert(`Añadido: ${producto.nombre}`);
+    } else {
+        // Aquí podrías poner lógica por si quieres usar el "+" en el modo administrador
+        alert("Producto: " + producto.nombre);
     }
 }
-
-
 
 function cerrarModalCatalogo() {
     document.getElementById("modalCatalogo").style.display = "none";
