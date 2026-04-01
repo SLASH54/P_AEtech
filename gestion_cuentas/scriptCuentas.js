@@ -1047,9 +1047,8 @@ let materialesEditList = []; // Array exclusivo para edición
    SISTEMA DE EDICIÓN UNIFICADO (AEtech)
    ========================================== */
 
-
-// 1. CARGAR DATOS EN EL MODAL (Incluye IVA, Factura y Clientes) edicion de cuenta optimizado 
-
+   
+// 1. CARGAR DATOS EN EL MODAL (Incluye IVA, Factura y Clientes) edicion de cuenta
 async function prepararEdicion(id) {
     try {
         document.getElementById("loader").style.display = "flex";
@@ -1144,10 +1143,6 @@ async function cargarClientesSelectEdit(clienteActual) {
     }
 }
 
-
-
-
-
 // 3. AGREGAR MATERIAL (Con lógica de Select de Insumos)
 function agregarMaterialEdit() {
     const select = document.getElementById("edit-levInsumo");
@@ -1169,7 +1164,7 @@ function agregarMaterialEdit() {
     materialesEditList.push({
         nombre: nombre,
         costo: costo,
-        cantidad: cant,// <--- Aquí ya va como número
+        cantidad: cant, // <--- Aquí ya va como número
         foto: tempFotoEdit,
         fotoUrl: null
     });
@@ -1185,11 +1180,6 @@ function agregarMaterialEdit() {
 
     renderMaterialesEdit();
 }
-
-
-
-
-
 
 
 
