@@ -31,8 +31,7 @@ exports.obtenerCuentaPorIdPublica = async (req, res) => {
 };
 
 exports.crearCuenta = async (req, res) => {
-    //const t = await sequelize.transaction(); // 👈 Iniciamos transacción
-    const transaction = await sequelize.transaction();
+    const t = await sequelize.transaction(); // 👈 Iniciamos transacción
 
     try {
         // 1. PRIMERO extraemos los datos del req.body
@@ -77,7 +76,7 @@ exports.crearCuenta = async (req, res) => {
             usuarioId: req.user.id,
             fecha_anticipo: fecha_anticipo || new Date()
             // ... campos de la cuenta
-        }, { transaction });
+        }, { transaction: t });
 
         if (materiales && materiales.length > 0) {
             const materialesProcesados = await Promise.all(materiales.map(async (mat) => {
@@ -91,13 +90,13 @@ exports.crearCuenta = async (req, res) => {
 
                 // 2. LÓGICA DE INVENTARIO (Descontar piezas)
                 if (mat.idOriginal) {
-                    const producto = await Producto.findByPk(mat.idOriginal, { transaction });
+                    const producto = await Producto.findByPk(mat.idOriginal, { transaction: t });
                     if (producto && producto.stock !== null) {
                         if (producto.stock < mat.cantidad) {
                             throw new Error(`Stock insuficiente para: ${producto.nombre}`);
                         }
                         producto.stock -= mat.cantidad; // 👈 Restamos del inventario
-                        await producto.save({ transaction });
+                        await producto.save({ transaction: t });
                     }
                 }
 
@@ -113,15 +112,14 @@ exports.crearCuenta = async (req, res) => {
             await CuentaMaterial.bulkCreate(materialesProcesados, { transaction: t });
         }
 
-        await transaction.commit(); // 👈 Si todo bien, guardamos cambios
+        await t.commit(); // 👈 Si todo bien, guardamos cambios
         res.status(201).json({ message: "Venta realizada y stock actualizado" });
 
     } catch (error) {
-        await transaction.rollback(); // 👈 Si algo falla, deshacemos todo
+        await t.rollback(); // 👈 Si algo falla, deshacemos todo
         res.status(500).json({ message: error.message });
     }
 };
-
 
 exports.obtenerCuentas = async (req, res) => {
     try {
