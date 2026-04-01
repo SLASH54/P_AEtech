@@ -1,7 +1,7 @@
 // src/controllers/cuentaController.js
 const { Cuenta, CuentaMaterial, Usuario, Producto } = require('../models/cuentasRelations');
+const { sequelize } = require('../config/database');
 const cloudinary = require('cloudinary').v2;
-const sequelize = require('../config/database'); // Para la transacción
 
 
 cloudinary.config({
