@@ -1047,7 +1047,8 @@ let materialesEditList = []; // Array exclusivo para edición
    SISTEMA DE EDICIÓN UNIFICADO (AEtech)
    ========================================== */
 
-// 1. CARGAR DATOS EN EL MODAL (Incluye IVA, Factura y Clientes)
+   
+// 1. CARGAR DATOS EN EL MODAL (Incluye IVA, Factura y Clientes) edicion de cuenta
 async function prepararEdicion(id) {
     try {
         document.getElementById("loader").style.display = "flex";
@@ -1113,6 +1114,12 @@ async function prepararEdicion(id) {
         document.getElementById("loader").style.display = "none"; 
     }
 }
+
+
+
+
+
+
 
 
 // 2. FUNCIÓN PARA CARGAR CLIENTES DESDE LA API (La que faltaba)
