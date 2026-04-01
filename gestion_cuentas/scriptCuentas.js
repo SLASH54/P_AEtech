@@ -1047,76 +1047,67 @@ let materialesEditList = []; // Array exclusivo para edición
    SISTEMA DE EDICIÓN UNIFICADO (AEtech)
    ========================================== */
 
-   
-// 1. CARGAR DATOS EN EL MODAL (Incluye IVA, Factura y Clientes) edicion de cuenta
-async function prepararEdicion(id) {
-    try {
-        document.getElementById("loader").style.display = "flex";
-        editandoId = id;
 
-        const response = await fetch(`${API_BASE_URL}/cuentas`, {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` }
-        });
-        const cuentas = await response.json();
-        const cuenta = cuentas.find(c => c.id === id);
+// 2. Esta es la función que manda llamar tu HTML con onchange="procesarFotoEdit(this)"
+function procesarFotoEdit(input) {
+    const file = input.files[0];
+    if (!file) return;
 
-        if (!cuenta) {
-            alert("No se encontró la nota");
-            return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        // ✅ Aquí guardamos el Base64 que el controlador subirá a Cloudinary
+        tempFotoEdit = e.target.result; 
+        
+        // Mostramos la miniatura usando los IDs que ya tienes en tu HTML
+        const previewDiv = document.getElementById("previewFotoEdit");
+        const imgPreview = document.getElementById("imgPreviewEdit");
+        
+        if (previewDiv && imgPreview) {
+            imgPreview.src = e.target.result;
+            previewDiv.style.display = "block";
         }
-
-        // 1. Mostrar el modal primero que nada
-        document.getElementById("modalEditarCuenta").style.display = "flex";
-        
-        await cargarClientesSelectEdit(cuenta.clienteNombre);
-
-        // 2. Lógica de limpieza segura para el número de nota
-        let valorNota = cuenta.numeroNota ? cuenta.numeroNota.toString() : "S/N";
-        
-        // Limpiamos solo si contiene "Nota" o "#", si no, lo dejamos igual
-        let numeroSolo = valorNota.replace(/Nota /g, "").replace(/#/g, "").trim();
-        
-        document.getElementById("labelNumeroNotaEdit").innerText = `Nota #${numeroSolo}`;
-        
-        // 3. Estatus
-        const badgeEdit = document.getElementById('editEstatusBadge');
-        const esPagado = (parseFloat(cuenta.saldo) <= 0 || cuenta.estatus === 'Pagado');
-        
-        if (badgeEdit) {
-            badgeEdit.innerText = esPagado ? "PAGADO" : "PENDIENTE";
-            badgeEdit.className = `badge-status-tabla ${esPagado ? 'status-pagado' : 'status-pendiente'}`;
-        }
-
-        // 4. Llenar campos numéricos
-        document.getElementById("levAnticipoEdit").value = cuenta.anticipo || 0;
-        document.getElementById("chkIvaEdit").checked = cuenta.iva || false;
-        document.getElementById("levIvaPorcentajeEdit").value = cuenta.ivaPorcentaje || 16;
-        document.getElementById("chkFacturaEdit").checked = cuenta.factura || false;
-        document.getElementById("levFolioFacturaEdit").value = cuenta.folioFactura || "";
-        
-        toggleFacturaEdit(); 
-
-        // 5. Cargar materiales
-        materialesEditList = (cuenta.materiales || []).map(m => ({
-            nombre: m.nombre,
-            cantidad: m.cantidad,
-            costo: parseFloat(m.costo) || 0,
-            fotoUrl: m.fotoUrl,
-            foto: null 
-        }));
-
-        renderMaterialesEdit();
-
-    } catch (e) { 
-        console.error("Error al abrir edición:", e);
-        alert("Hubo un error al cargar los datos del modal.");
-    } finally { 
-        document.getElementById("loader").style.display = "none"; 
-    }
+    };
+    reader.readAsDataURL(file);
 }
 
+// 3. Tu función agregarMaterialEdit (se queda casi igual, solo verifica la limpieza)
+function agregarMaterialEdit() {
+    const select = document.getElementById("edit-levInsumo");
+    const campoExtra = document.getElementById("edit-levInsumoExtra");
+    const costoInput = document.getElementById("edit-prodCosto");
+    const cantInput = document.getElementById("edit-prodCant");
 
+    let nombre = (select.value === "Otro") ? campoExtra.value : select.value;
+    const costo = parseFloat(costoInput.value) || 0;
+    const cant = parseInt(cantInput.value) || 1; 
 
+    if (!nombre || costo <= 0) {
+        return alert("Selecciona un producto y ponle precio.");
+    }
+
+    materialesEditList.push({
+        nombre: nombre,
+        costo: costo,
+        cantidad: cant,
+        foto: tempFotoEdit, // <--- Aquí va el Base64 capturado arriba
+        fotoUrl: null
+    });
+
+    // --- LIMPIEZA DESPUÉS DE AGREGAR ---
+    select.value = "";
+    campoExtra.value = "";
+    campoExtra.style.display = "none";
+    costoInput.value = "";
+    cantInput.value = "1";
+    
+    // Limpiamos la variable y ocultamos la preview del HTML
+    tempFotoEdit = null; 
+    document.getElementById("previewFotoEdit").style.display = "none";
+    document.getElementById("edit-prodFoto").value = ""; // Resetea el input de archivo
+
+    renderMaterialesEdit();
+    if(typeof calcularSaldoEdit === 'function') calcularSaldoEdit(); 
+}
 
 
 
@@ -1142,6 +1133,10 @@ async function cargarClientesSelectEdit(clienteActual) {
         console.error("Error cargando clientes en edición:", e); 
     }
 }
+
+
+
+
 
 // 3. AGREGAR MATERIAL (Con lógica de Select de Insumos)
 function agregarMaterialEdit() {
@@ -1180,6 +1175,11 @@ function agregarMaterialEdit() {
 
     renderMaterialesEdit();
 }
+
+
+
+
+
 
 
 

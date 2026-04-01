@@ -177,42 +177,49 @@ exports.editarCuenta = async (req, res) => {
         const cuenta = await Cuenta.findByPk(id);
         if (!cuenta) return res.status(404).json({ message: "Cuenta no encontrada" });
 
-        // 1. Recalcular saldo y estatus
-        const nSubtotal = parseFloat(subtotal) || 0;
         const nTotal = parseFloat(total) || 0;
         const nAnticipo = parseFloat(anticipo) || 0;
         const saldoCalculado = nTotal - nAnticipo;
-        const nuevoEstatus = saldoCalculado <= 0 ? 'Pagado' : 'Pendiente';
 
-        // 2. Actualizar cabecera
         await cuenta.update({
             clienteNombre,
-            subtotal : nSubtotal, 
-            total: nTotal, 
+            subtotal: parseFloat(subtotal) || 0,
+            total: nTotal,
             anticipo: nAnticipo,
-            saldo: saldoCalculado, iva, ivaPorcentaje,
-            factura, folioFactura, estatus: nuevoEstatus,
+            saldo: saldoCalculado,
+            iva, 
+            ivaPorcentaje,
+            factura, 
+            folioFactura, 
+            estatus: saldoCalculado <= 0 ? 'Pagado' : 'Pendiente',
             fecha_anticipo
         });
 
-        // 3. Manejar materiales (Eliminar anteriores y crear nuevos)
-        // Nota: En una app más grande podrías comparar IDs, pero borrar y recrear es más limpio para prototipos
+        // 🛡️ MANEJO SEGURO DE MATERIALES
         await CuentaMaterial.destroy({ where: { cuentaId: id } });
 
         if (materiales && materiales.length > 0) {
             const materialesProcesados = await Promise.all(materiales.map(async (mat) => {
-                let urlFinal = mat.fotoUrl;
+                let urlFinal = mat.fotoUrl || "https://res.cloudinary.com/tu-usuario/image/upload/v1/default_aetech.png";
 
-                // Si la foto es nueva (Base64), subirla a Cloudinary
+                // Si detectamos Base64 nuevo, subimos a Cloudinary
                 if (mat.foto && mat.foto.startsWith('data:image')) {
-                    const uploadRes = await cloudinary.uploader.upload(mat.foto, { folder: "cuentas_aetech" });
-                    urlFinal = uploadRes.secure_url;
+                    try {
+                        const uploadRes = await cloudinary.uploader.upload(mat.foto, { 
+                            folder: "cuentas_aetech",
+                            resource_type: "image"
+                        });
+                        urlFinal = uploadRes.secure_url;
+                    } catch (err) {
+                        console.error("❌ Error subiendo a Cloudinary:", err);
+                        // Si falla la subida, mantenemos la url que ya traía
+                    }
                 }
 
                 return {
                     nombre: mat.nombre,
-                    cantidad: mat.cantidad || 1,
-                    costo: mat.costo,
+                    cantidad: parseInt(mat.cantidad) || 1,
+                    costo: parseFloat(mat.costo) || 0,
                     fotoUrl: urlFinal,
                     cuentaId: id
                 };
@@ -222,10 +229,12 @@ exports.editarCuenta = async (req, res) => {
 
         res.json({ message: "Cuenta actualizada correctamente" });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error al editar la cuenta" });
+        console.error("❌ Error en editarCuenta:", error);
+        res.status(500).json({ message: "Error interno del servidor" });
     }
 };
+
+
 
 // Agrega esto a tu controlador
 exports.liquidarCuenta = async (req, res) => {
