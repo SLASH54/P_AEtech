@@ -167,44 +167,68 @@ document.getElementById("levBtnAgregarMaterial")?.addEventListener("click", () =
 // 2. FUNCIÓN PARA RENDERIZAR Y SUMAR (Corregida)
 function renderizarListaYTotales() {
     const listaUI = document.getElementById("levListaMateriales");
-    const inputTotal = document.getElementById("levTotal");
-    const inputSubtotal = document.getElementById("levSubtotal");
-    
     listaUI.innerHTML = "";
     let sumaTotalNota = 0;
 
-    levMaterialesList.forEach((mat) => {
-        // 🟢 MULTIPLICAMOS AQUÍ
+    levMaterialesList.forEach((mat, index) => {
         const subtotalFila = mat.costo * mat.cantidad;
         sumaTotalNota += subtotalFila;
 
         const li = document.createElement("li");
-        li.className = "ios-list-item";
-        li.style = "display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee; color: black;";
-        
-        const imgHTML = mat.foto 
-            ? `<img src="${mat.foto}" class="img-miniatura" style="width:40px;height:40px;border-radius:5px;">` 
-            : `<div style="width:40px;height:40px;background:#eee;display:flex;align-items:center;justify-content:center;border-radius:5px;">📦</div>`;
+        li.style = "display: flex; align-items: center; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; background: white; border-radius: 10px; margin-bottom: 5px;";
+
+        // Prioridad de imagen: Base64 (foto) > URL Catálogo (fotoUrl) > Default
+        let srcImg = mat.foto || mat.fotoUrl || 'img/default.png';
 
         li.innerHTML = `
-            <div style="flex: 1; margin-left: 10px;"> 
-            ${imgHTML}
-                <strong>${mat.cantidad}x ${mat.nombre}</strong>
-                <br><small style="color: #666;">$${mat.costo.toFixed(2)} c/u</small>
+            <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
+                <img src="${srcImg}" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;">
+                <div style="display: flex; flex-direction: column;">
+                    <span style="font-weight: bold; color: #333;">${mat.nombre}</span>
+                    <span style="font-size: 12px; color: #666;">$${mat.costo.toFixed(2)} c/u</span>
+                </div>
             </div>
-            <div style="font-weight: bold; color: #00938f; margin-right: 10px;">
+
+            <div style="display: flex; align-items: center; gap: 10px; margin: 0 15px; background: #f0f0f0; padding: 5px 10px; border-radius: 20px;">
+                <button type="button" onclick="cambiarCant(${index}, -1)" style="border: none; background: none; color: #007aff; font-weight: bold; cursor: pointer;">-</button>
+                <span style="font-weight: bold; min-width: 20px; text-align: center;">${mat.cantidad}</span>
+                <button type="button" onclick="cambiarCant(${index}, 1)" style="border: none; background: none; color: #007aff; font-weight: bold; cursor: pointer;">+</button>
+            </div>
+
+            <div style="font-weight: bold; color: #28a745; min-width: 80px; text-align: right;">
                 $${subtotalFila.toFixed(2)}
             </div>
-            <button class="btn-eliminar" onclick="eliminarMaterial(${mat.id})" style="background:none;border:none;color:red;cursor:pointer;">❌</button>
+
+            <button type="button" onclick="eliminarMaterial(${index})" style="border: none; background: none; cursor: pointer; margin-left: 10px;">🗑️</button>
         `;
         listaUI.appendChild(li);
     });
 
-    if (inputSubtotal) inputSubtotal.value = sumaTotalNota.toFixed(2);
-    if (inputTotal) inputTotal.value = sumaTotalNota.toFixed(2);
-    
-    if (typeof calcularSaldo === "function") calcularSaldo();
+    document.getElementById("levSubtotal").value = sumaTotalNota.toFixed(2);
+    document.getElementById("levTotal").value = sumaTotalNota.toFixed(2);
+    if (typeof calcularSaldo === 'function') calcularSaldo();
 }
+
+// Función para los botones +/-
+window.cambiarCant = function(index, delta) {
+    const mat = levMaterialesList[index];
+    if (!mat) return;
+    
+    let nuevaCant = mat.cantidad + delta;
+    if (nuevaCant < 1) return; // Mínimo 1
+
+    // Opcional: Validar contra stock del catálogo si existe idOriginal
+    if (mat.idOriginal) {
+        const prod = catalogoProductos.find(p => p.id === mat.idOriginal);
+        if (prod && prod.stock !== null && nuevaCant > prod.stock) {
+            alert("No hay suficiente stock en inventario.");
+            return;
+        }
+    }
+
+    mat.cantidad = nuevaCant;
+    renderizarListaYTotales();
+};
 
 
 
@@ -1618,32 +1642,36 @@ function abrirCatalogoParaSeleccion() {
 
 // Esta es la función que llamaremos cuando el usuario dé clic en el "+" del catálogo
 function agregarAlPedidoDesdeCatalogo(id) {
-    const producto = catalogoProductos.find(p => p.id === id);
+    const idNumerico = parseInt(id);
+    const producto = catalogoProductos.find(p => p.id === idNumerico);
     if (!producto) return;
 
-    if (modoSeleccionCatalogo) {
-        // Creamos el objeto con el formato que espera tu lista de materiales
-        const nuevoMaterial = {
-            nombre: producto.nombre,
-            cantidad: 1,
-            costo: parseFloat(producto.costo),
-            foto: producto.fotoUrl // Pasamos la URL de Cloudinary
-        };
-
-        // Lo añadimos a tu array global de materiales de la cuenta actual
-        levMaterialesList.push(nuevoMaterial);
-        
-        // Refrescamos la tablita de materiales del modal de cuenta
-        renderizarListaYTotales(); 
-        
-        // Cerramos el catálogo para seguir con la cuenta
-        cerrarModalCatalogo();
-        
-        alert(`Añadido: ${producto.nombre}`);
-    } else {
-        // Aquí podrías poner lógica por si quieres usar el "+" en el modo administrador
-        alert("Producto: " + producto.nombre);
+    // Si ya existe en la lista, solo sumamos 1 a la cantidad
+    const existente = levMaterialesList.find(m => m.idOriginal === producto.id);
+    if (existente) {
+        if (producto.stock !== null && existente.cantidad >= producto.stock) {
+            alert(`Amigue, solo hay ${producto.stock} disponibles.`);
+            return;
+        }
+        existente.cantidad++;
+        renderizarListaYTotales();
+        return;
     }
+
+    // Si es nuevo en la nota
+    const nuevoMaterial = {
+        id: Date.now(),
+        idOriginal: producto.id, // 👈 Importante para el descuento de inventario
+        nombre: producto.nombre,
+        cantidad: 1,
+        costo: parseFloat(producto.costo),
+        unidad: producto.unidad || 'Pza',
+        fotoUrl: producto.fotoUrl || null, // 👈 Heredamos la URL de Cloudinary
+        foto: null // No es un base64 nuevo
+    };
+
+    levMaterialesList.push(nuevoMaterial);
+    renderizarListaYTotales();
 }
 
 function cerrarModalCatalogo() {

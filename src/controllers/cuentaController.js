@@ -1,6 +1,8 @@
 // src/controllers/cuentaController.js
-const { Cuenta, CuentaMaterial, Usuario } = require('../models/cuentasRelations');
+const { Cuenta, CuentaMaterial, Usuario, Producto } = require('../models/cuentasRelations');
 const cloudinary = require('cloudinary').v2;
+const sequelize = require('../config/db'); // Para la transacción
+
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -29,6 +31,8 @@ exports.obtenerCuentaPorIdPublica = async (req, res) => {
 };
 
 exports.crearCuenta = async (req, res) => {
+    const t = await sequelize.transaction(); // 👈 Iniciamos transacción
+
     try {
         // 1. PRIMERO extraemos los datos del req.body
         const { 
@@ -55,8 +59,8 @@ exports.crearCuenta = async (req, res) => {
         if (saldoCalculado <= 0) {
             estatusInicial = 'Pagado';
         }
-
-        // 3. Crear la cabecera de la cuenta
+        
+        // ... (Tu lógica de creación de la cuenta base igual)
         const nuevaCuenta = await Cuenta.create({
             numeroNota,
             clienteNombre,
@@ -71,51 +75,49 @@ exports.crearCuenta = async (req, res) => {
             estatus: estatusInicial,
             usuarioId: req.user.id,
             fecha_anticipo: fecha_anticipo || new Date()
-        });
+            // ... campos de la cuenta
+        }, { transaction: t });
 
-        // 4. Procesar Materiales y fotos
-  if (materiales && materiales.length > 0) {
+        if (materiales && materiales.length > 0) {
             const materialesProcesados = await Promise.all(materiales.map(async (mat) => {
-                let urlCloudinary = null;
+                let urlFinal = mat.fotoUrl || null;
 
-                // 🚀 CAMBIO CLAVE: Checar si 'foto' trae el Base64
+                // 1. Si hay foto nueva (Base64), subirla
                 if (mat.foto && mat.foto.startsWith('data:image')) {
-                    try {
-                        const uploadRes = await cloudinary.uploader.upload(mat.foto, {
-                        folder: "cuentas_aetech"
-                    });
-                    urlCloudinary = uploadRes.secure_url;
-                        //urlFotoCloudinary = resCloud.secure_url;
-                        console.log("✅ Foto de material subida:", urlCloudinary);
-                    } catch (err) {
-                        console.error("❌ Error en Cloudinary para material:", err);
+                    const uploadRes = await cloudinary.uploader.upload(mat.foto, { folder: "cuentas_aetech" });
+                    urlFinal = uploadRes.secure_url;
+                }
+
+                // 2. LÓGICA DE INVENTARIO (Descontar piezas)
+                if (mat.idOriginal) {
+                    const producto = await Producto.findByPk(mat.idOriginal, { transaction: t });
+                    if (producto && producto.stock !== null) {
+                        if (producto.stock < mat.cantidad) {
+                            throw new Error(`Stock insuficiente para: ${producto.nombre}`);
+                        }
+                        producto.stock -= mat.cantidad; // 👈 Restamos del inventario
+                        await producto.save({ transaction: t });
                     }
                 }
 
                 return {
                     nombre: mat.nombre,
-                    cantidad: mat.cantidad || 1,
+                    cantidad: mat.cantidad,
                     costo: mat.costo,
-                    unidad: mat.unidad || 'Pza',
-                    fotoUrl: urlCloudinary, // Se guarda la URL final
+                    fotoUrl: urlFinal, // Aquí se guarda la heredada o la nueva
                     cuentaId: nuevaCuenta.id
                 };
             }));
 
-            await CuentaMaterial.bulkCreate(materialesProcesados);
+            await CuentaMaterial.bulkCreate(materialesProcesados, { transaction: t });
         }
 
-        res.status(201).json({
-            message: "Cuenta registrada exitosamente",
-            id: nuevaCuenta.id
-        });
+        await t.commit(); // 👈 Si todo bien, guardamos cambios
+        res.status(201).json({ message: "Venta realizada y stock actualizado" });
 
     } catch (error) {
-        console.error('ERROR CRÍTICO:', error);
-        res.status(500).json({ 
-            message: "Error al guardar la cuenta",
-            error: error.message 
-        });
+        await t.rollback(); // 👈 Si algo falla, deshacemos todo
+        res.status(500).json({ message: error.message });
     }
 };
 
