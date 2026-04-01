@@ -1048,34 +1048,34 @@ let materialesEditList = []; // Array exclusivo para edición
    ========================================== */
 
 
-// 2. Esta es la función que manda llamar tu HTML con onchange="procesarFotoEdit(this)"
+// 1. CARGAR DATOS EN EL MODAL (Incluye IVA, Factura y Clientes) edicion de cuenta optimizado 
+
+// --- FUNCIONES DE APOYO PARA EDICIÓN ---
+
 function procesarFotoEdit(input) {
-    const file = input.files[0];
-    if (!file) return;
+    if (!input.files || !input.files[0]) return;
 
     const reader = new FileReader();
     reader.onload = function(e) {
-        // ✅ Aquí guardamos el Base64 que el controlador subirá a Cloudinary
+        // Usamos la variable que YA tienes declarada
         tempFotoEdit = e.target.result; 
         
-        // Mostramos la miniatura usando los IDs que ya tienes en tu HTML
         const previewDiv = document.getElementById("previewFotoEdit");
         const imgPreview = document.getElementById("imgPreviewEdit");
         
-        if (previewDiv && imgPreview) {
-            imgPreview.src = e.target.result;
-            previewDiv.style.display = "block";
-        }
+        if (imgPreview) imgPreview.src = e.target.result;
+        if (previewDiv) previewDiv.style.display = "block";
     };
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(input.files[0]);
 }
 
-// 3. Tu función agregarMaterialEdit (se queda casi igual, solo verifica la limpieza)
 function agregarMaterialEdit() {
     const select = document.getElementById("edit-levInsumo");
     const campoExtra = document.getElementById("edit-levInsumoExtra");
     const costoInput = document.getElementById("edit-prodCosto");
     const cantInput = document.getElementById("edit-prodCant");
+
+    if (!select || !costoInput || !cantInput) return;
 
     let nombre = (select.value === "Otro") ? campoExtra.value : select.value;
     const costo = parseFloat(costoInput.value) || 0;
@@ -1085,29 +1085,39 @@ function agregarMaterialEdit() {
         return alert("Selecciona un producto y ponle precio.");
     }
 
+    // Agregamos a la lista que YA tienes declarada
     materialesEditList.push({
         nombre: nombre,
         costo: costo,
         cantidad: cant,
-        foto: tempFotoEdit, // <--- Aquí va el Base64 capturado arriba
+        foto: tempFotoEdit, 
         fotoUrl: null
     });
 
-    // --- LIMPIEZA DESPUÉS DE AGREGAR ---
+    // --- LIMPIEZA SEGURA ---
     select.value = "";
-    campoExtra.value = "";
-    campoExtra.style.display = "none";
+    if (campoExtra) {
+        campoExtra.value = "";
+        campoExtra.style.display = "none";
+    }
     costoInput.value = "";
     cantInput.value = "1";
     
-    // Limpiamos la variable y ocultamos la preview del HTML
     tempFotoEdit = null; 
-    document.getElementById("previewFotoEdit").style.display = "none";
-    document.getElementById("edit-prodFoto").value = ""; // Resetea el input de archivo
+    
+    const pView = document.getElementById("previewFotoEdit");
+    if (pView) pView.style.display = "none";
+    
+    const fInput = document.getElementById("edit-prodFoto");
+    if (fInput) fInput.value = ""; 
 
-    renderMaterialesEdit();
-    if(typeof calcularSaldoEdit === 'function') calcularSaldoEdit(); 
+    // Solo ejecuta si la función existe
+    if (typeof renderMaterialesEdit === 'function') {
+        renderMaterialesEdit();
+    }
 }
+
+
 
 
 
@@ -1139,42 +1149,43 @@ async function cargarClientesSelectEdit(clienteActual) {
 
 
 // 3. AGREGAR MATERIAL (Con lógica de Select de Insumos)
-function agregarMaterialEdit() {
-    const select = document.getElementById("edit-levInsumo");
-    const campoExtra = document.getElementById("edit-levInsumoExtra");
-    const costoInput = document.getElementById("edit-prodCosto");
-    const cantInput = document.getElementById("edit-prodCant");
+//function agregarMaterialEdit() {
+  //  const select = document.getElementById("edit-levInsumo");
+    //const campoExtra = document.getElementById("edit-levInsumoExtra");
+    //const costoInput = document.getElementById("edit-prodCosto");
+    //const cantInput = document.getElementById("edit-prodCant");
 
-    let nombre = (select.value === "Otro") ? campoExtra.value : select.value;
+    //let nombre = (select.value === "Otro") ? campoExtra.value : select.value;
     
     // 🟢 FORZAMOS NÚMEROS AQUÍ
-    const costo = parseFloat(costoInput.value) || 0;
-    const cant = parseInt(cantInput.value) || 1; 
+    //const costo = parseFloat(costoInput.value) || 0;
+    //const cant = parseInt(cantInput.value) || 1; 
 
-    if (!nombre || costo <= 0) {
-        return alert("Selecciona un producto y ponle precio.");
-    }
+    //if (!nombre || costo <= 0) {
+     //   return alert("Selecciona un producto y ponle precio.");
+   // }
 
     // 🟢 IMPORTANTE: Usamos la lista de edición
-    materialesEditList.push({
-        nombre: nombre,
-        costo: costo,
-        cantidad: cant, // <--- Aquí ya va como número
-        foto: tempFotoEdit,
-        fotoUrl: null
-    });
+    //materialesEditList.push({
+        //nombre: nombre,
+        //costo: costo,
+        //cantidad: cant,// <--- Aquí ya va como número
+        //foto: tempFotoEdit,
+      
+      //  fotoUrl: null
+    //});
 
     // Limpiar campos
-    select.value = "";
-    campoExtra.value = "";
-    campoExtra.style.display = "none";
-    costoInput.value = "";
-    cantInput.value = "1";
-    document.getElementById("previewFotoEdit").style.display = "none";
-    tempFotoEdit = null;
+    //select.value = "";
+    //campoExtra.value = "";
+    //campoExtra.style.display = "none";
+   // costoInput.value = "";
+    //cantInput.value = "1";
+    //document.getElementById("previewFotoEdit").style.display = "none";
+    //tempFotoEdit = null;
 
-    renderMaterialesEdit();
-}
+  //  renderMaterialesEdit();
+//}
 
 
 
