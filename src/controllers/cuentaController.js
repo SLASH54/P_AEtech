@@ -177,7 +177,7 @@ exports.eliminarCuenta = async (req, res) => {
 
 
 exports.editarCuenta = async (req, res) => {
-    // 1. Iniciamos la transacción para que todo sea "todo o nada"
+    // 1. Iniciamos la transacción (Importante para que sea "todo o nada")
     const t = await sequelize.transaction();
 
     try {
@@ -187,16 +187,16 @@ exports.editarCuenta = async (req, res) => {
             ivaPorcentaje, factura, folioFactura, materiales, fecha_anticipo 
         } = req.body;
 
-        // Validación de ID
         if (!id || id === 'undefined') {
             return res.status(400).json({ message: "ID de cuenta no válido" });
         }
 
-        // 2. BUSCAR LA CUENTA (Esto faltaba en tu código)
-        const cuenta = await Cuenta.findByPk(id, { transaction: t });
-        if (!cuenta) {
+        // 2. BUSCAR LA CUENTA (Esto es lo que causaba el error de "cuenta is not defined")
+        const cuentaEncontrada = await Cuenta.findByPk(id, { transaction: t });
+
+        if (!cuentaEncontrada) {
             await t.rollback();
-            return res.status(404).json({ message: "Cuenta no encontrada" });
+            return res.status(404).json({ message: "No se encontró la nota en la base de datos" });
         }
 
         // 3. Recalcular saldo y estatus
@@ -205,8 +205,8 @@ exports.editarCuenta = async (req, res) => {
         const saldoCalculado = nTotal - nAnticipo;
         const nuevoEstatus = saldoCalculado <= 0 ? 'Pagado' : 'Pendiente';
 
-        // 4. Actualizar cabecera de la cuenta
-        await cuenta.update({
+        // 4. Actualizar cabecera usando la instancia que encontramos
+        await cuentaEncontrada.update({
             clienteNombre,
             subtotal: parseFloat(subtotal) || 0,
             total: nTotal,
@@ -220,33 +220,17 @@ exports.editarCuenta = async (req, res) => {
             fecha_anticipo: (fecha_anticipo && fecha_anticipo !== "") ? fecha_anticipo : null
         }, { transaction: t });
 
-        // 5. MANEJO DE MATERIALES E INVENTARIO
-        // Primero, borramos los materiales anteriores vinculados a esta cuenta
-        // (Nota: Si quieres ser muy pro, aquí podrías devolver el stock antes de borrar, 
-        // pero para esta versión vamos a recrearlos)
+        // 5. Manejar materiales (Borrar y recrear con transacción)
         await CuentaMaterial.destroy({ where: { cuentaId: id }, transaction: t });
 
         if (materiales && materiales.length > 0) {
             const materialesProcesados = await Promise.all(materiales.map(async (mat) => {
-                let urlFinal = mat.fotoUrl; // Mantiene la de Cloudinary si no hay cambio
+                let urlFinal = mat.fotoUrl;
 
-                // 🔥 SUBIR A CLOUDINARY SI ES NUEVA (Base64)
+                // Si la foto es nueva (Base64), subirla a Cloudinary
                 if (mat.foto && mat.foto.startsWith('data:image')) {
-                    const uploadRes = await cloudinary.uploader.upload(mat.foto, { 
-                        folder: "cuentas_aetech" 
-                    });
+                    const uploadRes = await cloudinary.uploader.upload(mat.foto, { folder: "cuentas_aetech" });
                     urlFinal = uploadRes.secure_url;
-                }
-
-                // 📦 LÓGICA DE STOCK (Opcional en edición)
-                if (mat.idOriginal) {
-                    const producto = await Producto.findByPk(mat.idOriginal, { transaction: t });
-                    if (producto && producto.stock !== null) {
-                        // Aquí podrías restar/sumar la diferencia, por ahora descontamos la cantidad definida
-                        // Ten cuidado: si editas muchas veces, podrías agotar el stock si no devuelves el anterior
-                        producto.stock -= (parseFloat(mat.cantidad) || 0);
-                        await producto.save({ transaction: t });
-                    }
                 }
 
                 return {
@@ -257,17 +241,16 @@ exports.editarCuenta = async (req, res) => {
                     cuentaId: id
                 };
             }));
-
-            // Creamos los nuevos materiales ya procesados
+            
             await CuentaMaterial.bulkCreate(materialesProcesados, { transaction: t });
         }
 
-        // 6. SI TODO SALIÓ BIEN, GUARDAMOS CAMBIOS DEFINITIVOS
+        // 6. Si llegamos aquí sin errores, guardamos todo permanentemente
         await t.commit();
-        res.json({ message: "Cuenta actualizada correctamente y stock sincronizado" });
+        res.json({ message: "Cuenta actualizada correctamente" });
 
     } catch (error) {
-        // 7. SI ALGO FALLA, CANCELAMOS TODO (No se borran materiales ni se actualiza nada)
+        // 7. Si algo falla, deshacemos cualquier cambio para no dejar datos corruptos
         if (t) await t.rollback();
         console.error("❌ Error en editarCuenta:", error);
         res.status(500).json({ message: "Error al editar la cuenta: " + error.message });
