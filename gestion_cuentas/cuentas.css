@@ -1356,13 +1356,14 @@ button.btn.btn-secondary {
   color: white;
 }
 
-/* Inputs y Formulario */
-.form-add {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-  margin-bottom: 25px;
-}
+
+
+
+
+
+
+
+
 
 input[type="text"], input[type="number"] {
   background: rgba(255, 255, 255, 0.9);
