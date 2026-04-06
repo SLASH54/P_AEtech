@@ -1,6 +1,7 @@
 const Cuenta = require('./Cuenta');
 const CuentaMaterial = require('./CuentaMaterial');
 const Usuario = require('./Usuario');
+const Producto = require('./Producto');
 
 // Relación: Una cuenta tiene muchos materiales
 Cuenta.hasMany(CuentaMaterial, { 
@@ -25,4 +26,4 @@ Cuenta.belongsTo(Usuario, {
     as: 'usuario'
 });
 
-module.exports = { Cuenta, CuentaMaterial, Usuario };
+module.exports = { Cuenta, CuentaMaterial, Usuario, Producto };
