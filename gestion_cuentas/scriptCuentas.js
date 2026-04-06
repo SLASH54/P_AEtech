@@ -1050,155 +1050,32 @@ let materialesEditList = []; // Array exclusivo para edición
    SISTEMA DE EDICIÓN UNIFICADO (AEtech)
    ========================================== */
 
-// 1. CARGAR DATOS EN EL MODAL (Incluye IVA, Factura y Clientes)
+/* ==========================================
+   SISTEMA DE EDICIÓN UNIFICADO (AEtech)
+   ========================================== */
+
 // 1. CARGAR DATOS EN EL MODAL (Incluye IVA, Factura y Clientes)
 async function prepararEdicion(id) {
 }
 
+
 // 2. FUNCIÓN PARA CARGAR CLIENTES DESDE LA API (La que faltaba)
 async function cargarClientesSelectEdit(clienteActual) {
-    const select = document.getElementById("edit-clienteSelect");
-    try {
-        const res = await fetch(`${API_BASE_URL}/clientes`, {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` }
-        });
-        const clientes = await res.json();
-        select.innerHTML = ""; // Limpiar
-        clientes.forEach(c => {
-            const opt = document.createElement("option");
-            opt.value = c.nombre;
-            opt.text = c.nombre;
-            if(c.nombre === clienteActual) opt.selected = true;
-            select.appendChild(opt);
-        });
-    } catch(e) { 
-        console.error("Error cargando clientes en edición:", e); 
-    }
 }
 
 // 3. AGREGAR MATERIAL (Con lógica de Select de Insumos)
-function agregarMaterialEdit() {
-    const select = document.getElementById("edit-levInsumo");
-    const campoExtra = document.getElementById("edit-levInsumoExtra");
-    const costoInput = document.getElementById("edit-prodCosto");
-    const cantInput = document.getElementById("edit-prodCant");
-
-    let nombre = (select.value === "Otro") ? campoExtra.value : select.value;
-    
-    // 🟢 FORZAMOS NÚMEROS AQUÍ
-    const costo = parseFloat(costoInput.value) || 0;
-    const cant = parseInt(cantInput.value) || 1; 
-
-    if (!nombre || costo <= 0) {
-        return alert("Selecciona un producto y ponle precio.");
-    }
-
-    // 🟢 IMPORTANTE: Usamos la lista de edición
-    materialesEditList.push({
-        nombre: nombre,
-        costo: costo,
-        cantidad: cant, // <--- Aquí ya va como número
-        foto: tempFotoEdit,
-        fotoUrl: null
-    });
-
-    // Limpiar campos
-    select.value = "";
-    campoExtra.value = "";
-    campoExtra.style.display = "none";
-    costoInput.value = "";
-    cantInput.value = "1";
-    document.getElementById("previewFotoEdit").style.display = "none";
-    tempFotoEdit = null;
-
-    renderMaterialesEdit();
+function renderMaterialesEdit() {
 }
-
 
 
 // 4. RENDERIZAR TABLA Y CALCULAR
 function renderMaterialesEdit() {
-    const tbody = document.querySelector("#tablaMaterialesEdit tbody");
-    if (!tbody) return;
-    tbody.innerHTML = "";
-    
-    materialesEditList.forEach((item, index) => {
-        const img = item.foto || item.fotoUrl || 'img/logoAEtech.png';
-        
-        // 🟢 CÁLCULO MATEMÁTICO REAL
-        const cantidad = Number(item.cantidad) || 0;
-        const costoUnitario = Number(item.costo) || 0;
-        const totalRenglon = (cantidad * costoUnitario).toFixed(2);
-
-        tbody.innerHTML += `
-            <tr style="background: white;">
-                <td style="text-align:center;">
-                    <img src="${img}" style="width:45px; height:45px; border-radius:8px; object-fit:cover;">
-                </td>
-                <td style="color:black;">${item.nombre}</td>
-                <td style="color:black; text-align:center;">${cantidad}</td>
-                <td style="color:black; text-align:right;">$${costoUnitario.toFixed(2)}</td>
-                <td style="color:#00938f; text-align:right; font-weight:bold;">$${totalRenglon}</td>
-                <td style="text-align:center;">
-                    <button type="button" onclick="materialesEditList.splice(${index},1); renderMaterialesEdit();" 
-                        style="background:none; border:none; color:red; cursor:pointer; font-size:1.2rem;">✕</button>
-                </td>
-            </tr>
-        `;
-    });
-    calcularSaldoEdit();
 }
-
 
 // 5. CÁLCULOS DE IVA Y SALDO (Actualizado para el orden: Total, Anticipo, Saldo)
 function calcularSaldoEdit() {
-    let totalMateriales = 0;
-    
-    // 🟢 Sumamos multiplicando cantidad por costo
-    materialesEditList.forEach(item => {
-        totalMateriales += (item.cantidad * item.costo);
-    });
-
-    const chkIva = document.getElementById("chkIvaEdit");
-    const ivaPorcentajeInput = document.getElementById("levIvaPorcentajeEdit");
-    
-    const llevaIva = chkIva ? chkIva.checked : false;
-    const porcentajeIva = ivaPorcentajeInput ? (parseFloat(ivaPorcentajeInput.value) || 0) : 0;
-    
-    let montoIva = llevaIva ? (totalMateriales * (porcentajeIva / 100)) : 0;
-    let totalFinal = totalMateriales + montoIva;
-
-    const anticipo = parseFloat(document.getElementById("levAnticipoEdit").value) || 0;
-    const saldo = totalFinal - anticipo;
-
-    // Actualizar Inputs en pantalla
-    document.getElementById("levSubtotalEdit").value = totalMateriales.toFixed(2);
-    document.getElementById("levIVAEdit").value = montoIva.toFixed(2);
-    document.getElementById("levTotalEdit").value = totalFinal.toFixed(2);
-    
-    const inputSaldo = document.getElementById("levSaldoEdit");
-    if (inputSaldo) {
-        inputSaldo.value = saldo.toFixed(2);
-        
-        // Colores del saldo
-        const badgeEdit = document.getElementById('editEstatusBadge');
-        if (saldo <= 0) {
-            inputSaldo.style.color = "#28a745"; // Verde
-            if(badgeEdit) {
-                badgeEdit.innerText = "PAGADO";
-                badgeEdit.className = "badge-status-tabla status-pagado";
-            }
-        } else {
-            inputSaldo.style.color = "#ff3b30"; // Rojo
-            if(badgeEdit) {
-                badgeEdit.innerText = "PENDIENTE";
-                badgeEdit.className = "badge-status-tabla status-pendiente";
-            }
-        }
-    }
 }
 
-// 6. GUARDAR CAMBIOS (PUT)
 // 6. GUARDAR CAMBIOS (PUT)
 async function actualizarCuentaFinal() {
 }
