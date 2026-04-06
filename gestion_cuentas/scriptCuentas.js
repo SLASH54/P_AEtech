@@ -1119,21 +1119,22 @@ async function prepararEdicion(id) {
 
 
 // Esta función se dispara cuando eliges una imagen en el modal de edición
-// Variable temporal para saber qué material estamos editando dentro del modal
-let indiceMaterialEditando = null;
-
 function procesarFotoEdit(event) {
     const file = event.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onload = function(e) {
-        const base64 = e.target.result;
-        // Guardamos el base64 directamente en el objeto del material
-        if (indiceMaterialEditando !== null) {
-            materialesEditList[indiceMaterialEditando].foto = base64;
-            renderMaterialesEdit(); // Refrescamos la mini tablita del modal
+        // Guardamos el Base64 en una variable temporal
+        tempFotoEdit = e.target.result;
+        
+        // Opcional: Mostrar una pequeña vista previa en el modal para saber que sí se cargó
+        const preview = document.getElementById("imgPreviewEdit");
+        if(preview) {
+            preview.src = e.target.result;
+            preview.style.display = "block";
         }
+        console.log("📸 Foto lista para actualizar");
     };
     reader.readAsDataURL(file);
 }
