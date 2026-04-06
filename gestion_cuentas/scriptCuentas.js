@@ -1611,15 +1611,20 @@ function prepararEdicionProducto(id) {
     const preview = document.getElementById('imgPreviewCatalogo');
     const container = document.getElementById('previewCatalogoContainer');
 
-    if (producto.fotoUrl) {
-        preview.src = producto.fotoUrl;
+    if (prod.fotoUrl) {
+        preview.src = prod.fotoUrl;
         container.style.display = 'block';
     } else {
         container.style.display = 'none';
     }
     
     // Cambiamos el texto del botón para que el usuario sepa que está editando
-    document.getElementById('btnGuardarCatalogo').innerHTML = '<span class="glass-text">Actualizar Producto</span>';
+    //document.getElementById('btnGuardarCatalogo').innerHTML = '<span class="glass-text">Actualizar Producto</span>';
+    
+    // Cambiamos el texto del botón para que el usuario sepa que está editando
+    const btnGuardar = document.querySelector("#modalCatalogo .btn-ver");
+    btnGuardar.innerText = "Actualizar Producto";
+    btnGuardar.style.background = "#ffcc00";
 }
 
 
