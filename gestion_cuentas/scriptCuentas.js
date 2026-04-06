@@ -1052,6 +1052,65 @@ let materialesEditList = []; // Array exclusivo para edición
 
 // 1. CARGAR DATOS EN EL MODAL (Incluye IVA, Factura y Clientes)
 async function prepararEdicion(id) {
+    console.log("Intentando editar cuenta:", id);
+    try {
+        // Mostramos un loader si tienes uno, o simplemente empezamos el fetch
+        const response = await fetch(`${API_BASE_URL}/cuentas/${id}`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("accessToken")}`
+            }
+        });
+
+        if (!response.ok) throw new Error("No se pudo obtener la información de la cuenta");
+
+        const cuenta = await response.json();
+        editandoId = id; // Guardamos el ID en la global para actualizar después
+
+        // --- LLENAR CAMPOS DEL MODAL ---
+        document.getElementById("edit-clienteSelect").value = cuenta.clienteNombre || "";
+        document.getElementById("levSubtotalEdit").value = cuenta.subtotal || 0;
+        document.getElementById("levTotalEdit").value = cuenta.total || 0;
+        document.getElementById("levAnticipoEdit").value = cuenta.anticipo || 0;
+        
+        // IVA y Factura
+        document.getElementById("chkIvaEdit").checked = cuenta.iva || false;
+        document.getElementById("levIvaPorcentajeEdit").value = cuenta.ivaPorcentaje || 16;
+        document.getElementById("chkFacturaEdit").checked = cuenta.factura || false;
+        document.getElementById("levFolioFacturaEdit").value = cuenta.folioFactura || "";
+        
+        // Fecha (formato YYYY-MM-DD para el input date)
+        if (cuenta.fecha_anticipo) {
+            document.getElementById("levFechaAnticipoEdit").value = cuenta.fecha_anticipo.split('T')[0];
+        }
+
+        // --- CARGAR MATERIALES ---
+        // Mapeamos los materiales que vienen del servidor a nuestra lista local de edición
+        materialesEditList = (cuenta.materiales || []).map(m => ({
+            id: m.id,
+            idOriginal: m.productoId || null, // Para el stock
+            nombre: m.nombre,
+            cantidad: m.cantidad,
+            costo: parseFloat(m.costo),
+            fotoUrl: m.fotoUrl || null,
+            foto: null
+        }));
+
+        // Dibujamos la tabla de materiales en el modal
+        renderMaterialesEdit();
+
+        // --- ¡LA MAGIA! ABRIR EL MODAL ---
+        const modal = document.getElementById("modalEditarCuenta");
+        if (modal) {
+            modal.style.display = "flex"; 
+            console.log("✅ Modal abierto con éxito");
+        } else {
+            alert("Error: No se encontró el modal con ID 'modalEditarCuenta'");
+        }
+
+    } catch (error) {
+        console.error("Error al preparar edición:", error);
+        alert("Amiko, hubo un error al cargar los datos: " + error.message);
+    }
 }
 
 
