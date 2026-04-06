@@ -29,8 +29,14 @@
                 </select>
 
                 <input type="file" id="catFoto" accept="image/*">
-                <button onclick="guardarProductoEnCatalogo()" class="btn-ver" style="width: 100%; background: #00938f;">
+                <div id="previewCatalogoContainer" style="text-align: center; margin-bottom: 10px; display: none;">
+                    <img id="imgPreviewCatalogo" src="" style="max-width: 100px; border-radius: 8px; border: 1px solid #ddd;">
+                </div>
+                <button onclick="guardarProductoEnCatalogo()" id="btnGuardarCatalogo" class="btn-ver" style="width: 100%; background: #00938f;">
                     Añadir al Inventario
+                </button>
+                <button type="button" onclick="cancelarEdicionCatalogo()" class="btn-cancelar" style="background: #ff3b30; margin-top: 5px;">
+                    Cancelar Edición
                 </button>
             </div>
 

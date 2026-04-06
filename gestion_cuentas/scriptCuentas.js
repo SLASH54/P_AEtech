@@ -1607,11 +1607,19 @@ function prepararEdicionProducto(id) {
     document.getElementById("catCosto").value = prod.costo;
     document.getElementById("catStock").value = prod.stock
     document.getElementById("catClasificacion").value = prod.clasificacion
+
+    const preview = document.getElementById('imgPreviewCatalogo');
+    const container = document.getElementById('previewCatalogoContainer');
+
+    if (producto.fotoUrl) {
+        preview.src = producto.fotoUrl;
+        container.style.display = 'block';
+    } else {
+        container.style.display = 'none';
+    }
     
     // Cambiamos el texto del botón para que el usuario sepa que está editando
-    const btnGuardar = document.querySelector("#modalCatalogo .btn-ver");
-    btnGuardar.innerText = "Actualizar Producto";
-    btnGuardar.style.background = "#ffcc00";
+    document.getElementById('btnGuardarCatalogo').innerHTML = '<span class="glass-text">Actualizar Producto</span>';
 }
 
 
@@ -1631,6 +1639,24 @@ async function eliminarProductoDelCatalogo(id) {
     } catch (err) {
         console.error(err);
     }
+}
+
+function cancelarEdicionCatalogo() {
+    editandoProductoId = null; // 👈 Esto es lo más importante
+    
+    // Limpiamos el formulario
+    document.getElementById('catNombre').value = "";
+    document.getElementById('catCosto').value = "";
+    document.getElementById('catStock').value = "";
+    document.getElementById('catClasificacion').value = "Material";
+    
+    // Ocultamos la preview de imagen
+    document.getElementById('previewCatalogoContainer').style.display = 'none';
+    
+    // Regresamos el botón a su estado original
+    document.getElementById('btnGuardarCatalogo').innerHTML = '<span class="glass-text">Agregar al Catálogo</span>';
+    
+    alert("Modo edición cancelado. Ahora puedes agregar un producto nuevo.");
 }
 
 // Variable para saber si el catálogo debe "devolver" el producto a la cuenta
