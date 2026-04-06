@@ -1519,8 +1519,8 @@ async function guardarProductoEnCatalogo() {
         document.getElementById("loader").style.display = "flex";
         
         // Si editandoId tiene valor, es un PUT, si no, es un POST
-        const url = editandoId ? `${API_BASE_URL}/productos/${editandoId}` : `${API_BASE_URL}/productos`;
-        const method = editandoId ? "PUT" : "POST";
+        const url = editandoProductoId ? `${API_BASE_URL}/productos/${editandoProductoId}` : `${API_BASE_URL}/productos`;
+        const method = editandoProductoId ? "PUT" : "POST";
 
         const res = await fetch(url, {
             method: method,
@@ -1529,7 +1529,7 @@ async function guardarProductoEnCatalogo() {
         });
 
         if (res.ok) {
-            alert(editandoId ? "¡Producto actualizado!" : "¡Producto guardado!");
+            alert(editandoProductoId ? "¡Producto actualizado!" : "¡Producto guardado!");
             cargarCatalogo(); // Refresca la lista
         } else {
             alert("Hubo un error al guardar.");
@@ -1550,7 +1550,7 @@ function resetFormularioCatalogo() {
     document.getElementById("catStock").value = "";
     document.getElementById("catClasificacion").value = "Producto"; // Valor por defecto
     document.getElementById("catFoto").value = "";
-    editandoId = null;
+    editandoProductoId = null;
 }
 
 function renderizarCatalogo() {
@@ -1605,6 +1605,8 @@ function prepararEdicionProducto(id) {
     editandoProductoId = id;
     document.getElementById("catNombre").value = prod.nombre;
     document.getElementById("catCosto").value = prod.costo;
+    document.getElementById("catStock").value = prod.stock
+    document.getElementById("catClasificacion").value = prod.clasificacion
     
     // Cambiamos el texto del botón para que el usuario sepa que está editando
     const btnGuardar = document.querySelector("#modalCatalogo .btn-ver");
