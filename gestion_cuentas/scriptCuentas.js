@@ -1118,6 +1118,26 @@ async function prepararEdicion(id) {
 }
 
 
+// Esta función se dispara cuando eliges una imagen en el modal de edición
+// Variable temporal para saber qué material estamos editando dentro del modal
+let indiceMaterialEditando = null;
+
+function procesarFotoEdit(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const base64 = e.target.result;
+        // Guardamos el base64 directamente en el objeto del material
+        if (indiceMaterialEditando !== null) {
+            materialesEditList[indiceMaterialEditando].foto = base64;
+            renderMaterialesEdit(); // Refrescamos la mini tablita del modal
+        }
+    };
+    reader.readAsDataURL(file);
+}
+
 // 2. FUNCIÓN PARA CARGAR CLIENTES DESDE LA API (La que faltaba)
 async function cargarClientesSelectEdit(clienteActual) {
     const select = document.getElementById("edit-clienteSelect");
@@ -1263,38 +1283,36 @@ function calcularSaldoEdit() {
 
 // 6. GUARDAR CAMBIOS (PUT)
 async function actualizarCuentaFinal() {
-    // 1. Verificamos que la lista de edición tenga materiales
     if (materialesEditList.length === 0) return alert("La nota no puede estar vacía amiko");
 
-    // Capturamos los valores de anticipo y fecha para validarlos antes de enviar
     const anticipoInput = document.getElementById("levAnticipoEdit");
     const fechaInput = document.getElementById("levFechaAnticipoEdit");
-    
     const anticipoValor = anticipoInput ? anticipoInput.value : "";
     const fechaValor = fechaInput ? fechaInput.value : "";
-
     const numeroActual = document.getElementById("labelNumeroNotaEdit").innerText;
 
-    // Construimos el objeto de datos
+    // 🟢 MAPEO DINÁMICO: Preparamos los materiales para el envío
+    const materialesParaEnviar = materialesEditList.map(m => ({
+        nombre: m.nombre,
+        cantidad: m.cantidad,
+        costo: m.costo,
+        idOriginal: m.idOriginal, // 👈 Vital para que el backend sepa qué producto descontar
+        fotoUrl: m.fotoUrl,       // La URL que ya existía (si no cambió)
+        foto: m.foto || null      // El Base64 nuevo (si se subió una foto en el modal)
+    }));
+
     const datos = {
         numeroNota: numeroActual,
         clienteNombre: document.getElementById("edit-clienteSelect").value,
-
-        // 🟢 Si el anticipo está vacío, enviamos 0
         anticipo: parseFloat(anticipoValor) || 0, 
-
-        // 🟢 Si la fecha está vacía, enviamos null para que la DB de Render no de error
         fecha_anticipo: (fechaValor && fechaValor !== "") ? fechaValor : null,
-        
         subtotal: parseFloat(document.getElementById("levSubtotalEdit").value) || 0,
         total: parseFloat(document.getElementById("levTotalEdit").value) || 0,
         iva: document.getElementById("chkIvaEdit").checked,
         ivaPorcentaje: parseFloat(document.getElementById("levIvaPorcentajeEdit").value) || 0,
         factura: document.getElementById("chkFacturaEdit").checked,
         folioFactura: document.getElementById("levFolioFacturaEdit").value,
-        
-        // 🟢 Usamos materialesEditList que es la variable de tu sistema de edición
-        materiales: materialesEditList 
+        materiales: materialesParaEnviar // 👈 Enviamos la lista ya procesada
     };
 
     try {
@@ -1310,10 +1328,8 @@ async function actualizarCuentaFinal() {
         });
 
         if (res.ok) {
-            alert("✅ ¡Listo! Nota actualizada en Render.");
+            alert("✅ ¡Listo! Nota e inventario actualizados.");
             cerrarModalEditar();
-            
-            // Recargamos la tabla para ver los cambios
             if (typeof cargarCuentasTabla === "function") {
                 cargarCuentasTabla();
             } else {
