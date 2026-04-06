@@ -1055,7 +1055,7 @@ async function prepararEdicion(id) {
     console.log("Intentando editar cuenta:", id);
     try {
         // Mostramos un loader si tienes uno, o simplemente empezamos el fetch
-        const response = await fetch(`${API_BASE_URL}/cuentas/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/cuentas`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem("accessToken")}`
             }
