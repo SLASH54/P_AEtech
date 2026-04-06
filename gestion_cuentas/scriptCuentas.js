@@ -199,7 +199,7 @@ function renderizarListaYTotales() {
                 $${subtotalFila.toFixed(2)}
             </div>
 
-            <button type="button" onclick="eliminarMaterial(${index})" style="border: none; background: none; cursor: pointer; margin-left: 10px;">🗑️</button>
+            <button class="btn-eliminar" onclick="eliminarMaterial(${mat.id})" style="background:none;border:none;color:red;cursor:pointer;">❌</button>
         `;
         listaUI.appendChild(li);
     });
@@ -1531,6 +1531,7 @@ async function guardarProductoEnCatalogo() {
         if (res.ok) {
             alert(editandoProductoId ? "¡Producto actualizado!" : "¡Producto guardado!");
             cargarCatalogo(); // Refresca la lista
+            resetFormularioCatalogo();
         } else {
             alert("Hubo un error al guardar.");
         }
