@@ -1551,8 +1551,39 @@ function resetFormularioCatalogo() {
     document.getElementById("catStock").value = "";
     document.getElementById("catClasificacion").value = "Producto"; // Valor por defecto
     document.getElementById("catFoto").value = "";
+
+    document.getElementById('previewCatalogoContainer').style.display = 'none';
+    document.getElementById('imgPreviewCatalogo').src = "";
     editandoProductoId = null;
 }
+
+// === PREVISUALIZACIÓN DE IMAGEN AL REGISTRAR NUEVO PRODUCTO ===
+// Escuchamos el cambio en el input de archivo del catálogo
+document.getElementById('catFoto')?.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const preview = document.getElementById('imgPreviewCatalogo');
+    const container = document.getElementById('previewCatalogoContainer');
+
+    // Verificamos que sí sea un archivo de imagen
+    if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+
+        // Cuando el navegador termine de leer el archivo...
+        reader.onload = function(event) {
+            // ...asignamos el resultado Base64 al src de la imagen
+            preview.src = event.target.result;
+            // Y mostramos el contenedor
+            container.style.display = 'block';
+        };
+
+        // Leemos el archivo como una URL Base64 (data:image/...)
+        reader.readAsDataURL(file);
+    } else {
+        // Si no hay archivo o no es imagen, ocultamos la preview
+        container.style.display = 'none';
+        preview.src = "";
+    }
+});
 
 function renderizarCatalogo() {
     const contenedor = document.getElementById("listaProductosCatalogo");
@@ -1655,6 +1686,7 @@ function cancelarEdicionCatalogo() {
     document.getElementById('catCosto').value = "";
     document.getElementById('catStock').value = "";
     document.getElementById('catClasificacion').value = "Material";
+    document.getElementById("catFoto").value = "";
     
     // Ocultamos la preview de imagen
     document.getElementById('previewCatalogoContainer').style.display = 'none';
