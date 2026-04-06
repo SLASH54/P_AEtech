@@ -1051,72 +1051,9 @@ let materialesEditList = []; // Array exclusivo para edición
    ========================================== */
 
 // 1. CARGAR DATOS EN EL MODAL (Incluye IVA, Factura y Clientes)
+// 1. CARGAR DATOS EN EL MODAL (Incluye IVA, Factura y Clientes)
 async function prepararEdicion(id) {
-    try {
-        document.getElementById("loader").style.display = "flex";
-        editandoId = id;
-
-        const response = await fetch(`${API_BASE_URL}/cuentas`, {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` }
-        });
-        const cuentas = await response.json();
-        const cuenta = cuentas.find(c => c.id === id);
-
-        if (!cuenta) {
-            alert("No se encontró la nota");
-            return;
-        }
-
-        // 1. Mostrar el modal primero que nada
-        document.getElementById("modalEditarCuenta").style.display = "flex";
-        
-        await cargarClientesSelectEdit(cuenta.clienteNombre);
-
-        // 2. Lógica de limpieza segura para el número de nota
-        let valorNota = cuenta.numeroNota ? cuenta.numeroNota.toString() : "S/N";
-        
-        // Limpiamos solo si contiene "Nota" o "#", si no, lo dejamos igual
-        let numeroSolo = valorNota.replace(/Nota /g, "").replace(/#/g, "").trim();
-        
-        document.getElementById("labelNumeroNotaEdit").innerText = `Nota #${numeroSolo}`;
-        
-        // 3. Estatus
-        const badgeEdit = document.getElementById('editEstatusBadge');
-        const esPagado = (parseFloat(cuenta.saldo) <= 0 || cuenta.estatus === 'Pagado');
-        
-        if (badgeEdit) {
-            badgeEdit.innerText = esPagado ? "PAGADO" : "PENDIENTE";
-            badgeEdit.className = `badge-status-tabla ${esPagado ? 'status-pagado' : 'status-pendiente'}`;
-        }
-
-        // 4. Llenar campos numéricos
-        document.getElementById("levAnticipoEdit").value = cuenta.anticipo || 0;
-        document.getElementById("chkIvaEdit").checked = cuenta.iva || false;
-        document.getElementById("levIvaPorcentajeEdit").value = cuenta.ivaPorcentaje || 16;
-        document.getElementById("chkFacturaEdit").checked = cuenta.factura || false;
-        document.getElementById("levFolioFacturaEdit").value = cuenta.folioFactura || "";
-        
-        toggleFacturaEdit(); 
-
-        // 5. Cargar materiales
-        materialesEditList = (cuenta.materiales || []).map(m => ({
-            nombre: m.nombre,
-            cantidad: m.cantidad,
-            costo: parseFloat(m.costo) || 0,
-            fotoUrl: m.fotoUrl,
-            foto: null 
-        }));
-
-        renderMaterialesEdit();
-
-    } catch (e) { 
-        console.error("Error al abrir edición:", e);
-        alert("Hubo un error al cargar los datos del modal.");
-    } finally { 
-        document.getElementById("loader").style.display = "none"; 
-    }
 }
-
 
 // 2. FUNCIÓN PARA CARGAR CLIENTES DESDE LA API (La que faltaba)
 async function cargarClientesSelectEdit(clienteActual) {
@@ -1140,76 +1077,16 @@ async function cargarClientesSelectEdit(clienteActual) {
 }
 
 // 3. AGREGAR MATERIAL (Con lógica de Select de Insumos)
+// 3. AGREGAR MATERIAL (Con lógica de Select de Insumos)
 function agregarMaterialEdit() {
-    const select = document.getElementById("edit-levInsumo");
-    const campoExtra = document.getElementById("edit-levInsumoExtra");
-    const costoInput = document.getElementById("edit-prodCosto");
-    const cantInput = document.getElementById("edit-prodCant");
-
-    let nombre = (select.value === "Otro") ? campoExtra.value : select.value;
-    
-    // 🟢 FORZAMOS NÚMEROS AQUÍ
-    const costo = parseFloat(costoInput.value) || 0;
-    const cant = parseInt(cantInput.value) || 1; 
-
-    if (!nombre || costo <= 0) {
-        return alert("Selecciona un producto y ponle precio.");
-    }
-
-    // 🟢 IMPORTANTE: Usamos la lista de edición
-    materialesEditList.push({
-        nombre: nombre,
-        costo: costo,
-        cantidad: cant, // <--- Aquí ya va como número
-        foto: tempFotoEdit,
-        fotoUrl: null
-    });
-
-    // Limpiar campos
-    select.value = "";
-    campoExtra.value = "";
-    campoExtra.style.display = "none";
-    costoInput.value = "";
-    cantInput.value = "1";
-    document.getElementById("previewFotoEdit").style.display = "none";
-    tempFotoEdit = null;
-
-    renderMaterialesEdit();
 }
 
 
 
+
+// 4. RENDERIZAR TABLA Y CALCULAR
 // 4. RENDERIZAR TABLA Y CALCULAR
 function renderMaterialesEdit() {
-    const tbody = document.querySelector("#tablaMaterialesEdit tbody");
-    if (!tbody) return;
-    tbody.innerHTML = "";
-    
-    materialesEditList.forEach((item, index) => {
-        const img = item.foto || item.fotoUrl || 'img/logoAEtech.png';
-        
-        // 🟢 CÁLCULO MATEMÁTICO REAL
-        const cantidad = Number(item.cantidad) || 0;
-        const costoUnitario = Number(item.costo) || 0;
-        const totalRenglon = (cantidad * costoUnitario).toFixed(2);
-
-        tbody.innerHTML += `
-            <tr style="background: white;">
-                <td style="text-align:center;">
-                    <img src="${img}" style="width:45px; height:45px; border-radius:8px; object-fit:cover;">
-                </td>
-                <td style="color:black;">${item.nombre}</td>
-                <td style="color:black; text-align:center;">${cantidad}</td>
-                <td style="color:black; text-align:right;">$${costoUnitario.toFixed(2)}</td>
-                <td style="color:#00938f; text-align:right; font-weight:bold;">$${totalRenglon}</td>
-                <td style="text-align:center;">
-                    <button type="button" onclick="materialesEditList.splice(${index},1); renderMaterialesEdit();" 
-                        style="background:none; border:none; color:red; cursor:pointer; font-size:1.2rem;">✕</button>
-                </td>
-            </tr>
-        `;
-    });
-    calcularSaldoEdit();
 }
 
 
@@ -1262,73 +1139,8 @@ function calcularSaldoEdit() {
 }
 
 // 6. GUARDAR CAMBIOS (PUT)
+// 6. GUARDAR CAMBIOS (PUT)
 async function actualizarCuentaFinal() {
-    // 1. Verificamos que la lista de edición tenga materiales
-    if (materialesEditList.length === 0) return alert("La nota no puede estar vacía amiko");
-
-    // Capturamos los valores de anticipo y fecha para validarlos antes de enviar
-    const anticipoInput = document.getElementById("levAnticipoEdit");
-    const fechaInput = document.getElementById("levFechaAnticipoEdit");
-    
-    const anticipoValor = anticipoInput ? anticipoInput.value : "";
-    const fechaValor = fechaInput ? fechaInput.value : "";
-
-    const numeroActual = document.getElementById("labelNumeroNotaEdit").innerText;
-
-    // Construimos el objeto de datos
-    const datos = {
-        numeroNota: numeroActual,
-        clienteNombre: document.getElementById("edit-clienteSelect").value,
-
-        // 🟢 Si el anticipo está vacío, enviamos 0
-        anticipo: parseFloat(anticipoValor) || 0, 
-
-        // 🟢 Si la fecha está vacía, enviamos null para que la DB de Render no de error
-        fecha_anticipo: (fechaValor && fechaValor !== "") ? fechaValor : null,
-        
-        subtotal: parseFloat(document.getElementById("levSubtotalEdit").value) || 0,
-        total: parseFloat(document.getElementById("levTotalEdit").value) || 0,
-        iva: document.getElementById("chkIvaEdit").checked,
-        ivaPorcentaje: parseFloat(document.getElementById("levIvaPorcentajeEdit").value) || 0,
-        factura: document.getElementById("chkFacturaEdit").checked,
-        folioFactura: document.getElementById("levFolioFacturaEdit").value,
-        
-        // 🟢 Usamos materialesEditList que es la variable de tu sistema de edición
-        materiales: materialesEditList 
-    };
-
-    try {
-        document.getElementById("loader").style.display = "flex";
-        
-        const res = await fetch(`${API_BASE_URL}/cuentas/${editandoId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem("accessToken")}`
-            },
-            body: JSON.stringify(datos)
-        });
-
-        if (res.ok) {
-            alert("✅ ¡Listo! Nota actualizada en Render.");
-            cerrarModalEditar();
-            
-            // Recargamos la tabla para ver los cambios
-            if (typeof cargarCuentasTabla === "function") {
-                cargarCuentasTabla();
-            } else {
-                location.reload();
-            }
-        } else {
-            const errData = await res.json();
-            alert("❌ Error: " + (errData.message || "No se pudo actualizar"));
-        }
-    } catch (e) {
-        console.error("Error en el PUT:", e);
-        alert("Falla de conexión con el servidor");
-    } finally {
-        document.getElementById("loader").style.display = "none";
-    }
 }
 
 // FUNCIONES DE APOYO
