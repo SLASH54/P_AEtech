@@ -4617,52 +4617,11 @@ async function descargarReportePDF(tareaId, incluirMateriales = true, incluirCom
 let dibujando = false;
 let ctx;
 
-
-function abrirGeneradorContrato(nombre = "________________", rfc = "________________") {
-    // 1. Mostrar la sección usando tu lógica de secciones
-    mostrarSeccion('seccion-contratos');
-
-    // 2. Llenar datos automáticos
-    document.getElementById('pdf-nombre-cliente').innerText = nombre;
-    document.getElementById('pdf-rfc-cliente').innerText = rfc;
+function abrirGeneradorContrato() {
+    // 1. Mostrar la sección (asegúrate de que el ID sea correcto)
     
-    const hoy = new Date();
-    const opciones = { day: 'numeric', month: 'long', year: 'numeric' };
-    document.getElementById('pdf-fecha').innerText = hoy.toLocaleDateString('es-MX', opciones);
-
-    // 3. Inicializar el SignaturePad (Lápiz para firmar)
+    
     const canvas = document.getElementById('canvas-firma');
-    // Ajuste de resolución para que no se vea pixelado
-    const ratio = Math.max(window.devicePixelRatio || 1, 1);
-    canvas.width = canvas.offsetWidth * ratio;
-    canvas.height = canvas.offsetHeight * ratio;
-    canvas.getContext("2d").scale(ratio, ratio);
-
-    signaturePad = new SignaturePad(canvas, {
-        penColor: "rgb(0, 0, 128)" // Azul marino tipo pluma
-    });
-}
-
-function limpiarFirmas() {
-    if (signaturePad) signaturePad.clear();
-}
-
-function descargarContratoPDF() {
-    const element = document.getElementById('contrato-pdf');
-    const cliente = document.getElementById('pdf-nombre-cliente').innerText;
-    
-    const opt = {
-        margin: 10,
-        filename: `Contrato_AEtech_${cliente}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 3, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-
-    html2pdf().set(opt).from(element).save();
-} 
-    
-   
     if (!canvas) return;
 
     ctx = canvas.getContext('2d');
@@ -4714,7 +4673,7 @@ function descargarContratoPDF() {
     // Poner fecha actual automáticamente
     const fechaSpan = document.getElementById('pdf-fecha-actual');
     if(fechaSpan) fechaSpan.innerText = new Date().toLocaleDateString();
-
+}
 
 // Función para limpiar el cuadro de firma
 function limpiarFirmas() {
