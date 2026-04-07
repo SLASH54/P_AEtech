@@ -4614,74 +4614,86 @@ async function descargarReportePDF(tareaId, incluirMateriales = true, incluirCom
 
 
 
+//GENERANDO EL CONTRATO
+
+
 let dibujando = false;
-let ctx;
+let contextoFirma;
 
 function abrirGeneradorContrato() {
-    // 1. Mostrar la sección (asegúrate de que el ID sea correcto)
-    
+    // 1. Mostrar la sección (asegúrate de que este ID sea el de tu sección)
+    mostrarSeccion('seccion-contratos');
     
     const canvas = document.getElementById('canvas-firma');
     if (!canvas) return;
 
-    ctx = canvas.getContext('2d');
+    contextoFirma = canvas.getContext('2d');
 
-    // Ajustar resolución del canvas para que no se vea pixelado
+    // Ajustar el tamaño del canvas a como se ve en pantalla
+    // Esto es vital para que el mouse pinte donde debe
     const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width;
-    canvas.height = rect.height;
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
     
-    // Configuración del trazo (Azul AEtech)
-    ctx.strokeStyle = "#000080"; 
-    ctx.lineWidth = 2;
-    ctx.lineCap = "round";
+    // Estilo del trazo (Azul AEtech)
+    contextoFirma.strokeStyle = "#000080"; 
+    contextoFirma.lineWidth = 2;
+    contextoFirma.lineCap = "round";
 
-    // --- EVENTOS DE MOUSE ---
+    // --- LOGICA PARA DIBUJAR (MOUSE) ---
     canvas.onmousedown = (e) => { 
         dibujando = true; 
-        ctx.beginPath(); 
-        ctx.moveTo(e.offsetX, e.offsetY); 
+        contextoFirma.beginPath(); 
+        contextoFirma.moveTo(e.offsetX, e.offsetY); 
     };
+
     canvas.onmousemove = (e) => { 
-        if(dibujando) { 
-            ctx.lineTo(e.offsetX, e.offsetY); 
-            ctx.stroke(); 
+        if (dibujando) { 
+            contextoFirma.lineTo(e.offsetX, e.offsetY); 
+            contextoFirma.stroke(); 
         } 
     };
-    window.addEventListener('mouseup', () => { dibujando = false; });
 
-    // --- EVENTOS DE TOUCH (Móvil) ---
+    canvas.onmouseup = () => { dibujando = false; };
+    canvas.onmouseleave = () => { dibujando = false; };
+
+    // --- LOGICA PARA DIBUJAR (TACTIL/CELULAR) ---
     canvas.addEventListener('touchstart', (e) => {
         const touch = e.touches[0];
         const r = canvas.getBoundingClientRect();
-        ctx.beginPath();
-        ctx.moveTo(touch.clientX - r.left, touch.clientY - r.top);
+        contextoFirma.beginPath();
+        contextoFirma.moveTo(touch.clientX - r.left, touch.clientY - r.top);
         dibujando = true;
-        e.preventDefault();
+        e.preventDefault(); // Evita que la pantalla se mueva al firmar
     }, { passive: false });
 
     canvas.addEventListener('touchmove', (e) => {
-        if(dibujando) {
+        if (dibujando) {
             const touch = e.touches[0];
             const r = canvas.getBoundingClientRect();
-            ctx.lineTo(touch.clientX - r.left, touch.clientY - r.top);
-            ctx.stroke();
+            contextoFirma.lineTo(touch.clientX - r.left, touch.clientY - r.top);
+            contextoFirma.stroke();
         }
         e.preventDefault();
     }, { passive: false });
 
-    // Poner fecha actual automáticamente
-    const fechaSpan = document.getElementById('pdf-fecha-actual');
-    if(fechaSpan) fechaSpan.innerText = new Date().toLocaleDateString();
-}
-
-// Función para limpiar el cuadro de firma
-function limpiarFirmas() {
-    if(ctx) {
-        const canvas = document.getElementById('canvas-firma');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Poner la fecha de hoy automáticamente
+    const fechaContrato = document.getElementById('pdf-fecha-actual');
+    if (fechaContrato) {
+        fechaContrato.innerText = new Date().toLocaleDateString();
     }
 }
+
+// Función para el botón de Limpiar
+function limpiarFirmas() {
+    if (contextoFirma) {
+        const canvas = document.getElementById('canvas-firma');
+        contextoFirma.clearRect(0, 0, canvas.width, canvas.height);
+    }
+}
+
+
+
 
 async function procesarContratoGuardado() {
     const canvas = document.getElementById('canvas-firma');
