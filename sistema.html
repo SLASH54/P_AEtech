@@ -126,28 +126,66 @@
 
 
 
-<section id="seccion-contratos" class="main-content" style="display:none;">
-    <div class="glass-card p-6">
-        <h2 class="text-2xl font-bold mb-4">📄 Generar Contrato</h2>
-        
-        <div id="contrato-pdf" class="bg-white p-8 text-black shadow-lg mx-auto" style="max-width: 750px;">
-             <p>Cliente: <span id="pdf-nombre-cliente"></span></p>
-             <p>RFC: <span id="pdf-rfc-cliente"></span></p>
-             <p>Fecha: <span id="pdf-fecha-actual"></span></p>
-             
-          <div class="mt-8">
-    <canvas id="canvas-firma" style="border-bottom: 2px solid #000; width: 300px; height: 100px; background: #fff; cursor: crosshair;"></canvas>
-    <p class="text-xs font-bold">FIRMA DEL CLIENTE</p>
-    <button type="button" onclick="borrarFirmaManual()" class="text-red-500 text-[10px] underline">Borrar trazo</button>
-</div>
-        
-        <div class="mt-4 flex gap-2">
-            <button onclick="limpiarFirmas()" class="btn-cancelar">Limpiar</button>
-            <button onclick="procesarContratoGuardado()" class="btn-ver">Guardar en Sistema</button>
+<section id="seccion-contratos" class="main-content" style="display:none; padding: 20px;">
+    <div class="glass-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 class="text-2xl font-bold text-gray-800">📄 Generador de Contrato AEtech</h2>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="limpiarFirmas()" class="btn-cancelar" style="background: #e11d48; color: white; padding: 8px 15px; border-radius: 8px; border: none; cursor: pointer;">
+                    <i class="fa-solid fa-eraser"></i> Limpiar Firma
+                </button>
+                <button onclick="descargarContratoPDF()" class="btn-ver" style="background: #4f46e5; color: white; padding: 8px 15px; border-radius: 8px; border: none; cursor: pointer;">
+                    <i class="fa-solid fa-download"></i> Descargar PDF
+                </button>
+            </div>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.3);">
+            <p style="font-size: 0.9em; color: #555; margin-bottom: 10px;">💡 <strong>Tip:</strong> Puedes hacer clic en los textos azules dentro del contrato para editarlos manualmente.</p>
+        </div>
+
+        <div id="contrato-pdf" style="background: white; padding: 50px; border-radius: 4px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); color: black; font-family: 'Times New Roman', serif; line-height: 1.5; max-width: 800px; margin: 0 auto;">
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                <img src="img/logoAEtech.png" style="width: 120px;">
+                <div style="text-align: right; font-size: 8pt; color: #444;">
+                    <strong>AE TECH</strong><br>
+                    Seguridad, Tecnología e Innovación
+                </div>
+            </div>
+
+            <div contenteditable="true" style="text-align: justify; font-size: 10.5pt;">
+                <p>Contrato por prestación de servicios especializados que celebran por una parte <strong>Denisse Avila Espinoza</strong> ("La Prestadora") y por la otra el 
+                   <strong>Sr(a). <span id="pdf-nombre-cliente" style="color: #0000ff; font-weight: bold;">[NOMBRE DEL CLIENTE]</span></strong>, 
+                   con RFC <strong><span id="pdf-rfc-cliente" style="color: #0000ff; font-weight: bold;">[RFC]</span></strong> ("La Contratante").</p>
+
+                <p style="text-align: center; font-weight: bold; margin-top: 15px;">DECLARACIONES</p>
+                <p>I. Declara "La Prestadora" ser persona física con RFC: <strong>AIED011026T79</strong>, con domicilio en calle 15 Poniente 107, Col. Álvaro Obregón, Atlixco, Puebla.</p>
+                
+                <p style="text-align: center; font-weight: bold; margin-top: 15px;">CLÁUSULAS</p>
+                <p><strong>Primera.</strong> El servicio consiste en la instalación e implementación de sistemas de seguridad electrónica vinculados a la central "AE Tech".</p>
+                <p><strong>Segunda.</strong> El pago mensual acordado es de <strong>$580.00 (Quinientos ochenta pesos 00/100 M.N.)</strong>.</p>
+            </div>
+
+            <p style="text-align: right; margin-top: 30px; font-size: 10.5pt;">
+                Atlixco, Puebla, a <span id="pdf-fecha-contrato" style="font-weight: bold;"></span>
+            </p>
+
+            <div style="margin-top: 50px; display: flex; justify-content: space-around; text-align: center;">
+                <div style="width: 40%;">
+                    <canvas id="canvas-firma" style="border-bottom: 1px solid #000; width: 100%; height: 80px; cursor: crosshair;"></canvas>
+                    <p style="font-size: 9pt; margin-top: 5px;">LA CONTRATANTE</p>
+                </div>
+                <div style="width: 40%;">
+                    <div style="height: 80px; display: flex; align-items: flex-end; justify-content: center; border-bottom: 1px solid #000;">
+                        <p style="font-size: 10pt;">Denisse Avila Espinoza</p>
+                    </div>
+                    <p style="font-size: 9pt; margin-top: 5px;">LA PRESTADORA / AE TECH</p>
+                </div>
+            </div>
         </div>
     </div>
 </section>
-
 
 
 
