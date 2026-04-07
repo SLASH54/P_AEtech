@@ -127,45 +127,55 @@
 
 
 <section id="seccion-contratos" class="main-content" style="display:none;">
-    <div class="glass-card p-6">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-2xl font-bold text-gray-800">📄 Generar Nuevo Contrato</h2>
-            <div class="flex gap-2">
-                <button onclick="limpiarFirmas()" class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm">Limpiar Firma</button>
-                <button onclick="descargarContratoPDF()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm">Descargar PDF</button>
+    <div class="glass-card p-8">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-800">📄 Contrato de Servicio AEtech</h2>
+            <div class="flex gap-3">
+                <button onclick="limpiarFirmas()" class="btn-cancelar" style="background:#e11d48; color:white; padding:10px; border-radius:8px;">Limpiar Firma</button>
+                <button onclick="procesarContratoGuardado()" class="btn-ver" style="background:#4f46e5; color:white; padding:10px; border-radius:8px;">✅ Guardar y Generar</button>
             </div>
         </div>
 
-        <div id="contrato-pdf" class="bg-white p-10 shadow-lg mx-auto" style="max-width: 800px; color: black; font-family: 'Times New Roman', serif;">
-            <div style="text-align: center; margin-bottom: 20px;">
+        <div id="contrato-pdf" class="bg-white p-12 shadow-2xl mx-auto border" style="max-width: 800px; color: black; font-family: 'Times New Roman', serif;">
+            <div class="flex justify-between mb-8">
                 <img src="img/logoAEtech.png" width="120">
-            </div>
-            
-            <p>Cliente: <span id="pdf-nombre-cliente" contenteditable="true" style="color: blue;">________________</span></p>
-            <p>RFC: <span id="pdf-rfc-cliente" contenteditable="true" style="color: blue;">________________</span></p>
-            
-            <p class="mt-4 text-justify">
-                Por medio del presente contrato, <strong>AE TECH</strong> y el cliente arriba mencionado acuerdan...
-                </p>
-
-            <p class="text-right mt-6">Atlixco, Puebla, a <span id="pdf-fecha"></span></p>
-
-            <div class="mt-10 flex justify-around border-t pt-8">
-                <div class="text-center">
-                    <canvas id="canvas-firma" style="border-bottom: 1px solid black; width: 250px; height: 100px;"></canvas>
-                    <p class="text-xs font-bold mt-2">FIRMA DEL CLIENTE</p>
+                <div class="text-right text-xs text-gray-600">
+                    <strong>AE TECH</strong><br>Seguridad e Innovación
                 </div>
-                <div class="text-center">
-                    <div style="height: 100px; display: flex; align-items: flex-end; border-bottom: 1px solid black; width: 250px; justify-content: center;">
-                        <p class="pb-2">Denisse Avila Espinoza</p>
+            </div>
+
+            <div contenteditable="true" class="text-sm text-justify leading-relaxed">
+                <p>Contrato que celebran por una parte <strong>Denisse Avila Espinoza</strong> y por la otra el 
+                Sr(a). <strong id="pdf-nombre-cliente" style="color:blue;">[Nombre]</strong> con RFC 
+                <strong id="pdf-rfc-cliente" style="color:blue;">[RFC]</strong>.</p>
+                
+                <p class="font-bold text-center my-4">CLAUSULADO</p>
+                <p>El cliente acepta la instalación de equipo en calidad de préstamo con una mensualidad de $580.00 M.N.</p>
+                <p>Domicilio del servicio: <span id="pdf-domicilio-cliente" style="color:blue;">[Escribir dirección aquí]</span></p>
+            </div>
+
+            <p class="text-right mt-12">Atlixco, Puebla, a <span id="pdf-fecha-actual"></span></p>
+
+            <div class="mt-16 flex justify-around text-center">
+                <div style="width: 40%;">
+                    <canvas id="canvas-firma" style="border-bottom: 2px solid black; width: 100%; height: 100px; background:#f9f9f9;"></canvas>
+                    <p class="text-[10px] mt-2 font-bold uppercase">Firma del Contratante</p>
+                </div>
+                <div style="width: 40%;">
+                    <div style="height: 100px; border-bottom: 2px solid black; display: flex; align-items: flex-end; justify-content: center;">
+                        <p class="pb-2 text-sm">Denisse Avila Espinoza</p>
                     </div>
-                    <p class="text-xs font-bold mt-2">AE TECH</p>
+                    <p class="text-[10px] mt-2 font-bold uppercase">AE Tech</p>
                 </div>
             </div>
         </div>
     </div>
 </section>
-            
+
+
+
+
+
     <section id="Evidencia" class="main-content ">
                 
     </section>
