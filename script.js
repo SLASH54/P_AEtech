@@ -4648,19 +4648,16 @@ function limpiarFirmas() {
     signaturePad.clear();
 }
 
-function mostrarSeccion(id) {
-    // Ocultas todas las secciones...
-    document.querySelectorAll('section').forEach(s => s.style.display = 'none');
+function mostrarSeccion(idSeccion) {
+    // Oculta todas las secciones con la clase main-content
+    document.querySelectorAll('.main-content').forEach(s => s.style.display = 'none');
     
-    // Muestras la elegida
-    document.getElementById(id).style.display = 'block';
-    
-    // Si es contrato, activamos el lápiz
-    if(id === 'seccion-contratos') {
-        inicializarFirma();
+    // Muestra la que queremos
+    const seccion = document.getElementById(idSeccion);
+    if (seccion) {
+        seccion.style.display = 'block';
     }
 }
-
 
 
 
