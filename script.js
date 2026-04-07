@@ -4613,19 +4613,52 @@ async function descargarReportePDF(tareaId, incluirMateriales = true, incluirCom
 
 
 
-function mostrarSeccionContratos(nombre = "________________", rfc = "________________") {
-    // 1. Mostrar sección
-    mostrarSeccion('seccion-contratos');
 
-    // 2. Prellenar datos
-    document.getElementById('pdf-nombre-cliente').innerText = nombre;
-    document.getElementById('pdf-rfc-cliente').innerText = rfc;
-    document.getElementById('pdf-fecha-actual').innerText = new Date().toLocaleDateString();
 
-    // 3. Inicializar Lápiz (SignaturePad)
-    const canvas = document.getElementById('canvas-firma');
-    if (canvas && typeof SignaturePad !== 'undefined') {
-        signaturePad = new SignaturePad(canvas);
+// Esta es la función que DEBE llamar el botón del menú
+function abrirGeneradorContrato(nombre = "________________", rfc = "________________") {
+    // 1. Usamos tu función existente para cambiar de sección
+    // Si tu función se llama mostrarSeccion o mostrarContenido, usa esa:
+    mostrarSeccion('seccion-contratos'); 
+
+    // 2. Llenamos los datos en el HTML del contrato
+    const elNombre = document.getElementById('pdf-nombre-cliente');
+    const elRfc = document.getElementById('pdf-rfc-cliente');
+    const elFecha = document.getElementById('pdf-fecha-actual');
+
+    if (elNombre) elNombre.innerText = nombre;
+    if (elRfc) elRfc.innerText = rfc;
+    if (elFecha) elFecha.innerText = new Date().toLocaleDateString();
+
+    // 3. Inicializamos la firma DESPUÉS de mostrar la sección
+    // Usamos un pequeño timeout para que el canvas tenga dimensiones reales
+    setTimeout(() => {
+        const canvas = document.getElementById('canvas-firma');
+        if (canvas) {
+            // Ajustamos el tamaño del lienzo al tamaño visible
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            signaturePad = new SignaturePad(canvas, {
+                penColor: "rgb(0, 0, 128)"
+            });
+        }
+    }, 200);
+}
+
+// Asegúrate de que tu función mostrarSeccion oculte las demás
+function mostrarSeccion(id) {
+    // Ocultar todas las secciones que tengan la clase 'main-content'
+    document.querySelectorAll('.main-content').forEach(seccion => {
+        seccion.style.display = 'none';
+    });
+
+    // Mostrar la que queremos
+    const seccionActiva = document.getElementById(id);
+    if (seccionActiva) {
+        seccionActiva.style.display = 'block';
+    } else {
+        console.error("No se encontró la sección con ID:", id);
     }
 }
 
