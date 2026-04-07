@@ -4685,18 +4685,20 @@ function limpiarFirmas() {
 
 async function procesarContratoGuardado() {
     const canvas = document.getElementById('canvas-firma');
+    const tempImage = new Image();
     
-    // Validar si el canvas está vacío (opcional, pero recomendado)
-    // Si no quieres validación pesada, simplemente procesamos:
+    // Convertimos el canvas a imagen para que el PDF sí lo vea
+    const dataURL = canvas.toDataURL("image/png");
     
+    // Creamos un objeto de datos para tu Controlador (Backend)
     const datosContrato = {
-        clienteNombre: document.getElementById('pdf-nombre-cliente')?.innerText || "Sin nombre",
-        clienteRFC: document.getElementById('pdf-rfc-cliente')?.innerText || "Sin RFC",
-        clienteDomicilio: document.getElementById('pdf-domicilio-cliente')?.innerText || "Sin domicilio",
-        firmaData: canvas.toDataURL() // <-- AQUÍ está el truco: capturamos el dibujo como imagen
+        clienteNombre: document.getElementById('pdf-nombre-cliente').innerText,
+        clienteRFC: document.getElementById('pdf-rfc-cliente').innerText,
+        firmaData: dataURL // Aquí va la firma del cliente
     };
 
     try {
+        // 1. Guardar en la Base de Datos (Tu modelo de Sequelize)
         const response = await fetch('/api/contratos', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -4704,15 +4706,37 @@ async function procesarContratoGuardado() {
         });
 
         if (response.ok) {
-            alert("Contrato guardado en AEtech correctamente.");
-            // Si tienes la librería de PDF activada, úsala, si no, solo guarda.
-            if(typeof html2pdf !== 'undefined') {
-                generarPDF();
-            }
-        } else {
-            alert("Error al guardar en el servidor.");
+            alert("✅ Contrato guardado en sistema.");
+            
+            // 2. Generar el PDF
+            const element = document.getElementById('contrato-pdf');
+            
+            // Configuración de html2pdf
+            const opt = {
+                margin:       10,
+                filename:     `Contrato_AEtech_${datosContrato.clienteNombre}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { 
+                    scale: 3, 
+                    useCORS: true,
+                    logging: false,
+                    // Esto es lo que asegura que capture las firmas:
+                    onclone: (clonedDoc) => {
+                        // Reemplazamos el canvas en el clon por una imagen real
+                        const clonedCanvas = clonedDoc.getElementById('canvas-firma');
+                        const img = clonedDoc.createElement('img');
+                        img.src = dataURL;
+                        img.style.width = '100%';
+                        clonedCanvas.replaceWith(img);
+                    }
+                },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save();
         }
     } catch (error) {
-        console.error("Error en la conexión:", error);
+        console.error("Error:", error);
+        alert("Hubo un error al procesar el contrato.");
     }
 }
