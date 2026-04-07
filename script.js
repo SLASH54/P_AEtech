@@ -4619,7 +4619,7 @@ let ctx;
 
 function abrirGeneradorContrato() {
     // 1. Mostrar la sección (asegúrate de que el ID sea correcto)
-    mostrarSeccion('seccion-contratos');
+    
     
     const canvas = document.getElementById('canvas-firma');
     if (!canvas) return;
