@@ -4613,42 +4613,46 @@ async function descargarReportePDF(tareaId, incluirMateriales = true, incluirCom
 
 
 
-// --- VARIABLES GLOBALES ---
+
+//GENERANDO EL CONTRATO
+
+
 let dibujando = false;
 let contextoFirma;
 
-// 1. FUNCIÓN PARA ABRIR Y PREPARAR EL CONTRATO
 function abrirGeneradorContrato(nombre = "________________", rfc = "") {
-    // Mostrar la sección correcta
+    // 1. CORRECCIÓN: Usar la función que ya tienes en tu sistema
+    // Según tus imágenes, la función correcta es mostrarContenido
     if (typeof mostrarContenido === 'function') {
         mostrarContenido('Contratos'); 
     } else {
+        // Si no existe, al menos intentamos mostrar el div
         const seccion = document.getElementById('seccion-contratos');
         if (seccion) seccion.style.display = 'block';
     }
     
-    // Llenar datos del cliente
+    // 2. Llenar los datos del cliente que vienen de la tabla
     const elNombre = document.getElementById('pdf-nombre-cliente');
     const elRfc = document.getElementById('pdf-rfc-cliente');
     if (elNombre) elNombre.innerText = nombre;
     if (elRfc) elRfc.innerText = rfc;
 
-    // Configurar el Canvas
+    // 3. Configurar el Canvas
     const canvas = document.getElementById('canvas-firma');
     if (!canvas) return;
 
     contextoFirma = canvas.getContext('2d');
 
-    // AJUSTE CRÍTICO: El tamaño debe asignarse cuando el canvas ya es visible
+    // Ajustar tamaño real para que el trazo no salga movido
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
     
-    // Estilo de línea (Azul AE TECH)
+    // Estilo AE TECH [cite: 3, 25]
     contextoFirma.strokeStyle = "#000080"; 
     contextoFirma.lineWidth = 2;
     contextoFirma.lineCap = "round";
 
-    // ACTIVAR EL DIBUJO
+    // --- LOGICA DE DIBUJO ---
     activarEventosFirma(canvas);
 
     // Fecha automática
@@ -4658,7 +4662,57 @@ function abrirGeneradorContrato(nombre = "________________", rfc = "") {
     }
 }
 
-// 2. FUNCIÓN PARA EL MOTOR DE DIBUJO (MOUSE Y TOUCH)
+//FIRMA 
+
+function configurarLienzoFirma(canvas) {
+    ctx = canvas.getContext('2d');
+    
+    // Ajustar resolución del canvas
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+
+    // Estilo del trazo
+    ctx.strokeStyle = "#000080"; // Azul marino como el logo de AEtech
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+
+    // Eventos de Mouse
+    canvas.onmousedown = (e) => {
+        dibujando = true;
+        ctx.beginPath();
+        ctx.moveTo(e.offsetX, e.offsetY);
+    };
+
+    canvas.onmousemove = (e) => {
+        if (dibujando) {
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+        }
+    };
+
+    window.onmouseup = () => { dibujando = false; };
+
+    // Eventos Táctiles (para tablet o cel)
+    canvas.addEventListener("touchstart", (e) => {
+        const touch = e.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        ctx.beginPath();
+        ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+        dibujando = true;
+        e.preventDefault();
+    }, false);
+
+    canvas.addEventListener("touchmove", (e) => {
+        if (dibujando) {
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+            ctx.stroke();
+        }
+        e.preventDefault();
+    }, false);
+}
+
 function activarEventosFirma(canvas) {
     // MOUSE
     canvas.onmousedown = (e) => { 
@@ -4672,9 +4726,9 @@ function activarEventosFirma(canvas) {
             contextoFirma.stroke(); 
         } 
     };
-    window.addEventListener('mouseup', () => { dibujando = false; });
+    canvas.onmouseup = () => { dibujando = false; };
 
-    // TÁCTIL (Móviles/Tablets)
+    // TÁCTIL
     canvas.addEventListener('touchstart', (e) => {
         const t = e.touches[0];
         const r = canvas.getBoundingClientRect();
@@ -4695,7 +4749,7 @@ function activarEventosFirma(canvas) {
     }, { passive: false });
 }
 
-// 3. BOTÓN LIMPIAR
+// Para el botón de "Limpiar Firma"
 function limpiarFirmas() {
     const canvas = document.getElementById('canvas-firma');
     if (canvas && contextoFirma) {
@@ -4703,18 +4757,22 @@ function limpiarFirmas() {
     }
 }
 
-// 4. GUARDAR EN BD Y GENERAR PDF
 async function procesarContratoGuardado() {
     const canvas = document.getElementById('canvas-firma');
+    const tempImage = new Image();
+    
+    // Convertimos el canvas a imagen para que el PDF sí lo vea
     const dataURL = canvas.toDataURL("image/png");
     
+    // Creamos un objeto de datos para tu Controlador (Backend)
     const datosContrato = {
         clienteNombre: document.getElementById('pdf-nombre-cliente').innerText,
         clienteRFC: document.getElementById('pdf-rfc-cliente').innerText,
-        firmaData: dataURL 
+        firmaData: dataURL // Aquí va la firma del cliente
     };
 
     try {
+        // 1. Guardar en la Base de Datos (Tu modelo de Sequelize)
         const response = await fetch('/api/contratos', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -4724,15 +4782,21 @@ async function procesarContratoGuardado() {
         if (response.ok) {
             alert("✅ Contrato guardado en sistema.");
             
+            // 2. Generar el PDF
             const element = document.getElementById('contrato-pdf');
+            
+            // Configuración de html2pdf
             const opt = {
-                margin: 10,
-                filename: `Contrato_AEtech_${datosContrato.clienteNombre}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { 
+                margin:       10,
+                filename:     `Contrato_AEtech_${datosContrato.clienteNombre}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { 
                     scale: 3, 
                     useCORS: true,
+                    logging: false,
+                    // Esto es lo que asegura que capture las firmas:
                     onclone: (clonedDoc) => {
+                        // Reemplazamos el canvas en el clon por una imagen real
                         const clonedCanvas = clonedDoc.getElementById('canvas-firma');
                         const img = clonedDoc.createElement('img');
                         img.src = dataURL;
@@ -4740,8 +4804,9 @@ async function procesarContratoGuardado() {
                         clonedCanvas.replaceWith(img);
                     }
                 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
+
             html2pdf().set(opt).from(element).save();
         }
     } catch (error) {
