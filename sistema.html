@@ -141,65 +141,78 @@
             </div>
         </div>
 
-        <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.3);">
-            <p style="font-size: 0.9em; color: #555; margin-bottom: 10px;">💡 <strong>Tip:</strong> Puedes hacer clic en los textos azules para editar los datos específicos del cliente.</p>
-        </div>
-
-        <div id="contrato-pdf" style="background: white; padding: 40px 60px; border-radius: 4px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); color: black; font-family: 'Times New Roman', serif; line-height: 1.4; max-width: 850px; margin: 0 auto;">
+        <div id="contrato-pdf" style="background: white; padding: 50px 60px; color: black; font-family: 'Times New Roman', serif; line-height: 1.3; max-width: 850px; margin: 0 auto; box-shadow: 0 0 10px rgba(0,0,0,0.2); border-radius: 4px;">
             
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px;">
-                <img src="img/logoAEtech.png" style="width: 130px;">
-                <div style="text-align: right; font-size: 9pt; color: #333;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <img src="img/logoAEtech.png" style="width: 120px;">
+                <div style="text-align: right; font-size: 8pt; color: #444;">
                     <strong>AE TECH</strong><br>
                     Seguridad, Tecnología e Innovación
                 </div>
             </div>
 
-            <div contenteditable="true" style="text-align: justify; font-size: 10pt;">
-                <p style="text-align: center; font-weight: bold; font-size: 11pt; margin-bottom: 15px;">CONTRATO DE PRESTACIÓN DE SERVICIOS</p>
+            <div contenteditable="true" style="text-align: justify; font-size: 9.5pt;">
+                <p>Contrato por prestación de servicios especializados de instalación, implementación y distribución de sistema de seguridad electrónica con suministro de materiales y equipos en calidad de préstamo mismo que tendrá vigencia idéntica al presente contrato, que celebran por una parte <strong>Denisse Avila Espinoza</strong> a quien en lo sucesivo se le denominara “la prestadora” en el texto del presente contrato y, por la otra parte la Persona <strong>Sr(a). <span id="pdf-nombre-cliente" style="color: #0000ff; font-weight: bold;">[NOMBRE DEL CLIENTE]</span></strong>, personalidad que acredita mediante el instrumento de inscripción al registro federal de contribuyente <strong><span id="pdf-rfc-cliente" style="color: #0000ff; font-weight: bold;">[RFC]</span></strong>, a quien en lo sucesivo se le denominara “la contratante”, de conformidad con lo siguiente:</p>
 
-                <p>Contrato por prestación de servicios especializados de instalación, implementación y distribución de sistema de seguridad electrónica con suministro de materiales y equipos en calidad de préstamo mismo que tendrá vigencia idéntica al presente contrato, que celebran por una parte <strong>Denisse Avila Espinoza</strong> ("La Prestadora") y por la otra el 
-                   <strong>Sr(a). <span id="pdf-nombre-cliente" style="color: #0000ff; font-weight: bold;">[NOMBRE DEL CLIENTE]</span></strong>, 
-                   con RFC <strong><span id="pdf-rfc-cliente" style="color: #0000ff; font-weight: bold;">[RFC]</span></strong> ("La Contratante").</p>
+                <p style="text-align: center; font-weight: bold; margin-top: 10px;">DECLARACIONES</p>
+                <p><strong>1.-</strong> Declara “la prestadora” ser una persona física inscrita en el Registro Federal de Contribuyentes, con clave: <strong>AIED011026T79</strong>, con domicilio en calle 15 Poniente número 107, colonia Álvaro Obregón en Atlixco, Puebla.</p>
+                <p><strong>2.-</strong> Declara “la prestadora” que su actividad es entre otras, la prestación de servicios de instalación, implementación de sistemas de seguridad electrónica, tendientes a satisfacer las necesidades de “la contratante”.</p>
+                <p><strong>3.-</strong> Declara “la prestadora” tener la capacidad jurídica para celebrar todo tipo de contratos relacionados con su actividad, así como contar con el personal profesional capacitado para prestar a la contratante, los servicios requeridos por la parte contratante y que cuenta con la capacidad y experiencia técnica suficiente, conociendo las normas para la implementación del proyecto.</p>
+                <p><strong>4.-</strong> Por su parte declara “la contratante”, por medio de su representante, ser una persona física, mexicana, debidamente constituida conforme a las leyes vigentes en el país, con plena capacidad legal para contratar y obligarse en los términos del presente contrato.</p>
+                <p><strong>5.-</strong> Declara “la contratante” que para realizar su objeto social requiere de la obtención de servicios especializados en seguridad electrónica, instalación e implementación, por lo que decidió contratar dichos servicios con “la prestadora”, la cual está preparada para proporcionárselos en forma especializada.</p>
+                <p><strong>6.-</strong> Declara la prestadora y la contratante: que será la bitácora, el propio contrato y sus anexos quien vincule a las partes que declaren motivo de este contrato en sus derechos y obligaciones.</p>
 
-                <p style="text-align: center; font-weight: bold; margin-top: 15px;">DECLARACIONES</p>
-                <p><strong>1.-</strong> Declara "la prestadora" ser una persona física inscrita en el Registro Federal de Contribuyentes, con clave: <strong>AIED011026T79</strong>, con domicilio en calle 15 Poniente número 107, colonia Álvaro Obregón en Atlixco, Puebla.</p>
-                <p><strong>2.-</strong> Declara "la prestadora" que su actividad es entre otras, la prestación de servicios de instalación e implementación de sistemas de seguridad electrónica.</p>
-                <p><strong>3.-</strong> Declara "la contratante" tener la capacidad jurídica para celebrar el presente contrato y contar con un domicilio en: <span id="pdf-domicilio-cliente" style="color: #0000ff;">[DIRECCIÓN COMPLETA DEL SERVICIO]</span>.</p>
+                <p style="text-align: center; font-weight: bold; margin-top: 10px;">CLAUSULAS</p>
+                <p><strong>Primera.</strong> “La prestadora” se obliga a prestar a “la contratante” los servicios especializados monitoreo de sistema de alarma vinculado a central de monitoreo “AE Tech”.</p>
+                <p><strong>Segunda.</strong> Los servicios objeto del presente contrato serán proporcionados por “la prestadora” a “la contratante” con sus propios elementos personales y materiales, ya que cuenta con el personal especializado necesario para ello y con el equipo idóneo para proporcionarlos. Queda expresamente convenido que los servicios serán prestados por la prestadora a la contratante con su propio personal, obligándose a:<br>
+                a) Realizar con el apoyo total de la contratante las visitas de carácter técnico de cuando menos al inicio y durante el periodo comprendido en el contrato.<br>
+                b) Tener acceso a la bitácora de la obra en ejecución con la autoridad que corresponda para anotar las observaciones pertinentes y que redunden en el proceso constructivo como en el avance de la misma.</p>
+                
+                <p><strong>Tercera.</strong> Los servicios y suministros de material y equipo en calidad de préstamo (propiedad de la contratante) objeto del presente contrato serán prestados fundamentalmente en las instalaciones solicitadas por la parte contratante, con domicilio <strong><span id="pdf-domicilio-servicio" style="color: #0000ff;">[DOMICILIO DEL SERVICIO]</span></strong>, al termino del periodo contratado el prestador podrá realizar el retiro del equipo en calidad de préstamo en caso de no renovarse la vigencia del mismo, el personal encargado de prestar los servicios estará sujeto a las reglas sobre el ingreso a las instalaciones.</p>
+                
+                <p><strong>Cuarta.</strong> Manifiesta “la prestadora” que el responsable de la realización del proyecto objeto de este contrato, será el Mtro. Dionisio Avila Espinoza, quien llenara la bitácora de equipos integrados en el domicilio de la parte contratante.</p>
+                
+                <p><strong>Quinta.</strong> Con motivo de los servicios, suministro de materiales y equipo, objeto del presente contrato que proporciona “la prestadora” y que estarán disponibles a favor de “la contratante” durante toda la vigencia del mismo, “la contratante pagara a “la prestadora” la cantidad de <strong>$580 (quinientos ochenta 00/100 M.N)</strong>, mismos que se pagaran de la siguiente manera: el primer día de cada mes durante un periodo de <strong><span id="pdf-meses-contrato" style="color: #0000ff;">[NÚMERO]</span></strong> meses, realizando el pago en las oficinas AE Tech o mediante transferencia bancaria a los datos proporcionados por AE Tech.</p>
+                
+                <p><strong>Sexta.</strong> Ninguna de las partes contratantes podrá ceder o transmitir los derechos y obligaciones que contraen en los términos del presente contrato sin el expreso consentimiento por escrito de la contraparte respectiva.</p>
+                
+                <p><strong>Séptima.</strong> El presente contrato tendrá una duración del <strong><span id="pdf-fecha-inicio" style="color: #0000ff;">[FECHA INICIO]</span></strong> al <strong><span id="pdf-fecha-fin" style="color: #0000ff;">[FECHA FIN]</span></strong> a partir de la firma del mismo, en caso de algún contra tiempo ya sea interno o externo “la prestadora” le notificará a “la contratante” para valorar la situación.</p>
+                
+                <p><strong>Octava.</strong> Las partes manifiestan que el presente contrato es el único que rige la prestación de los servicios objeto del mismo, por lo que dejan sin efecto cualquier otro contrato, convenio, documento o comunicación verbal o escrita que pudiera haber entre las partes. El presente contrato solo podrá ser modificado mediante acuerdo por escrito debidamente firmado.</p>
+                
+                <p><strong>Novena.</strong> Para todo lo no previsto en el presente contrato se aplicarán las disposiciones legales previstas en el Código Civil del Estado Libre y Soberano de Puebla vigente. Para cualquier conflicto derivado de la interpretación, cumplimiento o incumplimiento del presente contrato, las partes se someten a la jurisdicción de los tribunales competentes de la ciudad de Atlixco, Puebla, renunciando a cualquier fuero que por razón de su domicilio les corresponda o pudiera corresponderles en el futuro.</p>
+                
+                <p><strong>Décima.</strong> Se procederá a las penalizaciones correspondientes de acuerdo a los siguientes puntos:<br>
+                - Si el contratante no cumple con sus obligaciones tales como:<br>
+                I. No proporcionar la información técnica solicitada por él prestador para su buen desempeño.<br>
+                II. No cumple con el pago de honorarios por proyecto acordado con el prestador.<br>
+                III. No proporcionar todas las facilidades físicas a AE Tech para que pueda realizar sus visitas a las obras.<br>
+                IV. Los montos pueden variar si existen retrasos en la ejecución del proyecto ajenos a AE Tech, ademas de la posibilidad de daños al avance por parte de terceros con o sin dolo.<br>
+                - El prestador procederá:<br>
+                I. AE Tech podrá dar por finiquitado cualquier responsabilidad legal en caso de que el contratante incumpla en alguno de los puntos mencionados.<br>
+                II. AE Tech podrá hacer el retiro de los equipos en calidad de préstamo en las instalaciones de la parte contratante.</p>
 
-                <p style="text-align: center; font-weight: bold; margin-top: 15px;">CLÁUSULAS</p>
-                <p><strong>PRIMERA. OBJETO.</strong> "La prestadora" se obliga a prestar los servicios de monitoreo de sistema de alarma vinculado a la central de seguridad "AE Tech".</p>
-                <p><strong>SEGUNDA. EQUIPO.</strong> Los servicios serán proporcionados con equipo propio de "la prestadora" otorgados en calidad de préstamo a "la contratante" mientras dure la vigencia del servicio.</p>
-                <p><strong>TERCERA. COSTO.</strong> El costo mensual por el servicio de monitoreo será de <strong>$580.00 (Quinientos ochenta pesos 00/100 M.N.)</strong>.</p>
-                <p><strong>CUARTA. ACCESO.</strong> "La contratante" se obliga a permitir el acceso al domicilio al personal técnico de "AE Tech" para realizar visitas de mantenimiento preventivo o correctivo.</p>
-                <p><strong>QUINTA. RESCISIÓN.</strong> AE Tech podrá dar por finiquitado el contrato y retirar los equipos en caso de que "la contratante" incumpla con el pago de dos o más mensualidades de honorarios acordados.</p>
-
-                <p style="margin-top: 20px;">Leído que fue el presente contrato y enteradas las partes de su contenido, alcance y fuerza legal, lo firman de conformidad en la ciudad de Atlixco, Puebla.</p>
+                <p style="margin-top: 15px;">Leído que fue el presente contrato y enteradas las partes de su contenido, alcance y fuerza legal lo firman de conformidad en la ciudad de Atlixco, Puebla, el día <strong id="pdf-fecha-actual">[FECHA HOY]</strong>.</p>
             </div>
 
-            <p style="text-align: right; margin-top: 20px; font-size: 10pt;">
-                Fecha: <span id="pdf-fecha-actual" style="font-weight: bold;"></span>
-            </p>
-
-            <div style="margin-top: 40px; display: flex; justify-content: space-around; text-align: center;">
+            <div style="margin-top: 30px; display: flex; justify-content: space-around; text-align: center;">
                 <div style="width: 45%;">
-                    <canvas id="canvas-firma" style="border-bottom: 2px solid #000; width: 100%; height: 90px; cursor: crosshair; background: #fafafa;"></canvas>
-                    <p style="font-size: 8pt; margin-top: 5px; font-weight: bold;">LA CONTRATANTE<br>(Nombre y Firma)</p>
+                    <canvas id="canvas-firma" style="border-bottom: 2px solid #000; width: 100%; height: 80px; background: #fdfdfd; cursor: crosshair;"></canvas>
+                    <p style="font-size: 8pt; margin-top: 5px; font-weight: bold;">LA CONTRATANTE<br>Nombre y firma</p>
                 </div>
                 <div style="width: 45%;">
-                    <div style="height: 90px; display: flex; align-items: flex-end; justify-content: center; border-bottom: 2px solid #000;">
-                        <p style="font-size: 10pt; margin-bottom: 5px;">Denisse Avila Espinoza</p>
+                    <div style="height: 80px; display: flex; align-items: flex-end; justify-content: center; border-bottom: 2px solid #000;">
+                        <p style="font-size: 9pt; margin-bottom: 5px;">Denisse Avila Espinoza</p>
                     </div>
-                    <p style="font-size: 8pt; margin-top: 5px; font-weight: bold;">PRESTADOR DE SERVICIOS<br>AE TECH</p>
+                    <p style="font-size: 8pt; margin-top: 5px; font-weight: bold;">PRESTADOR DE SERVICIOS<br>Nombre y firma AE Tech</p>
                 </div>
-            </div>
-
-            <div style="margin-top: 30px; padding-top: 10px; border-top: 1px solid #eee; font-size: 7pt; color: #777; text-align: center;">
-                15 Poniente 107 Colonia Álvaro Obregón, Atlixco, Puebla | Tel: (244) 446 0849 | contacto@aetech.com.mx
             </div>
         </div>
     </div>
 </section>
+
+
+
 
     <section id="Evidencia" class="main-content ">
                 
