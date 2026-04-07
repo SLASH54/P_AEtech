@@ -120,84 +120,51 @@
             <li><button onclick="mostrarContenido('Administracion')">Personal</button></li>
             <li><button onclick="mostrarContenido('Clientes')">Clientes</button></li>
 
-            <li onclick="mostrarSeccion('seccion-contratos')"><i class="icon-document"></i> 📄 Generar Contrato</li>
-
-        </ul>
+<li><button onclick="abrirGeneradorContrato()">Generar Contrato</button></li>        </ul>
     </nav>
         <main>
 
 
 
-  <section id="seccion-contratos" class="main-content">
-    <div class="p-8">
-        <h2 class="text-3xl font-bold mb-6 text-gray-800 border-b pb-2">Generador de Contratos</h2>
-
-        <div class="flex justify-between items-center mb-6">
-            <p class="text-gray-600">Previsualiza, edita y exporta el contrato legal de AE Tech.</p>
-            <div class="flex gap-3">
-                <button onclick="descargarContratoPDF()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 transform hover:scale-105">
-                    💾 Descargar PDF
-                </button>
-                <button onclick="limpiarFirmas()" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 transform hover:scale-105">
-                    🧹 Limpiar Firma
-                </button>
+<section id="seccion-contratos" class="main-content" style="display:none;">
+    <div class="glass-card p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-bold text-gray-800">📄 Generar Nuevo Contrato</h2>
+            <div class="flex gap-2">
+                <button onclick="limpiarFirmas()" class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm">Limpiar Firma</button>
+                <button onclick="descargarContratoPDF()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm">Descargar PDF</button>
             </div>
         </div>
 
-        <div class="bg-white shadow-2xl rounded-xl overflow-hidden p-10 max-w-4xl mx-auto border border-gray-200">
-            <div id="contrato-pdf" style="font-family: 'Times New Roman', Times, serif; color: black; line-height: 1.4;">
-                
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
-                    <img src="img/logoAEtech.png" style="width: 140px;">
-                    <div style="text-align: right; font-size: 9pt; color: #333;">
-                        <strong>AE TECH</strong><br>
-                        Seguridad, Tecnología e Innovación<br>
-                        Atlixco, Puebla.
-                    </div>
-                </div>
-
-                <div contenteditable="true" style="text-align: justify; font-size: 11pt;">
-                    <p>
-                        Contrato por prestación de servicios especializados de instalación, implementación y distribución de sistema de seguridad electrónica con suministro de materiales y equipos en calidad de préstamo mismo que tendrá vigencia idéntica al presente contrato, que celebran por una parte <strong>Denisse Avila Espinoza</strong> a quien en lo sucesivo se le denominara “la prestadora” y, por la otra parte el <strong>Sr(a). <span id="pdf-nombre-cliente" style="color: blue; font-weight: bold; border-bottom: 1px dashed blue;">________________</span></strong>, con RFC <strong><span id="pdf-rfc-cliente" style="color: blue; font-weight: bold; border-bottom: 1px dashed blue;">________________</span></strong>, a quien en lo sucesivo se le denominara “la contratante”, de conformidad con lo siguiente:
-                    </p>
-
-                    <p style="text-align: center; font-weight: bold; margin: 15px 0;">DECLARACIONES</p>
-                    <ol style="padding-left: 25px; margin-bottom: 15px;">
-                        <li>Declara “la prestadora” ser una persona física inscrita en el RFC: <strong>AIED011026T79</strong>, con domicilio en calle 15 Poniente número 107, colonia Álvaro Obregón en Atlixco, Puebla.</li>
-                        <li>Declara “la prestadora” que su actividad es la prestación de servicios de instalación e implementación de sistemas de seguridad electrónica.</li>
-                        <li>Declara “la prestadora” tener la capacidad jurídica y el personal profesional capacitado para prestar los servicios requeridos.</li>
-                        <li>Declara “la contratante” ser una persona física con plena capacidad legal para obligarse en los términos del presente contrato.</li>
-                    </ol>
-
-                    <p style="text-align: center; font-weight: bold; margin: 15px 0;">CLÁUSULAS</p>
-                    <p><strong>Primera.</strong> “La prestadora” se obliga a prestar el monitoreo de sistema de alarma vinculado a la central “AE Tech”.</p>
-                    <p><strong>Segunda.</strong> Los servicios serán proporcionados con elementos propios. La contratante se obliga a permitir visitas técnicas y acceso a bitácora.</p>
-                    <p><strong>Tercera.</strong> Los servicios se prestarán en el domicilio: <span style="color: blue; border-bottom: 1px dashed blue;">[Escribir Domicilio del Servicio Aquí]</span>.</p>
-                    <p><strong>Quinta.</strong> La contratante pagará la cantidad de <strong>$580 (quinientos ochenta 00/100 M.N)</strong> mensuales el primer día de cada mes.</p>
-                </div>
-
-                <p style="text-align: right; margin-top: 40px; font-size: 11pt;">
-                    Atlixco, Puebla, a <span id="pdf-fecha" style="font-weight: bold;"></span>.
+        <div id="contrato-pdf" class="bg-white p-10 shadow-lg mx-auto" style="max-width: 800px; color: black; font-family: 'Times New Roman', serif;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <img src="img/logoAEtech.png" width="120">
+            </div>
+            
+            <p>Cliente: <span id="pdf-nombre-cliente" contenteditable="true" style="color: blue;">________________</span></p>
+            <p>RFC: <span id="pdf-rfc-cliente" contenteditable="true" style="color: blue;">________________</span></p>
+            
+            <p class="mt-4 text-justify">
+                Por medio del presente contrato, <strong>AE TECH</strong> y el cliente arriba mencionado acuerdan...
                 </p>
 
-                <div style="margin-top: 50px; display: flex; justify-content: space-around; text-align: center;">
-                    <div style="width: 40%;">
-                        <canvas id="canvas-firma" style="border-bottom: 2px solid #000; width: 100%; height: 100px; background-color: #fafafa;"></canvas>
-                        <p style="font-size: 10pt; margin-top: 10px;"><strong>LA CONTRATANTE</strong><br>Nombre y Firma</p>
-                    </div>
+            <p class="text-right mt-6">Atlixco, Puebla, a <span id="pdf-fecha"></span></p>
 
-                    <div style="width: 40%;">
-                        <div style="height: 100px; display: flex; align-items: flex-end; justify-content: center; border-bottom: 2px solid #000;">
-                            <p style="margin-bottom: 10px; font-size: 11pt;">Denisse Avila Espinoza</p>
-                        </div>
-                        <p style="font-size: 10pt; margin-top: 10px;"><strong>LA PRESTADORA</strong><br>AE TECH</p>
+            <div class="mt-10 flex justify-around border-t pt-8">
+                <div class="text-center">
+                    <canvas id="canvas-firma" style="border-bottom: 1px solid black; width: 250px; height: 100px;"></canvas>
+                    <p class="text-xs font-bold mt-2">FIRMA DEL CLIENTE</p>
+                </div>
+                <div class="text-center">
+                    <div style="height: 100px; display: flex; align-items: flex-end; border-bottom: 1px solid black; width: 250px; justify-content: center;">
+                        <p class="pb-2">Denisse Avila Espinoza</p>
                     </div>
+                    <p class="text-xs font-bold mt-2">AE TECH</p>
                 </div>
             </div>
         </div>
     </div>
 </section>
-
             
     <section id="Evidencia" class="main-content ">
                 

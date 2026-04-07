@@ -4615,88 +4615,72 @@ async function descargarReportePDF(tareaId, incluirMateriales = true, incluirCom
 
 //formato de contratos 
 
+function abrirGeneradorContrato(nombre = "________________", rfc = "________________") {
+    // 1. Mostrar la sección (Lógica AEtech)
+    mostrarSeccion('seccion-contratos');
 
-// 1. Inicializar el Lápiz Óptico cuando se muestra la sección
+    // 2. Llenar datos automáticos en el documento
+    const elNombre = document.getElementById('pdf-nombre-cliente');
+    const elRfc = document.getElementById('pdf-rfc-cliente');
+    const elFecha = document.getElementById('pdf-fecha');
 
-function inicializarFirma() {
-    const canvas = document.getElementById('canvas-firma-cliente');
-    signaturePad = new SignaturePad(canvas, {
-        penColor: "rgb(0, 0, 128)" // Color azul tipo pluma
-    });
-}
-
-// 2. Función para generar el PDF  contrato 
-function descargarContratoPDF() {
-    const element = document.getElementById('contrato-pdf');
-    const nombreCliente = document.getElementById('pdf-nombre-cliente').innerText;
+    if (elNombre) elNombre.innerText = nombre;
+    if (elRfc) elRfc.innerText = rfc;
     
-    const opt = {
-        margin: [10, 10], // Márgenes arriba/abajo y lados
-        filename: `Contrato_AEtech_${nombreCliente}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 3, useCORS: true }, // Mayor escala para que no se vea borroso
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
+    if (elFecha) {
+        const hoy = new Date();
+        const opciones = { day: 'numeric', month: 'long', year: 'numeric' };
+        elFecha.innerText = hoy.toLocaleDateString('es-MX', opciones);
+    }
 
-    html2pdf().set(opt).from(element).save();
-}
+    // 3. Configurar el Canvas de Firma
+    const canvas = document.getElementById('canvas-firma');
+    if (canvas) {
+        // Ajuste de resolución para pantallas retina/móviles
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+        canvas.width = canvas.offsetWidth * ratio;
+        canvas.height = canvas.offsetHeight * ratio;
+        canvas.getContext("2d").scale(ratio, ratio);
 
-
-
-// 3. Función para limpiar firmas
-function limpiarFirmas() {
-    signaturePad.clear();
-}
-
-function mostrarSeccion(idSeccion) {
-    // Oculta todas las secciones con la clase main-content
-    document.querySelectorAll('.main-content').forEach(s => s.style.display = 'none');
-    
-    // Muestra la que queremos
-    const seccion = document.getElementById(idSeccion);
-    if (seccion) {
-        seccion.style.display = 'block';
+        // Inicializar el lápiz (si ya existía uno, lo limpiamos)
+        if (signaturePad) {
+            signaturePad.clear();
+        } else {
+            signaturePad = new SignaturePad(canvas, {
+                penColor: "rgb(0, 0, 128)" // Color azul pluma
+            });
+        }
     }
 }
 
-
-
-
-// 1. Función para abrir el contrato y llenar los datos
-function generarContratoAutomatico(nombre, rfc) {
-    // Llenar los campos dinámicos
-    document.getElementById('pdf-nombre-cliente').innerText = nombre || "________________";
-    document.getElementById('pdf-rfc-cliente').innerText = rfc || "________________";
-    
-    // Fecha automática
-    const fecha = new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
-    document.getElementById('pdf-fecha').innerText = fecha;
-
-    // Mostrar sección
-    mostrarSeccion('seccion-contratos');
-
-    // Inicializar el lápiz para firmar (esperamos un momento a que cargue el canvas)
-    setTimeout(() => {
-        const canvas = document.getElementById('canvas-firma');
-        signaturePad = new SignaturePad(canvas, {
-            penColor: "rgb(0, 0, 128)" // Color azul pluma
-        });
-    }, 200);
-}
-
-// 2. Función para descargar el PDF
-function descargarContratoPDF() {
-    const element = document.getElementById('contrato-pdf');
-    const opt = {
-        margin: 10,
-        filename: `Contrato_AEtech_${document.getElementById('pdf-nombre-cliente').innerText}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-    html2pdf().set(opt).from(element).save();
-}
-
+// Función para limpiar el trazo
 function limpiarFirmas() {
-    if(signaturePad) signaturePad.clear();
+    if (signaturePad) {
+        signaturePad.clear();
+    }
+}
+
+// Función para exportar a PDF
+async function descargarContratoPDF() {
+    const element = document.getElementById('contrato-pdf');
+    const cliente = document.getElementById('pdf-nombre-cliente').innerText || 'Cliente';
+    
+    // Mostramos un loader si tienes uno (opcional)
+    if(typeof showLoader === 'function') showLoader();
+
+    const opt = {
+        margin:       10,
+        filename:     `Contrato_AEtech_${cliente}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 3, useCORS: true, letterRendering: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    try {
+        await html2pdf().set(opt).from(element).save();
+    } catch (error) {
+        console.error("Error al generar PDF:", error);
+    } finally {
+        if(typeof hideLoader === 'function') hideLoader();
+    }
 }
