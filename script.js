@@ -4625,7 +4625,7 @@ function inicializarFirma() {
     });
 }
 
-// 2. Función para generar el PDF
+// 2. Función para generar el PDF  contrato 
 function descargarContratoPDF() {
     const element = document.getElementById('contrato-pdf');
     const nombreCliente = document.getElementById('pdf-nombre-cliente').innerText;
