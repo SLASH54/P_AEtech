@@ -5272,3 +5272,31 @@ label[for="tareaAsignadoA"] {
 .btn-cancelar:hover {
     background-color: #ddd;
 }
+
+
+
+
+/* Estilo para que parezca una hoja de papel */
+.hoja-blanca {
+    background: white;
+    color: black;
+    padding: 40px;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    font-family: 'Times New Roman', serif;
+    min-height: 800px;
+}
+
+.texto-editable {
+    border: 1px dashed #007aff;
+    padding: 10px;
+    margin: 20px 0;
+    min-height: 100px;
+}
+
+.canvas-firma {
+    border-bottom: 2px solid #000;
+    width: 300px;
+    height: 150px;
+    background: #f9f9f9;
+}

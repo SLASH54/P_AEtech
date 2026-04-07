@@ -119,10 +119,61 @@
            
             <li><button onclick="mostrarContenido('Administracion')">Personal</button></li>
             <li><button onclick="mostrarContenido('Clientes')">Clientes</button></li>
+
+            <li onclick="mostrarSeccion('seccion-contratos')"><i class="icon-document"></i> 📄 Generar Contrato</li>
+
         </ul>
     </nav>
         <main>
 
+
+
+      <section id="seccion-contratos" style="display:none; padding: 20px;">
+    <div class="glass-card">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+            <h3>📄 Generador de Contrato AEtech</h3>
+            <div>
+                <button onclick="descargarContratoPDF()" class="btn-ver">💾 Descargar PDF</button>
+                <button onclick="limpiarFirmas()" class="btn-cancelar">🧹 Limpiar Firma</button>
+            </div>
+        </div>
+
+        <div id="contrato-pdf" class="hoja-blanca">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <img src="img/logoAEtech.png" style="width: 180px;">
+                <p style="font-size: 0.8em;">Seguridad Electrónica y Telecomunicaciones</p>
+            </div>
+
+            <p>Contrato por prestación de servicios que celebran por una parte <strong>Denisse Avila Espinoza</strong> ("la prestadora") y por la otra el 
+               <strong>Sr(a). <span id="pdf-nombre-cliente" style="color: blue; font-weight: bold;">________________</span></strong>, 
+               con RFC <strong><span id="pdf-rfc-cliente" style="color: blue; font-weight: bold;">________________</span></strong> ("la contratante").</p>
+
+            <div contenteditable="true" style="text-align: justify; font-size: 11pt;">
+                <p><strong>DECLARACIONES:</strong></p>
+                <p>1.- Declara “la prestadora” estar inscrita en el RFC: <strong>AIED011026T79</strong>, con domicilio en calle 15 Poniente número 107, colonia Álvaro Obregón en Atlixco, Puebla.</p>
+                <p>2.- El presente contrato ampara la instalación e implementación de sistemas de seguridad según lo acordado...</p>
+                <p>[Haz clic aquí para borrar este texto y pegar o escribir las cláusulas nuevas del Word]</p>
+            </div>
+
+            <p style="text-align: right; margin-top: 30px;">
+                Atlixco, Puebla, a <span id="pdf-fecha" style="font-weight: bold;"></span>.
+            </p>
+
+            <div style="margin-top: 50px; display: flex; justify-content: space-around; text-align: center;">
+                <div>
+                    <canvas id="canvas-firma" style="border-bottom: 1px solid #000; width: 250px; height: 100px;"></canvas>
+                    <p><strong>LA CONTRATANTE</strong></p>
+                </div>
+                <div>
+                    <div style="height: 100px; display: flex; align-items: flex-end; justify-content: center;">
+                        <p style="border-bottom: 1px solid #000; width: 200px;">Denisse Avila E.</p>
+                    </div>
+                    <p><strong>AE TECH</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 
             
