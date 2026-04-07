@@ -4614,70 +4614,89 @@ async function descargarReportePDF(tareaId, incluirMateriales = true, incluirCom
 
 
 
+let dibujando = false;
+let ctx;
 
-// Esta es la función que DEBE llamar el botón del menú
-function abrirGeneradorContrato(nombre = "________________", rfc = "________________") {
-    // 1. Usamos tu función existente para cambiar de sección
-    // Si tu función se llama mostrarSeccion o mostrarContenido, usa esa:
-    mostrarSeccion('seccion-contratos'); 
+function abrirGeneradorContrato() {
+    // 1. Mostrar la sección (asegúrate de que el ID sea correcto)
+    mostrarSeccion('seccion-contratos');
+    
+    const canvas = document.getElementById('canvas-firma');
+    if (!canvas) return;
 
-    // 2. Llenamos los datos en el HTML del contrato
-    const elNombre = document.getElementById('pdf-nombre-cliente');
-    const elRfc = document.getElementById('pdf-rfc-cliente');
-    const elFecha = document.getElementById('pdf-fecha-actual');
+    ctx = canvas.getContext('2d');
 
-    if (elNombre) elNombre.innerText = nombre;
-    if (elRfc) elRfc.innerText = rfc;
-    if (elFecha) elFecha.innerText = new Date().toLocaleDateString();
+    // Ajustar resolución del canvas para que no se vea pixelado
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    
+    // Configuración del trazo (Azul AEtech)
+    ctx.strokeStyle = "#000080"; 
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
 
-    // 3. Inicializamos la firma DESPUÉS de mostrar la sección
-    // Usamos un pequeño timeout para que el canvas tenga dimensiones reales
-    setTimeout(() => {
-        const canvas = document.getElementById('canvas-firma');
-        if (canvas) {
-            // Ajustamos el tamaño del lienzo al tamaño visible
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
-            
-            signaturePad = new SignaturePad(canvas, {
-                penColor: "rgb(0, 0, 128)"
-            });
+    // --- EVENTOS DE MOUSE ---
+    canvas.onmousedown = (e) => { 
+        dibujando = true; 
+        ctx.beginPath(); 
+        ctx.moveTo(e.offsetX, e.offsetY); 
+    };
+    canvas.onmousemove = (e) => { 
+        if(dibujando) { 
+            ctx.lineTo(e.offsetX, e.offsetY); 
+            ctx.stroke(); 
+        } 
+    };
+    window.addEventListener('mouseup', () => { dibujando = false; });
+
+    // --- EVENTOS DE TOUCH (Móvil) ---
+    canvas.addEventListener('touchstart', (e) => {
+        const touch = e.touches[0];
+        const r = canvas.getBoundingClientRect();
+        ctx.beginPath();
+        ctx.moveTo(touch.clientX - r.left, touch.clientY - r.top);
+        dibujando = true;
+        e.preventDefault();
+    }, { passive: false });
+
+    canvas.addEventListener('touchmove', (e) => {
+        if(dibujando) {
+            const touch = e.touches[0];
+            const r = canvas.getBoundingClientRect();
+            ctx.lineTo(touch.clientX - r.left, touch.clientY - r.top);
+            ctx.stroke();
         }
-    }, 200);
+        e.preventDefault();
+    }, { passive: false });
+
+    // Poner fecha actual automáticamente
+    const fechaSpan = document.getElementById('pdf-fecha-actual');
+    if(fechaSpan) fechaSpan.innerText = new Date().toLocaleDateString();
 }
 
-// Asegúrate de que tu función mostrarSeccion oculte las demás
-function mostrarSeccion(id) {
-    // Ocultar todas las secciones que tengan la clase 'main-content'
-    document.querySelectorAll('.main-content').forEach(seccion => {
-        seccion.style.display = 'none';
-    });
-
-    // Mostrar la que queremos
-    const seccionActiva = document.getElementById(id);
-    if (seccionActiva) {
-        seccionActiva.style.display = 'block';
-    } else {
-        console.error("No se encontró la sección con ID:", id);
+// Función para limpiar el cuadro de firma
+function limpiarFirmas() {
+    if(ctx) {
+        const canvas = document.getElementById('canvas-firma');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 }
 
 async function procesarContratoGuardado() {
-    if (signaturePad.isEmpty()) {
-        alert("Por favor, el cliente debe firmar el contrato.");
-        return;
-    }
-
-    // Preparar los datos para el Controlador (Backend)
+    const canvas = document.getElementById('canvas-firma');
+    
+    // Validar si el canvas está vacío (opcional, pero recomendado)
+    // Si no quieres validación pesada, simplemente procesamos:
+    
     const datosContrato = {
-        clienteNombre: document.getElementById('pdf-nombre-cliente').innerText,
-        clienteRFC: document.getElementById('pdf-rfc-cliente').innerText,
-        clienteDomicilio: document.getElementById('pdf-domicilio-cliente').innerText,
-        firmaData: signaturePad.toDataURL() // Convierte la firma a imagen de texto
+        clienteNombre: document.getElementById('pdf-nombre-cliente')?.innerText || "Sin nombre",
+        clienteRFC: document.getElementById('pdf-rfc-cliente')?.innerText || "Sin RFC",
+        clienteDomicilio: document.getElementById('pdf-domicilio-cliente')?.innerText || "Sin domicilio",
+        firmaData: canvas.toDataURL() // <-- AQUÍ está el truco: capturamos el dibujo como imagen
     };
 
     try {
-        // Enviar al backend siguiendo tu ruta de API
         const response = await fetch('/api/contratos', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -4685,25 +4704,15 @@ async function procesarContratoGuardado() {
         });
 
         if (response.ok) {
-            alert("Contrato guardado en base de datos correctamente.");
-            // Una vez guardado en BD, procedemos a bajar el PDF
-            generarPDF();
+            alert("Contrato guardado en AEtech correctamente.");
+            // Si tienes la librería de PDF activada, úsala, si no, solo guarda.
+            if(typeof html2pdf !== 'undefined') {
+                generarPDF();
+            }
+        } else {
+            alert("Error al guardar en el servidor.");
         }
     } catch (error) {
-        console.error("Error al guardar:", error);
+        console.error("Error en la conexión:", error);
     }
-}
-
-function generarPDF() {
-    const element = document.getElementById('contrato-pdf');
-    html2pdf().from(element).set({
-        margin: 10,
-        filename: 'Contrato_AEtech.pdf',
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    }).save();
-}
-
-function limpiarFirmas() {
-    if (signaturePad) signaturePad.clear();
 }

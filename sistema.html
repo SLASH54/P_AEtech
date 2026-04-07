@@ -135,11 +135,11 @@
              <p>RFC: <span id="pdf-rfc-cliente"></span></p>
              <p>Fecha: <span id="pdf-fecha-actual"></span></p>
              
-             <div class="mt-8">
-                 <canvas id="canvas-firma" style="border-bottom: 2px solid #000; width: 300px; height: 100px;"></canvas>
-                 <p class="text-xs">FIRMA DEL CLIENTE</p>
-             </div>
-        </div>
+          <div class="mt-8">
+    <canvas id="canvas-firma" style="border-bottom: 2px solid #000; width: 300px; height: 100px; background: #fff; cursor: crosshair;"></canvas>
+    <p class="text-xs font-bold">FIRMA DEL CLIENTE</p>
+    <button type="button" onclick="borrarFirmaManual()" class="text-red-500 text-[10px] underline">Borrar trazo</button>
+</div>
         
         <div class="mt-4 flex gap-2">
             <button onclick="limpiarFirmas()" class="btn-cancelar">Limpiar</button>
