@@ -4626,19 +4626,22 @@ function inicializarFirma() {
 }
 
 // 2. Función para generar el PDF
-async function descargarContratoPDF() {
+function descargarContratoPDF() {
     const element = document.getElementById('contrato-pdf');
+    const nombreCliente = document.getElementById('pdf-nombre-cliente').innerText;
+    
     const opt = {
-        margin:       10,
-        filename:     'Contrato_AEtech.pdf',
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2 },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        margin: [10, 10], // Márgenes arriba/abajo y lados
+        filename: `Contrato_AEtech_${nombreCliente}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 3, useCORS: true }, // Mayor escala para que no se vea borroso
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    // La librería hace todo el trabajo
     html2pdf().set(opt).from(element).save();
 }
+
+
 
 // 3. Función para limpiar firmas
 function limpiarFirmas() {
