@@ -135,60 +135,71 @@
                 <button onclick="limpiarFirmas()" class="btn-cancelar" style="background: #e11d48; color: white; padding: 8px 15px; border-radius: 8px; border: none; cursor: pointer;">
                     <i class="fa-solid fa-eraser"></i> Limpiar Firma
                 </button>
-                <button onclick="descargarContratoPDF()" class="btn-ver" style="background: #4f46e5; color: white; padding: 8px 15px; border-radius: 8px; border: none; cursor: pointer;">
-                    <i class="fa-solid fa-download"></i> Descargar PDF
+                <button onclick="procesarContratoGuardado()" class="btn-ver" style="background: #4f46e5; color: white; padding: 8px 15px; border-radius: 8px; border: none; cursor: pointer;">
+                    <i class="fa-solid fa-save"></i> Guardar y Generar PDF
                 </button>
             </div>
         </div>
 
         <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.3);">
-            <p style="font-size: 0.9em; color: #555; margin-bottom: 10px;">💡 <strong>Tip:</strong> Puedes hacer clic en los textos azules dentro del contrato para editarlos manualmente.</p>
+            <p style="font-size: 0.9em; color: #555; margin-bottom: 10px;">💡 <strong>Tip:</strong> Puedes hacer clic en los textos azules para editar los datos específicos del cliente.</p>
         </div>
 
-        <div id="contrato-pdf" style="background: white; padding: 50px; border-radius: 4px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); color: black; font-family: 'Times New Roman', serif; line-height: 1.5; max-width: 800px; margin: 0 auto;">
+        <div id="contrato-pdf" style="background: white; padding: 40px 60px; border-radius: 4px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); color: black; font-family: 'Times New Roman', serif; line-height: 1.4; max-width: 850px; margin: 0 auto;">
             
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-                <img src="img/logoAEtech.png" style="width: 120px;">
-                <div style="text-align: right; font-size: 8pt; color: #444;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px;">
+                <img src="img/logoAEtech.png" style="width: 130px;">
+                <div style="text-align: right; font-size: 9pt; color: #333;">
                     <strong>AE TECH</strong><br>
                     Seguridad, Tecnología e Innovación
                 </div>
             </div>
 
-            <div contenteditable="true" style="text-align: justify; font-size: 10.5pt;">
-                <p>Contrato por prestación de servicios especializados que celebran por una parte <strong>Denisse Avila Espinoza</strong> ("La Prestadora") y por la otra el 
+            <div contenteditable="true" style="text-align: justify; font-size: 10pt;">
+                <p style="text-align: center; font-weight: bold; font-size: 11pt; margin-bottom: 15px;">CONTRATO DE PRESTACIÓN DE SERVICIOS</p>
+
+                <p>Contrato por prestación de servicios especializados de instalación, implementación y distribución de sistema de seguridad electrónica con suministro de materiales y equipos en calidad de préstamo mismo que tendrá vigencia idéntica al presente contrato, que celebran por una parte <strong>Denisse Avila Espinoza</strong> ("La Prestadora") y por la otra el 
                    <strong>Sr(a). <span id="pdf-nombre-cliente" style="color: #0000ff; font-weight: bold;">[NOMBRE DEL CLIENTE]</span></strong>, 
                    con RFC <strong><span id="pdf-rfc-cliente" style="color: #0000ff; font-weight: bold;">[RFC]</span></strong> ("La Contratante").</p>
 
                 <p style="text-align: center; font-weight: bold; margin-top: 15px;">DECLARACIONES</p>
-                <p>I. Declara "La Prestadora" ser persona física con RFC: <strong>AIED011026T79</strong>, con domicilio en calle 15 Poniente 107, Col. Álvaro Obregón, Atlixco, Puebla.</p>
-                
+                <p><strong>1.-</strong> Declara "la prestadora" ser una persona física inscrita en el Registro Federal de Contribuyentes, con clave: <strong>AIED011026T79</strong>, con domicilio en calle 15 Poniente número 107, colonia Álvaro Obregón en Atlixco, Puebla.</p>
+                <p><strong>2.-</strong> Declara "la prestadora" que su actividad es entre otras, la prestación de servicios de instalación e implementación de sistemas de seguridad electrónica.</p>
+                <p><strong>3.-</strong> Declara "la contratante" tener la capacidad jurídica para celebrar el presente contrato y contar con un domicilio en: <span id="pdf-domicilio-cliente" style="color: #0000ff;">[DIRECCIÓN COMPLETA DEL SERVICIO]</span>.</p>
+
                 <p style="text-align: center; font-weight: bold; margin-top: 15px;">CLÁUSULAS</p>
-                <p><strong>Primera.</strong> El servicio consiste en la instalación e implementación de sistemas de seguridad electrónica vinculados a la central "AE Tech".</p>
-                <p><strong>Segunda.</strong> El pago mensual acordado es de <strong>$580.00 (Quinientos ochenta pesos 00/100 M.N.)</strong>.</p>
+                <p><strong>PRIMERA. OBJETO.</strong> "La prestadora" se obliga a prestar los servicios de monitoreo de sistema de alarma vinculado a la central de seguridad "AE Tech".</p>
+                <p><strong>SEGUNDA. EQUIPO.</strong> Los servicios serán proporcionados con equipo propio de "la prestadora" otorgados en calidad de préstamo a "la contratante" mientras dure la vigencia del servicio.</p>
+                <p><strong>TERCERA. COSTO.</strong> El costo mensual por el servicio de monitoreo será de <strong>$580.00 (Quinientos ochenta pesos 00/100 M.N.)</strong>.</p>
+                <p><strong>CUARTA. ACCESO.</strong> "La contratante" se obliga a permitir el acceso al domicilio al personal técnico de "AE Tech" para realizar visitas de mantenimiento preventivo o correctivo.</p>
+                <p><strong>QUINTA. RESCISIÓN.</strong> AE Tech podrá dar por finiquitado el contrato y retirar los equipos en caso de que "la contratante" incumpla con el pago de dos o más mensualidades de honorarios acordados.</p>
+
+                <p style="margin-top: 20px;">Leído que fue el presente contrato y enteradas las partes de su contenido, alcance y fuerza legal, lo firman de conformidad en la ciudad de Atlixco, Puebla.</p>
             </div>
 
-            <p style="text-align: right; margin-top: 30px; font-size: 10.5pt;">
-                Atlixco, Puebla, a <span id="pdf-fecha-contrato" style="font-weight: bold;"></span>
+            <p style="text-align: right; margin-top: 20px; font-size: 10pt;">
+                Fecha: <span id="pdf-fecha-actual" style="font-weight: bold;"></span>
             </p>
 
-            <div style="margin-top: 50px; display: flex; justify-content: space-around; text-align: center;">
-                <div style="width: 40%;">
-                    <canvas id="canvas-firma" style="border-bottom: 1px solid #000; width: 100%; height: 80px; cursor: crosshair;"></canvas>
-                    <p style="font-size: 9pt; margin-top: 5px;">LA CONTRATANTE</p>
+            <div style="margin-top: 40px; display: flex; justify-content: space-around; text-align: center;">
+                <div style="width: 45%;">
+                    <canvas id="canvas-firma" style="border-bottom: 2px solid #000; width: 100%; height: 90px; cursor: crosshair; background: #fafafa;"></canvas>
+                    <p style="font-size: 8pt; margin-top: 5px; font-weight: bold;">LA CONTRATANTE<br>(Nombre y Firma)</p>
                 </div>
-                <div style="width: 40%;">
-                    <div style="height: 80px; display: flex; align-items: flex-end; justify-content: center; border-bottom: 1px solid #000;">
-                        <p style="font-size: 10pt;">Denisse Avila Espinoza</p>
+                <div style="width: 45%;">
+                    <div style="height: 90px; display: flex; align-items: flex-end; justify-content: center; border-bottom: 2px solid #000;">
+                        <p style="font-size: 10pt; margin-bottom: 5px;">Denisse Avila Espinoza</p>
                     </div>
-                    <p style="font-size: 9pt; margin-top: 5px;">LA PRESTADORA / AE TECH</p>
+                    <p style="font-size: 8pt; margin-top: 5px; font-weight: bold;">PRESTADOR DE SERVICIOS<br>AE TECH</p>
                 </div>
+            </div>
+
+            <div style="margin-top: 30px; padding-top: 10px; border-top: 1px solid #eee; font-size: 7pt; color: #777; text-align: center;">
+                15 Poniente 107 Colonia Álvaro Obregón, Atlixco, Puebla | Tel: (244) 446 0849 | contacto@aetech.com.mx
             </div>
         </div>
     </div>
 </section>
-
-
 
     <section id="Evidencia" class="main-content ">
                 
@@ -268,7 +279,7 @@
     </div>
 
     <div class="qa-card" id="card-contrato" onclick="mostrarContenido('seccion-contratos')">
-      📄<span>Contrato</span>
+      <span>Contrato</span>
     </div>
 </div>
   <div class="dashboard-card">
