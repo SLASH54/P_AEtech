@@ -4621,47 +4621,50 @@ let dibujando = false;
 let contextoFirma;
 
 function abrirGeneradorContrato(nombre = "________________", rfc = "") {
-    // 1. CORRECCIÓN: Usar la función que ya tienes en tu sistema
-    // Según tus imágenes, la función correcta es mostrarContenido
+    // 1. Primero mostramos la sección
     if (typeof mostrarContenido === 'function') {
         mostrarContenido('Contratos'); 
     } else {
-        // Si no existe, al menos intentamos mostrar el div
         const seccion = document.getElementById('seccion-contratos');
         if (seccion) seccion.style.display = 'block';
     }
     
-    // 2. Llenar los datos del cliente que vienen de la tabla
+    // 2. Llenamos los textos
     const elNombre = document.getElementById('pdf-nombre-cliente');
     const elRfc = document.getElementById('pdf-rfc-cliente');
     if (elNombre) elNombre.innerText = nombre;
     if (elRfc) elRfc.innerText = rfc;
 
-    // 3. Configurar el Canvas
-    const canvas = document.getElementById('canvas-firma');
-    if (!canvas) return;
+    // 3. ¡EL TRUCO! Esperamos 100ms a que el HTML sea visible
+    setTimeout(() => {
+        const canvas = document.getElementById('canvas-firma');
+        if (!canvas) {
+            console.error("No se encontró el canvas 'canvas-firma'");
+            return;
+        }
 
-    contextoFirma = canvas.getContext('2d');
+        contextoFirma = canvas.getContext('2d');
 
-    // Ajustar tamaño real para que el trazo no salga movido
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-    
-    // Estilo AE TECH [cite: 3, 25]
-    contextoFirma.strokeStyle = "#000080"; 
-    contextoFirma.lineWidth = 2;
-    contextoFirma.lineCap = "round";
+        // Ahora que es visible, el offsetWidth ya no será 0
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        
+        // Configuración del trazo
+        contextoFirma.strokeStyle = "#000080"; 
+        contextoFirma.lineWidth = 2;
+        contextoFirma.lineCap = "round";
 
-    // --- LOGICA DE DIBUJO ---
-    activarEventosFirma(canvas);
+        // Activamos los eventos
+        activarEventosFirma(canvas);
+        
+        console.log("Lienzo de firma activado correctamente");
+    }, 100); 
 
-    // Fecha automática
     const fechaContrato = document.getElementById('pdf-fecha-actual');
     if (fechaContrato) {
         fechaContrato.innerText = new Date().toLocaleDateString();
     }
 }
-
 //FIRMA 
 
 function configurarLienzoFirma(canvas) {
