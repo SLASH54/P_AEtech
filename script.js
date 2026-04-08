@@ -4671,17 +4671,28 @@ function prepararPincelContrato(canvas) {
     globalCtxContrato.lineJoin = 'round';
 
     // --- EVENTOS MOUSE ---
-    canvas.onmousedown = (e) => {
-        globalDibujandoContrato = true;
-        globalCtxContrato.beginPath();
-        globalCtxContrato.moveTo(e.offsetX, e.offsetY);
-    };
+    // SUSTITUYE tus eventos de mouse por estos en prepararPincelContrato:
+canvas.onmousedown = (e) => {
+    globalDibujandoContrato = true;
+    globalCtxContrato.beginPath();
+    
+    // Usamos rect para una posición exacta
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    globalCtxContrato.moveTo(x, y);
+};
 
-    canvas.onmousemove = (e) => {
-        if (!globalDibujandoContrato) return;
-        globalCtxContrato.lineTo(e.offsetX, e.offsetY);
-        globalCtxContrato.stroke();
-    };
+canvas.onmousemove = (e) => {
+    if (!globalDibujandoContrato) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    globalCtxContrato.lineTo(x, y);
+    globalCtxContrato.stroke();
+};
 
     // --- EVENTOS TOUCH (Móvil) ---
     const getPosTouch = (e) => {
