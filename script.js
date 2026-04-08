@@ -4657,6 +4657,7 @@ function abrirGeneradorContrato(nombre = "________________", rfc = "") {
     }, 500);
 }
 
+
 function prepararPincelContrato(canvas) {
     if (!canvas) return;
 
@@ -4665,7 +4666,7 @@ function prepararPincelContrato(canvas) {
 
     // Configuración de estilo (Negro AE Tech)
     globalCtxContrato.strokeStyle = '#000000';
-    globalCtxContrato.lineWidth = 2.5;
+    globalCtxContrato.lineWidth = 3;
     globalCtxContrato.lineCap = 'round';
     globalCtxContrato.lineJoin = 'round';
 
@@ -4713,6 +4714,7 @@ function prepararPincelContrato(canvas) {
     canvas.addEventListener('touchend', detener);
 }
 
+
 // 🔹 Función Limpiar (Usando la global)
 function limpiarFirmas() {
     const canvas = document.getElementById('canvas-firma-contrato');
@@ -4722,31 +4724,36 @@ function limpiarFirmas() {
     }
 }
 
+
+
+
 // 🔹 Procesar y Guardar
 async function procesarContratoGuardado() {
     const canvas = document.getElementById('canvas-firma-contrato');
     if (!canvas) return;
 
-    // Capturamos el dibujo
-    const firmaBase64 = canvas.toDataURL("image/png"); 
+    const imagenBase64 = canvas.toDataURL("image/png"); 
     
-    const datosContrato = {
+    const datosParaEnviar = {
         clienteNombre: document.getElementById('pdf-nombre-cliente').innerText,
         clienteRFC: document.getElementById('pdf-rfc-cliente').innerText,
-        firmaData: firmaBase64 
+        // 🚀 Enviamos con el nombre que espera el controlador
+        contratoFirmaBase64: imagenBase64 
     };
 
     try {
         const response = await fetch('/api/contratos', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(datosContrato)
+            body: JSON.stringify(datosParaEnviar)
         });
 
-        if (response.ok) {
-            alert("✅ Guardado en base de datos correctamente.");
+        const data = await response.json();
+        if (data.success) {
+            alert("✅ ¡Contrato firmado y subido a Cloudinary con éxito!");
         }
     } catch (error) {
-        alert("Error de conexión con Render.");
+        console.error(error);
+        alert("Error de conexión con el servidor de Render.");
     }
 }

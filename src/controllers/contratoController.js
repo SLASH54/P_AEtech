@@ -1,14 +1,28 @@
-const Contrato = require('../models/Contrato'); // ✅ Una sola declaración al inicio
+const Contrato = require('../models/Contrato');
+const cloudinary = require('cloudinary').v2; // 👈 Importamos cloudinary como en las evidencias
 
-// 🔹 Guardar nuevo contrato con firma en Base64
+// 🔹 Guardar nuevo contrato con firma en Cloudinary
 exports.crearContrato = async (req, res) => {
     try {
-        const { clienteNombre, clienteRFC, firmaData } = req.body;
-        
+        // Recibimos los datos con nombres específicos para contrato
+        const { clienteNombre, clienteRFC, contratoFirmaBase64 } = req.body;
+
+        let urlFinalCloudinary = null;
+
+        // 1️⃣ Subir la firma a Cloudinary (Carpeta separada de evidencias)
+        if (contratoFirmaBase64) {
+            const result = await cloudinary.uploader.upload(contratoFirmaBase64, {
+                folder: 'aetech_contratos_oficiales',
+                resource_type: 'image'
+            });
+            urlFinalCloudinary = result.secure_url;
+        }
+
+        // 2️⃣ Guardar en la base de datos con la nueva variable contratoFirmaUrl
         const nuevoContrato = await Contrato.create({
             clienteNombre,
             clienteRFC,
-            firmaData 
+            contratoFirmaUrl: urlFinalCloudinary // 🛡️ Nombre único para no chocar
         });
 
         res.status(201).json({ 
@@ -16,6 +30,7 @@ exports.crearContrato = async (req, res) => {
             msg: "✅ Contrato guardado con éxito en AE Tech", 
             id: nuevoContrato.id 
         });
+
     } catch (error) {
         console.error("❌ Error en crearContrato:", error);
         res.status(500).json({ 
