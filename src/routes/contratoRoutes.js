@@ -2,10 +2,10 @@ const express = require('express');
 const router = express.Router();
 const contratoController = require('../controllers/contratoController');
 
-// 🔹 Ruta para guardar el contrato (Llamando al controlador)
+// 🔹 Ruta para guardar el contrato
 router.post('/', contratoController.crearContrato);
 
-// 🔹 Ruta para ver el historial (Opcional)
+// 🔹 Ruta para ver el historial
 router.get('/', contratoController.obtenerContratos);
 
 module.exports = router;
