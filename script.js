@@ -4618,8 +4618,7 @@ async function descargarReportePDF(tareaId, incluirMateriales = true, incluirCom
 
 
 // --- VARIABLES GLOBALES ---
-let dibujandoContrato = false;
-let ctxContrato;
+// Nota: Ya no necesitamos ctxContrato global para el contrato porque usamos variables locales
 
 function abrirGeneradorContrato(nombre = "________________", rfc = "") {
     // 1. Mostrar la sección
@@ -4630,7 +4629,7 @@ function abrirGeneradorContrato(nombre = "________________", rfc = "") {
         if (seccion) seccion.style.display = 'block';
     }
     
-    // 2. Llenar datos (Denisse, Dionisio, etc.)
+    // 2. Llenar datos
     const elNombre = document.getElementById('pdf-nombre-cliente');
     const elRfc = document.getElementById('pdf-rfc-cliente');
     const elFecha = document.getElementById('pdf-fecha-actual');
@@ -4641,105 +4640,89 @@ function abrirGeneradorContrato(nombre = "________________", rfc = "") {
 
     // 3. Inicializar el Canvas con RE-AJUSTE
     setTimeout(() => {
-        const canvasContrato = document.getElementById('canvas-firma');
-        if (canvasContrato) {
-            ctxContrato = canvasContrato.getContext('2d');
+        // 🌟 USAMOS EL ID NUEVO Y ÚNICO
+        const elCanvas = document.getElementById('canvas-firma-contrato');
+        if (elCanvas) {
+            elCanvas.width = elCanvas.offsetWidth;
+            elCanvas.height = elCanvas.offsetHeight;
             
-            // Forzamos el tamaño real del dibujo para que coincida con lo que ves
-            canvasContrato.width = canvasContrato.clientWidth;
-            canvasContrato.height = canvasContrato.clientHeight;
-            
-            // RE-CONFIGURACIÓN DE TINTA (Negro AE Tech)
-            ctxContrato.strokeStyle = '#000000';
-            ctxContrato.lineWidth = 2;
-            ctxContrato.lineCap = 'round';
-            ctxContrato.lineJoin = 'round'; // Para que la firma se vea fluida
-            
-            iniciarLogicaFirmaContrato(canvasContrato);
-            console.log("✅ Pincel de contrato listo para chambear");
+            inicializarPincelContrato(elCanvas);
+            console.log("🖋️ Pincel de contrato independiente activado");
         }
-    }, 500); // Un pelín más de tiempo para que Render y el DOM se pongan de acuerdo
+    }, 500);
 }
 
+// 🔹 FUNCIÓN DE DIBUJO INDEPENDIENTE (La "blindada")
+function inicializarPincelContrato(canvasElemento) {
+    if (!canvasElemento) return;
 
-//dibujo de la firma
-function iniciarLogicaFirmaContrato(canvas) {
-    // 1. Forzar siempre el contexto actual del canvas que estamos viendo
-    ctxContrato = canvas.getContext('2d'); 
+    const ctxFirma = canvasElemento.getContext('2d');
+    let dibujandoAhora = false; 
 
-    // 2. Limpiar eventos y RECONFIGURAR TINTA justo antes de pintar
-    canvas.onmousedown = (e) => {
-        dibujandoContrato = true;
-        
-        // RE-ASEGURAR COLOR NEGRO AQUÍ
-        ctxContrato.strokeStyle = '#000000'; 
-        ctxContrato.lineWidth = 2;
-        
-        ctxContrato.beginPath();
-        ctxContrato.moveTo(e.offsetX, e.offsetY);
+    ctxFirma.strokeStyle = '#000000';
+    ctxFirma.lineWidth = 2.5;
+    ctxFirma.lineCap = 'round';
+    ctxFirma.lineJoin = 'round';
+
+    // Ratón
+    canvasElemento.onmousedown = (e) => {
+        dibujandoAhora = true;
+        ctxFirma.beginPath();
+        ctxFirma.moveTo(e.offsetX, e.offsetY);
     };
-    // 🔹 Eventos de Ratón
-    canvas.onmousedown = (e) => {
-        dibujandoContrato = true;
-        ctxContrato.beginPath();
-        // Usamos offsetX/Y para que pinte exactamente donde está el cursor
-        ctxContrato.moveTo(e.offsetX, e.offsetY);
+    canvasElemento.onmousemove = (e) => {
+        if (!dibujandoAhora) return;
+        ctxFirma.lineTo(e.offsetX, e.offsetY);
+        ctxFirma.stroke();
     };
+    window.addEventListener('mouseup', () => (dibujandoAhora = false));
 
-    canvas.onmousemove = (e) => {
-        if (!dibujandoContrato) return;
-        ctxContrato.lineTo(e.offsetX, e.offsetY);
-        ctxContrato.stroke();
-    };
-
-    window.addEventListener('mouseup', () => (dibujandoContrato = false));
-
-    // 🔹 Eventos Táctiles (Mantenemos tu lógica que ya funciona)
-    const getTouchPosContrato = (e) => {
-        const rect = canvas.getBoundingClientRect();
+    // Táctil
+    const calcularPosicionTouch = (e) => {
+        const rect = canvasElemento.getBoundingClientRect();
         return {
             x: e.touches[0].clientX - rect.left,
             y: e.touches[0].clientY - rect.top,
         };
     };
-
-    canvas.addEventListener('touchstart', (e) => {
-        if (e.target === canvas) e.preventDefault();
-        dibujandoContrato = true;
-        const pos = getTouchPosContrato(e);
-        ctxContrato.beginPath();
-        ctxContrato.moveTo(pos.x, pos.y);
+    canvasElemento.addEventListener('touchstart', (e) => {
+        if (e.target === canvasElemento) e.preventDefault();
+        dibujandoAhora = true;
+        const pos = calcularPosicionTouch(e);
+        ctxFirma.beginPath();
+        ctxFirma.moveTo(pos.x, pos.y);
     }, { passive: false });
-
-    canvas.addEventListener('touchmove', (e) => {
-        if (e.target === canvas) e.preventDefault();
-        if (!dibujandoContrato) return;
-        const pos = getTouchPosContrato(e);
-        ctxContrato.lineTo(pos.x, pos.y);
-        ctxContrato.stroke();
+    canvasElemento.addEventListener('touchmove', (e) => {
+        if (e.target === canvasElemento) e.preventDefault();
+        if (!dibujandoAhora) return;
+        const pos = calcularPosicionTouch(e);
+        ctxFirma.lineTo(pos.x, pos.y);
+        ctxFirma.stroke();
     }, { passive: false });
-
-    canvas.addEventListener('touchend', () => (dibujandoContrato = false));
+    canvasElemento.addEventListener('touchend', () => (dibujandoAhora = false));
 }
 
-
-// 🔹 Función para limpiar (Asegúrate de que el botón llame a esta)
+// 🔹 Función para limpiar (ACTUALIZADA CON ID NUEVO)
 function limpiarFirmas() {
-    const canvas = document.getElementById('canvas-firma');
-    if (canvas && ctxContrato) {
-        ctxContrato.clearRect(0, 0, canvas.width, canvas.height);
-        console.log("🧹 Lienzo limpio");
+    const canvas = document.getElementById('canvas-firma-contrato');
+    if (canvas) {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        console.log("🧹 Lienzo de contrato limpio");
     }
 }
 
+// 🔹 Procesar y Guardar (ACTUALIZADA CON ID NUEVO)
 async function procesarContratoGuardado() {
-    const canvas = document.getElementById('canvas-firma');
-    const firmaBase64 = canvas.toDataURL("image/png"); // Captura el dibujo
+    const canvas = document.getElementById('canvas-firma-contrato');
+    if (!canvas) return alert("No se encontró el lienzo de firma");
+
+    const firmaBase64 = canvas.toDataURL("image/png"); 
     
     const datosContrato = {
         clienteNombre: document.getElementById('pdf-nombre-cliente').innerText,
         clienteRFC: document.getElementById('pdf-rfc-cliente').innerText,
-        firmaData: firmaBase64 // Se envía a la columna 'firmaData' de tu modelo
+        firmaData: firmaBase64 
     };
 
     try {
@@ -4751,9 +4734,11 @@ async function procesarContratoGuardado() {
 
         if (response.ok) {
             alert("✅ ¡Contrato y firma guardados en la base de datos de AE Tech!");
-            // Aquí ya puedes disparar el html2pdf para que el cliente se lleve su copia
+        } else {
+            alert("❌ Error al guardar en el servidor");
         }
     } catch (error) {
+        console.error(error);
         alert("Error al conectar con el servidor.");
     }
 }

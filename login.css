@@ -5295,8 +5295,33 @@ label[for="tareaAsignadoA"] {
     min-height: 100px;
 }
 
+
+
+/* firma de contrto  */
 #canvas-firma {
     background-color: white !important;
     border: 1px solid #ccc;
     cursor: crosshair;
+}
+
+/* SECCIÓN FIRMA DE CONTRATO (Nombres únicos) */
+.contenedor-firma-contrato {
+  background-color: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  text-align: center;
+}
+
+#canvas-firma-contrato {
+  touch-action: none; /* 🔑 Bloquea el scroll del celular para poder firmar */
+  border: 2px solid #1e3a8a; /* Azul oscuro para diferenciarlo */
+  border-radius: 10px;
+  width: 100%;
+  max-width: 450px;
+  height: 220px;
+  background-color: #ffffff;
+  cursor: crosshair;
+  display: block;
+  margin: 0 auto 15px auto;
 }
