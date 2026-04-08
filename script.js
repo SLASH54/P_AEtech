@@ -4611,8 +4611,8 @@ async function descargarReportePDF(tareaId, incluirMateriales = true, incluirCom
   }
 }
 
-
-// --- VARIABLES GLOBALES ---
+//EDICION DE CANVAS DE LA FIRMA BASE 64 
+// --- VARIABLES GLOBALES  CONTRATO ---
 let dibujandoContrato = false;
 let ctxContrato;
 
