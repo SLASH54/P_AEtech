@@ -1,32 +1,43 @@
 const Contrato = require('../models/Contrato');
 
+const Contrato = require('../models/Contrato'); //
+
+// 🔹 Guardar nuevo contrato con firma en Base64
 exports.crearContrato = async (req, res) => {
     try {
-        const { clienteNombre, clienteRFC, clienteDomicilio, firmaData } = req.body;
+        // Extraemos los datos que vienen del frontend
+        const { clienteNombre, clienteRFC, firmaData } = req.body;
         
+        // Creamos el registro en la tabla 'Contratos'
         const nuevoContrato = await Contrato.create({
             clienteNombre,
             clienteRFC,
-            clienteDomicilio,
-            firmaData // La firma que viene del canvas
+            firmaData // Aquí se guarda el texto largo de la firma
         });
 
-        res.status(201).json({ msg: "Contrato guardado con éxito", id: nuevoContrato.id });
+        res.status(201).json({ 
+            success: true, 
+            msg: "✅ Contrato guardado con éxito en AE Tech", 
+            id: nuevoContrato.id 
+        });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ msg: "Error al guardar contrato" });
+        console.error("❌ Error en crearContrato:", error);
+        res.status(500).json({ 
+            success: false, 
+            msg: "Error al guardar el contrato en el servidor" 
+        });
     }
 };
 
+// 🔹 Obtener historial de contratos (opcional)
 exports.obtenerContratos = async (req, res) => {
     try {
-        const contratos = await Contrato.findAll({ order: [['createdAt', 'DESC']] });
+        const contratos = await Contrato.findAll({ order: [['createdAt', 'DESC']] }); //
         res.json(contratos);
     } catch (error) {
-        res.status(500).json({ msg: "Error al obtener listado" });
+        res.status(500).json({ msg: "Error al obtener el listado de contratos" });
     }
 };
-
 
 const Contrato = require('../models/Contrato');
 
