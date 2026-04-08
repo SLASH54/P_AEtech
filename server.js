@@ -58,7 +58,7 @@ app.use('/api/notificaciones', require('./src/routes/NotificacionRoutes'));
 app.use("/api/levantamientos", require("./src/routes/LevantamientosRoutes"));
 app.use('/api/cuentas', require('./src/routes/cuentaRoutes'));
 app.use('/api/productos', require('./src/routes/productoRoutes'));
-
+app.use('/api/contratos', require('./src/routes/contratoRoutes'));
 
 // Ruta exclusiva para el Cronjob - NO TOCA LA BASE DE DATOS
 app.get('/api/keep-alive', (req, res) => {
@@ -131,3 +131,5 @@ connectDB()
 //      console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
 //    });
 //  });
+
+

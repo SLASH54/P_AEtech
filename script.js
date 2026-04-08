@@ -4712,16 +4712,24 @@ function limpiarFirmas() {
 // 🔹 PROCESAMIENTO FINAL (Solo Base64, sin Cloudinary pesado)
 async function procesarContratoGuardado() {
     const canvas = document.getElementById('canvas-firma');
+    
+    // 1. Convertimos la firma a Base64
     const firmaBase64 = canvas.toDataURL("image/png");
     
+    // 2. Recogemos los datos del documento
     const datosContrato = {
         clienteNombre: document.getElementById('pdf-nombre-cliente').innerText,
         clienteRFC: document.getElementById('pdf-rfc-cliente').innerText,
-        firmaData: firmaBase64 // Se envía el Base64 puro
+        firmaData: firmaBase64 
     };
 
+    // Validación rápida
+    if (datosContrato.clienteNombre.includes("___")) {
+        return alert("Por favor, selecciona un cliente antes de guardar.");
+    }
+
     try {
-        // Guardamos en tu API (Base64 en la BD)
+        // 3. Enviamos a tu backend en Render
         const response = await fetch('/api/contratos', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -4729,33 +4737,40 @@ async function procesarContratoGuardado() {
         });
 
         if (response.ok) {
-            alert("✅ Firma capturada y contrato listo.");
+            alert("✅ Contrato guardado exitosamente en la base de datos.");
             
-            // GENERAR EL PDF USANDO EL CLON CON LA IMAGEN
-            const element = document.getElementById('contrato-pdf');
-            const opt = {
-                margin: 10,
-                filename: `Contrato_AEtech_${datosContrato.clienteNombre}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { 
-                    scale: 3, 
-                    useCORS: true,
-                    onclone: (clonedDoc) => {
-                        const clonedCanvas = clonedDoc.getElementById('canvas-firma');
-                        if(clonedCanvas) {
-                            const img = clonedDoc.createElement('img');
-                            img.src = firmaBase64;
-                            img.style.width = '100%';
-                            clonedCanvas.replaceWith(img);
-                        }
-                    }
-                },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-            html2pdf().set(opt).from(element).save();
+            // 4. Generamos el PDF para el cliente (usando tu lógica de html2pdf)
+            generarPDFContrato(datosContrato.clienteNombre, firmaBase64);
+        } else {
+            throw new Error("Error en el servidor");
         }
     } catch (error) {
         console.error("Error:", error);
-        alert("Fallo al procesar contrato.");
+        alert("Hubo un problema al conectar con Render. Intenta de nuevo.");
     }
+}
+
+// Función auxiliar para no amontonar el código
+function generarPDFContrato(nombre, firmaImg) {
+    const element = document.getElementById('contrato-pdf');
+    const opt = {
+        margin: 10,
+        filename: `Contrato_AEtech_${nombre}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+            scale: 3, 
+            useCORS: true,
+            onclone: (clonedDoc) => {
+                const clonedCanvas = clonedDoc.getElementById('canvas-firma');
+                if(clonedCanvas) {
+                    const img = clonedDoc.createElement('img');
+                    img.src = firmaImg;
+                    img.style.width = '100%';
+                    clonedCanvas.replaceWith(img);
+                }
+            }
+        },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    html2pdf().set(opt).from(element).save();
 }

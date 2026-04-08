@@ -2,15 +2,24 @@ const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/database');
 
 const Contrato = sequelize.define('Contrato', {
-    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    clienteNombre: { type: DataTypes.STRING, allowNull: false },
-    clienteRFC: { type: DataTypes.STRING, allowNull: false },
-    clienteDomicilio: { type: DataTypes.TEXT },
-    firmaData: { type: DataTypes.TEXT }, // Aquí guardamos la firma en formato Base64
-    fechaGenerado: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
+  clienteNombre: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  clienteRFC: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  firmaData: {
+    type: DataTypes.TEXT, // Usamos TEXT para el Base64 largo
+    allowNull: false
+  },
+  monto: {
+    type: DataTypes.DECIMAL(10, 2),
+    defaultValue: 580.00
+  }
 }, {
-    tableName: 'contratos',
-    timestamps: true
+  tableName: 'Contratos'
 });
 
 module.exports = Contrato;
