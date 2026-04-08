@@ -4662,19 +4662,20 @@ function abrirGeneradorContrato(nombre = "________________", rfc = "") {
 }
 
 function iniciarLogicaFirmaContrato(canvas) {
-    // 1. Validar el contexto antes de empezar
-    if (!ctxContrato) ctxContrato = canvas.getContext('2d');
+    // 1. Forzar siempre el contexto actual del canvas que estamos viendo
+    ctxContrato = canvas.getContext('2d'); 
 
-    // 2. Limpiar eventos previos
-    canvas.onmousedown = null;
-    canvas.onmousemove = null;
-
-    // 🌟 CONFIGURACIÓN CRUCIAL DE TINTA NEGRA 🌟
-    ctxContrato.strokeStyle = '#000000'; // Negro puro
-    ctxContrato.lineWidth = 2;           // Grosor visible
-    ctxContrato.lineCap = 'round';       // Puntas redondeadas
-    ctxContrato.lineJoin = 'round';      // Uniones suaves
-
+    // 2. Limpiar eventos y RECONFIGURAR TINTA justo antes de pintar
+    canvas.onmousedown = (e) => {
+        dibujandoContrato = true;
+        
+        // RE-ASEGURAR COLOR NEGRO AQUÍ
+        ctxContrato.strokeStyle = '#000000'; 
+        ctxContrato.lineWidth = 2;
+        
+        ctxContrato.beginPath();
+        ctxContrato.moveTo(e.offsetX, e.offsetY);
+    };
     // 🔹 Eventos de Ratón
     canvas.onmousedown = (e) => {
         dibujandoContrato = true;

@@ -5295,9 +5295,8 @@ label[for="tareaAsignadoA"] {
     min-height: 100px;
 }
 
-.canvas-firma {
-    border-bottom: 2px solid #000;
-    width: 300px;
-    height: 150px;
-    background: #f9f9f9;
+#canvas-firma {
+    background-color: white !important;
+    border: 1px solid #ccc;
+    cursor: crosshair;
 }
