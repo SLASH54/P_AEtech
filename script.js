@@ -4661,6 +4661,8 @@ function abrirGeneradorContrato(nombre = "________________", rfc = "") {
     }, 500); // Un pelín más de tiempo para que Render y el DOM se pongan de acuerdo
 }
 
+
+//dibujo de la firma 
 function iniciarLogicaFirmaContrato(canvas) {
     // 1. Forzar siempre el contexto actual del canvas que estamos viendo
     ctxContrato = canvas.getContext('2d'); 
