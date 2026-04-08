@@ -4612,16 +4612,12 @@ async function descargarReportePDF(tareaId, incluirMateriales = true, incluirCom
 }
 
 
-
-
-//GENERANDO EL CONTRATO
-
-// --- VARIABLES GLOBALES PARA CONTRATO ---
+// --- VARIABLES GLOBALES ---
 let dibujandoContrato = false;
 let ctxContrato;
 
 function abrirGeneradorContrato(nombre = "________________", rfc = "") {
-    // 1. Mostrar la sección de contratos
+    // 1. Mostrar la sección (aseguramos que sea visible primero)
     if (typeof mostrarContenido === 'function') {
         mostrarContenido('Contratos'); 
     } else {
@@ -4629,37 +4625,34 @@ function abrirGeneradorContrato(nombre = "________________", rfc = "") {
         if (seccion) seccion.style.display = 'block';
     }
     
-    // 2. Llenar datos en el documento
-    const elNombre = document.getElementById('pdf-nombre-cliente');
-    const elRfc = document.getElementById('pdf-rfc-cliente');
-    if (elNombre) elNombre.innerText = nombre;
-    if (elRfc) elRfc.innerText = rfc;
-    
-    const elFecha = document.getElementById('pdf-fecha-actual');
-    if (elFecha) elFecha.innerText = new Date().toLocaleDateString();
+    // 2. Llenar datos de texto
+    document.getElementById('pdf-nombre-cliente').innerText = nombre;
+    document.getElementById('pdf-rfc-cliente').innerText = rfc;
+    document.getElementById('pdf-fecha-actual').innerText = new Date().toLocaleDateString();
 
-    // 3. Inicializar el Canvas
-    const canvasContrato = document.getElementById('canvas-firma');
-    if (canvasContrato) {
-        ctxContrato = canvasContrato.getContext('2d');
+    // 3. Inicialización del Canvas (Con delay para que el tamaño no sea 0)
+    setTimeout(() => {
+        const canvas = document.getElementById('canvas-firma');
+        if (!canvas) return;
+
+        ctxContrato = canvas.getContext('2d');
+
+        // Ajustar el tamaño real del lienzo según el contenedor
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
         
-        // Esperamos un momento a que la sección sea visible para tomar el tamaño real
-        setTimeout(() => {
-            canvasContrato.width = canvasContrato.offsetWidth;
-            canvasContrato.height = canvasContrato.offsetHeight;
-            
-            // CONFIGURACIÓN: TINTA NEGRA (como en evidencias)
-            ctxContrato.strokeStyle = '#000000'; 
-            ctxContrato.lineWidth = 2;
-            ctxContrato.lineCap = 'round';
-            
-            iniciarLogicaFirmaContrato(canvasContrato);
-        }, 300);
-    }
+        // Estilo exacto como en evidencias (Tinta Negra)
+        ctxContrato.strokeStyle = '#000000'; 
+        ctxContrato.lineWidth = 2;
+        ctxContrato.lineCap = 'round';
+
+        // ACTIVAR LA LÓGICA DE DIBUJO
+        iniciarLogicaFirmaContrato(canvas);
+    }, 400); 
 }
 
 function iniciarLogicaFirmaContrato(canvas) {
-    // 🔹 Eventos de ratón (Eliminamos cualquier referencia a SignaturePad)
+    // 🔹 EVENTOS DE RATÓN
     canvas.onmousedown = (e) => {
         dibujandoContrato = true;
         ctxContrato.beginPath();
@@ -4675,7 +4668,7 @@ function iniciarLogicaFirmaContrato(canvas) {
     canvas.onmouseup = () => (dibujandoContrato = false);
     canvas.onmouseleave = () => (dibujandoContrato = false);
 
-    // 🔹 Eventos táctiles (Lógica probada de evidencias)
+    // 🔹 EVENTOS TÁCTILES (Igualito a tu código de evidencias que sí jala)
     const getTouchPosContrato = (e) => {
         const rect = canvas.getBoundingClientRect();
         return {
@@ -4703,7 +4696,7 @@ function iniciarLogicaFirmaContrato(canvas) {
     canvas.addEventListener('touchend', () => (dibujandoContrato = false));
 }
 
-// 🔹 Botón Limpiar
+// 🔹 BOTÓN LIMPIAR
 function limpiarFirmas() {
     const canvas = document.getElementById('canvas-firma');
     if (canvas && ctxContrato) {
@@ -4711,7 +4704,7 @@ function limpiarFirmas() {
     }
 }
 
-// 🔹 GUARDAR Y GENERAR PDF
+// 🔹 PROCESAMIENTO FINAL (Solo Base64, sin Cloudinary pesado)
 async function procesarContratoGuardado() {
     const canvas = document.getElementById('canvas-firma');
     const firmaBase64 = canvas.toDataURL("image/png");
@@ -4719,14 +4712,11 @@ async function procesarContratoGuardado() {
     const datosContrato = {
         clienteNombre: document.getElementById('pdf-nombre-cliente').innerText,
         clienteRFC: document.getElementById('pdf-rfc-cliente').innerText,
-        firmaData: firmaBase64 
+        firmaData: firmaBase64 // Se envía el Base64 puro
     };
 
-    if (datosContrato.clienteNombre.includes("___")) {
-        return alert("Por favor, selecciona un cliente válido.");
-    }
-
     try {
+        // Guardamos en tu API (Base64 en la BD)
         const response = await fetch('/api/contratos', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -4734,12 +4724,13 @@ async function procesarContratoGuardado() {
         });
 
         if (response.ok) {
-            alert("✅ Contrato guardado en AEtech.");
+            alert("✅ Firma capturada y contrato listo.");
             
+            // GENERAR EL PDF USANDO EL CLON CON LA IMAGEN
             const element = document.getElementById('contrato-pdf');
             const opt = {
                 margin: 10,
-                filename: `Contrato_${datosContrato.clienteNombre}.pdf`,
+                filename: `Contrato_AEtech_${datosContrato.clienteNombre}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { 
                     scale: 3, 
@@ -4759,6 +4750,7 @@ async function procesarContratoGuardado() {
             html2pdf().set(opt).from(element).save();
         }
     } catch (error) {
-        alert("Error al procesar el contrato.");
+        console.error("Error:", error);
+        alert("Fallo al procesar contrato.");
     }
 }
