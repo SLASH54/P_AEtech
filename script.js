@@ -4640,52 +4640,62 @@ function abrirGeneradorContrato(nombre = "________________", rfc = "") {
     if (elFecha) elFecha.innerText = new Date().toLocaleDateString();
 
     // 3. Inicializar el Canvas con RE-AJUSTE
-   setTimeout(() => {
-        const canvas = document.getElementById('canvas-firma');
-        if (canvas) {
-            // 🌟 ESTO ES VITAL: Ajustar el tamaño interno al tamaño visual
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
+    setTimeout(() => {
+        const canvasContrato = document.getElementById('canvas-firma');
+        if (canvasContrato) {
+            ctxContrato = canvasContrato.getContext('2d');
             
-            // Iniciar la nueva lógica directa
-            iniciarFirmaContratoDirecta();
-            console.log("✅ Sistema de firma de contrato independiente activado");
+            // Forzamos el tamaño real del dibujo para que coincida con lo que ves
+            canvasContrato.width = canvasContrato.clientWidth;
+            canvasContrato.height = canvasContrato.clientHeight;
+            
+            // RE-CONFIGURACIÓN DE TINTA (Negro AE Tech)
+            ctxContrato.strokeStyle = '#000000';
+            ctxContrato.lineWidth = 2;
+            ctxContrato.lineCap = 'round';
+            ctxContrato.lineJoin = 'round'; // Para que la firma se vea fluida
+            
+            iniciarLogicaFirmaContrato(canvasContrato);
+            console.log("✅ Pincel de contrato listo para chambear");
         }
-    }, 400); // Esperamos a que el DOM se acomode
+    }, 500); // Un pelín más de tiempo para que Render y el DOM se pongan de acuerdo
 }
 
-//dibujo de la firma 
 
-function iniciarFirmaContratoDirecta() {
-    const canvas = document.getElementById('canvas-firma'); // Tu ID de contrato
-    if (!canvas) return console.error("❌ No se encontró el canvas de contrato");
+//dibujo de la firma
+function iniciarLogicaFirmaContrato(canvas) {
+    // 1. Forzar siempre el contexto actual del canvas que estamos viendo
+    ctxContrato = canvas.getContext('2d'); 
 
-    const ctx = canvas.getContext('2d');
-    let estaDibujando = false; // Variable local, no choca con evidencias
+    // 2. Limpiar eventos y RECONFIGURAR TINTA justo antes de pintar
+    canvas.onmousedown = (e) => {
+        dibujandoContrato = true;
+        
+        // RE-ASEGURAR COLOR NEGRO AQUÍ
+        ctxContrato.strokeStyle = '#000000'; 
+        ctxContrato.lineWidth = 2;
+        
+        ctxContrato.beginPath();
+        ctxContrato.moveTo(e.offsetX, e.offsetY);
+    };
+    // 🔹 Eventos de Ratón
+    canvas.onmousedown = (e) => {
+        dibujandoContrato = true;
+        ctxContrato.beginPath();
+        // Usamos offsetX/Y para que pinte exactamente donde está el cursor
+        ctxContrato.moveTo(e.offsetX, e.offsetY);
+    };
 
-    // 1. Configuración de estilo forzada
-    ctx.strokeStyle = '#000000'; // Negro puro
-    ctx.lineWidth = 2;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
+    canvas.onmousemove = (e) => {
+        if (!dibujandoContrato) return;
+        ctxContrato.lineTo(e.offsetX, e.offsetY);
+        ctxContrato.stroke();
+    };
 
-    // 🔹 Lógica de Ratón (Mouse)
-    canvas.addEventListener('mousedown', (e) => {
-        estaDibujando = true;
-        ctx.beginPath();
-        ctx.moveTo(e.offsetX, e.offsetY);
-    });
+    window.addEventListener('mouseup', () => (dibujandoContrato = false));
 
-    canvas.addEventListener('mousemove', (e) => {
-        if (!estaDibujando) return;
-        ctx.lineTo(e.offsetX, e.offsetY);
-        ctx.stroke();
-    });
-
-    window.addEventListener('mouseup', () => (estaDibujando = false));
-
-    // 🔹 Lógica Táctil (Touch) - Optimizada para móviles
-    const obtenerPosicionTouch = (e) => {
+    // 🔹 Eventos Táctiles (Mantenemos tu lógica que ya funciona)
+    const getTouchPosContrato = (e) => {
         const rect = canvas.getBoundingClientRect();
         return {
             x: e.touches[0].clientX - rect.left,
@@ -4695,31 +4705,23 @@ function iniciarFirmaContratoDirecta() {
 
     canvas.addEventListener('touchstart', (e) => {
         if (e.target === canvas) e.preventDefault();
-        estaDibujando = true;
-        const pos = obtenerPosicionTouch(e);
-        ctx.beginPath();
-        ctx.moveTo(pos.x, pos.y);
+        dibujandoContrato = true;
+        const pos = getTouchPosContrato(e);
+        ctxContrato.beginPath();
+        ctxContrato.moveTo(pos.x, pos.y);
     }, { passive: false });
 
     canvas.addEventListener('touchmove', (e) => {
         if (e.target === canvas) e.preventDefault();
-        if (!estaDibujando) return;
-        const pos = obtenerPosicionTouch(e);
-        ctx.lineTo(pos.x, pos.y);
-        ctx.stroke();
+        if (!dibujandoContrato) return;
+        const pos = getTouchPosContrato(e);
+        ctxContrato.lineTo(pos.x, pos.y);
+        ctxContrato.stroke();
     }, { passive: false });
 
-    canvas.addEventListener('touchend', () => (estaDibujando = false));
-
-    // 🔹 Botón Limpiar (Específico para Contrato)
-    const btnLimpiar = document.getElementById('btnLimpiarContrato');
-    if (btnLimpiar) {
-        btnLimpiar.onclick = () => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            console.log("🧹 Firma de contrato limpiada");
-        };
-    }
+    canvas.addEventListener('touchend', () => (dibujandoContrato = false));
 }
+
 
 // 🔹 Función para limpiar (Asegúrate de que el botón llame a esta)
 function limpiarFirmas() {
@@ -4755,5 +4757,3 @@ async function procesarContratoGuardado() {
         alert("Error al conectar con el servidor.");
     }
 }
-
-
