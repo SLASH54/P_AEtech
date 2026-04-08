@@ -4741,16 +4741,23 @@ function limpiarFirmas() {
 // 🔹 Procesar y Guardar
 async function procesarContratoGuardado() {
     const canvas = document.getElementById('canvas-firma-contrato');
-    if (!canvas) return;
+    const elNombre = document.getElementById('pdf-nombre-cliente');
+    const elRfc = document.getElementById('pdf-rfc-cliente');
+
+    // 🛑 Validación: Si falta algo, avisamos en vez de tronar
+    if (!canvas || !elNombre || !elRfc) {
+        console.error("❌ Error: Faltan elementos en el HTML (canvas, nombre o rfc)");
+        return alert("Error interno: No se encontraron los campos del contrato.");
+    }
 
     const imagenBase64 = canvas.toDataURL("image/png"); 
     
     const datosParaEnviar = {
-        clienteNombre: document.getElementById('pdf-nombre-cliente').innerText,
-        clienteRFC: document.getElementById('pdf-rfc-cliente').innerText,
-        // 🚀 Enviamos con el nombre que espera el controlador
+        clienteNombre: elNombre.innerText, // Ahora es seguro leerlo
+        clienteRFC: elRfc.innerText,
         contratoFirmaBase64: imagenBase64 
     };
+
 
     try {
         const response = await fetch('/api/contratos', {
