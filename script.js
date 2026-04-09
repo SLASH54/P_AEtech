@@ -4616,22 +4616,13 @@ async function descargarReportePDF(tareaId, incluirMateriales = true, incluirCom
 
 
 
-
-//GENERANDO EL CONTRATO
-
-// --- VARIABLES GLOBALES ÚNICAS PARA CONTRATOS ---
-// Usamos nombres largos para que NO choquen con "dibujando" o "ctx" de evidencias
+// --- VARIABLES GLOBALES ÚNICAS ---
 let globalDibujandoContrato = false;
-let globalCtxContrato = null;
 
 function abrirGeneradorContrato(nombre = "________________", rfc = "") {
-    // 1. Mostrar la sección (tu lógica actual)
-    if (typeof mostrarContenido === 'function') {
-        mostrarContenido('Contratos'); 
-    } else {
-        const seccion = document.getElementById('seccion-contratos');
-        if (seccion) seccion.style.display = 'block';
-    }
+    // 1. Mostrar la sección
+    const seccion = document.getElementById('seccion-contratos');
+    if (seccion) seccion.style.display = 'block';
     
     // 2. Llenar datos del cliente
     const elNombre = document.getElementById('pdf-nombre-cliente');
@@ -4642,116 +4633,82 @@ function abrirGeneradorContrato(nombre = "________________", rfc = "") {
     if (elRfc) elRfc.innerText = rfc;
     if (elFecha) elFecha.innerText = new Date().toLocaleDateString();
 
-    // 3. Inicializar el Canvas con RE-AJUSTE
- setTimeout(() => {
-    const elCanvas = document.getElementById('canvas-firma-contrato');
-    if (elCanvas) {
-        // 🚨 Si el offsetWidth es 0, le damos 450 por default para que exista
-        elCanvas.width = elCanvas.offsetWidth || 450; 
-        elCanvas.height = elCanvas.offsetHeight || 150;
-        
-        const ctx = elCanvas.getContext('2d');
-        // Pintamos el fondo blanco de una vez para que no sea transparente
-        ctx.fillStyle = "white";
-        ctx.fillRect(0, 0, elCanvas.width, elCanvas.height);
-        
-        // RE-INICIALIZAMOS el pincel con el nuevo tamaño
-        prepararPincelContrato(elCanvas);
-        
-        console.log("🖋️ Canvas despertado con tamaño:", elCanvas.width, "x", elCanvas.height);
-    }
-}, 1000); // Dale 1 segundo completo para que el modal se abra bien
+    // 3. Inicializar el Canvas con tiempo para que el DOM se asiente
+    setTimeout(() => {
+        const elCanvas = document.getElementById('canvas-firma-contrato');
+        if (elCanvas) {
+            // Ajuste de resolución interna: vital para que no salga en blanco
+            elCanvas.width = elCanvas.offsetWidth || 450;
+            elCanvas.height = elCanvas.offsetHeight || 150;
+            
+            prepararPincelContrato(elCanvas);
+            console.log("🖋️ Sistema de contrato AEtech listo");
+        }
+    }, 800);
 }
 
 function prepararPincelContrato(canvas) {
     if (!canvas) return;
+    const ctx = canvas.getContext('2d');
 
-    globalCtxContrato = canvas.getContext('2d');
+    // Configuración estética
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
 
-    // Configuración de estilo
-    globalCtxContrato.strokeStyle = '#000000';
-    globalCtxContrato.lineWidth = 3;
-    globalCtxContrato.lineCap = 'round';
-    globalCtxContrato.lineJoin = 'round';
-
-    // Función para obtener coordenadas exactas (Mouse y Touch)
-   const obtenerPosicion = (e) => {
-    const rect = canvas.getBoundingClientRect();
-    // Determinamos si es touch o mouse
-    const clienteX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clienteY = e.touches ? e.touches[0].clientY : e.clientY;
-
-    // Calculamos la escala por si el CSS estiró el canvas
-    const escalaX = canvas.width / rect.width;
-    const escalaY = canvas.height / rect.height;
-
-    return {
-        x: (clienteX - rect.left) * escalaX,
-        y: (clienteY - rect.top) * escalaY
+    const obtenerPos = (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return {
+            x: (clientX - rect.left) * (canvas.width / rect.width),
+            y: (clientY - rect.top) * (canvas.height / rect.height)
+        };
     };
-};
-    const iniciarDibujo = (e) => {
+
+    const empezar = (e) => {
         if (e.type === 'touchstart') e.preventDefault();
         globalDibujandoContrato = true;
-        const pos = obtenerPosicion(e);
-        globalCtxContrato.beginPath();
-        globalCtxContrato.moveTo(pos.x, pos.y);
+        const pos = obtenerPos(e);
+        ctx.beginPath();
+        ctx.moveTo(pos.x, pos.y);
     };
 
-    const dibujar = (e) => {
+    const mover = (e) => {
         if (!globalDibujandoContrato) return;
         if (e.type === 'touchmove') e.preventDefault();
-        
-        const pos = obtenerPosicion(e);
-        globalCtxContrato.lineTo(pos.x, pos.y);
-        globalCtxContrato.stroke();
+        const pos = obtenerPos(e);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
     };
 
-    const detenerDibujo = () => {
-        globalDibujandoContrato = false;
-    };
+    const parar = () => (globalDibujandoContrato = false);
 
-    // --- REGISTRO DE EVENTOS (Unificado) ---
-    
-    // Mouse
-    canvas.addEventListener('mousedown', iniciarDibujo);
-    canvas.addEventListener('mousemove', dibujar);
-    window.addEventListener('mouseup', detenerDibujo);
-
-    // Touch (Móvil)
-    canvas.addEventListener('touchstart', iniciarDibujo, { passive: false });
-    canvas.addEventListener('touchmove', dibujar, { passive: false });
-    canvas.addEventListener('touchend', detenerDibujo);
-
-    // AÑADE ESTO AL FINAL de prepararPincelContrato para testear
-globalCtxContrato.strokeStyle = "#ff0000"; // Rojo para que resalte
-globalCtxContrato.lineWidth = 5;
-globalCtxContrato.beginPath();
-globalCtxContrato.moveTo(0, 0);
-globalCtxContrato.lineTo(50, 50); // Debería dibujar una línea pequeña roja arriba a la izquierda
-globalCtxContrato.stroke();
+    canvas.addEventListener('mousedown', empezar);
+    canvas.addEventListener('mousemove', mover);
+    window.addEventListener('mouseup', parar);
+    canvas.addEventListener('touchstart', empezar, { passive: false });
+    canvas.addEventListener('touchmove', mover, { passive: false });
+    canvas.addEventListener('touchend', parar);
 }
 
-// 🔹 Función Limpiar (Usando la global)
+// 🧼 Función para el botón "Limpiar Firma" (el de arriba)
 function limpiarFirmas() {
     const canvas = document.getElementById('canvas-firma-contrato');
-    if (canvas && globalCtxContrato) {
-        globalCtxContrato.clearRect(0, 0, canvas.width, canvas.height);
-        console.log("🧹 Firma de contrato borrada");
+    if (canvas) {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 }
 
-
-
-
-// 🔹 Procesar y Guardar
+// 🚀 Función para el botón "Guardar y Generar PDF"
 async function procesarContratoGuardado() {
     const canvas = document.getElementById('canvas-firma-contrato');
     const elNombre = document.getElementById('pdf-nombre-cliente');
     const elRfc = document.getElementById('pdf-rfc-cliente');
 
-    //if (!canvas || !elNombre || !elRfc) return alert("Faltan campos");
-    if (!elNombre || !elRfc) return alert("Faltan campos");
+    if (!elNombre || !elRfc) return alert("Error: No se cargaron los datos del cliente.");
 
     const imagenBase64 = canvas.toDataURL("image/png"); 
     
@@ -4762,7 +4719,6 @@ async function procesarContratoGuardado() {
     };
 
     try {
-        // 🚨 CAMBIO CLAVE: URL COMPLETA DE RENDER
         const response = await fetch('https://p-aetech.onrender.com/api/contratos', { 
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -4772,11 +4728,12 @@ async function procesarContratoGuardado() {
         const data = await response.json();
 
         if (data.success) {
-            alert(data.msg);
-            // También URL completa para descargar
+            alert("✅ " + data.msg);
             window.open(`https://p-aetech.onrender.com/api/contratos/descargar/${data.id}`, '_blank');
+        } else {
+            alert("Error: " + data.msg);
         }
     } catch (error) {
-        alert("Error: Revisa que el servidor de Render esté prendido");
+        alert("Error de conexión con el servidor de Render.");
     }
 }
