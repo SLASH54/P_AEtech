@@ -6,11 +6,11 @@ const cloudinary = require('cloudinary').v2; // 👈 Importamos cloudinary como 
 // 🔹 Guardar nuevo contrato con firma en Cloudinary
 
 
+
 exports.crearContrato = async (req, res) => {
     try {
         const { clienteNombre, clienteRFC, contratoFirmaBase64 } = req.body;
 
-        // 📝 Los nombres de la izquierda deben ser iguales a los del Modelo (Contrato.js)
         const nuevoContrato = await Contrato.create({
             cliente_nombre: clienteNombre,
             cliente_rfc: clienteRFC,
@@ -23,11 +23,10 @@ exports.crearContrato = async (req, res) => {
             id: nuevoContrato.id 
         });
     } catch (error) {
-        console.error("❌ Error en el controlador:", error);
-        res.status(500).json({ success: false, msg: "Error de servidor al guardar contrato" });
+        console.error("❌ Error:", error);
+        res.status(500).json({ success: false, msg: "Error de servidor: " + error.message });
     }
 };
-
 
 
 // 🔹 Obtener historial de contratos

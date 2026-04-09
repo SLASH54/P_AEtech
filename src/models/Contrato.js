@@ -2,26 +2,14 @@ const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/database');
 
 const Contrato = sequelize.define('Contrato', {
-  // 🚨 Usamos los nombres exactos de tu tabla de Supabase
-  cliente_nombre: { 
-    type: DataTypes.STRING, 
-    allowNull: false 
-  },
-  cliente_rfc: { 
-    type: DataTypes.STRING, 
-    allowNull: true 
-  },
-  firma_base64: { 
-    type: DataTypes.TEXT, // Usamos TEXT porque el Base64 es una cadena muy larga
-    allowNull: true 
-  },
-  monto: { 
-    type: DataTypes.DECIMAL(10, 2), 
-    defaultValue: 580.00 
-  }
+  // 🛡️ Nombres exactos de tu tabla en Neon
+  cliente_nombre: { type: DataTypes.STRING, allowNull: false }, 
+  cliente_rfc: { type: DataTypes.STRING, allowNull: true },    
+  firma_base64: { type: DataTypes.TEXT, allowNull: true },     
+  // monto no aparece en tu imagen, si no lo tienes en la DB, quítalo de aquí
 }, {
-  tableName: 'contratos', // Asegúrate que sea minúscula si así está en tu DB
-  timestamps: true
+  tableName: 'contratos', 
+  timestamps: false // 👈 ¡ESTO ES LO MÁS IMPORTANTE! Evita el error de createdAt
 });
 
 module.exports = Contrato;
