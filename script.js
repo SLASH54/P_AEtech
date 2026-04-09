@@ -4738,18 +4738,21 @@ async function procesarContratoGuardado() {
     }
 }
 
-let dibujandoEnModal = false;
-let ctxModal = null;
-let canvasModal = null;
+// --- SUSTITUYE LAS QUE TIENES POR ESTAS ---
+var dibujandoEnModal = false; // Usa var para evitar problemas de "scope"
+var ctxModal = null;
+var canvasModal = null;
 
-// 1. Esta función abre el modal (Cambié el nombre para que coincida con tu botón)
 function modalfirmacontrato() {
     canvasModal = document.getElementById('canvas-modal-contrato');
+    if (!canvasModal) return console.error("No se encontró el canvas del modal");
+    
     ctxModal = canvasModal.getContext('2d');
     
-    // Resetear canvas y mostrar modal
+    // El resto de tu función modalfirmacontrato sigue igual...
+    document.getElementById('modalfirmacontrato').style.display = 'flex';
     ctxModal.clearRect(0, 0, canvasModal.width, canvasModal.height);
-    document.getElementById('modalfirmacontrato').style.display = 'flex'; // ID de tu HTML
+
     
     // Configuración del pincel
     ctxModal.strokeStyle = "#000000";
