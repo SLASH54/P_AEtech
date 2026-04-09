@@ -6,10 +6,10 @@ const contratoController = require('../controllers/contratoController');
 const pdfContratoController = require('../controllers/PdfContratoController'); 
 
 // 🔹 Guardar contrato (POST) -> Usa contratoController
-//srouter.post('/', contratoController.crearContrato);
+router.post('/', contratoController.crearContrato);
 
 // 🔹 Ver historial (GET) -> Usa contratoController
-///router.get('/', contratoController.obtenerContratos);
+router.get('/', contratoController.obtenerContratos);
 
 // 🔹 Descargar PDF (GET) -> Usa pdfContratoController
 router.get('/descargar/:id', pdfContratoController.generarPDFContrato);
