@@ -4737,3 +4737,109 @@ async function procesarContratoGuardado() {
         alert("Error de conexión con el servidor de Render.");
     }
 }
+
+
+let dibujandoEnModal = false;
+let ctxModal = null;
+let canvasModal = null;
+
+// 1. Esta función abre el modal
+function abrirModalFirma() {
+    canvasModal = document.getElementById('canvas-modal-contrato');
+    ctxModal = canvasModal.getContext('2d');
+    
+    // Resetear canvas
+    ctxModal.clearRect(0, 0, canvasModal.width, canvasModal.height);
+    
+    // Mostrar modal
+    document.getElementById('modal-firma-contrato').style.display = 'flex';
+    
+    // Configurar pincel
+    ctxModal.strokeStyle = "#000000";
+    ctxModal.lineWidth = 3;
+    ctxModal.lineCap = "round";
+
+    // Eventos de dibujo
+    const obtenerPos = (e) => {
+        const rect = canvasModal.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return {
+            x: (clientX - rect.left) * (canvasModal.width / rect.width),
+            y: (clientY - rect.top) * (canvasModal.height / rect.height)
+        };
+    };
+
+    canvasModal.onmousedown = (e) => { 
+        dibujandoEnModal = true; 
+        const pos = obtenerPos(e);
+        ctxModal.beginPath(); 
+        ctxModal.moveTo(pos.x, pos.y); 
+    };
+    canvasModal.onmousemove = (e) => {
+        if (!dibujandoEnModal) return;
+        const pos = obtenerPos(e);
+        ctxModal.lineTo(pos.x, pos.y);
+        ctxModal.stroke();
+    };
+    window.onmouseup = () => dibujandoEnModal = false;
+
+    // Soporte táctil
+    canvasModal.ontouchstart = (e) => {
+        e.preventDefault();
+        dibujandoEnModal = true;
+        const pos = obtenerPos(e);
+        ctxModal.beginPath();
+        ctxModal.moveTo(pos.x, pos.y);
+    };
+    canvasModal.ontouchmove = (e) => {
+        e.preventDefault();
+        if (!dibujandoEnModal) return;
+        const pos = obtenerPos(e);
+        ctxModal.lineTo(pos.x, pos.y);
+        ctxModal.stroke();
+    };
+}
+
+function cerrarModalFirma() {
+    document.getElementById('modal-firma-contrato').style.display = 'none';
+}
+
+function limpiarCanvasModal() {
+    ctxModal.clearRect(0, 0, canvasModal.width, canvasModal.height);
+}
+
+// 2. FUNCIÓN MAESTRA: Envía a Render
+async function confirmarFirmaYEnviar() {
+    const elNombre = document.getElementById('pdf-nombre-cliente');
+    const elRfc = document.getElementById('pdf-rfc-cliente');
+    
+    const imagenBase64 = canvasModal.toDataURL("image/png");
+
+    const datos = {
+        clienteNombre: elNombre.innerText,
+        clienteRFC: elRfc.innerText,
+        contratoFirmaBase64: imagenBase64 
+    };
+
+    try {
+        const response = await fetch('https://p-aetech.onrender.com/api/contratos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(datos)
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            alert("✅ Contrato Guardado en AEtech");
+            cerrarModalFirma();
+            window.open(`https://p-aetech.onrender.com/api/contratos/descargar/${data.id}`, '_blank');
+        } else {
+            alert("Error: " + data.msg);
+        }
+    } catch (error) {
+        alert("Error de conexión con Render.");
+    }
+}
+
+
