@@ -4744,9 +4744,7 @@ async function procesarContratoGuardado() {
     const elNombre = document.getElementById('pdf-nombre-cliente');
     const elRfc = document.getElementById('pdf-rfc-cliente');
 
-    if (!canvas || !elNombre || !elRfc) {
-        return alert("Error: No se encontraron los campos del contrato.");
-    }
+    if (!canvas || !elNombre || !elRfc) return alert("Faltan campos");
 
     const imagenBase64 = canvas.toDataURL("image/png"); 
     
@@ -4757,8 +4755,8 @@ async function procesarContratoGuardado() {
     };
 
     try {
-        // 1. Enviamos los datos al servidor
-        const response = await fetch('/api/contratos', {
+        // 🚨 CAMBIO CLAVE: URL COMPLETA DE RENDER
+        const response = await fetch('https://p-aetech.onrender.com/api/contratos', { 
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(datosParaEnviar)
@@ -4767,16 +4765,11 @@ async function procesarContratoGuardado() {
         const data = await response.json();
 
         if (data.success) {
-            alert("✅ " + data.msg);
-
-            // 2. 🚀 DESCARGA AUTOMÁTICA:
-            // Usamos el ID que nos devolvió el controlador para llamar a la ruta del PDF
-            window.open(`/api/contratos/descargar/${data.id}`, '_blank');
-        } else {
-            alert("Error al guardar: " + data.msg);
+            alert(data.msg);
+            // También URL completa para descargar
+            window.open(`https://p-aetech.onrender.com/api/contratos/descargar/${data.id}`, '_blank');
         }
     } catch (error) {
-        console.error("Error en el proceso:", error);
-        alert("Error de conexión con el servidor de Render.");
+        alert("Error: Revisa que el servidor de Render esté prendido");
     }
 }
