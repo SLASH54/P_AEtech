@@ -4643,88 +4643,79 @@ function abrirGeneradorContrato(nombre = "________________", rfc = "") {
     if (elFecha) elFecha.innerText = new Date().toLocaleDateString();
 
     // 3. Inicializar el Canvas con RE-AJUSTE
-    setTimeout(() => {
-        const elCanvas = document.getElementById('canvas-firma-contrato');
-        if (elCanvas) {
-            // Ajuste de resolución interna
-            elCanvas.width = elCanvas.offsetWidth;
-            elCanvas.height = elCanvas.offsetHeight;
-            
-            // Pasamos el canvas a la lógica de dibujo
-            prepararPincelContrato(elCanvas);
-            console.log("🖋️ Sistema de contrato listo con variables globales únicas");
-        }
-    }, 500);
+   setTimeout(() => {
+    const elCanvas = document.getElementById('canvas-firma-contrato');
+    if (elCanvas) {
+        // Si eloffsetWidth es 0, le damos 400 por default para que no muera
+        elCanvas.width = elCanvas.offsetWidth || 400; 
+        elCanvas.height = elCanvas.offsetHeight || 150;
+        
+        // IMPORTANTE: Al cambiar el ancho, el contexto se resetea. 
+        // Hay que configurar el pincel justo DESPUÉS del ajuste.
+        prepararPincelContrato(elCanvas);
+        
+        console.log("🖋️ Canvas ajustado a:", elCanvas.width, "x", elCanvas.height);
+    }
+}, 800); // Dale un poquito más de tiempo (800ms)
 }
-
 
 function prepararPincelContrato(canvas) {
     if (!canvas) return;
 
-    // Asignamos a la variable global única
     globalCtxContrato = canvas.getContext('2d');
 
-    // Configuración de estilo (Negro AE Tech)
+    // Configuración de estilo
     globalCtxContrato.strokeStyle = '#000000';
     globalCtxContrato.lineWidth = 3;
     globalCtxContrato.lineCap = 'round';
     globalCtxContrato.lineJoin = 'round';
 
-    // --- EVENTOS MOUSE ---
-    // SUSTITUYE tus eventos de mouse por estos en prepararPincelContrato:
-canvas.onmousedown = (e) => {
-    globalDibujandoContrato = true;
-    globalCtxContrato.beginPath();
-    
-    // Usamos rect para una posición exacta
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    globalCtxContrato.moveTo(x, y);
-};
-
-canvas.onmousemove = (e) => {
-    if (!globalDibujandoContrato) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    globalCtxContrato.lineTo(x, y);
-    globalCtxContrato.stroke();
-};
-
-    // --- EVENTOS TOUCH (Móvil) ---
-    const getPosTouch = (e) => {
+    // Función para obtener coordenadas exactas (Mouse y Touch)
+    const obtenerPosicion = (e) => {
         const rect = canvas.getBoundingClientRect();
+        // Si es touch, usamos la primera pulsación; si es mouse, la posición normal
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        
         return {
-            x: e.touches[0].clientX - rect.left,
-            y: e.touches[0].clientY - rect.top
+            x: clientX - rect.left,
+            y: clientY - rect.top
         };
     };
 
-    canvas.addEventListener('touchstart', (e) => {
-        if (e.target === canvas) e.preventDefault();
+    const iniciarDibujo = (e) => {
+        if (e.type === 'touchstart') e.preventDefault();
         globalDibujandoContrato = true;
-        const pos = getPosTouch(e);
+        const pos = obtenerPosicion(e);
         globalCtxContrato.beginPath();
         globalCtxContrato.moveTo(pos.x, pos.y);
-    }, { passive: false });
+    };
 
-    canvas.addEventListener('touchmove', (e) => {
-        if (e.target === canvas) e.preventDefault();
+    const dibujar = (e) => {
         if (!globalDibujandoContrato) return;
-        const pos = getPosTouch(e);
+        if (e.type === 'touchmove') e.preventDefault();
+        
+        const pos = obtenerPosicion(e);
         globalCtxContrato.lineTo(pos.x, pos.y);
         globalCtxContrato.stroke();
-    }, { passive: false });
+    };
 
-    // Detener dibujo
-    const detener = () => (globalDibujandoContrato = false);
-    window.addEventListener('mouseup', detener);
-    canvas.addEventListener('touchend', detener);
+    const detenerDibujo = () => {
+        globalDibujandoContrato = false;
+    };
+
+    // --- REGISTRO DE EVENTOS (Unificado) ---
+    
+    // Mouse
+    canvas.addEventListener('mousedown', iniciarDibujo);
+    canvas.addEventListener('mousemove', dibujar);
+    window.addEventListener('mouseup', detenerDibujo);
+
+    // Touch (Móvil)
+    canvas.addEventListener('touchstart', iniciarDibujo, { passive: false });
+    canvas.addEventListener('touchmove', dibujar, { passive: false });
+    canvas.addEventListener('touchend', detenerDibujo);
 }
-
 
 // 🔹 Función Limpiar (Usando la global)
 function limpiarFirmas() {
