@@ -5184,7 +5184,6 @@ label[for="tareaAsignadoA"] {
     text-align: center;
     animation: slideIn 0.3s ease-out;
     justify-content: center;
-    display: flex;
 }
 
 @keyframes slideIn {
