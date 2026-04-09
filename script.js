@@ -4643,20 +4643,24 @@ function abrirGeneradorContrato(nombre = "________________", rfc = "") {
     if (elFecha) elFecha.innerText = new Date().toLocaleDateString();
 
     // 3. Inicializar el Canvas con RE-AJUSTE
-   setTimeout(() => {
+ setTimeout(() => {
     const elCanvas = document.getElementById('canvas-firma-contrato');
     if (elCanvas) {
-        // Si eloffsetWidth es 0, le damos 400 por default para que no muera
-        elCanvas.width = elCanvas.offsetWidth || 400; 
+        // 🚨 Si el offsetWidth es 0, le damos 450 por default para que exista
+        elCanvas.width = elCanvas.offsetWidth || 450; 
         elCanvas.height = elCanvas.offsetHeight || 150;
         
-        // IMPORTANTE: Al cambiar el ancho, el contexto se resetea. 
-        // Hay que configurar el pincel justo DESPUÉS del ajuste.
+        const ctx = elCanvas.getContext('2d');
+        // Pintamos el fondo blanco de una vez para que no sea transparente
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, elCanvas.width, elCanvas.height);
+        
+        // RE-INICIALIZAMOS el pincel con el nuevo tamaño
         prepararPincelContrato(elCanvas);
         
-        console.log("🖋️ Canvas ajustado a:", elCanvas.width, "x", elCanvas.height);
+        console.log("🖋️ Canvas despertado con tamaño:", elCanvas.width, "x", elCanvas.height);
     }
-}, 800); // Dale un poquito más de tiempo (800ms)
+}, 1000); // Dale 1 segundo completo para que el modal se abra bien
 }
 
 function prepararPincelContrato(canvas) {
