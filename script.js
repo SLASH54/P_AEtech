@@ -4671,18 +4671,21 @@ function prepararPincelContrato(canvas) {
     globalCtxContrato.lineJoin = 'round';
 
     // Función para obtener coordenadas exactas (Mouse y Touch)
-    const obtenerPosicion = (e) => {
-        const rect = canvas.getBoundingClientRect();
-        // Si es touch, usamos la primera pulsación; si es mouse, la posición normal
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        
-        return {
-            x: clientX - rect.left,
-            y: clientY - rect.top
-        };
-    };
+   const obtenerPosicion = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    // Determinamos si es touch o mouse
+    const clienteX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clienteY = e.touches ? e.touches[0].clientY : e.clientY;
 
+    // Calculamos la escala por si el CSS estiró el canvas
+    const escalaX = canvas.width / rect.width;
+    const escalaY = canvas.height / rect.height;
+
+    return {
+        x: (clienteX - rect.left) * escalaX,
+        y: (clienteY - rect.top) * escalaY
+    };
+};
     const iniciarDibujo = (e) => {
         if (e.type === 'touchstart') e.preventDefault();
         globalDibujandoContrato = true;
@@ -4715,6 +4718,14 @@ function prepararPincelContrato(canvas) {
     canvas.addEventListener('touchstart', iniciarDibujo, { passive: false });
     canvas.addEventListener('touchmove', dibujar, { passive: false });
     canvas.addEventListener('touchend', detenerDibujo);
+
+    // AÑADE ESTO AL FINAL de prepararPincelContrato para testear
+globalCtxContrato.strokeStyle = "#ff0000"; // Rojo para que resalte
+globalCtxContrato.lineWidth = 5;
+globalCtxContrato.beginPath();
+globalCtxContrato.moveTo(0, 0);
+globalCtxContrato.lineTo(50, 50); // Debería dibujar una línea pequeña roja arriba a la izquierda
+globalCtxContrato.stroke();
 }
 
 // 🔹 Función Limpiar (Usando la global)
