@@ -4744,7 +4744,8 @@ async function procesarContratoGuardado() {
     const elNombre = document.getElementById('pdf-nombre-cliente');
     const elRfc = document.getElementById('pdf-rfc-cliente');
 
-    if (!canvas || !elNombre || !elRfc) return alert("Faltan campos");
+    //if (!canvas || !elNombre || !elRfc) return alert("Faltan campos");
+    if (!elNombre || !elRfc) return alert("Faltan campos");
 
     const imagenBase64 = canvas.toDataURL("image/png"); 
     
