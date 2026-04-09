@@ -11,6 +11,7 @@ const { connectDB, sequelize } = require('./src/config/database');
 require('./src/models/relations');
 require('./src/models/cuentasRelations');
 
+
 // Crear app
 const app = express();
 

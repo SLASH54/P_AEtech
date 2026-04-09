@@ -4738,28 +4738,25 @@ async function procesarContratoGuardado() {
     }
 }
 
-
 let dibujandoEnModal = false;
 let ctxModal = null;
 let canvasModal = null;
 
-// 1. Esta función abre el modal
-function abrirModalFirma() {
+// 1. Esta función abre el modal (Cambié el nombre para que coincida con tu botón)
+function modalfirmacontrato() {
     canvasModal = document.getElementById('canvas-modal-contrato');
     ctxModal = canvasModal.getContext('2d');
     
-    // Resetear canvas
+    // Resetear canvas y mostrar modal
     ctxModal.clearRect(0, 0, canvasModal.width, canvasModal.height);
+    document.getElementById('modalfirmacontrato').style.display = 'flex'; // ID de tu HTML
     
-    // Mostrar modal
-    document.getElementById('modal-firma-contrato').style.display = 'flex';
-    
-    // Configurar pincel
+    // Configuración del pincel
     ctxModal.strokeStyle = "#000000";
     ctxModal.lineWidth = 3;
     ctxModal.lineCap = "round";
 
-    // Eventos de dibujo
+    // Lógica de posición
     const obtenerPos = (e) => {
         const rect = canvasModal.getBoundingClientRect();
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -4770,6 +4767,7 @@ function abrirModalFirma() {
         };
     };
 
+    // Eventos Mouse
     canvasModal.onmousedown = (e) => { 
         dibujandoEnModal = true; 
         const pos = obtenerPos(e);
@@ -4784,7 +4782,7 @@ function abrirModalFirma() {
     };
     window.onmouseup = () => dibujandoEnModal = false;
 
-    // Soporte táctil
+    // Soporte táctil (Celulares)
     canvasModal.ontouchstart = (e) => {
         e.preventDefault();
         dibujandoEnModal = true;
@@ -4801,18 +4799,22 @@ function abrirModalFirma() {
     };
 }
 
+// Funciones de apoyo
 function cerrarModalFirma() {
-    document.getElementById('modal-firma-contrato').style.display = 'none';
+    document.getElementById('modalfirmacontrato').style.display = 'none';
 }
 
 function limpiarCanvasModal() {
-    ctxModal.clearRect(0, 0, canvasModal.width, canvasModal.height);
+    if(ctxModal) ctxModal.clearRect(0, 0, canvasModal.width, canvasModal.height);
 }
 
-// 2. FUNCIÓN MAESTRA: Envía a Render
+// 2. FUNCIÓN DE ENVÍO A RENDER
 async function confirmarFirmaYEnviar() {
     const elNombre = document.getElementById('pdf-nombre-cliente');
     const elRfc = document.getElementById('pdf-rfc-cliente');
+    
+    // IMPORTANTE: URL COMPLETA DE RENDER
+    const urlAPI = 'https://p-aetech.onrender.com/api/contratos';
     
     const imagenBase64 = canvasModal.toDataURL("image/png");
 
@@ -4823,23 +4825,24 @@ async function confirmarFirmaYEnviar() {
     };
 
     try {
-        const response = await fetch('https://p-aetech.onrender.com/api/contratos', {
+        const response = await fetch(urlAPI, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(datos)
         });
 
         const data = await response.json();
+        
         if (data.success) {
-            alert("✅ Contrato Guardado en AEtech");
+            alert("✅ Contrato guardado en base de datos de AEtech");
             cerrarModalFirma();
+            // Abrir PDF automáticamente
             window.open(`https://p-aetech.onrender.com/api/contratos/descargar/${data.id}`, '_blank');
         } else {
-            alert("Error: " + data.msg);
+            alert("❌ Error del servidor: " + data.msg);
         }
     } catch (error) {
-        alert("Error de conexión con Render.");
+        console.error("Error:", error);
+        alert("❌ Error de conexión. Verifica que el servidor de Render esté encendido.");
     }
 }
-
-
