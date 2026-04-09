@@ -1,16 +1,17 @@
 const express = require('express');
 const router = express.Router();
 
-// Importamos los dos controladores
-const pdfContratoController = require('../controllers/PdfContratoController'); // <--- Revisa la "P" o "p"
+// 1. Importamos AMBOS controladores (Ojo con las mayúsculas/minúsculas)
+const contratoController = require('../controllers/contratoController');
+const pdfContratoController = require('../controllers/PdfContratoController'); 
 
-// 🔹 Ruta para Guardar el contrato (POST)
+// 🔹 Guardar contrato (POST) -> Usa contratoController
 router.post('/', contratoController.crearContrato);
 
-// 🔹 Ruta para Descargar el PDF (GET)
-router.get('/descargar/:id', pdfContratoController.generarPDFContrato);
-
-// 🔹 Ruta para ver el historial (Opcional, si la usas)
+// 🔹 Ver historial (GET) -> Usa contratoController
 router.get('/', contratoController.obtenerContratos);
+
+// 🔹 Descargar PDF (GET) -> Usa pdfContratoController
+router.get('/descargar/:id', pdfContratoController.generarPDFContrato);
 
 module.exports = router;
