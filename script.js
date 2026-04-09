@@ -4744,22 +4744,20 @@ async function procesarContratoGuardado() {
     const elNombre = document.getElementById('pdf-nombre-cliente');
     const elRfc = document.getElementById('pdf-rfc-cliente');
 
-    // 🛑 Validación: Si falta algo, avisamos en vez de tronar
     if (!canvas || !elNombre || !elRfc) {
-        console.error("❌ Error: Faltan elementos en el HTML (canvas, nombre o rfc)");
-        return alert("Error interno: No se encontraron los campos del contrato.");
+        return alert("Error: No se encontraron los campos del contrato.");
     }
 
     const imagenBase64 = canvas.toDataURL("image/png"); 
     
     const datosParaEnviar = {
-        clienteNombre: elNombre.innerText, // Ahora es seguro leerlo
+        clienteNombre: elNombre.innerText,
         clienteRFC: elRfc.innerText,
         contratoFirmaBase64: imagenBase64 
     };
 
-
     try {
+        // 1. Enviamos los datos al servidor
         const response = await fetch('/api/contratos', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -4767,11 +4765,18 @@ async function procesarContratoGuardado() {
         });
 
         const data = await response.json();
+
         if (data.success) {
-            alert("✅ ¡Contrato firmado y subido a Cloudinary con éxito!");
+            alert("✅ " + data.msg);
+
+            // 2. 🚀 DESCARGA AUTOMÁTICA:
+            // Usamos el ID que nos devolvió el controlador para llamar a la ruta del PDF
+            window.open(`/api/contratos/descargar/${data.id}`, '_blank');
+        } else {
+            alert("Error al guardar: " + data.msg);
         }
     } catch (error) {
-        console.error(error);
+        console.error("Error en el proceso:", error);
         alert("Error de conexión con el servidor de Render.");
     }
 }
