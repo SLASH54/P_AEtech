@@ -5174,17 +5174,16 @@ label[for="tareaAsignadoA"] {
 /* Caja del Modal */
 .modal-config-content {
     background-color: #ffffff;
-    margin: 10% auto;
     padding: 25px;
     border-radius: 15px;
     width: 90%;
-    max-width: 350px;
+    max-width: 400px; /* Lo hice un pelín más ancho para que luzca el texto legal */
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     text-align: center;
     animation: slideIn 0.3s ease-out;
+    position: relative; /* Para mejor control */
 }
-
 @keyframes slideIn {
     from { transform: translateY(-50px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
