@@ -1295,7 +1295,14 @@ input:checked + .slider:before { transform: translateX(18px); }
     max-width: 300px;
     padding: 20px;
     text-align: center;
-
+    animation: slideIn 0.3s ease-out;
+    justify-items: center;
+    position: fixed;      
+    top: 50%;               
+    left: 50%;             
+    transform: translate(-50%, -50%);
+    z-index: 10000;         
+    margin: 0; 
 }
 
 
