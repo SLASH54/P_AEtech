@@ -5197,12 +5197,12 @@ label[for="tareaAsignadoA"] {
     text-align: center;
     animation: slideIn 0.3s ease-out;
     justify-items: center;
-    position: fixed;         /* Se queda fijo en la pantalla */
-    top: 50%;               /* Lo baja a la mitad */
-    left: 50%;              /* Lo mueve a la mitad derecha */
-    transform: translate(-50%, -50%); /* Lo "regresa" exactamente a su centro */
-    z-index: 10000;         /* Asegura que esté por encima de todo */
-    margin: 0;              /* Quitamos el margin: 10% auto para que no estorbe */
+    position: fixed;      
+    top: 50%;               
+    left: 50%;             
+    transform: translate(-50%, -50%);
+    z-index: 10000;         
+    margin: 0;              
 }
 
 @keyframes slideIn {
