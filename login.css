@@ -5175,7 +5175,7 @@ label[for="tareaAsignadoA"] {
 .modal-config-content {
     background-color: #ffffff;
     margin: 10% auto;
-    padding: initial;
+    padding: 25px;
     border-radius: 15px;
     width: 90%;
     max-width: 350px;
@@ -5274,7 +5274,32 @@ label[for="tareaAsignadoA"] {
 .btn-cancelar:hover {
     background-color: #ddd;
 }
-
+/*moviles*/
+.modal-config-content-movil{
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 15px;
+    /* Ajustes para móviles */
+    width: 85%;       /* Un poco más de aire a los lados en móvil */
+    max-width: 350px; /* No crece más de esto en PC */
+    
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-align: center;
+    
+    /* Animación */
+    animation: slideIn 0.3s ease-out;
+}
+@keyframes slideIn {
+    from { 
+        transform: scale(0.9); /* Efecto de que aparece desde el fondo */
+        opacity: 0; 
+    }
+    to { 
+        transform: scale(1); 
+        opacity: 1; 
+    }
+}
 
 
 
