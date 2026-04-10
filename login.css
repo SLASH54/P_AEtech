@@ -5173,7 +5173,7 @@ label[for="tareaAsignadoA"] {
 
 /* Caja del Modal */
 .modal-config-content {
-    background-color: #ffffff;
+    Background-color: #ffffff;
     margin: 10% auto;
     padding: 25px;
     border-radius: 15px;
@@ -5183,11 +5183,6 @@ label[for="tareaAsignadoA"] {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     text-align: center;
     animation: slideIn 0.3s ease-out;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    display: flex;
-    min-height: 50vh;       /* Ocupa todo el alto de la pantalla */
 }
 
 @keyframes slideIn {
