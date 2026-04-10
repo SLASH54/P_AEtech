@@ -1295,6 +1295,13 @@ input:checked + .slider:before { transform: translateX(18px); }
     max-width: 300px;
     padding: 20px;
     text-align: center;
+    justify-items: center;
+    position: fixed;         /* Se queda fijo en la pantalla */
+    top: 50%;               /* Lo baja a la mitad */
+    left: 50%;              /* Lo mueve a la mitad derecha */
+    transform: translate(-50%, -50%); /* Lo "regresa" exactamente a su centro */
+    z-index: 10000;         /* Asegura que esté por encima de todo */
+    margin: 0;
 }
 
 
