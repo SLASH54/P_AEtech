@@ -3078,8 +3078,6 @@ form input:focus {
 }
 
 
-
-
 /* === Sección de Material Ocupado === */
 .material-container {
   margin-top: 40px;
@@ -5188,7 +5186,7 @@ label[for="tareaAsignadoA"] {
 
 /* Caja del Modal */
 .modal-config-content {
-    Background-color: #ffffff;
+    Background-color: #f5f3f3b3;
     margin: 10% auto;
     padding: 25px;
     border-radius: 15px;
