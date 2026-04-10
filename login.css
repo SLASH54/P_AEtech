@@ -5183,6 +5183,7 @@ label[for="tareaAsignadoA"] {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     text-align: center;
     animation: slideIn 0.3s ease-out;
+    justify-items: center;
 }
 
 @keyframes slideIn {
