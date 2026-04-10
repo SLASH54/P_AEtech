@@ -5175,7 +5175,7 @@ label[for="tareaAsignadoA"] {
 .modal-config-content {
     background-color: #ffffff;
     margin: 10% auto;
-    padding: 25px;
+    padding: initial;
     border-radius: 15px;
     width: 90%;
     max-width: 350px;
