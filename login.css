@@ -5183,13 +5183,6 @@ label[for="tareaAsignadoA"] {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     text-align: center;
     animation: slideIn 0.3s ease-out;
-    position: fixed;
-    /*Ajustes para móviles */
-    width: 85%;       /* Un poco más de aire a los lados en móvil */
-    max-width: 350px; /* No crece más de esto en PC */
-    justify-content: center; 
-    align-items: center;    
-    z-index: 10000;
 }
 
 @keyframes slideIn {
@@ -5279,6 +5272,7 @@ label[for="tareaAsignadoA"] {
 .btn-cancelar:hover {
     background-color: #ddd;
 }
+
 
 
 
