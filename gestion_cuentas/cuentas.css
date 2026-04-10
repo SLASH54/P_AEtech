@@ -1296,23 +1296,6 @@ input:checked + .slider:before { transform: translateX(18px); }
     padding: 20px;
     text-align: center;
 
-    /* --- CENTRADO TOTAL ALTERNATIVO --- */
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    margin: auto !important; /* Esto con position fixed y top/left/right/bottom en 0 lo centra sí o sí */
-    
-    /* Dimensiones controladas para que no se estire */
-    width: 90% !important;
-    height: fit-content !important; /* Se ajusta a lo que tenga adentro */
-    max-width: 320px !important;
-    max-height: 85vh !important; /* Para que no se salga de la pantalla si es muy largo */
-    overflow-y: auto !important; /* Por si el catálogo es muy grande */
-    
-    z-index: 999999 !important;
-
 }
 
 
