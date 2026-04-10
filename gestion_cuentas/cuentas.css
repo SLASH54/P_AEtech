@@ -1296,14 +1296,16 @@ input:checked + .slider:before { transform: translateX(18px); }
     padding: 20px;
     text-align: center;
 
-    position: fixed;        
-    top: 50%;               
-    left: 50%;              
-    transform: translate(-50%, -50%); 
-    width: 90%;            
-    max-width: 350px;       
-    z-index: 10000;        
-    margin: 0;
+    position: fixed !important;  /* ¡Importante para saltarse bloqueos! */
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    
+    /* Ajuste de tamaño para que no se desborde */
+    width: 90% !important;
+    max-width: 320px !important;
+    margin: 0 !important;
+    z-index: 99999 !important;
 }
 
 
