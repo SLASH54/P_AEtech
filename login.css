@@ -5186,11 +5186,10 @@ label[for="tareaAsignadoA"] {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
     display: flex;
     justify-content: center; /* Centrado horizontal */
     align-items: center;     /* Centrado vertical */
-    min-height: 100vh;       /* Ocupa todo el alto de la pantalla */
+    min-height: 50vh;       /* Ocupa todo el alto de la pantalla */
 }
 
 @keyframes slideIn {
