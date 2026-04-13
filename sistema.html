@@ -227,20 +227,43 @@
 
 
 <div id="modalfirmacontrato" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center;">
-    <div style="background:white; padding:20px; border-radius:15px; text-align:center; width:90%; max-width:500px;">
-        <h3 style="margin-bottom:10px; color:#333;">🖋️ Dibuje su firma aquí</h3>
+    <div style="background:white; padding:25px; border-radius:15px; text-align:center; width:95%; max-width:700px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        <h3 style="margin-bottom:15px; color:#333;">🖋️ Captura de Firmas Especializadas</h3>
         
-        <canvas id="canvas-modal-contrato" width="450" height="250" 
-                style="border:2px dashed #4f46e5; border-radius:10px; background:#f9f9f9; touch-action:none; width:100%; cursor:crosshair;">
-        </canvas>
+        <div style="display: flex; gap: 20px; justify-content: center; margin-bottom: 20px;">
+            <div style="flex: 1;">
+                <p style="font-size: 9pt; font-weight: bold; margin-bottom: 5px;">LA CONTRATANTE (Cliente)</p>
+                <canvas id="canvas-cliente" width="300" height="180" style="border:2px dashed #4f46e5; border-radius:10px; background:#f9f9f9; cursor:crosshair; width: 100%;"></canvas>
+                <button onclick="limpiarCanvasIndividual('canvas-cliente')" style="background:none; border:none; color:red; font-size: 10px; cursor:pointer;">🗑️ Borrar</button>
+            </div>
+            
+            <div style="flex: 1;">
+                <p style="font-size: 9pt; font-weight: bold; margin-bottom: 5px;">PRESTADOR (Denisse Avila E.)</p>
+                <canvas id="canvas-aetech" width="300" height="180" style="border:2px dashed #00938f; border-radius:10px; background:#f9f9f9; cursor:crosshair; width: 100%;"></canvas>
+                <button onclick="limpiarCanvasIndividual('canvas-aetech')" style="background:none; border:none; color:red; font-size: 10px; cursor:pointer;">🗑️ Borrar</button>
+            </div>
+        </div>
 
-        <div style="margin-top:20px; display:flex; gap:10px; justify-content:center;">
+        <div style="display:flex; gap:10px; justify-content:center; margin-bottom: 20px;">
             <button onclick="cerrarModalFirma()" style="background:#6b7280; color:white; padding:10px 20px; border:none; border-radius:8px; cursor:pointer;">Cancelar</button>
-            <button onclick="limpiarCanvasModal()" style="background:#e11d48; color:white; padding:10px 20px; border:none; border-radius:8px; cursor:pointer;">Borrar</button>
-            <button onclick="confirmarFirmaYEnviar()" style="background:#4f46e5; color:white; padding:10px 20px; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">Confirmar y Guardar</button>
+            <button id="btn-confirmar-guardar" onclick="confirmarYGuardarFirmas()" style="background:#4f46e5; color:white; padding:10px 20px; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">
+                <i class="fa-solid fa-save"></i> Confirmar y Guardar Firmas
+            </button>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+        <div id="contenedor-pdf-final">
+            <button id="btn-descargar-pdf" onclick="descargarPDFContrato()" disabled style="background:#e67e22; color:white; padding:15px 40px; border:none; border-radius:10px; cursor:not-allowed; font-weight:bold; font-size: 16px; opacity: 0.5;">
+                <i class="fa-solid fa-file-pdf"></i> GENERAR CONTRATO PDF
+            </button>
+            <p id="msg-aviso" style="font-size: 10px; color: #666; margin-top: 5px;">Guarda las firmas primero para habilitar la descarga.</p>
         </div>
     </div>
 </div>
+
+
+
 
 
     <section id="Evidencia" class="main-content ">

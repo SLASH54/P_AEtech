@@ -4739,113 +4739,113 @@ async function procesarContratoGuardado() {
 }
 
 // --- SUSTITUYE LAS QUE TIENES POR ESTAS ---
-var dibujandoEnModal = false; // Usa var para evitar problemas de "scope"
-var ctxModal = null;
-var canvasModal = null;
+let dibujandoCliente = false;
+let dibujandoAETech = false;
+let idContratoGuardado = null; // Para saber qué PDF descargar
 
 function modalfirmacontrato() {
-    canvasModal = document.getElementById('canvas-modal-contrato');
-    if (!canvasModal) return console.error("No se encontró el canvas del modal");
-    
-    ctxModal = canvasModal.getContext('2d');
-    
-    // El resto de tu función modalfirmacontrato sigue igual...
     document.getElementById('modalfirmacontrato').style.display = 'flex';
-    ctxModal.clearRect(0, 0, canvasModal.width, canvasModal.height);
-
     
-    // Configuración del pincel
-    ctxModal.strokeStyle = "#000000";
-    ctxModal.lineWidth = 3;
-    ctxModal.lineCap = "round";
+    const cCliente = document.getElementById('canvas-cliente');
+    const cAetech = document.getElementById('canvas-aetech');
+    
+    // Inicializar pinceles
+    prepararCanvas(cCliente, "cliente");
+    prepararCanvas(cAetech, "aetech");
 
-    // Lógica de posición
+    // Reset de estado
+    idContratoGuardado = null;
+    document.getElementById('btn-descargar-pdf').disabled = true;
+    document.getElementById('btn-descargar-pdf').style.cursor = "not-allowed";
+    document.getElementById('btn-descargar-pdf').style.opacity = "0.5";
+}
+
+function prepararCanvas(canvas, tipo) {
+    const ctx = canvas.getContext('2d');
+    ctx.strokeStyle = "#000000";
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = "round";
+
     const obtenerPos = (e) => {
-        const rect = canvasModal.getBoundingClientRect();
+        const rect = canvas.getBoundingClientRect();
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
         return {
-            x: (clientX - rect.left) * (canvasModal.width / rect.width),
-            y: (clientY - rect.top) * (canvasModal.height / rect.height)
+            x: (clientX - rect.left) * (canvas.width / rect.width),
+            y: (clientY - rect.top) * (canvas.height / rect.height)
         };
     };
 
-    // Eventos Mouse
-    canvasModal.onmousedown = (e) => { 
-        dibujandoEnModal = true; 
+    const iniciar = (e) => {
+        if (e.type === 'touchstart') e.preventDefault();
+        if(tipo === "cliente") dibujandoCliente = true; else dibujandoAETech = true;
         const pos = obtenerPos(e);
-        ctxModal.beginPath(); 
-        ctxModal.moveTo(pos.x, pos.y); 
+        ctx.beginPath();
+        ctx.moveTo(pos.x, pos.y);
     };
-    canvasModal.onmousemove = (e) => {
-        if (!dibujandoEnModal) return;
-        const pos = obtenerPos(e);
-        ctxModal.lineTo(pos.x, pos.y);
-        ctxModal.stroke();
-    };
-    window.onmouseup = () => dibujandoEnModal = false;
 
-    // Soporte táctil (Celulares)
-    canvasModal.ontouchstart = (e) => {
-        e.preventDefault();
-        dibujandoEnModal = true;
+    const mover = (e) => {
+        if (e.type === 'touchmove') e.preventDefault();
+        if ((tipo === "cliente" && !dibujandoCliente) || (tipo === "aetech" && !dibujandoAETech)) return;
         const pos = obtenerPos(e);
-        ctxModal.beginPath();
-        ctxModal.moveTo(pos.x, pos.y);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
     };
-    canvasModal.ontouchmove = (e) => {
-        e.preventDefault();
-        if (!dibujandoEnModal) return;
-        const pos = obtenerPos(e);
-        ctxModal.lineTo(pos.x, pos.y);
-        ctxModal.stroke();
-    };
+
+    const parar = () => { dibujandoCliente = false; dibujandoAETech = false; };
+
+    canvas.onmousedown = iniciar;
+    canvas.onmousemove = mover;
+    window.addEventListener('mouseup', parar);
+    canvas.ontouchstart = iniciar;
+    canvas.ontouchmove = mover;
+    canvas.ontouchend = parar;
 }
 
-// Funciones de apoyo
-function cerrarModalFirma() {
-    document.getElementById('modalfirmacontrato').style.display = 'none';
+function limpiarCanvasIndividual(id) {
+    const cvs = document.getElementById(id);
+    cvs.getContext('2d').clearRect(0, 0, cvs.width, cvs.height);
 }
 
-function limpiarCanvasModal() {
-    if(ctxModal) ctxModal.clearRect(0, 0, canvasModal.width, canvasModal.height);
-}
+// 1. FUNCIÓN QUE SOLO GUARDA (Botón Morado)
+async function confirmarYGuardarFirmas() {
+    const imgCliente = document.getElementById('canvas-cliente').toDataURL("image/png");
+    const imgAETech = document.getElementById('canvas-aetech').toDataURL("image/png");
+    const elNombre = document.getElementById('pdf-nombre-cliente').innerText;
+    const elRfc = document.getElementById('pdf-rfc-cliente').innerText;
 
-// 2. FUNCIÓN DE ENVÍO A RENDER
-async function confirmarFirmaYEnviar() {
-    const elNombre = document.getElementById('pdf-nombre-cliente');
-    const elRfc = document.getElementById('pdf-rfc-cliente');
-    
-    // IMPORTANTE: URL COMPLETA DE RENDER
-    const urlAPI = 'https://p-aetech.onrender.com/api/contratos';
-    
-    const imagenBase64 = canvasModal.toDataURL("image/png");
-
+    // En AEtech guardamos ambas firmas (o una combinada)
     const datos = {
-        clienteNombre: elNombre.innerText,
-        clienteRFC: elRfc.innerText,
-        contratoFirmaBase64: imagenBase64 
+        clienteNombre: elNombre,
+        clienteRFC: elRfc,
+        contratoFirmaBase64: imgCliente // Podrías enviar ambas si actualizas tu modelo
     };
 
     try {
-        const response = await fetch(urlAPI, {
+        const res = await fetch('https://p-aetech.onrender.com/api/contratos', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(datos)
         });
+        const data = await res.json();
 
-        const data = await response.json();
-        
         if (data.success) {
-            alert("✅ Contrato guardado en base de datos de AEtech");
-            cerrarModalFirma();
-            // Abrir PDF automáticamente
-            window.open(`https://p-aetech.onrender.com/api/contratos/descargar/${data.id}`, '_blank');
-        } else {
-            alert("❌ Error del servidor: " + data.msg);
+            idContratoGuardado = data.id;
+            alert("✅ Firmas guardadas en la base de datos.");
+            
+            // HABILITAR BOTÓN DE PDF (Recuadro Rojo)
+            const btnPdf = document.getElementById('btn-descargar-pdf');
+            btnPdf.disabled = false;
+            btnPdf.style.cursor = "pointer";
+            btnPdf.style.opacity = "1";
+            document.getElementById('msg-aviso').innerText = "¡Listo! Ya puedes generar el documento.";
         }
-    } catch (error) {
-        console.error("Error:", error);
-        alert("❌ Error de conexión. Verifica que el servidor de Render esté encendido.");
-    }
+    } catch (e) { alert("Error al guardar."); }
 }
+
+// 2. FUNCIÓN QUE GENERA EL PDF (Botón Naranja)
+function descargarPDFContrato() {
+    if (!idContratoGuardado) return;
+    window.open(`https://p-aetech.onrender.com/api/contratos/descargar/${idContratoGuardado}`, '_blank');
+}
+
