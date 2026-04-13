@@ -4739,33 +4739,27 @@ async function procesarContratoGuardado() {
 }
 
 // --- SUSTITUYE LAS QUE TIENES POR ESTAS ---
-// --- VARIABLES GLOBALES ---
-var dibujandoEnModal = false;
+var dibujandoEnModal = false; // Usa var para evitar problemas de "scope"
 var ctxModal = null;
 var canvasModal = null;
-var ultimoIdGuardado = null; // 👈 Guardará el ID que nos de Render
 
 function modalfirmacontrato() {
     canvasModal = document.getElementById('canvas-modal-contrato');
     if (!canvasModal) return console.error("No se encontró el canvas del modal");
     
     ctxModal = canvasModal.getContext('2d');
+    
+    // El resto de tu función modalfirmacontrato sigue igual...
     document.getElementById('modalfirmacontrato').style.display = 'flex';
     ctxModal.clearRect(0, 0, canvasModal.width, canvasModal.height);
 
+    
     // Configuración del pincel
     ctxModal.strokeStyle = "#000000";
     ctxModal.lineWidth = 3;
     ctxModal.lineCap = "round";
 
-    // Reiniciar el botón naranja al abrir el modal
-    var btnNaranja = document.getElementById('btn-generar-pdf-final');
-    if(btnNaranja) {
-        btnNaranja.disabled = true;
-        btnNaranja.style.opacity = "0.5";
-        btnNaranja.style.cursor = "not-allowed";
-    }
-
+    // Lógica de posición
     const obtenerPos = (e) => {
         const rect = canvasModal.getBoundingClientRect();
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -4776,6 +4770,7 @@ function modalfirmacontrato() {
         };
     };
 
+    // Eventos Mouse
     canvasModal.onmousedown = (e) => { 
         dibujandoEnModal = true; 
         const pos = obtenerPos(e);
@@ -4790,6 +4785,7 @@ function modalfirmacontrato() {
     };
     window.onmouseup = () => dibujandoEnModal = false;
 
+    // Soporte táctil (Celulares)
     canvasModal.ontouchstart = (e) => {
         e.preventDefault();
         dibujandoEnModal = true;
@@ -4806,11 +4802,23 @@ function modalfirmacontrato() {
     };
 }
 
-// --- FUNCIÓN MODIFICADA: AHORA SOLO GUARDA ---
+// Funciones de apoyo
+function cerrarModalFirma() {
+    document.getElementById('modalfirmacontrato').style.display = 'none';
+}
+
+function limpiarCanvasModal() {
+    if(ctxModal) ctxModal.clearRect(0, 0, canvasModal.width, canvasModal.height);
+}
+
+// 2. FUNCIÓN DE ENVÍO A RENDER
 async function confirmarFirmaYEnviar() {
     const elNombre = document.getElementById('pdf-nombre-cliente');
     const elRfc = document.getElementById('pdf-rfc-cliente');
+    
+    // IMPORTANTE: URL COMPLETA DE RENDER
     const urlAPI = 'https://p-aetech.onrender.com/api/contratos';
+    
     const imagenBase64 = canvasModal.toDataURL("image/png");
 
     const datos = {
@@ -4829,33 +4837,17 @@ async function confirmarFirmaYEnviar() {
         const data = await response.json();
         
         if (data.success) {
-            alert("✅ Firma guardada correctamente. Ahora puedes generar el PDF.");
-            
-            // 1. Guardamos el ID que nos devolvió Render
-            ultimoIdGuardado = data.id;
-
-            // 2. ACTIVAMOS EL BOTÓN NARANJA
-            var btnNaranja = document.getElementById('btn-generar-pdf-final');
-            if(btnNaranja) {
-                btnNaranja.disabled = false;
-                btnNaranja.style.opacity = "1";
-                btnNaranja.style.cursor = "pointer";
-            }
-            // Ya no usamos window.open aquí 🚫
+            alert("✅ Contrato guardado en base de datos de AEtech");
+            cerrarModalFirma();
+            // Abrir PDF automáticamente
+            window.open(`https://p-aetech.onrender.com/api/contratos/descargar/${data.id}`, '_blank');
         } else {
-            alert("❌ Error: " + data.msg);
+            alert("❌ Error del servidor: " + data.msg);
         }
     } catch (error) {
-        alert("❌ Error de conexión.");
+        console.error("Error:", error);
+        alert("❌ Error de conexión. Verifica que el servidor de Render esté encendido.");
     }
 }
 
-// --- NUEVA FUNCIÓN PARA EL BOTÓN NARANJA ---
-function descargarPDFContratoFinal() {
-    if (ultimoIdGuardado) {
-        window.open(`https://p-aetech.onrender.com/api/contratos/descargar/${ultimoIdGuardado}`, '_blank');
-    } else {
-        alert("⚠️ Primero debes confirmar y guardar la firma.");
-    }
-}
 
