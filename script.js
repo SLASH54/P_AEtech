@@ -4849,5 +4849,3 @@ async function confirmarFirmaYEnviar() {
         alert("❌ Error de conexión. Verifica que el servidor de Render esté encendido.");
     }
 }
-
-
