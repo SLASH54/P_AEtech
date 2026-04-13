@@ -2,7 +2,7 @@ const Contrato = require("../models/Contrato");
 const PDFDocument = require("pdfkit");
 const axios = require("axios");
 
-// Función para cargar el fondo
+// Función para cargar el fondo AVER SI YA CARGA AJAJ 
 async function cargarFondo(url) {
     try {
         const res = await axios.get(url, { responseType: "arraybuffer" });
