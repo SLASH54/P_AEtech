@@ -227,8 +227,8 @@
 
 
 <div id="modalfirmacontrato" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center;">
-    <div style="background:white; padding:25px; border-radius:15px; text-align:center; width:90%; max-width:500px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
-        <h3 style="margin-bottom:15px; color:#333;">🖋️ Firma del Cliente</h3>
+    <div style="background:white; padding:20px; border-radius:15px; text-align:center; width:90%; max-width:500px;">
+        <h3 style="margin-bottom:10px; color:#333;">🖋️ Dibuje su firma aquí</h3>
         
         <canvas id="canvas-modal-contrato" width="450" height="250" 
                 style="border:2px dashed #4f46e5; border-radius:10px; background:#f9f9f9; touch-action:none; width:100%; cursor:crosshair;">
@@ -237,24 +237,14 @@
         <div style="margin-top:20px; display:flex; gap:10px; justify-content:center;">
             <button onclick="cerrarModalFirma()" style="background:#6b7280; color:white; padding:10px 20px; border:none; border-radius:8px; cursor:pointer;">Cancelar</button>
             <button onclick="limpiarCanvasModal()" style="background:#e11d48; color:white; padding:10px 20px; border:none; border-radius:8px; cursor:pointer;">Borrar</button>
-            
-            <button onclick="confirmarFirmaYEnviar()" style="background:#4f46e5; color:white; padding:10px 20px; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">
-               Confirmar y Guardar
-            </button>
+            <button onclick="confirmarFirmaYEnviar()" style="background:#4f46e5; color:white; padding:10px 20px; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">Confirmar y Guardar</button>
         </div>
-
-        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
-
-        <div id="zona-descarga-pdf" style="margin-top: 10px;">
-            <button id="btn-generar-pdf-final" onclick="descargarPDFDirecto()" disabled 
-                style="background:#e67e22; color:white; padding:15px 30px; border:none; border-radius:10px; cursor:not-allowed; font-weight:bold; width: 100%; font-size: 16px; opacity: 0.5;">
-                <i class="fa-solid fa-file-pdf"></i> GENERAR CONTRATO PDF
-            </button>
-            <p id="aviso-pdf" style="font-size: 11px; color: #666; margin-top: 8px;">(Se activará después de Guardar)</p>
-        </div>
-        
     </div>
 </div>
+
+
+
+
 
 
 
