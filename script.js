@@ -4617,6 +4617,7 @@ async function descargarReportePDF(tareaId, incluirMateriales = true, incluirCom
 
 
 // --- VARIABLES GLOBALES ÚNICAS ---
+// --- VARIABLES GLOBALES ÚNICAS ---
 let globalDibujandoContrato = false;
 
 function abrirGeneradorContrato(nombre = "________________", rfc = "") {
