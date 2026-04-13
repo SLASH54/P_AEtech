@@ -2,15 +2,11 @@ const Contrato = require("../models/Contrato");
 const PDFDocument = require("pdfkit");
 const axios = require("axios");
 
-// Función para cargar el fondo
 async function cargarFondo(url) {
     try {
         const res = await axios.get(url, { responseType: "arraybuffer" });
         return res.data;
-    } catch (err) { 
-        console.error("❌ Error cargando plantilla:", err.message);
-        return null; 
-    }
+    } catch (err) { return null; }
 }
 
 exports.generarPDFContrato = async (req, res) => {
@@ -19,106 +15,99 @@ exports.generarPDFContrato = async (req, res) => {
         const contrato = await Contrato.findByPk(id);
         if (!contrato) return res.status(404).json({ msg: "Contrato no encontrado" });
 
-        // 1. Cargamos la plantilla de AEtech primero
         const plantillaURL = "https://p-aetech.onrender.com/public/plantillas/plantilla_reporte.jpg";
         const plantillaBuf = await cargarFondo(plantillaURL);
 
-        const doc = new PDFDocument({ margin: 50, size: 'LETTER' });
+        // Ajustamos márgenes para dar espacio al logo superior
+        const doc = new PDFDocument({ margin: 70, size: 'LETTER' });
         res.setHeader("Content-Type", "application/pdf");
         res.setHeader("Content-Disposition", `attachment; filename=Contrato_AEtech_${contrato.cliente_nombre}.pdf`);
         doc.pipe(res);
 
-        // Función para poner el fondo en cada hoja
         const ponerFondo = () => {
-            if (plantillaBuf) {
-                doc.image(plantillaBuf, 0, 0, { width: 612, height: 792 });
-            }
+            if (plantillaBuf) doc.image(plantillaBuf, 0, 0, { width: 612, height: 792 });
         };
 
         // --- HOJA 1 ---
         ponerFondo();
+        
+        // BAJAMOS EL INICIO DEL TEXTO (Espacio para el logo)
+        // Usamos doc.y para posicionar el primer bloque más abajo
+        doc.y = 160; 
 
-        // Encabezado alineado a la derecha
-        doc.fontSize(10).font('Helvetica-Bold').text("AE TECH", { align: 'right' });
-        doc.fontSize(8).font('Helvetica').text("Seguridad, Tecnología e Innovación", { align: 'right' });
-        doc.moveDown(2);
-
-        // Título Principal
         doc.fontSize(11).font('Helvetica-Bold').text("CONTRATO DE PRESTACIÓN DE SERVICIOS ESPECIALIZADOS", { align: 'center' });
+        doc.moveDown(1.5);
+
+        // TEXTO GENERAL A 11 PUNTOS (Equivalente a Arial)
+        doc.fontSize(11).font('Helvetica').fillColor("black");
+
+        // INTRODUCCIÓN COMPLETA
+        doc.text(`Contrato por prestación de servicios especializados de instalación, implementación y distribución de sistema de seguridad electrónica con suministro de materiales y equipos en calidad de préstamo mismo que tendrá vigencia idéntica al presente contrato, que celebran por una parte Denisse Avila Espinoza a quien en lo sucesivo se le denominara “la prestadora” en el texto del presente contrato y, por la otra parte la Persona Sr(a). ${contrato.cliente_nombre}, personalidad que acredita mediante el instrumento de inscripción al registro federal de contribuyente ${contrato.cliente_rfc || '___________'}, a quien en lo sucesivo se le denominara “la contratante”, de conformidad con lo siguiente:`, { align: 'justify', lineGap: 2 });
+        
         doc.moveDown();
-
-        // --- CUERPO LEGAL COMPLETO ---
-        doc.fontSize(9).font('Helvetica').fillColor("black");
-
-        const introduccion = `Contrato por prestación de servicios especializados de instalación, implementación y distribución de sistema de seguridad electrónica con suministro de materiales y equipos en calidad de préstamo mismo que tendrá vigencia idéntica al presente contrato, que celebran por una parte Denisse Avila Espinoza a quien en lo sucesivo se le denominara “la prestadora” y, por la otra parte la Persona Sr(a). ${contrato.cliente_nombre}, con RFC ${contrato.cliente_rfc || 'S/N'}, a quien en lo sucesivo se le denominara “la contratante”, de conformidad con lo siguiente:`;
-
-        doc.text(introduccion, { align: 'justify', lineGap: 2 });
-        doc.moveDown();
-
         doc.font('Helvetica-Bold').text("DECLARACIONES", { align: 'center' });
         doc.moveDown(0.5);
-        
-        const declaraciones = `1.- Declara “la prestadora” ser una persona física inscrita en el RFC: AIED011026T79, con domicilio en calle 15 Poniente número 107, colonia Álvaro Obregón en Atlixco, Puebla.\n` +
-            `2.- Declara “la prestadora” que su actividad es la prestación de servicios de instalación e implementación de sistemas de seguridad electrónica.\n` +
-            `3.- Declara “la prestadora” tener la capacidad jurídica y personal profesional capacitado.\n` +
-            `4.- Declara “la contratante” ser una persona física mexicana con plena capacidad legal para contratar.\n` +
-            `5.- Declara “la contratante” que requiere obtener servicios especializados en seguridad electrónica.\n` +
-            `6.- Declara la prestadora y la contratante que la bitácora y el contrato vinculan a las partes.`;
 
-        doc.font('Helvetica').text(declaraciones, { align: 'justify', lineGap: 2 });
+        const declaraciones = [
+            `1.- Declara “la prestadora” ser una persona física inscrita en el Registro Federal de Contribuyentes, con clave: AIED011026T79, con domicilio en calle 15 Poniente número 107, colonia Álvaro Obregón en Atlixco, Puebla.`,
+            `2.- Declara “la prestadora” que su actividad es entre otras, la prestación de servicios de instalación, implementación de sistemas de seguridad electrónica, tendientes a satisfacer las necesidades de “la contratante”.`,
+            `3.- Declara “la prestadora” tener la capacidad jurídica para celebrar todo tipo de contratos relacionados con su actividad, así como contar con el personal profesional capacitado para prestar a la contratante los servicios requeridos y que cuenta con la capacidad y experiencia técnica suficiente.`,
+            `4.- Por su parte declara “la contratante”, por medio de su representante, ser una persona física, mexicana, debidamente constituida conforme a las leyes vigentes con plena capacidad legal para contratar.`,
+            `5.- Declara “la contratante” que para realizar su objeto social requiere de la obtención de servicios especializados en seguridad electrónica, instalación e implementación.`,
+            `6.- Declara la prestadora y la contratante: que será la bitácora, el propio contrato y sus anexos quien vincule a las partes.`
+        ];
+
+        declaraciones.forEach(texto => {
+            doc.font('Helvetica').text(texto, { align: 'justify', lineGap: 1 });
+            doc.moveDown(0.4);
+        });
+
+        // SALTO DE PÁGINA SI EL TEXTO ES MUCHO
+        if (doc.y > 600) { doc.addPage(); ponerFondo(); doc.y = 160; }
+
         doc.moveDown();
-
         doc.font('Helvetica-Bold').text("CLAUSULAS", { align: 'center' });
         doc.moveDown(0.5);
 
-        const clausulas = `Primera. “La prestadora” se obliga a prestar el monitoreo de alarma vinculado a AE Tech.\n` +
-            `Segunda. Los servicios serán proporcionados con recursos propios, obligándose a visitas técnicas y acceso a bitácora.\n` +
-            `Tercera. Los suministros de equipo en préstamo se instalarán en el domicilio solicitado. Al término del periodo, el prestador podrá retirar el equipo.\n` +
-            `Cuarta. El responsable del proyecto será el Mtro. Dionisio Avila Espinoza.\n` +
-            `Quinta. La contratante pagara la cantidad de $580 (quinientos ochenta 00/100 M.N) mensuales.\n` +
-            `Sexta. Ninguna parte podrá ceder derechos sin consentimiento escrito.\n` +
-            `Séptima. El contrato tendrá una duración definida a partir de la firma.\n` +
-            `Octava. Este contrato es el único que rige la prestación de servicios.\n` +
-            `Novena. Para lo no previsto, se aplicará el Código Civil del Estado de Puebla y tribunales de Atlixco.\n` +
-            `Décima. Penalizaciones: AE Tech podrá retirar equipos e interrumpir servicio por falta de pago o de facilidades técnicas.`;
+        // CLÁUSULAS DETALLADAS
+        doc.font('Helvetica').text(`Primera. “La prestadora” se obliga a prestar a “la contratante” los servicios especializados monitoreo de sistema de alarma vinculado a central de monitoreo “AE Tech”.`, { align: 'justify' });
+        doc.moveDown(0.5);
+        doc.text(`Segunda. Los servicios serán proporcionados por “la prestadora” con sus propios elementos personales y materiales. Se obliga a: a) Realizar visitas técnicas. b) Tener acceso a la bitácora de obra.`, { align: 'justify' });
+        doc.moveDown(0.5);
+        doc.text(`Tercera. Los suministros en calidad de préstamo (propiedad de la contratante) serán prestados en el domicilio solicitado. Al término del periodo, el prestador podrá retirar el equipo.`, { align: 'justify' });
+        doc.moveDown(0.5);
+        doc.text(`Cuarta. El responsable del proyecto será el Mtro. Dionisio Avila Espinoza.`, { align: 'justify' });
+        doc.moveDown(0.5);
+        doc.text(`Quinta. La contratante pagara a “la prestadora” la cantidad de $580 (quinientos ochenta 00/100 M.N) el primer día de cada mes.`, { align: 'justify' });
 
-        doc.font('Helvetica').text(clausulas, { align: 'justify', lineGap: 2 });
-        doc.moveDown(2);
+        if (doc.y > 600) { doc.addPage(); ponerFondo(); doc.y = 160; }
 
-        const fechaHoy = new Date().toLocaleDateString();
-        doc.text(`Leído que fue el presente contrato y enteradas las partes de su contenido, alcance y fuerza legal lo firman de conformidad en la ciudad de Atlixco, Puebla, el día ${fechaHoy}.`, { align: 'justify' });
+        doc.moveDown(0.5);
+        doc.text(`Sexta a Novena. El contrato es intransferible, tiene duración definida, rige como acuerdo único y se somete a la jurisdicción de los tribunales de Atlixco, Puebla.`, { align: 'justify' });
+        doc.moveDown(0.5);
+        doc.font('Helvetica-Bold').text(`Décima. Penalizaciones.`, { continued: true }).font('Helvetica').text(` Se procederá a finiquitar responsabilidad o retirar equipo si el contratante no proporciona información, no cumple con pagos o no da facilidades físicas.`);
 
         // --- SECCIÓN DE FIRMAS ---
-        // Si no hay espacio, saltamos de hoja y repetimos fondo
-        if (doc.y > 500) {
-            doc.addPage();
-            ponerFondo();
-            doc.moveDown(5); 
-        } else {
-            doc.moveDown(5);
-        }
+        doc.moveDown(2);
+        const hoy = new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
+        doc.text(`Firma de conformidad en la ciudad de Atlixco, Puebla, el día ${hoy}.`, { align: 'center' });
 
-        const yFirmas = doc.y;
+        doc.moveDown(5);
+        const yEje = doc.y;
 
-        // FIRMA CLIENTE
-        if (contrato.firma_base64) {
-            const base64Data = contrato.firma_base64.replace(/^data:image\/\w+;base64,/, "");
-            doc.image(Buffer.from(base64Data, 'base64'), 70, yFirmas - 60, { width: 140 });
-        }
-        doc.moveTo(60, yFirmas).lineTo(230, yFirmas).stroke();
-        doc.font('Helvetica-Bold').text("LA CONTRATANTE", 60, yFirmas + 5, { width: 170, align: 'center' });
-        doc.font('Helvetica').text(contrato.cliente_nombre, 60, yFirmas + 15, { width: 170, align: 'center' });
+        // Firma Cliente
+        doc.moveTo(70, yEje).lineTo(230, yEje).stroke();
+        doc.font('Helvetica-Bold').text("LA CONTRATANTE", 70, yEje + 5, { width: 160, align: 'center' });
+        doc.font('Helvetica').text(contrato.cliente_nombre, 70, yEje + 18, { width: 160, align: 'center' });
 
-        // FIRMA AE TECH
-        doc.font('Courier-BoldOblique').fillColor("#000080").text("Denisse Avila E.", 350, yFirmas - 25, { width: 170, align: 'center' });
-        doc.fillColor("black");
-        doc.moveTo(350, yFirmas).lineTo(520, yFirmas).stroke();
-        doc.font('Helvetica-Bold').text("PRESTADOR DE SERVICIOS", 350, yFirmas + 5, { width: 170, align: 'center' });
-        doc.font('Helvetica').text("AE Tech", 350, yFirmas + 15, { width: 170, align: 'center' });
+        // Firma AE Tech
+        doc.moveTo(380, yEje).lineTo(540, yEje).stroke();
+        doc.font('Helvetica-Bold').text("PRESTADOR DE SERVICIOS", 380, yEje + 5, { width: 160, align: 'center' });
+        doc.font('Helvetica').text("AE Tech", 380, yEje + 18, { width: 160, align: 'center' });
 
         doc.end();
     } catch (error) {
-        console.error("❌ Error en PDF:", error);
-        res.status(500).send("Error al generar contrato");
+        console.error("❌ Error:", error);
+        res.status(500).send("Error generando PDF");
     }
 };
