@@ -95,10 +95,16 @@ exports.generarPDFContrato = async (req, res) => {
         doc.moveDown(5);
         const yEje = doc.y;
 
-        // Firma Cliente
-        doc.moveTo(70, yEje).lineTo(230, yEje).stroke();
-        doc.font('Helvetica-Bold').text("LA CONTRATANTE", 70, yEje + 5, { width: 160, align: 'center' });
-        doc.font('Helvetica').text(contrato.cliente_nombre, 70, yEje + 18, { width: 160, align: 'center' });
+        const yFirmas = doc.y;
+
+        // FIRMA CLIENTE
+        if (contrato.firma_base64) {
+            const base64Data = contrato.firma_base64.replace(/^data:image\/\w+;base64,/, "");
+            doc.image(Buffer.from(base64Data, 'base64'), 70, yFirmas - 60, { width: 140 });
+        }
+        doc.moveTo(60, yFirmas).lineTo(230, yFirmas).stroke();
+        doc.font('Helvetica-Bold').text("LA CONTRATANTE", 60, yFirmas + 5, { width: 170, align: 'center' });
+        doc.font('Helvetica').text(contrato.cliente_nombre, 60, yFirmas + 15, { width: 170, align: 'center' });
 
         // Firma AE Tech
         doc.moveTo(380, yEje).lineTo(540, yEje).stroke();
