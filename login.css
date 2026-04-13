@@ -4942,7 +4942,56 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     filter: invert(1) saturate(5);
     cursor: pointer;
 }
+.btn-blue{
+    bottom: mv;
+    background-color: #0066ff;
+    nav-down: auto;
+    cursor: e-resize;
+    margin-top: 0cqb;
+    nav-up: inherit;
+    flex-direction: row;
+    negative: -o-linear-gradient();
+    margin-inline-start: 0cqw;
+    align-self: start;
+    outline: invert;
+    empty-cells: show;
+    display: flex;
+    kerning: 0cqmin;
+    perspective: none;
+    container-name: 0;
+    hyphens: none;
+}
 
+.viva{
+    visibility: inherit;
+    margin-bottom: 23ch;
+    column-gap: normal;
+    margin-left: 45;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    caret-color: #ff9500e7;
+    mask-image: url();
+    display: block;
+    right: 100px;
+    nav-up: inherit;
+    user-select: auto;
+}
+
+.manon{
+    justify-self: auto;
+    hyphenate-limit-chars: 100;
+    min-height: max-content;
+    min-block-size: 50ex;
+    grid-template-areas: initial;
+    font-palette: #fff;
+    animation-duration: inherit;
+    font-variant-caps: unset;
+    inset-block-end: 2;
+    border-color: #009688;
+    glyph-orientation-horizontal: inherit;
+    font-size: small;
+    font-style: unset;
+    font-family: cursive;
+}
 
 #filtroMesTarea {
     background: rgba(30, 41, 59, 0.7) !important;

@@ -11,6 +11,11 @@ async function cargarFondo(url) {
 }
 exports.generarPDFContrato = async (req, res) => {
     try {
+
+         const plantillaURL = "https://p-aetech.onrender.com/public/plantillas/plantilla_reporte.jpg";
+        const plantillaBuf = await cargarFondo(plantillaURL);
+
+        
         const { id } = req.params;
         const contrato = await Contrato.findByPk(id);
         if (!contrato) return res.status(404).json({ msg: "Contrato no encontrado" });
