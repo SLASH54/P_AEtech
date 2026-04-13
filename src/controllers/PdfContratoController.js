@@ -117,3 +117,7 @@ exports.generarPDFContrato = async (req, res) => {
         res.status(500).send("Error generando PDF");
     }
 };
+
+
+
+ // --- asta aqui funciona ---
