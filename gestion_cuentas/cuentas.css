@@ -1131,6 +1131,7 @@ input:checked + .slider:before { transform: translateX(18px); }
 
 
 .glass-select-ios {
+    width: 70%;
     background: rgba(255, 255, 255, 0.2) !important;
     backdrop-filter: blur(10px) !important;
     -webkit-backdrop-filter: blur(10px);
