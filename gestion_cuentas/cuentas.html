@@ -8,6 +8,27 @@
     <link rel="icon" href="img/logoAEtech.png">
 </head>
 <body>
+    <div id="modalClienteExpress" class="loader-overlay" style="display: none;">
+    <div class="modal-content-ios" style="max-width: 350px; padding: 25px;">
+        <h3 style="margin-top: 0; color: #005e73;">⚡ Registro Rápido</h3>
+        <p style="color: #666; font-size: 0.9em;">Agrega un cliente sin salir de esta pantalla.</p>
+        
+        <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
+            <input type="text" id="expNombre" placeholder="Nombre completo" style="width: 100%;">
+            <input type="text" id="expTelefono" placeholder="Teléfono (Opcional)" style="width: 100%;">
+            <input type="text" id="expDireccion" placeholder="Dirección (Opcional)" style="width: 100%;">
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button onclick="guardarClienteExpress()" class="btn-ver" style="flex: 1; background: #28a745;">
+                <span class="glass-text">Guardar</span>
+            </button>
+            <button onclick="cerrarRegistroExpress()" class="btn-eliminar" style="flex: 1;">
+                <span class="glass-text">Cancelar</span>
+            </button>
+        </div>
+    </div>
+</div>
 
     <div id="modalCatalogo" class="loader-overlay" style="display: none;">
         <div class="modal-content-ios" style="max-width: 600px;">
@@ -133,6 +154,15 @@
                         <select id="lev-clienteSelect"></select>
                         
                     </div>
+
+                    <label>Cliente:</label>
+<div style="display: flex; gap: 8px; align-items: center;">
+    <select id="lev-clienteSelect" style="flex: 1;"></select>
+    <button type="button" onclick="abrirRegistroExpress()" class="btn-add" 
+            style="padding: 5px 12px; height: 38px; margin-top: -2px; border-radius: 8px;">
+        +
+    </button>
+</div>
 
                     <div class="lev-field">
                         <label>Fecha y Hora</label>

@@ -1765,7 +1765,63 @@ function cerrarModalCatalogo() {
 //AQUI TERMINA XDD
 
 
+//REGISTRO EXPRESS 
+// Funciones para el Registro Express
+function abrirRegistroExpress() {
+    document.getElementById("modalClienteExpress").style.display = "flex";
+}
 
+function cerrarRegistroExpress() {
+    document.getElementById("modalClienteExpress").style.display = "none";
+    document.getElementById("expNombre").value = "";
+    document.getElementById("expTelefono").value = "";
+    document.getElementById("expDireccion").value = "";
+}
+
+async function guardarClienteExpress() {
+    const nombre = document.getElementById("expNombre").value.trim();
+    const telefono = document.getElementById("expTelefono").value.trim();
+    const direccion = document.getElementById("expDireccion").value.trim();
+
+    if (!nombre) return alert("El nombre es necesario, pariente.");
+
+    try {
+        const token = localStorage.getItem("accessToken");
+        const res = await fetch(`${API_BASE_URL}/clientes`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` 
+            },
+            body: JSON.stringify({ 
+                nombre: nombre, 
+                telefono: telefono, 
+                direccion: direccion // Si tu API acepta dirección inicial
+            })
+        });
+
+        if (res.ok) {
+            const clienteCreado = await res.json();
+            
+            // 🚨 RECARGAMOS EL SELECT USANDO TU FUNCIÓN
+            await cargarClientesSelect(); 
+            
+            // 🚨 SELECCIONAMOS AL NUEVO
+            const select = document.getElementById("lev-clienteSelect");
+            if (select) {
+                select.value = clienteCreado.id;
+                // Disparamos el evento change por si tienes lógica que cargue direcciones al cambiar
+                select.dispatchEvent(new Event('change')); 
+            }
+
+            cerrarRegistroExpress();
+        } else {
+            alert("Algo falló al guardar el cliente.");
+        }
+    } catch (error) {
+        console.error("Error express:", error);
+    }
+}
 
 
 // 🔍 ESCUCHADORES PARA CÁLCULO EN TIEMPO REAL
