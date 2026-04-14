@@ -1290,7 +1290,7 @@ input:checked + .slider:before { transform: translateX(18px); }
 
 .modal-content-ios {
     backdrop-filter: blur(2px);
-    background-color: #29567ebb;
+    background-color: #97cbfaa6;
     border-radius: 15px;
     max-width: 300px;
     padding: 20px;

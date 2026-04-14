@@ -14,9 +14,9 @@
         <p style="color: #666; font-size: 0.9em;">Agrega un cliente sin salir de esta pantalla.</p>
         
         <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
-            <input type="text" id="expNombre" placeholder="Nombre completo" style="width: 100%;">
-            <input type="text" id="expTelefono" placeholder="Teléfono (Opcional)" style="width: 100%;">
-            <input type="text" id="expDireccion" placeholder="Dirección (Opcional)" style="width: 100%;">
+            <input type="text" id="expNombre" placeholder="Nombre completo" style="width: auto;">
+            <input type="text" id="expTelefono" placeholder="Teléfono (Opcional)" style="width: auto;">
+            <input type="text" id="expDireccion" placeholder="Dirección (Opcional)" style="width: auto;">
         </div>
 
         <div style="display: flex; gap: 10px; margin-top: 20px;">
@@ -152,17 +152,12 @@
                     <div class="lev-field">
                         <label>Cliente</label>
                         <select id="lev-clienteSelect"></select>
-                        
+                        <button type="button" onclick="abrirRegistroExpress()" class="btn-add" 
+                                style="padding: 5px 12px; height: 38px; margin-top: -2px; border-radius: 8px;">
+                            +
+                        </button>
                     </div>
 
-                    <label>Cliente:</label>
-<div style="display: flex; gap: 8px; align-items: center;">
-    <select id="lev-clienteSelect" style="flex: 1;"></select>
-    <button type="button" onclick="abrirRegistroExpress()" class="btn-add" 
-            style="padding: 5px 12px; height: 38px; margin-top: -2px; border-radius: 8px;">
-        +
-    </button>
-</div>
 
                     <div class="lev-field">
                         <label>Fecha y Hora</label>
