@@ -4738,34 +4738,28 @@ async function procesarContratoGuardado() {
     }
 }
 
-// --- VARIABLES GLOBALES ---
-var dibujandoEnModal = false;
+// --- SUSTITUYE LAS QUE TIENES POR ESTAS ---
+var dibujandoEnModal = false; // Usa var para evitar problemas de "scope"
 var ctxModal = null;
 var canvasModal = null;
-var quienFirmaActual = ''; // Para saber si firma 'cliente' o 'dueno'
 
-// Variables para almacenar las firmas en Base64
-var firmaClienteBase64 = null;
-var firmaDuenoBase64 = null;
-
-function modalfirmacontrato(tipo) {
-    quienFirmaActual = tipo; // Guardamos quién va a firmar
-    
+function modalfirmacontrato() {
     canvasModal = document.getElementById('canvas-modal-contrato');
     if (!canvasModal) return console.error("No se encontró el canvas del modal");
     
     ctxModal = canvasModal.getContext('2d');
     
-    // Mostramos el modal
+    // El resto de tu función modalfirmacontrato sigue igual...
     document.getElementById('modalfirmacontrato').style.display = 'flex';
     ctxModal.clearRect(0, 0, canvasModal.width, canvasModal.height);
 
+    
     // Configuración del pincel
     ctxModal.strokeStyle = "#000000";
     ctxModal.lineWidth = 3;
     ctxModal.lineCap = "round";
 
-    // Lógica de posición (Tu lógica original intacta)
+    // Lógica de posición
     const obtenerPos = (e) => {
         const rect = canvasModal.getBoundingClientRect();
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -4776,7 +4770,7 @@ function modalfirmacontrato(tipo) {
         };
     };
 
-    // Eventos Mouse y Touch (Tu lógica original intacta)
+    // Eventos Mouse
     canvasModal.onmousedown = (e) => { 
         dibujandoEnModal = true; 
         const pos = obtenerPos(e);
@@ -4791,6 +4785,7 @@ function modalfirmacontrato(tipo) {
     };
     window.onmouseup = () => dibujandoEnModal = false;
 
+    // Soporte táctil (Celulares)
     canvasModal.ontouchstart = (e) => {
         e.preventDefault();
         dibujandoEnModal = true;
@@ -4807,49 +4802,29 @@ function modalfirmacontrato(tipo) {
     };
 }
 
-// 1. FUNCIÓN PARA PROCESAR LA FIRMA EN EL MODAL
-function aceptarFirmaCapturada() {
-    const imagenBase64 = canvasModal.toDataURL("image/png");
-
-    if (quienFirmaActual === 'cliente') {
-        firmaClienteBase64 = imagenBase64;
-        // Mostramos la previsualización en el contrato HTML
-        const imgDoc = document.getElementById('img-firma-cliente');
-        if(imgDoc) {
-            imgDoc.src = imagenBase64;
-            imgDoc.style.display = 'block';
-            document.getElementById('btn-firma-cliente').style.display = 'none';
-        }
-    } else {
-        firmaDuenoBase64 = imagenBase64;
-        // Mostramos la previsualización en el contrato HTML
-        const imgDoc = document.getElementById('img-firma-dueno');
-        if(imgDoc) {
-            imgDoc.src = imagenBase64;
-            imgDoc.style.display = 'block';
-            document.getElementById('btn-firma-dueno').style.display = 'none';
-        }
-    }
-    cerrarModalFirma();
+// Funciones de apoyo
+function cerrarModalFirma() {
+    document.getElementById('modalfirmacontrato').style.display = 'none';
 }
 
-// 2. FUNCIÓN DE ENVÍO A RENDER (Modificada para enviar ambas firmas)
-async function confirmarFirmaYEnviar() {
-    // Verificación de seguridad
-    if (!firmaClienteBase64 || !firmaDuenoBase64) {
-        return alert("⚠️ Faltan firmas. Ambos (Cliente y Prestador) deben firmar el contrato.");
-    }
+function limpiarCanvasModal() {
+    if(ctxModal) ctxModal.clearRect(0, 0, canvasModal.width, canvasModal.height);
+}
 
+// 2. FUNCIÓN DE ENVÍO A RENDER
+async function confirmarFirmaYEnviar() {
     const elNombre = document.getElementById('pdf-nombre-cliente');
     const elRfc = document.getElementById('pdf-rfc-cliente');
     
+    // IMPORTANTE: URL COMPLETA DE RENDER
     const urlAPI = 'https://p-aetech.onrender.com/api/contratos';
     
+    const imagenBase64 = canvasModal.toDataURL("image/png");
+
     const datos = {
         clienteNombre: elNombre.innerText,
         clienteRFC: elRfc.innerText,
-        firmaCliente: firmaClienteBase64, 
-        firmaDueno: firmaDuenoBase64 
+        contratoFirmaBase64: imagenBase64 
     };
 
     try {
@@ -4862,7 +4837,8 @@ async function confirmarFirmaYEnviar() {
         const data = await response.json();
         
         if (data.success) {
-            alert("✅ Contrato y firmas guardadas en AEtech");
+            alert("✅ Contrato guardado en base de datos de AEtech");
+            cerrarModalFirma();
             // Abrir PDF automáticamente
             window.open(`https://p-aetech.onrender.com/api/contratos/descargar/${data.id}`, '_blank');
         } else {
@@ -4870,14 +4846,9 @@ async function confirmarFirmaYEnviar() {
         }
     } catch (error) {
         console.error("Error:", error);
-        alert("❌ Error de conexión con Render.");
+        alert("❌ Error de conexión. Verifica que el servidor de Render esté encendido.");
     }
 }
 
-function cerrarModalFirma() {
-    document.getElementById('modalfirmacontrato').style.display = 'none';
-}
 
-function limpiarCanvasModal() {
-    if(ctxModal) ctxModal.clearRect(0, 0, canvasModal.width, canvasModal.height);
-}
+//asta aqui funciona 
