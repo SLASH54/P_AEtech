@@ -12,6 +12,6 @@ router.post('/', contratoController.crearContrato);
 router.get('/', contratoController.obtenerContratos);
 
 // 🔹 Descargar PDF (GET) -> Usa pdfContratoController
-router.get('/descargar/:id', pdfContratoController.generarPDFContrato);
+router.get('/descargar/:id', contratoController.descargarPDF);
 
 module.exports = router;
