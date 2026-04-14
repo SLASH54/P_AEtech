@@ -1783,7 +1783,7 @@ async function guardarClienteExpress() {
     const telefono = document.getElementById("expTelefono").value.trim();
     const direccion = document.getElementById("expDireccion").value.trim();
 
-    if (!nombre) return alert("El nombre es necesario, pariente.");
+    if (!nombre) return alert("El nombre es necesario");
 
     try {
         const token = localStorage.getItem("accessToken");
@@ -1801,6 +1801,7 @@ async function guardarClienteExpress() {
         });
 
         if (res.ok) {
+            alert("Cliente Creado exitosamente");
             const clienteCreado = await res.json();
             
             // 🚨 RECARGAMOS EL SELECT USANDO TU FUNCIÓN
