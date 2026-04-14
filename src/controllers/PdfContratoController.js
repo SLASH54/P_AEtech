@@ -97,7 +97,7 @@ exports.generarPDFContrato = async (req, res) => {
 
         const yFirmas = doc.y;
 
-        // FIRMA CLIENTE no borres esto 
+        // FIRMA CLIENTE
         if (contrato.firma_base64) {
             const base64Data = contrato.firma_base64.replace(/^data:image\/\w+;base64,/, "");
             doc.image(Buffer.from(base64Data, 'base64'), 70, yFirmas - 60, { width: 140 });

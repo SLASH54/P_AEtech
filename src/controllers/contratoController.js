@@ -2,39 +2,30 @@ const Contrato = require('../models/Contrato');
 const PDFDocument = require("pdfkit");
 
 
-const Contrato = require('../models/Contrato');
-
-// 🔹 Guardar nuevo contrato con DOS firmas en la Base de Datos
+// 🔹 Guardar nuevo contrato con firma en la Base de Datos
 exports.crearContrato = async (req, res) => {
     try {
-        // 1. Recibimos los datos incluyendo la firma de la prestadora
-        const { 
-            clienteNombre, 
-            clienteRFC, 
-            contratoFirmaBase64, 
-            firmaPrestadoraBase64 // <-- Nueva variable
-        } = req.body;
+        // Recibimos los datos del frontend (script.js)
+        const { clienteNombre, clienteRFC, contratoFirmaBase64 } = req.body;
 
-        // 2. Validamos que los datos críticos existan (Nombre y AMBAS firmas)
-        if (!clienteNombre || !contratoFirmaBase64 || !firmaPrestadoraBase64) {
+        // Validamos que los datos existan antes de intentar guardar
+        if (!clienteNombre || !contratoFirmaBase64) {
             return res.status(400).json({ 
                 success: false, 
-                msg: "Faltan datos obligatorios (Nombre, Firma Cliente o Firma Denisse)" 
+                msg: "Faltan datos obligatorios (Nombre o Firma)" 
             });
         }
 
-        // 3. Guardamos en Neon
-        // IMPORTANTE: Asegúrate de que en tu modelo Contrato.js ya agregaste 'firma_prestadora_base64'
+        // Guardamos en Neon usando los nombres exactos de tu modelo Contrato.js
         const nuevoContrato = await Contrato.create({
             cliente_nombre: clienteNombre,
             cliente_rfc: clienteRFC,
-            firma_base64: contratoFirmaBase64, // Firma del cliente
-            firma_prestadora_base64: firmaPrestadoraBase64 // Firma de Denisse
+            firma_base64: contratoFirmaBase64 
         });
 
         res.status(201).json({ 
             success: true, 
-            msg: "✅ Contrato y firmas guardados con éxito en AEtech", 
+            msg: "✅ Contrato guardado con éxito en AEtech", 
             id: nuevoContrato.id 
         });
 
@@ -46,6 +37,7 @@ exports.crearContrato = async (req, res) => {
         });
     }
 };
+
 // 🔹 Obtener historial de contratos (Arreglado para evitar error de createdAt)
 exports.obtenerContratos = async (req, res) => {
     try {
@@ -61,5 +53,3 @@ exports.obtenerContratos = async (req, res) => {
         });
     }
 };
-
-
