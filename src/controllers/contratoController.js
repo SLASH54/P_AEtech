@@ -2,7 +2,7 @@ const Contrato = require('../models/Contrato');
 const PDFDocument = require("pdfkit");
 
 
-
+const Contrato = require('../models/Contrato');
 
 // 🔹 Guardar nuevo contrato con DOS firmas en la Base de Datos
 exports.crearContrato = async (req, res) => {
