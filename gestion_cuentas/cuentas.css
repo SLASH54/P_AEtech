@@ -1316,8 +1316,8 @@ button.btn-ver {
 button.btn.btn-secondary {
     border-color: rgb(89 48 209 / 30%);
     background: rgb(48 209 81 / 54%) !important;
-    border-radius: 0.5rem;
-    height: 45px;
+    border-radius: 15px;
+    height: 37px;
 }
  .display{
     display: flex;
