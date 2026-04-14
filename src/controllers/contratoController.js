@@ -20,8 +20,6 @@ exports.crearContrato = async (req, res) => {
         res.status(500).json({ success: false, msg: "Error al guardar contrato" });
     }
 };
-
-
 // 🔹 Obtener historial de contratos (Arreglado para evitar error de createdAt)
 exports.obtenerContratos = async (req, res) => {
     try {
