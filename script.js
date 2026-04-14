@@ -4738,28 +4738,40 @@ async function procesarContratoGuardado() {
     }
 }
 
-// --- SUSTITUYE LAS QUE TIENES POR ESTAS ---
-var dibujandoEnModal = false; // Usa var para evitar problemas de "scope"
+
+// --- VARIABLES GLOBALES ---
+var dibujandoEnModal = false;
 var ctxModal = null;
 var canvasModal = null;
 
-function modalfirmacontrato() {
+// Estas variables guardarán las firmas en el navegador antes de enviarlas
+var firmaClienteBase64 = null;
+var firmaPrestadoraBase64 = null;
+var tipoFirmaActual = 'cliente'; 
+
+// 1. FUNCIÓN PARA ABRIR EL MODAL SEGÚN QUIÉN FIRME
+function abrirModalFirma(quien) {
+    tipoFirmaActual = quien;
     canvasModal = document.getElementById('canvas-modal-contrato');
-    if (!canvasModal) return console.error("No se encontró el canvas del modal");
+    if (!canvasModal) return console.error("No se encontró el canvas");
+
+    // Ajuste de resolución
+    canvasModal.width = canvasModal.offsetWidth || 450;
+    canvasModal.height = canvasModal.offsetHeight || 250;
     
     ctxModal = canvasModal.getContext('2d');
-    
-    // El resto de tu función modalfirmacontrato sigue igual...
     document.getElementById('modalfirmacontrato').style.display = 'flex';
-    ctxModal.clearRect(0, 0, canvasModal.width, canvasModal.height);
-
     
-    // Configuración del pincel
+    // Título dinámico
+    const titulo = document.querySelector('#modalfirmacontrato h3');
+    titulo.innerText = (quien === 'cliente') ? "🖋️ Firma del Cliente" : "🖋️ Firma de Denisse (Prestadora)";
+
+    ctxModal.clearRect(0, 0, canvasModal.width, canvasModal.height);
     ctxModal.strokeStyle = "#000000";
     ctxModal.lineWidth = 3;
     ctxModal.lineCap = "round";
 
-    // Lógica de posición
+    // Lógica de dibujo
     const obtenerPos = (e) => {
         const rect = canvasModal.getBoundingClientRect();
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -4770,39 +4782,121 @@ function modalfirmacontrato() {
         };
     };
 
-    // Eventos Mouse
-    canvasModal.onmousedown = (e) => { 
-        dibujandoEnModal = true; 
-        const pos = obtenerPos(e);
-        ctxModal.beginPath(); 
-        ctxModal.moveTo(pos.x, pos.y); 
-    };
-    canvasModal.onmousemove = (e) => {
-        if (!dibujandoEnModal) return;
-        const pos = obtenerPos(e);
-        ctxModal.lineTo(pos.x, pos.y);
-        ctxModal.stroke();
-    };
-    window.onmouseup = () => dibujandoEnModal = false;
-
-    // Soporte táctil (Celulares)
-    canvasModal.ontouchstart = (e) => {
-        e.preventDefault();
+    const empezar = (e) => {
+        if(e.type === 'touchstart') e.preventDefault();
         dibujandoEnModal = true;
         const pos = obtenerPos(e);
         ctxModal.beginPath();
         ctxModal.moveTo(pos.x, pos.y);
     };
-    canvasModal.ontouchmove = (e) => {
-        e.preventDefault();
+
+    const mover = (e) => {
         if (!dibujandoEnModal) return;
+        if(e.type === 'touchmove') e.preventDefault();
         const pos = obtenerPos(e);
         ctxModal.lineTo(pos.x, pos.y);
         ctxModal.stroke();
     };
+
+    canvasModal.onmousedown = empezar;
+    canvasModal.onmousemove = mover;
+    canvasModal.ontouchstart = empezar;
+    canvasModal.ontouchmove = mover;
+    window.onmouseup = () => dibujandoEnModal = false;
+    canvasModal.ontouchend = () => dibujandoEnModal = false;
 }
 
-// Funciones de apoyo
+// 2. GUARDAR FIRMA (Ahora coincide con el onclick del HTML)
+function guardarFirmaMemoria() {
+    if (!canvasModal) return;
+    
+    const imagen = canvasModal.toDataURL("image/png");
+
+    if (tipoFirmaActual === 'cliente') {
+        firmaClienteBase64 = imagen;
+        // OPCIONAL: Esto pone la firma en el espacio del contrato para que se vea
+        document.querySelector('[onclick="abrirModalFirma(\'cliente\')"]').parentElement.innerHTML = 
+            `<img src="${imagen}" style="max-height: 70px; cursor: pointer;" onclick="abrirModalFirma('cliente')">`;
+        alert("✅ Firma del cliente capturada.");
+    } else {
+        firmaPrestadoraBase64 = imagen;
+        // OPCIONAL: Esto pone la firma de Denisse en su lugar
+        document.querySelector('[onclick="abrirModalFirma(\'prestadora\')"]').parentElement.innerHTML = 
+            `<img src="${imagen}" style="max-height: 70px; cursor: pointer;" onclick="abrirModalFirma('prestadora')">`;
+        alert("✅ Firma de Denisse capturada.");
+    }
+
+    cerrarModalFirma();
+    verificarEstadoBotones(); 
+}
+
+// 3. FUNCIÓN PARA ACTIVAR EL BOTÓN NARANJA QUE ESTÁ ABAJO
+function verificarEstadoBotones() {
+    const btnNaranja = document.getElementById('btn-generar-pdf-final');
+    const aviso = document.getElementById('aviso-pdf');
+
+    if (firmaClienteBase64 && firmaPrestadoraBase64) {
+        btnNaranja.disabled = false;
+        btnNaranja.style.opacity = "1";
+        btnNaranja.style.cursor = "pointer";
+        if(aviso) aviso.innerHTML = "<b>✨ ¡Ambas firmas capturadas! Ya puedes generar el PDF.</b>";
+    } else {
+        // Texto informativo si falta alguna
+        if(aviso) {
+            let falta = !firmaClienteBase64 ? "del Cliente" : "de Denisse";
+            aviso.innerText = "⏳ Falta la firma " + falta;
+        }
+    }
+}
+
+// 4. FUNCIÓN FINAL: ENVÍA TODO A RENDER
+// 🚀 Función para el botón naranja "GENERAR CONTRATO FINAL"
+async function confirmarYGenerarPDF() {
+    // 1. Validamos que tengamos ambas firmas en memoria
+    if (!firmaClienteBase64 || !firmaPrestadoraBase64) {
+        return alert("⚠️ Faltan firmas. Por favor, asegúrate de que ambos hayan firmado.");
+    }
+
+    // 2. Obtenemos los datos del cliente desde el HTML editable
+    const elNombre = document.getElementById('pdf-nombre-cliente');
+    const elRfc = document.getElementById('pdf-rfc-cliente');
+
+    if (!elNombre || !elRfc) {
+        return alert("❌ Error: No se encontraron los campos de nombre o RFC en el contrato.");
+    }
+
+    // 3. Preparamos el paquete de datos para Render
+    const datosParaEnviar = {
+        clienteNombre: elNombre.innerText,
+        clienteRFC: elRfc.innerText,
+        contratoFirmaBase64: firmaClienteBase64,   // Firma del Cliente
+        firmaPrestadoraBase64: firmaPrestadoraBase64 // Firma de Denisse
+    };
+
+    try {
+        // Mostramos un mensaje de "procesando" (opcional)
+        console.log("Enviando datos a Render...", datosParaEnviar);
+
+        const response = await fetch('https://p-aetech.onrender.com/api/contratos', { 
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(datosParaEnviar)
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            alert("✅ " + data.msg);
+            // Abrimos el PDF generado en una nueva pestaña
+            window.open(`https://p-aetech.onrender.com/api/contratos/descargar/${data.id}`, '_blank');
+        } else {
+            alert("❌ Error del servidor: " + data.msg);
+        }
+    } catch (error) {
+        console.error("Error en el fetch:", error);
+        alert("❌ Error de conexión con el servidor de Render.");
+    }
+}
 function cerrarModalFirma() {
     document.getElementById('modalfirmacontrato').style.display = 'none';
 }
@@ -4810,45 +4904,3 @@ function cerrarModalFirma() {
 function limpiarCanvasModal() {
     if(ctxModal) ctxModal.clearRect(0, 0, canvasModal.width, canvasModal.height);
 }
-
-// 2. FUNCIÓN DE ENVÍO A RENDER
-async function confirmarFirmaYEnviar() {
-    const elNombre = document.getElementById('pdf-nombre-cliente');
-    const elRfc = document.getElementById('pdf-rfc-cliente');
-    
-    // IMPORTANTE: URL COMPLETA DE RENDER
-    const urlAPI = 'https://p-aetech.onrender.com/api/contratos';
-    
-    const imagenBase64 = canvasModal.toDataURL("image/png");
-
-    const datos = {
-        clienteNombre: elNombre.innerText,
-        clienteRFC: elRfc.innerText,
-        contratoFirmaBase64: imagenBase64 
-    };
-
-    try {
-        const response = await fetch(urlAPI, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(datos)
-        });
-
-        const data = await response.json();
-        
-        if (data.success) {
-            alert("✅ Contrato guardado en base de datos de AEtech");
-            cerrarModalFirma();
-            // Abrir PDF automáticamente
-            window.open(`https://p-aetech.onrender.com/api/contratos/descargar/${data.id}`, '_blank');
-        } else {
-            alert("❌ Error del servidor: " + data.msg);
-        }
-    } catch (error) {
-        console.error("Error:", error);
-        alert("❌ Error de conexión. Verifica que el servidor de Render esté encendido.");
-    }
-}
-
-
-//asta aqui funciona 

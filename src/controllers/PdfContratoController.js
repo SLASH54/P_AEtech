@@ -18,7 +18,6 @@ exports.generarPDFContrato = async (req, res) => {
         const plantillaURL = "https://p-aetech.onrender.com/public/plantillas/plantilla_reporte.jpg";
         const plantillaBuf = await cargarFondo(plantillaURL);
 
-        // Ajustamos márgenes para dar espacio al logo superior
         const doc = new PDFDocument({ margin: 70, size: 'LETTER' });
         res.setHeader("Content-Type", "application/pdf");
         res.setHeader("Content-Disposition", `attachment; filename=Contrato_AEtech_${contrato.cliente_nombre}.pdf`);
@@ -30,94 +29,94 @@ exports.generarPDFContrato = async (req, res) => {
 
         // --- HOJA 1 ---
         ponerFondo();
+        doc.y = 150; 
+
+        doc.fontSize(10).font('Helvetica-Bold').text("CONTRATO DE PRESTACIÓN DE SERVICIOS ESPECIALIZADOS", { align: 'center' });
+        doc.moveDown(1);
+
+        doc.fontSize(9).font('Helvetica').fillColor("black");
+
+        // INTRODUCCIÓN
+        doc.text(`Contrato por prestación de servicios especializados de instalación, implementación y distribución de sistema de seguridad electrónica con suministro de materiales y equipos en calidad de préstamo mismo que tendrá vigencia idéntica al presente contrato, que celebran por una parte Denisse Avila Espinoza a quien en lo sucesivo se le denominara “la prestadora” y, por la otra parte la Persona Sr(a). ${contrato.cliente_nombre}, con RFC ${contrato.cliente_rfc || '[N/A]'}, a quien en lo sucesivo se le denominara “la contratante”, de conformidad con lo siguiente:`, { align: 'justify', lineGap: 2 });
         
-        // BAJAMOS EL INICIO DEL TEXTO (Espacio para el logo)
-        // Usamos doc.y para posicionar el primer bloque más abajo
-        doc.y = 160; 
-
-        doc.fontSize(11).font('Helvetica-Bold').text("CONTRATO DE PRESTACIÓN DE SERVICIOS ESPECIALIZADOS", { align: 'center' });
-        doc.moveDown(1.5);
-
-        // TEXTO GENERAL A 11 PUNTOS (Equivalente a Arial)
-        doc.fontSize(11).font('Helvetica').fillColor("black");
-
-        // INTRODUCCIÓN COMPLETA
-        doc.text(`Contrato por prestación de servicios especializados de instalación, implementación y distribución de sistema de seguridad electrónica con suministro de materiales y equipos en calidad de préstamo mismo que tendrá vigencia idéntica al presente contrato, que celebran por una parte Denisse Avila Espinoza a quien en lo sucesivo se le denominara “la prestadora” en el texto del presente contrato y, por la otra parte la Persona Sr(a). ${contrato.cliente_nombre}, personalidad que acredita mediante el instrumento de inscripción al registro federal de contribuyente ${contrato.cliente_rfc || '___________'}, a quien en lo sucesivo se le denominara “la contratante”, de conformidad con lo siguiente:`, { align: 'justify', lineGap: 2 });
-        
-        doc.moveDown();
+        doc.moveDown(0.8);
         doc.font('Helvetica-Bold').text("DECLARACIONES", { align: 'center' });
         doc.moveDown(0.5);
 
         const declaraciones = [
-            `1.- Declara “la prestadora” ser una persona física inscrita en el Registro Federal de Contribuyentes, con clave: AIED011026T79, con domicilio en calle 15 Poniente número 107, colonia Álvaro Obregón en Atlixco, Puebla.`,
-            `2.- Declara “la prestadora” que su actividad es entre otras, la prestación de servicios de instalación, implementación de sistemas de seguridad electrónica, tendientes a satisfacer las necesidades de “la contratante”.`,
-            `3.- Declara “la prestadora” tener la capacidad jurídica para celebrar todo tipo de contratos relacionados con su actividad, así como contar con el personal profesional capacitado para prestar a la contratante los servicios requeridos y que cuenta con la capacidad y experiencia técnica suficiente.`,
-            `4.- Por su parte declara “la contratante”, por medio de su representante, ser una persona física, mexicana, debidamente constituida conforme a las leyes vigentes con plena capacidad legal para contratar.`,
-            `5.- Declara “la contratante” que para realizar su objeto social requiere de la obtención de servicios especializados en seguridad electrónica, instalación e implementación.`,
-            `6.- Declara la prestadora y la contratante: que será la bitácora, el propio contrato y sus anexos quien vincule a las partes.`
+            `1.- Declara “la prestadora” ser una persona física inscrita en el RFC: AIED011026T79, con domicilio en calle 15 Poniente número 107, colonia Álvaro Obregón en Atlixco, Puebla.`,
+            `2.- Declara “la prestadora” que su actividad es la prestación de servicios de instalación e implementación de sistemas de seguridad electrónica.`,
+            `3.- Declara “la prestadora” tener la capacidad jurídica y el personal profesional capacitado para prestar los servicios requeridos.`,
+            `4.- Declara “la contratante” ser una persona física, mexicana, con plena capacidad legal para contratar y obligarse.`,
+            `5.- Declara “la contratante” que requiere servicios especializados en seguridad electrónica, por lo que decidió contratar a “la prestadora”.`,
+            `6.- Declara ambas partes que será la bitácora, el propio contrato y sus anexos quien vincule a las partes.`
         ];
 
         declaraciones.forEach(texto => {
             doc.font('Helvetica').text(texto, { align: 'justify', lineGap: 1 });
-            doc.moveDown(0.4);
+            doc.moveDown(0.3);
         });
 
-        // SALTO DE PÁGINA SI EL TEXTO ES MUCHO
-        if (doc.y > 600) { doc.addPage(); ponerFondo(); doc.y = 160; }
-
-        doc.moveDown();
+        doc.moveDown(0.5);
         doc.font('Helvetica-Bold').text("CLAUSULAS", { align: 'center' });
         doc.moveDown(0.5);
 
-        // CLÁUSULAS DETALLADAS
-        doc.font('Helvetica').text(`Primera. “La prestadora” se obliga a prestar a “la contratante” los servicios especializados monitoreo de sistema de alarma vinculado a central de monitoreo “AE Tech”.`, { align: 'justify' });
-        doc.moveDown(0.5);
-        doc.text(`Segunda. Los servicios serán proporcionados por “la prestadora” con sus propios elementos personales y materiales. Se obliga a: a) Realizar visitas técnicas. b) Tener acceso a la bitácora de obra.`, { align: 'justify' });
-        doc.moveDown(0.5);
-        doc.text(`Tercera. Los suministros en calidad de préstamo (propiedad de la contratante) serán prestados en el domicilio solicitado. Al término del periodo, el prestador podrá retirar el equipo.`, { align: 'justify' });
-        doc.moveDown(0.5);
-        doc.text(`Cuarta. El responsable del proyecto será el Mtro. Dionisio Avila Espinoza.`, { align: 'justify' });
-        doc.moveDown(0.5);
-        doc.text(`Quinta. La contratante pagara a “la prestadora” la cantidad de $580 (quinientos ochenta 00/100 M.N) el primer día de cada mes.`, { align: 'justify' });
+        // CLÁUSULAS (Texto íntegro del contrato)
+        const clausulas = [
+            { t: "Primera.", c: "“La prestadora” se obliga a prestar a “la contratante” los servicios especializados de monitoreo de sistema de alarma vinculado a central “AE Tech”." },
+            { t: "Segunda.", c: "Los servicios serán proporcionados con elementos propios. La prestadora se obliga a realizar visitas técnicas y tener acceso a la bitácora de obra." },
+            { t: "Tercera.", c: "Los servicios se prestarán en el domicilio solicitado. Al término del contrato, el prestador podrá retirar el equipo en calidad de préstamo." },
+            { t: "Cuarta.", c: "El responsable del proyecto será el Mtro. Dionisio Avila Espinoza." },
+            { t: "Quinta.", c: "La contratante pagará la cantidad de $580 (quinientos ochenta 00/100 M.N) el primer día de cada mes." },
+            { t: "Sexta.", c: "Ninguna de las partes podrá ceder los derechos de este contrato sin consentimiento por escrito." },
+            { t: "Séptima.", c: "La duración será la pactada a partir de la firma del mismo." },
+            { t: "Octava.", c: "Este contrato rige como acuerdo único, dejando sin efecto cualquier comunicación previa." },
+            { t: "Novena.", c: "Para cualquier conflicto, las partes se someten a los tribunales de la ciudad de Atlixco, Puebla." }
+        ];
 
-        if (doc.y > 600) { doc.addPage(); ponerFondo(); doc.y = 160; }
+        clausulas.forEach(item => {
+            doc.font('Helvetica-Bold').text(item.t, { continued: true }).font('Helvetica').text(` ${item.c}`, { align: 'justify' });
+            doc.moveDown(0.4);
+        });
 
-        doc.moveDown(0.5);
-        doc.text(`Sexta a Novena. El contrato es intransferible, tiene duración definida, rige como acuerdo único y se somete a la jurisdicción de los tribunales de Atlixco, Puebla.`, { align: 'justify' });
-        doc.moveDown(0.5);
-        doc.font('Helvetica-Bold').text(`Décima. Penalizaciones.`, { continued: true }).font('Helvetica').text(` Se procederá a finiquitar responsabilidad o retirar equipo si el contratante no proporciona información, no cumple con pagos o no da facilidades físicas.`);
+        // Control de salto de página para la última cláusula y firmas
+        if (doc.y > 550) { 
+            doc.addPage(); 
+            ponerFondo(); 
+            doc.y = 150; 
+        }
 
-        // --- SECCIÓN DE FIRMAS ---
+        doc.font('Helvetica-Bold').text("Décima. Penalizaciones.", { continued: true }).font('Helvetica').text(" Se procederá a finiquitar responsabilidad o retirar equipo si el contratante incumple con pagos, información técnica o facilidades físicas.", { align: 'justify' });
+
+        // --- PIE DE FIRMAS ---
         doc.moveDown(2);
         const hoy = new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
-        doc.text(`Firma de conformidad en la ciudad de Atlixco, Puebla, el día ${hoy}.`, { align: 'center' });
+        doc.font('Helvetica').text(`Leído que fue el presente contrato, lo firman de conformidad en la ciudad de Atlixco, Puebla, el día ${hoy}.`, { align: 'center' });
 
         doc.moveDown(5);
         const yEje = doc.y;
 
-        const yFirmas = doc.y;
-
-        // FIRMA CLIENTE
+        // 🖋️ FIRMA CLIENTE (Izquierda)
         if (contrato.firma_base64) {
-            const base64Data = contrato.firma_base64.replace(/^data:image\/\w+;base64,/, "");
-            doc.image(Buffer.from(base64Data, 'base64'), 70, yFirmas - 60, { width: 140 });
+            const imgCliente = contrato.firma_base64.replace(/^data:image\/\w+;base64,/, "");
+            doc.image(Buffer.from(imgCliente, 'base64'), 75, yEje - 60, { width: 130 });
         }
-        doc.moveTo(60, yFirmas).lineTo(230, yFirmas).stroke();
-        doc.font('Helvetica-Bold').text("LA CONTRATANTE", 60, yFirmas + 5, { width: 170, align: 'center' });
-        doc.font('Helvetica').text(contrato.cliente_nombre, 60, yFirmas + 15, { width: 170, align: 'center' });
+        doc.moveTo(60, yEje).lineTo(230, yEje).stroke();
+        doc.font('Helvetica-Bold').fontSize(8).text("LA CONTRATANTE", 60, yEje + 5, { width: 170, align: 'center' });
+        doc.font('Helvetica').text(contrato.cliente_nombre, 60, yEje + 15, { width: 170, align: 'center' });
 
-        // Firma AE Tech
-        doc.moveTo(380, yEje).lineTo(540, yEje).stroke();
-        doc.font('Helvetica-Bold').text("PRESTADOR DE SERVICIOS", 380, yEje + 5, { width: 160, align: 'center' });
-        doc.font('Helvetica').text("AE Tech", 380, yEje + 18, { width: 160, align: 'center' });
+        // 🖋️ FIRMA DENISSE (Derecha)
+        if (contrato.firma_prestadora_base64) {
+            const imgDenisse = contrato.firma_prestadora_base64.replace(/^data:image\/\w+;base64,/, "");
+            doc.image(Buffer.from(imgDenisse, 'base64'), 395, yEje - 60, { width: 130 });
+        }
+        doc.moveTo(380, yEje).lineTo(550, yEje).stroke();
+        doc.font('Helvetica-Bold').fontSize(8).text("PRESTADOR DE SERVICIOS", 380, yEje + 5, { width: 170, align: 'center' });
+        doc.font('Helvetica').text("Denisse Avila Espinoza", 380, yEje + 15, { width: 170, align: 'center' });
 
         doc.end();
     } catch (error) {
-        console.error("❌ Error:", error);
-        res.status(500).send("Error generando PDF");
+        console.error("❌ Error en PDF:", error);
+        res.status(500).send("Error al generar el documento");
     }
 };
-
-
-
- // --- asta aqui funciona ---

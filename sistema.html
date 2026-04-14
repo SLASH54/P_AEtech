@@ -197,38 +197,38 @@
         <div style="border-bottom: 2px solid #000; min-height: 80px;">
          
             
-
- <div id="contenedor-contrato">
-
-          
-
- <button onclick="modalfirmacontrato()" class="btn-ver" style="background: #4f46e5; color: white; padding: 8px 15px; border-radius: 8px; border: none; cursor: pointer;">
-    <i class="fa-solid fa-pen-nib"></i> Firmar y Guardar Contrato
-</button>
-</div>
-
-
-
+<div style="margin-top: 30px; display: flex; justify-content: space-around; text-align: center;">
+    <div style="width: 45%;">
+        <div style="border-bottom: 2px solid #000; min-height: 80px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center;">
+            <button onclick="abrirModalFirma('cliente')" style="background: #4f46e5; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-bottom: 5px;">
+                <i class="fa-solid fa-pen-nib"></i> Firmar Cliente
+            </button>
         </div>
         <p style="font-size: 8pt; margin-top: 5px; font-weight: bold;">LA CONTRATANTE<br>Nombre y firma</p>
     </div>
 
     <div style="width: 45%;">
-        <div style="border-bottom: 2px solid #000; min-height: 80px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 5px;">
-            <span style="font-family: 'Brush Script MT', cursive; font-size: 18pt; color: #000080;">Denisse Avila E.</span>
+        <div style="border-bottom: 2px solid #000; min-height: 80px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center;">
+            <button onclick="abrirModalFirma('prestadora')" style="background: #0ea5e9; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-bottom: 5px;">
+                <i class="fa-solid fa-pen-nib"></i> Firmar Denisse
+            </button>
         </div>
         <p style="font-size: 8pt; margin-top: 5px; font-weight: bold;">PRESTADOR DE SERVICIOS<br>Nombre y firma AE Tech</p>
     </div>
+</div>
 
-            </div>
-        </div>
-    </div>
-</section>
+<div style="margin-top: 30px; text-align: center; border-top: 1px solid #eee; padding-top: 20px;">
+    <button id="btn-generar-pdf-final" onclick="confirmarYGenerarPDF()" disabled 
+            style="background:#e67e22; color:white; padding:15px 30px; border:none; border-radius:10px; cursor:not-allowed; font-weight:bold; width: 100%; font-size: 16px; opacity: 0.5;">
+        <i class="fa-solid fa-file-pdf"></i> GENERAR CONTRATO FINAL (PDF)
+    </button>
+    <p id="aviso-pdf" style="font-size: 11px; color: #666; margin-top: 8px;">⚠️ Faltan firmas para habilitar este botón.</p>
+</div>
 
 
 <div id="modalfirmacontrato" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center;">
     <div style="background:white; padding:20px; border-radius:15px; text-align:center; width:90%; max-width:500px;">
-        <h3 style="margin-bottom:10px; color:#333;">🖋️ Dibuje su firma aquí</h3>
+        <h3 id="titulo-modal-firma" style="margin-bottom:10px; color:#333;">🖋️ Dibuje su firma aquí</h3>
         
         <canvas id="canvas-modal-contrato" width="450" height="250" 
                 style="border:2px dashed #4f46e5; border-radius:10px; background:#f9f9f9; touch-action:none; width:100%; cursor:crosshair;">
@@ -237,10 +237,18 @@
         <div style="margin-top:20px; display:flex; gap:10px; justify-content:center;">
             <button onclick="cerrarModalFirma()" style="background:#6b7280; color:white; padding:10px 20px; border:none; border-radius:8px; cursor:pointer;">Cancelar</button>
             <button onclick="limpiarCanvasModal()" style="background:#e11d48; color:white; padding:10px 20px; border:none; border-radius:8px; cursor:pointer;">Borrar</button>
-            <button onclick="confirmarFirmaYEnviar()" style="background:#4f46e5; color:white; padding:10px 20px; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">Confirmar y Guardar</button>
+            <button onclick="guardarFirmaMemoria()" style="background:#4f46e5; color:white; padding:10px 20px; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">Guardar Firma</button>
         </div>
     </div>
 </div>
+
+
+
+
+
+
+
+
 
 
     <section id="Evidencia" class="main-content ">
