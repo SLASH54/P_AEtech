@@ -1307,10 +1307,28 @@ button.btn-cancelar {
 }
 
 button.btn-ver {
-    border-color: rgb(89 48 209 / 30%);
-    background: rgb(130 48 209 / 25%) !important;
-    border-radius: 0.5rem;
-    height: 35px;
+          backdrop-filter: blur(10px);
+    color: #365008;
+    cursor: pointer;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgb(103 207 78 / 62%);
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgb(34 255 42);
+    border-image: initial;
+    padding: 8px 12px;
+    border-radius: 12px;
+    transition: 0.3s;
+}
+
+button.btn-ver:hover {
+    background: #3fd404;
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px #3acd00;
 }
 
 button.btn.btn-secondary {
@@ -1446,30 +1464,4 @@ input[type="text"], input[type="number"] {
     justify-content: center;
     align-items: center;
     z-index: 2000;
-}
-
-button#btn-GuardarClienteExp{
-        backdrop-filter: blur(10px);
-    color: #365008;
-    cursor: pointer;
-    font-size: 1.1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgb(103 207 78 / 62%);
-    border-width: 1px;
-    border-style: solid;
-    border-color: rgb(34 255 42);
-    border-image: initial;
-    padding: 8px 12px;
-    border-radius: 12px;
-    transition: 0.3s;
-}
-
-button#btn-GuardarClienteExp
-:hover {
-    background: #3fd404;
-    color: white;
-    transform: scale(1.05);
-    box-shadow: 0 4px 15px #3acd00;
 }
