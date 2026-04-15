@@ -5,22 +5,24 @@ const PDFDocument = require("pdfkit");
 // 🔹 Guardar nuevo contrato con firma en la Base de Datos
 exports.crearContrato = async (req, res) => {
     try {
-        // Recibimos los datos del frontend (script.js)
-        const { clienteNombre, clienteRFC, contratoFirmaBase64 } = req.body;
+        // 1. Extraemos los datos que enviamos desde el fetch del frontend
+        const { clienteNombre, clienteRFC, firmaCliente, firmaDueno } = req.body;
 
-        // Validamos que los datos existan antes de intentar guardar
-        if (!clienteNombre || !contratoFirmaBase64) {
+        // 2. Validación básica
+        if (!clienteNombre || !firmaCliente || !firmaDueno) {
             return res.status(400).json({ 
                 success: false, 
-                msg: "Faltan datos obligatorios (Nombre o Firma)" 
+                msg: "⚠️ Faltan datos: Nombre, Firma Cliente o Firma Dueño son obligatorios." 
             });
         }
 
-        // Guardamos en Neon usando los nombres exactos de tu modelo Contrato.js
+        // 3. Guardamos en Neon usando los nombres del MODELO (izquierda) 
+        // y los datos del REQ.BODY (derecha)
         const nuevoContrato = await Contrato.create({
             cliente_nombre: clienteNombre,
-            cliente_rfc: clienteRFC,
-            firma_base64: contratoFirmaBase64 
+            cliente_rfc:    clienteRFC,
+            firma_cliente:  firmaCliente, // <--- Importante que coincida con el modelo
+            firma_dueno:    firmaDueno    // <--- Nueva columna
         });
 
         res.status(201).json({ 
