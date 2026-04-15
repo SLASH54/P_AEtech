@@ -4739,20 +4739,18 @@ async function procesarContratoGuardado() {
 }
 
 // --- SUSTITUYE LAS QUE TIENES POR ESTAS ---
-var dibujandoEnModal = false; // Usa var para evitar problemas de "scope"
-var ctxModal = null;
-var canvasModal = null;
+var quienFirmaActual = ''; 
+var firmaClienteBase64 = null;
+var firmaDuenoBase64 = null;
+var idContratoGuardado = null; 
 
-function modalfirmacontrato() {
+function modalfirmacontrato(tipo) {
+    quienFirmaActual = tipo; // <--- ESTO ES LO NUEVO
     canvasModal = document.getElementById('canvas-modal-contrato');
-    if (!canvasModal) return console.error("No se encontró el canvas del modal");
-    
     ctxModal = canvasModal.getContext('2d');
     
-    // El resto de tu función modalfirmacontrato sigue igual...
     document.getElementById('modalfirmacontrato').style.display = 'flex';
     ctxModal.clearRect(0, 0, canvasModal.width, canvasModal.height);
-
     
     // Configuración del pincel
     ctxModal.strokeStyle = "#000000";
@@ -4813,42 +4811,62 @@ function limpiarCanvasModal() {
 
 // 2. FUNCIÓN DE ENVÍO A RENDER
 async function confirmarFirmaYEnviar() {
-    const elNombre = document.getElementById('pdf-nombre-cliente');
-    const elRfc = document.getElementById('pdf-rfc-cliente');
-    
-    // IMPORTANTE: URL COMPLETA DE RENDER
-    const urlAPI = 'https://p-aetech.onrender.com/api/contratos';
-    
     const imagenBase64 = canvasModal.toDataURL("image/png");
 
-    const datos = {
-        clienteNombre: elNombre.innerText,
-        clienteRFC: elRfc.innerText,
-        contratoFirmaBase64: imagenBase64 
-    };
+    // 1. Guardar la firma en la variable correcta y mostrarla en el HTML
+    if (quienFirmaActual === 'cliente') {
+        firmaClienteBase64 = imagenBase64;
+        document.getElementById('img-firma-cliente').src = imagenBase64;
+        document.getElementById('img-firma-cliente').style.display = 'block';
+        document.getElementById('btn-firma-cliente').style.display = 'none';
+    } else {
+        firmaDuenoBase64 = imagenBase64;
+        document.getElementById('img-firma-dueno').src = imagenBase64;
+        document.getElementById('img-firma-dueno').style.display = 'block';
+        document.getElementById('btn-firma-dueno').style.display = 'none';
+    }
 
-    try {
-        const response = await fetch(urlAPI, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(datos)
-        });
+    cerrarModalFirma();
 
-        const data = await response.json();
-        
-        if (data.success) {
-            alert("✅ Contrato guardado en base de datos de AEtech");
-            cerrarModalFirma();
-            // Abrir PDF automáticamente
-            window.open(`https://p-aetech.onrender.com/api/contratos/descargar/${data.id}`, '_blank');
-        } else {
-            alert("❌ Error del servidor: " + data.msg);
+    // 2. Solo si ya están las dos firmas, mandamos a NEON
+    if (firmaClienteBase64 && firmaDuenoBase64) {
+        const elNombre = document.getElementById('pdf-nombre-cliente').innerText;
+        const elRfc = document.getElementById('pdf-rfc-cliente').innerText;
+
+        try {
+            const res = await fetch('https://p-aetech.onrender.com/api/contratos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    clienteNombre: elNombre,
+                    clienteRFC: elRfc,
+                    firmaCliente: firmaClienteBase64,
+                    firmaDueno: firmaDuenoBase64 
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                idContratoGuardado = data.id; // <--- GUARDAMOS EL ID PARA EL BOTÓN VERDE
+                alert("✅ Contrato guardado. Ya puedes generar el PDF Final.");
+            }
+        } catch (e) {
+            alert("❌ Error al guardar en la base de datos.");
         }
-    } catch (error) {
-        console.error("Error:", error);
-        alert("❌ Error de conexión. Verifica que el servidor de Render esté encendido.");
+    } else {
+        alert("🖋️ Firma capturada. Falta la firma de la otra parte.");
     }
 }
 
 
+function generarPDFContrato() {
+    // Si el ID está vacío, es porque no han firmado ambos
+    if (!idContratoGuardado) {
+        alert("⚠️ El contrato aún no se ha guardado. Asegúrate de que ambas partes hayan firmado.");
+        return;
+    }
+
+    // Abrir la ruta de descarga de Render con el ID real
+    const urlPDF = `https://p-aetech.onrender.com/api/contratos/descargar/${idContratoGuardado}`;
+    window.open(urlPDF, '_blank');
+}
 //asta aqui funciona 
