@@ -18,17 +18,24 @@ exports.generarPDFContrato = async (req, res) => {
         const plantillaURL = "https://p-aetech.onrender.com/public/plantillas/plantilla_reporte.jpg";
         const plantillaBuf = await cargarFondo(plantillaURL);
 
+        // 1. Creamos el documento
         const doc = new PDFDocument({ margin: 70, size: 'LETTER' });
+
+        // 2. CONFIGURACIÓN AUTOMÁTICA DE FONDO (EL EVENTO CLAVE)
+        // Cada vez que se agregue una página (manual o automáticamente), se pondrá el fondo
+        doc.on('pageAdded', () => {
+            if (plantillaBuf) {
+                doc.image(plantillaBuf, 0, 0, { width: 612, height: 792 });
+            }
+            doc.y = 160; // Reiniciamos el margen superior en cada hoja nueva para no chocar con el logo
+        });
+
         res.setHeader("Content-Type", "application/pdf");
         res.setHeader("Content-Disposition", `attachment; filename=Contrato_AEtech_${contrato.cliente_nombre}.pdf`);
         doc.pipe(res);
 
-        const ponerFondo = () => {
-            if (plantillaBuf) doc.image(plantillaBuf, 0, 0, { width: 612, height: 792 });
-        };
-
-        // --- HOJA 1 ---
-        ponerFondo();
+        // 3. PRIMERA HOJA (Se pone manualmente porque el evento pageAdded no dispara en la pág 1)
+        if (plantillaBuf) doc.image(plantillaBuf, 0, 0, { width: 612, height: 792 });
         doc.y = 160; 
 
         doc.fontSize(11).font('Helvetica-Bold').text("CONTRATO DE PRESTACIÓN DE SERVICIOS ESPECIALIZADOS", { align: 'center' });
@@ -57,21 +64,16 @@ exports.generarPDFContrato = async (req, res) => {
             doc.moveDown(0.4);
         });
 
-        // Verificamos espacio antes de Cláusulas
-        if (doc.y > 580) { doc.addPage(); ponerFondo(); doc.y = 160; }
-
         doc.moveDown();
         doc.font('Helvetica-Bold').text("CLAUSULAS", { align: 'center' });
         doc.moveDown(0.5);
 
-        // CLÁUSULAS CON DATOS DINÁMICOS
         doc.font('Helvetica').text(`Primera. “La prestadora” se obliga a prestar a “la contratante” los servicios especializados monitoreo de sistema de alarma vinculado a central de monitoreo “AE Tech”.`, { align: 'justify' });
         doc.moveDown(0.5);
         
         doc.text(`Segunda. Los servicios serán proporcionados por “la prestadora” con sus propios elementos personales y materiales. Se obliga a: a) Realizar visitas técnicas. b) Tener acceso a la bitácora de obra.`, { align: 'justify' });
         doc.moveDown(0.5);
 
-        // --- DATO DINÁMICO: DOMICILIO ---
         doc.text(`Tercera. Los suministros en calidad de préstamo (propiedad de la contratante) serán prestados fundamentalmente en las instalaciones solicitadas por la parte contratante, con domicilio en: `, { align: 'justify', continued: true })
            .font('Helvetica-Bold').text(`${contrato.domicilio || '_________________________________'}`, { continued: true })
            .font('Helvetica').text(`, al término del periodo contratado el prestador podrá retirar el equipo.`);
@@ -80,18 +82,14 @@ exports.generarPDFContrato = async (req, res) => {
         doc.text(`Cuarta. El responsable del proyecto será el Mtro. Dionisio Avila Espinoza, quien llenará la bitácora de equipos integrados.`, { align: 'justify' });
         doc.moveDown(0.5);
 
-        // --- DATO DINÁMICO: MESES ---
         doc.text(`Quinta. La contratante pagará a “la prestadora” la cantidad de $580 (quinientos ochenta 00/100 M.N) el primer día de cada mes durante un periodo de `, { align: 'justify', continued: true })
            .font('Helvetica-Bold').text(`${contrato.meses_contrato || '___'} meses`, { continued: true })
            .font('Helvetica').text(`, realizando el pago en las oficinas de AE Tech.`);
-
-        if (doc.y > 600) { doc.addPage(); ponerFondo(); doc.y = 160; }
-
         doc.moveDown(0.5);
+
         doc.text(`Sexta. El contrato es intransferible sin consentimiento por escrito.`, { align: 'justify' });
         doc.moveDown(0.5);
 
-        // --- DATO DINÁMICO: FECHAS VIGENCIA ---
         doc.text(`Séptima. El presente contrato tendrá una duración del `, { align: 'justify', continued: true })
            .font('Helvetica-Bold').text(`${contrato.fecha_inicio || '________'}`, { continued: true })
            .font('Helvetica').text(` al `, { continued: true })
@@ -105,9 +103,12 @@ exports.generarPDFContrato = async (req, res) => {
         doc.font('Helvetica-Bold').text(`Décima. Penalizaciones.`, { continued: true }).font('Helvetica').text(` Se procederá a finiquitar responsabilidad o retirar equipo si el contratante no proporciona información, no cumple con pagos o no da facilidades físicas.`);
 
         // --- SECCIÓN DE FIRMAS ---
+        // Si después de todo el texto queda muy poco espacio (menos de 200px), agregamos una hoja nueva para las firmas
+        if (doc.y > 550) doc.addPage(); 
+
         doc.moveDown(2);
         const hoy = new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
-        doc.text(`Leído el presente y enteradas las partes, lo firman en la ciudad de Atlixco, Puebla, el día ${hoy}.`, { align: 'center' });
+        doc.font('Helvetica').text(`Leído el presente y enteradas las partes, lo firman en la ciudad de Atlixco, Puebla, el día ${hoy}.`, { align: 'center' });
 
         doc.moveDown(5);
         const yFirmas = doc.y;
