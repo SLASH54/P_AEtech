@@ -1119,8 +1119,8 @@ async function prepararEdicion(id) {
 
 
 // Esta función se dispara cuando eliges una imagen en el modal de edición
-function procesarFotoEdit(event) {
-    const file = event.target.files[0];
+function procesarFotoEdit(e) {
+    const file = e.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
