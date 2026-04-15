@@ -4813,7 +4813,7 @@ function limpiarCanvasModal() {
 async function confirmarFirmaYEnviar() {
     const imagenBase64 = canvasModal.toDataURL("image/png");
 
-    // 1. Guardar la firma en la variable correcta y mostrarla en el HTML
+    // 1. Guardar la firma en la variable correcta y mostrarla
     if (quienFirmaActual === 'cliente') {
         firmaClienteBase64 = imagenBase64;
         document.getElementById('img-firma-cliente').src = imagenBase64;
@@ -4828,28 +4828,35 @@ async function confirmarFirmaYEnviar() {
 
     cerrarModalFirma();
 
-    // 2. Solo si ya están las dos firmas, mandamos a NEON
+    // 2. Solo si ya están las dos firmas, mandamos TODO a NEON
     if (firmaClienteBase64 && firmaDuenoBase64) {
-        const elNombre = document.getElementById('pdf-nombre-cliente').innerText;
-        const elRfc = document.getElementById('pdf-rfc-cliente').innerText;
+        
+        // --- NUEVA SECCIÓN: RECOLECTAR DATOS EDITABLES ---
+        const datosContrato = {
+            clienteNombre:  document.getElementById('pdf-nombre-cliente').innerText,
+            clienteRFC:     document.getElementById('pdf-rfc-cliente').innerText,
+            domicilio:      document.getElementById('pdf-domicilio-servicio').innerText,
+            mesesContrato:  document.getElementById('pdf-meses-contrato').innerText,
+            fechaInicio:    document.getElementById('pdf-fecha-inicio').innerText,
+            fechaFin:       document.getElementById('pdf-fecha-fin').innerText,
+            firmaCliente:   firmaClienteBase64,
+            firmaDueno:     firmaDuenoBase64 
+        };
 
         try {
             const res = await fetch('https://p-aetech.onrender.com/api/contratos', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    clienteNombre: elNombre,
-                    clienteRFC: elRfc,
-                    firmaCliente: firmaClienteBase64,
-                    firmaDueno: firmaDuenoBase64 
-                })
+                body: JSON.stringify(datosContrato) // Mandamos el objeto completo
             });
+            
             const data = await res.json();
             if (data.success) {
-                idContratoGuardado = data.id; // <--- GUARDAMOS EL ID PARA EL BOTÓN VERDE
-                alert("✅ Contrato guardado. Ya puedes generar el PDF Final.");
+                idContratoGuardado = data.id; 
+                alert("✅ ¡Éxito! Datos, fechas y firmas guardados en AEtech.");
             }
         } catch (e) {
+            console.error(e);
             alert("❌ Error al guardar en la base de datos.");
         }
     } else {
