@@ -18,7 +18,6 @@ exports.generarPDFContrato = async (req, res) => {
         const plantillaURL = "https://p-aetech.onrender.com/public/plantillas/plantilla_reporte.jpg";
         const plantillaBuf = await cargarFondo(plantillaURL);
 
-        // Ajustamos márgenes para dar espacio al logo superior
         const doc = new PDFDocument({ margin: 70, size: 'LETTER' });
         res.setHeader("Content-Type", "application/pdf");
         res.setHeader("Content-Disposition", `attachment; filename=Contrato_AEtech_${contrato.cliente_nombre}.pdf`);
@@ -30,18 +29,14 @@ exports.generarPDFContrato = async (req, res) => {
 
         // --- HOJA 1 ---
         ponerFondo();
-        
-        // BAJAMOS EL INICIO DEL TEXTO (Espacio para el logo)
-        // Usamos doc.y para posicionar el primer bloque más abajo
         doc.y = 160; 
 
         doc.fontSize(11).font('Helvetica-Bold').text("CONTRATO DE PRESTACIÓN DE SERVICIOS ESPECIALIZADOS", { align: 'center' });
         doc.moveDown(1.5);
 
-        // TEXTO GENERAL A 11 PUNTOS (Equivalente a Arial)
-        doc.fontSize(11).font('Helvetica').fillColor("black");
+        doc.fontSize(10.5).font('Helvetica').fillColor("black");
 
-        // INTRODUCCIÓN COMPLETA
+        // INTRODUCCIÓN
         doc.text(`Contrato por prestación de servicios especializados de instalación, implementación y distribución de sistema de seguridad electrónica con suministro de materiales y equipos en calidad de préstamo mismo que tendrá vigencia idéntica al presente contrato, que celebran por una parte Denisse Avila Espinoza a quien en lo sucesivo se le denominara “la prestadora” en el texto del presente contrato y, por la otra parte la Persona Sr(a). ${contrato.cliente_nombre}, personalidad que acredita mediante el instrumento de inscripción al registro federal de contribuyente ${contrato.cliente_rfc || '___________'}, a quien en lo sucesivo se le denominara “la contratante”, de conformidad con lo siguiente:`, { align: 'justify', lineGap: 2 });
         
         doc.moveDown();
@@ -62,54 +57,78 @@ exports.generarPDFContrato = async (req, res) => {
             doc.moveDown(0.4);
         });
 
-        // SALTO DE PÁGINA SI EL TEXTO ES MUCHO
-        if (doc.y > 600) { doc.addPage(); ponerFondo(); doc.y = 160; }
+        // Verificamos espacio antes de Cláusulas
+        if (doc.y > 580) { doc.addPage(); ponerFondo(); doc.y = 160; }
 
         doc.moveDown();
         doc.font('Helvetica-Bold').text("CLAUSULAS", { align: 'center' });
         doc.moveDown(0.5);
 
-        // CLÁUSULAS DETALLADAS
+        // CLÁUSULAS CON DATOS DINÁMICOS
         doc.font('Helvetica').text(`Primera. “La prestadora” se obliga a prestar a “la contratante” los servicios especializados monitoreo de sistema de alarma vinculado a central de monitoreo “AE Tech”.`, { align: 'justify' });
         doc.moveDown(0.5);
+        
         doc.text(`Segunda. Los servicios serán proporcionados por “la prestadora” con sus propios elementos personales y materiales. Se obliga a: a) Realizar visitas técnicas. b) Tener acceso a la bitácora de obra.`, { align: 'justify' });
         doc.moveDown(0.5);
-        doc.text(`Tercera. Los suministros en calidad de préstamo (propiedad de la contratante) serán prestados en el domicilio solicitado. Al término del periodo, el prestador podrá retirar el equipo.`, { align: 'justify' });
+
+        // --- DATO DINÁMICO: DOMICILIO ---
+        doc.text(`Tercera. Los suministros en calidad de préstamo (propiedad de la contratante) serán prestados fundamentalmente en las instalaciones solicitadas por la parte contratante, con domicilio en: `, { align: 'justify', continued: true })
+           .font('Helvetica-Bold').text(`${contrato.domicilio || '_________________________________'}`, { continued: true })
+           .font('Helvetica').text(`, al término del periodo contratado el prestador podrá retirar el equipo.`);
         doc.moveDown(0.5);
-        doc.text(`Cuarta. El responsable del proyecto será el Mtro. Dionisio Avila Espinoza.`, { align: 'justify' });
+
+        doc.text(`Cuarta. El responsable del proyecto será el Mtro. Dionisio Avila Espinoza, quien llenará la bitácora de equipos integrados.`, { align: 'justify' });
         doc.moveDown(0.5);
-        doc.text(`Quinta. La contratante pagara a “la prestadora” la cantidad de $580 (quinientos ochenta 00/100 M.N) el primer día de cada mes.`, { align: 'justify' });
+
+        // --- DATO DINÁMICO: MESES ---
+        doc.text(`Quinta. La contratante pagará a “la prestadora” la cantidad de $580 (quinientos ochenta 00/100 M.N) el primer día de cada mes durante un periodo de `, { align: 'justify', continued: true })
+           .font('Helvetica-Bold').text(`${contrato.meses_contrato || '___'} meses`, { continued: true })
+           .font('Helvetica').text(`, realizando el pago en las oficinas de AE Tech.`);
 
         if (doc.y > 600) { doc.addPage(); ponerFondo(); doc.y = 160; }
 
         doc.moveDown(0.5);
-        doc.text(`Sexta a Novena. El contrato es intransferible, tiene duración definida, rige como acuerdo único y se somete a la jurisdicción de los tribunales de Atlixco, Puebla.`, { align: 'justify' });
+        doc.text(`Sexta. El contrato es intransferible sin consentimiento por escrito.`, { align: 'justify' });
         doc.moveDown(0.5);
+
+        // --- DATO DINÁMICO: FECHAS VIGENCIA ---
+        doc.text(`Séptima. El presente contrato tendrá una duración del `, { align: 'justify', continued: true })
+           .font('Helvetica-Bold').text(`${contrato.fecha_inicio || '________'}`, { continued: true })
+           .font('Helvetica').text(` al `, { continued: true })
+           .font('Helvetica-Bold').text(`${contrato.fecha_fin || '________'}`, { continued: true })
+           .font('Helvetica').text(` a partir de la firma del mismo.`);
+        doc.moveDown(0.5);
+
+        doc.text(`Octava y Novena. Rige como acuerdo único y se somete a la jurisdicción de los tribunales de Atlixco, Puebla.`, { align: 'justify' });
+        doc.moveDown(0.5);
+
         doc.font('Helvetica-Bold').text(`Décima. Penalizaciones.`, { continued: true }).font('Helvetica').text(` Se procederá a finiquitar responsabilidad o retirar equipo si el contratante no proporciona información, no cumple con pagos o no da facilidades físicas.`);
 
         // --- SECCIÓN DE FIRMAS ---
         doc.moveDown(2);
         const hoy = new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
-        doc.text(`Firma de conformidad en la ciudad de Atlixco, Puebla, el día ${hoy}.`, { align: 'center' });
+        doc.text(`Leído el presente y enteradas las partes, lo firman en la ciudad de Atlixco, Puebla, el día ${hoy}.`, { align: 'center' });
 
         doc.moveDown(5);
-        const yEje = doc.y;
-
         const yFirmas = doc.y;
 
         // FIRMA CLIENTE
-        if (contrato.firma_base64) {
-            const base64Data = contrato.firma_base64.replace(/^data:image\/\w+;base64,/, "");
-            doc.image(Buffer.from(base64Data, 'base64'), 70, yFirmas - 60, { width: 140 });
+        if (contrato.firma_cliente) {
+            const base64Cliente = contrato.firma_cliente.replace(/^data:image\/\w+;base64,/, "");
+            doc.image(Buffer.from(base64Cliente, 'base64'), 75, yFirmas - 65, { width: 130 });
         }
         doc.moveTo(60, yFirmas).lineTo(230, yFirmas).stroke();
         doc.font('Helvetica-Bold').text("LA CONTRATANTE", 60, yFirmas + 5, { width: 170, align: 'center' });
-        doc.font('Helvetica').text(contrato.cliente_nombre, 60, yFirmas + 15, { width: 170, align: 'center' });
+        doc.font('Helvetica').fontSize(9).text(contrato.cliente_nombre, 60, yFirmas + 15, { width: 170, align: 'center' });
 
-        // Firma AE Tech
-        doc.moveTo(380, yEje).lineTo(540, yEje).stroke();
-        doc.font('Helvetica-Bold').text("PRESTADOR DE SERVICIOS", 380, yEje + 5, { width: 160, align: 'center' });
-        doc.font('Helvetica').text("AE Tech", 380, yEje + 18, { width: 160, align: 'center' });
+        // FIRMA AE TECH
+        if (contrato.firma_dueno) {
+            const base64Dueno = contrato.firma_dueno.replace(/^data:image\/\w+;base64,/, "");
+            doc.image(Buffer.from(base64Dueno, 'base64'), 395, yFirmas - 65, { width: 130 });
+        }
+        doc.moveTo(380, yFirmas).lineTo(540, yFirmas).stroke();
+        doc.fontSize(11).font('Helvetica-Bold').text("PRESTADOR DE SERVICIOS", 380, yFirmas + 5, { width: 160, align: 'center' });
+        doc.font('Helvetica').fontSize(9).text("Denisse Avila Espinoza", 380, yFirmas + 15, { width: 160, align: 'center' });
 
         doc.end();
     } catch (error) {
@@ -117,7 +136,3 @@ exports.generarPDFContrato = async (req, res) => {
         res.status(500).send("Error generando PDF");
     }
 };
-
-
-
- // --- asta aqui funciona ---

@@ -4869,4 +4869,41 @@ function generarPDFContrato() {
     const urlPDF = `https://p-aetech.onrender.com/api/contratos/descargar/${idContratoGuardado}`;
     window.open(urlPDF, '_blank');
 }
+
+async function enviarDatosANeon() {
+    // 1. Recopilamos TODOS los datos del contrato editable
+    const datos = {
+        clienteNombre:  document.getElementById('pdf-nombre-cliente').innerText,
+        clienteRFC:     document.getElementById('pdf-rfc-cliente').innerText,
+        domicilio:      document.getElementById('pdf-domicilio-servicio').innerText,
+        mesesContrato:  document.getElementById('pdf-meses-contrato').innerText,
+        fechaInicio:    document.getElementById('pdf-fecha-inicio').innerText,
+        fechaFin:       document.getElementById('pdf-fecha-fin').innerText,
+        firmaCliente:   firmaClienteBase64, // Las variables globales que ya tenías
+        firmaDueno:     firmaDuenoBase64
+    };
+
+    // 2. Validación rápida
+    if (!datos.firmaCliente || !datos.firmaDueno) {
+        alert("🖋️ Faltan firmas. Ambas partes deben firmar antes de guardar.");
+        return;
+    }
+
+    try {
+        const response = await fetch('https://p-aetech.onrender.com/api/contratos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(datos)
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            idContratoGuardado = data.id; 
+            alert("✅ ¡Contrato de AEtech guardado con éxito! Ya puedes generar el PDF.");
+        }
+    } catch (error) {
+        console.error("Error al guardar:", error);
+        alert("❌ Error al conectar con el servidor de Render.");
+    }
+}
 //asta aqui funciona 
