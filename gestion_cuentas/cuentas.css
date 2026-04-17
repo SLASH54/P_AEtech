@@ -238,7 +238,7 @@ header h1 {
   display: none;
   justify-content: center;
   align-items: center;
-  z-index: 10000 !important;
+  z-index: 999;
 }
 
 .modalGlass.active {
@@ -261,14 +261,10 @@ header h1 {
 /* Cerrar */
 .modalGlass-close {
   position: absolute;
-    cursor: pointer;
-    top: 20px;    /* Bájalo de 10px a 20px o 25px */
-    right: 20px;
-    z-index: 10001; /* Asegura que esté por encima de todo */
-    color: #fff;    /* Cámbialo a blanco para que resalte en el fondo oscuro */
-    font-size: 35px;
-    font-weight: bold;
-    line-height: 1;
+  top: 14px;
+  right: 14px;
+  font-size: 18px;
+  cursor: pointer;
 }
 
 /* Grid formulario */
