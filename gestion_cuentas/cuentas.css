@@ -351,15 +351,13 @@ header h1 {
 .lev-product-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
-    align-items: flex-end;
+    gap: 8px;
+    align-items: center;
     background: rgba(255, 255, 255, 0.3);
-    padding: 12px;
+    padding: 10px;
     border-radius: 15px;
     margin-bottom: 15px;
-     border: 1px solid rgba(255, 255, 255, 0.2);
 }
-
 
 /* Estilo para el input extra de "Otro" */
 #levInsumoExtra {
