@@ -914,7 +914,7 @@ main {
     border-collapse: collapse;
     width: 100%;
     margin-bottom: 15px;
-    background-color: #080808; /* Fondo negro */
+    background-color: #000000; /* Fondo negro */
     color: #fff; /* Texto blanco para que se vea en el fondo negro */
 }
 
@@ -932,11 +932,11 @@ main {
 }
 
 .datagrid-container tbody tr:nth-child(even) {
-    background-color: #030303; /* Un gris muy oscuro para las filas pares */
+    background-color: #000000; /* Un gris muy oscuro para las filas pares */
 }
 
 .datagrid-container tbody tr:hover {
-    background-color: #585858; /* Un gris más claro al pasar el ratón */
+    background-color: #a5a5a5; /* Un gris más claro al pasar el ratón */
 }
 
 /* Estilo general sección organizador */
