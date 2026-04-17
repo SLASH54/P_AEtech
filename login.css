@@ -936,7 +936,7 @@ main {
 }
 
 .datagrid-container tbody tr:hover {
-    background-color: #ffffff; /* Un gris más claro al pasar el ratón */
+    background-color: #585858; /* Un gris más claro al pasar el ratón */
 }
 
 /* Estilo general sección organizador */
