@@ -4913,4 +4913,23 @@ async function enviarDatosANeon() {
         alert("❌ Error al conectar con el servidor de Render.");
     }
 }
+
+
+function sincronizarDatos() {
+    // 1. Obtener valores de los inputs
+    const nombre = document.getElementById('input-nombre').value;
+    const rfc = document.getElementById('input-rfc').value;
+    const domicilio = document.getElementById('input-domicilio').value;
+    const meses = document.getElementById('input-meses').value;
+    const inicio = document.getElementById('input-inicio').value;
+    const fin = document.getElementById('input-fin').value;
+
+    // 2. Mandarlos a los spans del contrato (si están vacíos, dejamos el placeholder)
+    document.getElementById('pdf-nombre-cliente').innerText = nombre || "[NOMBRE DEL CLIENTE]";
+    document.getElementById('pdf-rfc-cliente').innerText = rfc || "[RFC]";
+    document.getElementById('pdf-domicilio-servicio').innerText = domicilio || "_________________________________";
+    document.getElementById('pdf-meses-contrato').innerText = meses || "___";
+    document.getElementById('pdf-fecha-inicio').innerText = inicio || "________";
+    document.getElementById('pdf-fecha-fin').innerText = fin || "________";
+}
 //asta aqui funciona 
