@@ -4947,4 +4947,6 @@ function sincronizarDatos() {
     document.getElementById('pdf-fecha-fin').innerText = formatearFecha(finRaw) || "________";
     document.getElementById('pdf-nombre-cliente').innerText = document.getElementById('input-nombre').value || "[NOMBRE DEL CLIENTE]";
 }
+
+
 //asta aqui funciona 
