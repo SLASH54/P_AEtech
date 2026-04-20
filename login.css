@@ -5447,6 +5447,7 @@ label[for="tareaAsignadoA"] {
     text-transform: uppercase;
     margin-left: 5px;
     margin-bottom: 6px;
+
 }
 
 /* Animación al pasar el mouse por el contenedor */
@@ -5454,3 +5455,8 @@ label[for="tareaAsignadoA"] {
     transform: translateY(-2px);
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
 }
+
+.seccion-captura {
+  width: max-content;
+}
+
