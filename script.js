@@ -4832,15 +4832,15 @@ async function confirmarFirmaYEnviar() {
     if (firmaClienteBase64 && firmaDuenoBase64) {
         
         // --- NUEVA SECCIÓN: RECOLECTAR DATOS EDITABLES ---
-        const datosContrato = {
-            clienteNombre:  document.getElementById('pdf-nombre-cliente').innerText,
-            clienteRFC:     document.getElementById('pdf-rfc-cliente').innerText,
-            domicilio:      document.getElementById('pdf-domicilio-servicio').innerText,
-            mesesContrato:  document.getElementById('pdf-meses-contrato').innerText,
-            fechaInicio:    document.getElementById('pdf-fecha-inicio').innerText,
-            fechaFin:       document.getElementById('pdf-fecha-fin').innerText,
-            firmaCliente:   firmaClienteBase64,
-            firmaDueno:     firmaDuenoBase64 
+       const datosContrato = {
+    clienteNombre:  document.getElementById('pdf-nombre-cliente').innerText,
+    clienteRFC:     document.getElementById('pdf-rfc-cliente').innerText,
+    domicilio:      document.getElementById('pdf-domicilio-servicio').innerText,
+    mesesContrato:  document.getElementById('pdf-meses-contrato').innerText,
+    fechaInicio:    document.getElementById('pdf-fecha-inicio').innerText,
+    fechaFin:       document.getElementById('pdf-fecha-fin').innerText,
+    firmaCliente:   firmaClienteBase64,
+    firmaDueno:     firmaDuenoBase64
         };
 
         try {
