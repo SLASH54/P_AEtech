@@ -5393,3 +5393,64 @@ label[for="tareaAsignadoA"] {
   display: block;
   margin: 0 auto 15px auto;
 }
+
+
+
+
+/* Contenedor Principal de Captura */
+.seccion-captura {
+    background: rgba(255, 255, 255, 0.7); /* Transparencia blanca */
+    backdrop-filter: blur(15px); /* Efecto de desenfoque iOS */
+    -webkit-backdrop-filter: blur(15px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 25px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+    transition: all 0.3s ease;
+}
+
+/* Título con estilo moderno */
+.seccion-captura h4 {
+    font-weight: 700;
+    color: #1d1d1f; /* Negro tipo Apple */
+    letter-spacing: -0.5px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Estilo de los Inputs tipo iOS */
+.seccion-captura .form-control {
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 12px 15px;
+    font-size: 14px;
+    color: #1d1d1f;
+    transition: all 0.2s ease;
+}
+
+.seccion-captura .form-control:focus {
+    background: #ffffff;
+    border-color: #0071e3; /* Azul clásico de iOS */
+    box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1);
+    outline: none;
+}
+
+/* Etiquetas (Labels) */
+.seccion-captura .form-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #86868b; /* Gris tipo Apple */
+    text-transform: uppercase;
+    margin-left: 5px;
+    margin-bottom: 6px;
+}
+
+/* Animación al pasar el mouse por el contenedor */
+.seccion-captura:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}

@@ -4915,6 +4915,16 @@ async function enviarDatosANeon() {
 }
 
 
+
+
+
+function formatearFecha(fechaStr) {
+    if(!fechaStr) return "";
+    const opciones = { day: 'numeric', month: 'long', year: 'numeric' };
+    const fecha = new Date(fechaStr + "T00:00:00"); // Evita desfase de zona horaria
+    return fecha.toLocaleDateString('es-MX', opciones);
+}
+
 function sincronizarDatos() {
     // 1. Obtener valores de los inputs
     const nombre = document.getElementById('input-nombre').value;
@@ -4923,6 +4933,8 @@ function sincronizarDatos() {
     const meses = document.getElementById('input-meses').value;
     const inicio = document.getElementById('input-inicio').value;
     const fin = document.getElementById('input-fin').value;
+    const inicioRaw = document.getElementById('input-inicio').value;
+    const finRaw = document.getElementById('input-fin').value;
 
     // 2. Mandarlos a los spans del contrato (si están vacíos, dejamos el placeholder)
     document.getElementById('pdf-nombre-cliente').innerText = nombre || "[NOMBRE DEL CLIENTE]";
@@ -4931,5 +4943,8 @@ function sincronizarDatos() {
     document.getElementById('pdf-meses-contrato').innerText = meses || "___";
     document.getElementById('pdf-fecha-inicio').innerText = inicio || "________";
     document.getElementById('pdf-fecha-fin').innerText = fin || "________";
+    document.getElementById('pdf-fecha-inicio').innerText = formatearFecha(inicioRaw) || "________";
+    document.getElementById('pdf-fecha-fin').innerText = formatearFecha(finRaw) || "________";
+    document.getElementById('pdf-nombre-cliente').innerText = document.getElementById('input-nombre').value || "[NOMBRE DEL CLIENTE]";
 }
 //asta aqui funciona 
