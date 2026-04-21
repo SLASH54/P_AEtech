@@ -447,9 +447,15 @@
 
                         <input type="number" id="edit-prodCosto" placeholder="Precio">
                         <input type="number" id="edit-prodCant" value="1">
+
+                        <label for="edit-prodFoto" class="btn-ios-icon" title="Agregar miniatura">
+                            📸
+                            <input type="file" id="edit-prodFoto" accept="image/*" style="display:none;">
+                        </label>
                         
                         <input type="file" id="edit-prodFoto" style="display:none;" onchange="procesarFotoEdit(this)">
                         <button type="button" onclick="document.getElementById('edit-prodFoto').click()" class="btn-foto">📷</button>
+
                         <button type="button" onclick="agregarMaterialEdit()" class="btn-add">+</button>
                     </div>
                 </div>
