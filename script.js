@@ -4570,7 +4570,7 @@ async function generarPDFConFiltros() {
 }
 
 // 5. TU FUNCIÓN DE DESCARGA (La que genera bien el PDF)
-async function descargarReportePDF(tareaId, incluirMateriales = true, incluirComentarios = true) {
+async function descargarReportePDF(tareaId, incluirMat, incluirCom) {
   const token = localStorage.getItem('accessToken');
   if (!token) return alert('No hay sesión activa.');
 
@@ -4586,7 +4586,7 @@ async function descargarReportePDF(tareaId, incluirMateriales = true, incluirCom
     }
 
     // URL con parámetros para el controlador
-    const pdfUrl = `${API_BASE_URL}/reportes/pdf/${tareaId}?materiales=${incluirMateriales}&comentarios=${incluirComentarios}`;
+    const pdfUrl = `${API_BASE_URL}/reportes/pdf/${tareaId}?materiales=${incluirMat}&comentarios=${incluirCom}`;
     
     const response = await fetch(pdfUrl, {
       headers: { Authorization: `Bearer ${token}` },
