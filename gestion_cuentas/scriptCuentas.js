@@ -1119,22 +1119,38 @@ async function prepararEdicion(id) {
 
 
 // Esta función se dispara cuando eliges una imagen en el modal de edición
-function procesarFotoEdit(e) {
-    const file = e.target.files[0];
+function procesarFotoEdit(input, index) {
+    const file = input.files[0];
     if (!file) return;
+
+    // 1. Validar que sea una imagen
+    if (!file.type.startsWith('image/')) {
+        alert("Por favor, selecciona un archivo de imagen válido.");
+        return;
+    }
 
     const reader = new FileReader();
     reader.onload = function(e) {
-        // Guardamos el Base64 en una variable temporal
-        tempFotoEdit = e.target.result;
+        const base64Image = e.target.result;
+
+        // 2. Intentar encontrar la imagen de previsualización por ID dinámico
+        // Asegúrate de que en el HTML de la fila el ID sea exactamente este
+        const previewElement = document.getElementById(`img-preview-edit-${index}`);
         
-        // Opcional: Mostrar una pequeña vista previa en el modal para saber que sí se cargó
-        const preview = document.getElementById("imgPreviewEdit");
-        if(preview) {
-            preview.src = e.target.result;
-            preview.style.display = "block";
+        if (previewElement) {
+            previewElement.src = base64Image;
+            console.log(`✅ Imagen previsualizada en el índice: ${index}`);
+        } else {
+            console.error(`❌ No se encontró el elemento: img-preview-edit-${index}`);
+            // Intento de rescate: buscar por clase dentro del mismo contenedor
+            const fallback = input.closest('.lev-product-row')?.querySelector('img');
+            if (fallback) fallback.src = base64Image;
         }
-        console.log("📸 Foto lista para actualizar");
+
+        // 3. Guardar en el array global para que se envíe al servidor
+        if (levMaterialesList[index]) {
+            levMaterialesList[index].foto = base64Image;
+        }
     };
     reader.readAsDataURL(file);
 }
