@@ -1131,10 +1131,10 @@ document.getElementById("edit-prodFoto")?.addEventListener("change", async funct
         
         // Opcional: Mostrar una pequeña vista previa en el modal para saber que sí se cargó
         const preview = document.getElementById("imgPreviewEdit");
-        preview.style.display = "flex"
+        document.getElementById("previewFotoEdit").style.display = "flex";
         if(preview) {
             preview.src = e.target.result;
-            preview.style.display = "flex";
+            preview.style.display = "block";
         }
         console.log("📸 Foto lista para actualizar");
     };
