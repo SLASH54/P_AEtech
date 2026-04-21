@@ -4550,6 +4550,7 @@ function cerrarModalPDF() {
     if (modal) modal.style.display = 'none';
 }
 
+
 // 4. ESTA ES LA FUNCIÓN DEL BOTÓN NARANJA (La que tenías en el script)
 async function generarPDFConFiltros() {
     const id = window.tareaIdParaPDF;
@@ -4570,7 +4571,7 @@ async function generarPDFConFiltros() {
 }
 
 // 5. TU FUNCIÓN DE DESCARGA (La que genera bien el PDF)
-async function descargarReportePDF(tareaId, incluirMat, incluirCom) {
+async function descargarReportePDF(tareaId, incluirMateriales = true, incluirComentarios = true) {
   const token = localStorage.getItem('accessToken');
   if (!token) return alert('No hay sesión activa.');
 
@@ -4586,7 +4587,7 @@ async function descargarReportePDF(tareaId, incluirMat, incluirCom) {
     }
 
     // URL con parámetros para el controlador
-    const pdfUrl = `${API_BASE_URL}/reportes/pdf/${tareaId}?materiales=${incluirMat}&comentarios=${incluirCom}`;
+    const pdfUrl = `${API_BASE_URL}/reportes/pdf/${tareaId}?materiales=${incluirMateriales}&comentarios=${incluirComentarios}`;
     
     const response = await fetch(pdfUrl, {
       headers: { Authorization: `Bearer ${token}` },
