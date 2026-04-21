@@ -1133,7 +1133,7 @@ document.getElementById("edit-prodFoto")?.addEventListener("change", async funct
         const preview = document.getElementById("imgPreviewEdit");
         if(preview) {
             preview.src = e.target.result;
-            preview.style.display = "block";
+            preview.style.display = "flex";
         }
         console.log("📸 Foto lista para actualizar");
     };
