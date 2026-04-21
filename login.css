@@ -5396,28 +5396,32 @@ label[for="tareaAsignadoA"] {
 
 
 
-
-/* Contenedor Principal de Captura */
+/* Contenedor Principal de Captura - ACTUALIZADO */
 .seccion-captura {
-    background: rgba(255, 255, 255, 0.7); /* Transparencia blanca */
-    backdrop-filter: blur(15px); /* Efecto de desenfoque iOS */
+    background: rgba(255, 255, 255, 0.7); 
+    backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
     border-radius: 20px;
     border: 1px solid rgba(255, 255, 255, 0.3);
     padding: 25px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    margin-bottom: 30px;
     transition: all 0.3s ease;
+
+    /* CAMBIOS PARA CENTRAR */
+    margin: 20px auto 30px auto; /* Centra horizontalmente con 'auto' */
+    width: 90%;                 /* Ocupa casi todo el ancho en móviles */
+    max-width: 850px;           /* No deja que se estire demasiado en PC */
 }
 
 /* Título con estilo moderno */
 .seccion-captura h4 {
     font-weight: 700;
-    color: #1d1d1f; /* Negro tipo Apple */
+    color: #1d1d1f; 
     letter-spacing: -0.5px;
     margin-bottom: 20px;
     display: flex;
     align-items: center;
+    justify-content: center; /* Centra el título también */
     gap: 10px;
 }
 
@@ -5434,29 +5438,25 @@ label[for="tareaAsignadoA"] {
 
 .seccion-captura .form-control:focus {
     background: #ffffff;
-    border-color: #0071e3; /* Azul clásico de iOS */
+    border-color: #0071e3; 
     box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1);
     outline: none;
 }
 
 /* Etiquetas (Labels) */
 .seccion-captura .form-label {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
-    color: #86868b; /* Gris tipo Apple */
+    color: #86868b; 
     text-transform: uppercase;
     margin-left: 5px;
     margin-bottom: 6px;
-
 }
 
-/* Animación al pasar el mouse por el contenedor */
+/* Animación al pasar el mouse */
 .seccion-captura:hover {
     transform: translateY(-2px);
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
 }
 
-.seccion-captura {
-  width: max-content;
-}
-
+/* ELIMINAMOS EL width: max-content QUE TENÍAS AQUÍ */
