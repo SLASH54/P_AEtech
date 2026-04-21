@@ -1135,13 +1135,13 @@ function procesarFotoEdit(input, index) {
 
         // 2. Intentar encontrar la imagen de previsualización por ID dinámico
         // Asegúrate de que en el HTML de la fila el ID sea exactamente este
-        const previewElement = document.getElementById(`img-preview-edit-${index}`);
+        const previewElement = document.getElementById(`imgPreviewEdit${index}`);
         
         if (previewElement) {
             previewElement.src = base64Image;
             console.log(`✅ Imagen previsualizada en el índice: ${index}`);
         } else {
-            console.error(`❌ No se encontró el elemento: img-preview-edit-${index}`);
+            console.error(`❌ No se encontró el elemento: imgPreviewEdit${index}`);
             // Intento de rescate: buscar por clase dentro del mismo contenedor
             const fallback = input.closest('.lev-product-row')?.querySelector('img');
             if (fallback) fallback.src = base64Image;
