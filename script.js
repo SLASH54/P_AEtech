@@ -4833,12 +4833,15 @@ async function confirmarFirmaYEnviar() {
         
         // --- NUEVA SECCIÓN: RECOLECTAR DATOS EDITABLES ---
        const datosContrato = {
-    clienteNombre:  document.getElementById('pdf-nombre-cliente').innerText,
-    clienteRFC:     document.getElementById('pdf-rfc-cliente').innerText,
-    domicilio:      document.getElementById('pdf-domicilio-servicio').innerText,
-    mesesContrato:  document.getElementById('pdf-meses-contrato').innerText,
+   clienteNombre:  document.getElementById('input-nombre').value,
+    clienteRFC:     document.getElementById('input-rfc').value,
+    domicilio:      document.getElementById('input-domicilio').value,
+    mesesContrato:  document.getElementById('input-meses').value,
+    
+    // Para las fechas, es mejor usar el texto ya formateado que se ve en el contrato
     fechaInicio:    document.getElementById('pdf-fecha-inicio').innerText,
     fechaFin:       document.getElementById('pdf-fecha-fin').innerText,
+    
     firmaCliente:   firmaClienteBase64,
     firmaDueno:     firmaDuenoBase64
         };
