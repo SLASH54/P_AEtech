@@ -1,3 +1,5 @@
+const { hashSync } = require("bcrypt");
+
 const API_BASE_URL = 'https://p-aetech.onrender.com/api';
 let editandoId = null; // Variable global para saber si estamos editando
 let levMaterialesList = []; 
@@ -1764,6 +1766,9 @@ function cerrarModalCatalogo() {
     modoSeleccionCatalogo = false; // Resetear el modo
     resetFormularioCatalogo(); // Limpiar inputs del catálogo
 }
+
+
+
 //AQUI TERMINA XDD
 
 
