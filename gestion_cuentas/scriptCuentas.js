@@ -1,5 +1,3 @@
-const { hashSync } = require("bcrypt");
-
 const API_BASE_URL = 'https://p-aetech.onrender.com/api';
 let editandoId = null; // Variable global para saber si estamos editando
 let levMaterialesList = []; 
@@ -1737,7 +1735,7 @@ function agregarAlPedidoDesdeCatalogo(id) {
     const existente = levMaterialesList.find(m => m.idOriginal === producto.id);
     if (existente) {
         if (producto.stock !== null && existente.cantidad >= producto.stock) {
-            alert(`solo hay ${producto.stock} disponibles.`);
+            alert(`Amigue, solo hay ${producto.stock} disponibles.`);
             return;
         }
         existente.cantidad++;
@@ -1766,9 +1764,6 @@ function cerrarModalCatalogo() {
     modoSeleccionCatalogo = false; // Resetear el modo
     resetFormularioCatalogo(); // Limpiar inputs del catálogo
 }
-
-
-
 //AQUI TERMINA XDD
 
 
