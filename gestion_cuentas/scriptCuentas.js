@@ -1717,48 +1717,62 @@ function cancelarEdicionCatalogo() {
 }
 
 // Variable para saber si el catálogo debe "devolver" el producto a la cuenta
-let modoSeleccionCatalogo = false;
+let modoCatalogo = "nuevo"; // Puede ser "nuevo" o "editar"
 
-function abrirCatalogoParaSeleccion() {
-    modoSeleccionCatalogo = true;
+// Para el botón en el modal de EDITAR
+function abrirCatalogoDesdeEditar() {
+    modoCatalogo = "editar"; 
     document.getElementById("modalCatalogo").style.display = "flex";
-    cargarCatalogo(); // Asegura que los productos estén frescos
+    cargarCatalogo();
 }
 
-// Esta es la función que llamaremos cuando el usuario dé clic en el "+" del catálogo
+// Modifica tu función actual de NUEVA CUENTA para resetear el modo
+function abrirCatalogoParaSeleccion() {
+    modoCatalogo = "nuevo"; // 👈 IMPORTANTE
+    document.getElementById("modalCatalogo").style.display = "flex";
+    cargarCatalogo();
+}
+
 function agregarAlPedidoDesdeCatalogo(id) {
     const idNumerico = parseInt(id);
     const producto = catalogoProductos.find(p => p.id === idNumerico);
     if (!producto) return;
 
-    // Si ya existe en la lista, solo sumamos 1 a la cantidad
+    // Buscamos si ya existe en la lista actual (levMaterialesList se usa para ambos)
     const existente = levMaterialesList.find(m => m.idOriginal === producto.id);
+    
     if (existente) {
         if (producto.stock !== null && existente.cantidad >= producto.stock) {
-            alert(`solo hay ${producto.stock} disponibles.`);
+            alert(`Solo hay ${producto.stock} disponibles.`);
             return;
         }
         existente.cantidad++;
-        renderizarListaYTotales();
-        return;
+    } else {
+        // Si es nuevo en la nota
+        const nuevoMaterial = {
+            id: Date.now(),
+            idOriginal: producto.id,
+            nombre: producto.nombre,
+            cantidad: 1,
+            costo: parseFloat(producto.costo),
+            unidad: producto.unidad || 'Pza',
+            fotoUrl: producto.fotoUrl || null,
+            foto: null,
+            esNuevo: true // 👈 Esto ayuda al backend a saber que debe insertarlo
+        };
+        levMaterialesList.push(nuevoMaterial);
     }
 
-    // Si es nuevo en la nota
-    const nuevoMaterial = {
-        id: Date.now(),
-        idOriginal: producto.id, // 👈 Importante para el descuento de inventario
-        nombre: producto.nombre,
-        cantidad: 1,
-        costo: parseFloat(producto.costo),
-        unidad: producto.unidad || 'Pza',
-        fotoUrl: producto.fotoUrl || null, // 👈 Heredamos la URL de Cloudinary
-        foto: null // No es un base64 nuevo
-    };
-
-    levMaterialesList.push(nuevoMaterial);
-    renderizarListaYTotales();
+    // 🔥 AQUÍ DECIDIMOS QUÉ LISTA ACTUALIZAR
+    if (modoCatalogo === "editar") {
+        renderMaterialesEdit(); // La función que dibuja las filas en el modal de EDITAR
+    } else {
+        renderizarListaYTotales(); // Tu función original de NUEVA CUENTA
+    }
+    
+    // Recalcular saldo general (IVA, Anticipo, etc)
+    calcularSaldo(); 
 }
-
 
 function cerrarModalCatalogo() {
     document.getElementById("modalCatalogo").style.display = "none";
