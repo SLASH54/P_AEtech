@@ -1735,7 +1735,7 @@ function agregarAlPedidoDesdeCatalogo(id) {
     const existente = levMaterialesList.find(m => m.idOriginal === producto.id);
     if (existente) {
         if (producto.stock !== null && existente.cantidad >= producto.stock) {
-            alert(`Amigue, solo hay ${producto.stock} disponibles.`);
+            alert(`solo hay ${producto.stock} disponibles.`);
             return;
         }
         existente.cantidad++;
@@ -1757,6 +1757,61 @@ function agregarAlPedidoDesdeCatalogo(id) {
 
     levMaterialesList.push(nuevoMaterial);
     renderizarListaYTotales();
+}
+
+// 1. Función para buscar productos mientras escribes (para Editar)
+async function buscarEnCatalogoEdit() {
+    const query = document.getElementById("inputBuscarCatalogoEdit").value.trim();
+    const resultadosDiv = document.getElementById("resultadosCatalogoEdit");
+
+    if (query.length < 2) {
+        resultadosDiv.style.display = "none";
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/productos/buscar?q=${query}`);
+        const productos = await res.json();
+
+        if (productos.length > 0) {
+            resultadosDiv.innerHTML = productos.map(p => `
+                <div class="item-resultado" onclick="seleccionarDelCatalogoEdit(${JSON.stringify(p).replace(/"/g, '&quot;')})">
+                    <img src="${p.foto || 'img/logoAEtech.png'}" width="30">
+                    <span>${p.nombre} - $${p.precio}</span>
+                </div>
+            `).join('');
+            resultadosDiv.style.display = "block";
+        } else {
+            resultadosDiv.style.display = "none";
+        }
+    } catch (error) {
+        console.error("Error buscando en catálogo:", error);
+    }
+}
+
+// 2. Función para añadir el producto seleccionado a la edición
+function seleccionarDelCatalogoEdit(producto) {
+    // Creamos el objeto con el formato que espera tu lista de materiales
+    const nuevoMaterial = {
+        nombre: producto.nombre,
+        cantidad: 1,
+        costo: producto.precio,
+        foto: producto.foto,
+        esNuevo: true // Marca para saber que es un producto añadido en esta sesión de edición
+    };
+
+    // Lo añadimos al array global de edición
+    levMaterialesList.push(nuevoMaterial);
+
+    // Limpiamos el buscador
+    document.getElementById("inputBuscarCatalogoEdit").value = "";
+    document.getElementById("resultadosCatalogoEdit").style.display = "none";
+
+    // Refrescamos la vista de materiales del modal de edición
+    renderMaterialesEdit(); 
+    
+    // Recalculamos totales
+    calcularSaldoEdit();
 }
 
 function cerrarModalCatalogo() {
