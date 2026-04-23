@@ -1750,38 +1750,34 @@ function agregarAlPedidoDesdeCatalogo(id) {
 
     // --- MODO EDICIÓN (Tabla: tablaMaterialesEdit) ---
     if (destinoCatalogo === "EDIT") {
-        // Estructura para materialesEditList (basado en tu HTML de tablaMaterialesEdit)
         const nuevoMaterialEdit = {
             id: Date.now(),
             idOriginal: producto.id,
-            insumo: producto.nombre,
+            insumo: producto.nombre, // 👈 Aquí corregimos el "undefined"
             cantidad: 1,
             costo: parseFloat(producto.costo),
-            // Usamos la imagen de Cloudinary o el logo de AEtech si no hay una
             fotoUrl: producto.fotoUrl || 'img/logoAEtech.png' 
         };
 
         if (typeof materialesEditList !== 'undefined') {
             materialesEditList.push(nuevoMaterialEdit);
             
-            // Refrescamos la tabla del modal de edición
             if (typeof renderMaterialesEdit === "function") {
                 renderMaterialesEdit();
             }
             
-            cerrarModalCatalogo(); // Cerramos el catálogo al elegir
+            cerrarModalCatalogo();
             alert("¡Producto añadido a la edición!");
         } else {
             console.error("No se encontró el arreglo materialesEditList");
         }
 
     } 
-    // --- MODO NUEVA CUENTA (Tu lógica original que ya funcionaba) ---
+    // --- MODO NUEVA CUENTA ---
     else {
         const existente = levMaterialesList.find(m => m.idOriginal === producto.id);
 
         if (existente) {
-            // Validamos stock si es necesario
             if (producto.stock !== null && existente.cantidad >= producto.stock) {
                 alert(`Amigue, solo hay ${producto.stock} disponibles.`);
                 return;
@@ -1791,7 +1787,7 @@ function agregarAlPedidoDesdeCatalogo(id) {
             const nuevoMaterial = {
                 id: Date.now(),
                 idOriginal: producto.id,
-                insumo: producto.nombre, 
+                insumo: producto.nombre, // 👈 Consistencia para evitar undefined
                 cantidad: 1,
                 costo: parseFloat(producto.costo),
                 unidad: producto.unidad || 'Pza',
@@ -1800,7 +1796,6 @@ function agregarAlPedidoDesdeCatalogo(id) {
             levMaterialesList.push(nuevoMaterial);
         }
 
-        // Renderizar la tabla de Nueva Cuenta
         if (typeof renderizarListaYTotales === "function") {
             renderizarListaYTotales();
         } else if (typeof levRenderMateriales === "function") {
@@ -1810,6 +1805,8 @@ function agregarAlPedidoDesdeCatalogo(id) {
         alert("¡Producto añadido a la nota!");
     }
 }
+
+
 
 function cerrarModalCatalogo() {
     document.getElementById("modalCatalogo").style.display = "none";
