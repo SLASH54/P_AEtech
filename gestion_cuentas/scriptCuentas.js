@@ -1748,61 +1748,49 @@ function agregarAlPedidoDesdeCatalogo(id) {
     const producto = catalogoProductos.find(p => p.id === idNumerico);
     if (!producto) return;
 
-    // --- CASO A: ESTAMOS EDITANDO UNA CUENTA ---
     if (destinoCatalogo === "EDIT") {
-        // Rellenamos los campos del formulario de edición
-        const inputInsumo = document.getElementById("edit-levInsumo");
-        const inputPrecio = document.getElementById("edit-prodCosto");
-        const inputCant = document.getElementById("edit-prodCant");
+        // --- MODO EDICIÓN ---
+        // Buscamos los IDs correctos de tu modal de editar (según tu imagen)
+        const inputInsumo = document.getElementById("edit-levInsumo") || document.querySelector("#modalEditarNota [name='insumo']"); 
+        const inputPrecio = document.getElementById("edit-prodCosto") || document.querySelector("#modalEditarNota [name='precio']");
 
         if (inputInsumo) inputInsumo.value = producto.nombre;
         if (inputPrecio) inputPrecio.value = producto.costo;
-        if (inputCant) inputCant.value = 1;
 
-        // Mostramos la miniatura en el editor si existe
-        const imgPreview = document.getElementById("imgPreviewEdit");
-        const containerPreview = document.getElementById("previewFotoEdit");
-        if (imgPreview && producto.fotoUrl) {
-            imgPreview.src = producto.fotoUrl;
-            if (containerPreview) containerPreview.style.display = "block";
-        }
-
-        // Cerramos el catálogo para que el usuario solo pique el botón "+" verde del editor
         cerrarModalCatalogo();
-        
-    } 
-    // --- CASO B: ES UNA NUEVA CUENTA (Tu lógica original) ---
-    else {
+        alert("Producto cargado en el editor. Haz clic en '+' para añadirlo a la tabla.");
+
+    } else {
+        // --- MODO NUEVA CUENTA ---
+        // 1. Verificamos si ya existe por idOriginal
         const existente = levMaterialesList.find(m => m.idOriginal === producto.id);
-        
+
         if (existente) {
-            if (producto.stock !== null && existente.cantidad >= producto.stock) {
-                alert(`Amigue, solo hay ${producto.stock} disponibles.`);
-                return;
-            }
             existente.cantidad++;
         } else {
+            // 2. Creamos el objeto con la estructura que tu tabla espera
             const nuevoMaterial = {
                 id: Date.now(),
                 idOriginal: producto.id,
-                insumo: producto.nombre, // Cambié 'nombre' por 'insumo' para que sea compatible con tu render
+                insumo: producto.nombre, // Asegúrate que sea 'insumo' y no 'nombre'
                 cantidad: 1,
                 costo: parseFloat(producto.costo),
-                unidad: producto.unidad || 'Pza',
                 fotoUrl: producto.fotoUrl || null
             };
             levMaterialesList.push(nuevoMaterial);
         }
 
-        // Llamamos al render de nueva cuenta
+        // 3. LLAMADA CRÍTICA: Aquí es donde fallaba. 
+        // Usaremos una validación para llamar a la función que SÍ existe.
         if (typeof renderizarListaYTotales === "function") {
             renderizarListaYTotales();
-        } else if (typeof levRenderMateriales === "function") {
-            levRenderMateriales();
+        } else if (typeof renderizarTabla === "function") {
+            renderizarTabla();
+        } else {
+            console.error("No encontré la función para dibujar la tabla. Revisa el nombre en scriptCuentas.js");
         }
     }
 }
-
 
 
 function cerrarModalCatalogo() {
