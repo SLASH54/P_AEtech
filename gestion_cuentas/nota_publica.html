@@ -99,10 +99,79 @@
 }
 
 
+
+
+/* Contenedor del fondo */
+.background-animation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Para que esté detrás de la nota */
+    background-color: #f0faff; /* Color base clarito */
+    overflow: hidden;
+}
+
+/* Estilo de los rombos/cuadros */
+.shape {
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    background: linear-gradient(135deg, #0077b6, #00b4d8);
+    opacity: 0.2;
+    border-radius: 20px; /* Bordes redondeados como tu diseño */
+    animation: floatingWave 15s infinite ease-in-out;
+}
+
+/* Posiciones diferentes para cada cuadro */
+.shape:nth-child(1) { top: 10%; left: 10%; animation-duration: 18s; }
+.shape:nth-child(2) { top: 70%; left: 80%; width: 200px; height: 200px; animation-delay: -2s; }
+.shape:nth-child(3) { top: 40%; left: 50%; width: 100px; height: 100px; animation-duration: 12s; }
+.shape:nth-child(4) { top: 80%; left: 20%; animation-delay: -5s; }
+.shape:nth-child(5) { top: 20%; left: 75%; opacity: 0.1; }
+
+/* Animación tipo Ola/Flotante */
+@keyframes floatingWave {
+    0% {
+        transform: translate(0, 0) rotate(0deg) scale(1);
+    }
+    33% {
+        transform: translate(30px, 50px) rotate(10deg) scale(1.1);
+    }
+    66% {
+        transform: translate(-20px, 20px) rotate(-10deg) scale(0.9);
+    }
+    100% {
+        transform: translate(0, 0) rotate(0deg) scale(1);
+    }
+}
+
+.background-animation {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background: linear-gradient(135deg, #f8fcff 0%, #e1f1f9 100%);
+        overflow: hidden;
+    }
+
 </style>
     
 </head>
 <body>
+
+<div class="background-animation">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+
     <div class="public-card">
         <header style="text-align: center; margin-bottom: 20px; background: transparent;">
             <img src="img/logoAEtech.png" width="80">
@@ -353,4 +422,7 @@ const estatusActual = (c.estatus || 'Pendiente').toUpperCase();
 </script>
 
 </body>
+
+
+
 </html>
