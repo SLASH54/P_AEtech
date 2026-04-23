@@ -1748,45 +1748,46 @@ function agregarAlPedidoDesdeCatalogo(id) {
     const producto = catalogoProductos.find(p => p.id === idNumerico);
     if (!producto) return;
 
+    // --- MODO EDICIÓN (Tabla: tablaMaterialesEdit) ---
     if (destinoCatalogo === "EDIT") {
-        // --- MODO EDICIÓN ---
-        // 1. Buscamos los inputs del modal de edición (intentamos varios IDs comunes)
-        const inputInsumo = document.getElementById("edit-levInsumo") || document.getElementById("editInsumo") || document.querySelector("#modalEditarNota [name='insumo']"); 
-        const inputPrecio = document.getElementById("edit-prodCosto") || document.getElementById("editCosto") || document.querySelector("#modalEditarNota [name='precio']");
-        const inputCant = document.getElementById("edit-prodCant") || document.getElementById("editCantidad");
+        // Estructura para materialesEditList (basado en tu HTML de tablaMaterialesEdit)
+        const nuevoMaterialEdit = {
+            id: Date.now(),
+            idOriginal: producto.id,
+            insumo: producto.nombre,
+            cantidad: 1,
+            costo: parseFloat(producto.costo),
+            // Usamos la imagen de Cloudinary o el logo de AEtech si no hay una
+            fotoUrl: producto.fotoUrl || 'img/logoAEtech.png' 
+        };
 
-        if (inputInsumo) inputInsumo.value = producto.nombre;
-        if (inputPrecio) inputPrecio.value = producto.costo;
-        if (inputCant) inputCant.value = 1;
-
-        // 2. Gestionar la imagen en el editor
-        const imgPreview = document.getElementById("imgPreviewEdit");
-        const containerPreview = document.getElementById("previewFotoEdit");
-        
-        if (producto.fotoUrl) {
-            // Guardamos la URL en una variable global temporal para que el botón (+) la use
-            window.fotoTemporalCatalogo = producto.fotoUrl;
-            if (imgPreview) imgPreview.src = producto.fotoUrl;
-            if (containerPreview) containerPreview.style.display = "block";
+        if (typeof materialesEditList !== 'undefined') {
+            materialesEditList.push(nuevoMaterialEdit);
+            
+            // Refrescamos la tabla del modal de edición
+            if (typeof renderMaterialesEdit === "function") {
+                renderMaterialesEdit();
+            }
+            
+            cerrarModalCatalogo(); // Cerramos el catálogo al elegir
+            alert("¡Producto añadido a la edición!");
+        } else {
+            console.error("No se encontró el arreglo materialesEditList");
         }
 
-        cerrarModalCatalogo();
-        
-        // 3. Opcional: Si quieres que se agregue solo a la tabla de edición sin picar el botón verde:
-        // const btnMasVerde = document.querySelector("#modalEditarNota .btn-agregar") || document.querySelector(".btn-plus-edit");
-        // if(btnMasVerde) btnMasVerde.click();
-
-        alert("Producto cargado. Presiona el botón (+) verde para confirmarlo en la tabla.");
-
-    } else {
-        // --- MODO NUEVA CUENTA ---
-        // 1. Buscamos si ya existe en la lista global 'levMaterialesList'
+    } 
+    // --- MODO NUEVA CUENTA (Tu lógica original que ya funcionaba) ---
+    else {
         const existente = levMaterialesList.find(m => m.idOriginal === producto.id);
 
         if (existente) {
+            // Validamos stock si es necesario
+            if (producto.stock !== null && existente.cantidad >= producto.stock) {
+                alert(`Amigue, solo hay ${producto.stock} disponibles.`);
+                return;
+            }
             existente.cantidad++;
         } else {
-            // 2. Estructura compatible con tu sistema de reportes y contratos
             const nuevoMaterial = {
                 id: Date.now(),
                 idOriginal: producto.id,
@@ -1799,15 +1800,14 @@ function agregarAlPedidoDesdeCatalogo(id) {
             levMaterialesList.push(nuevoMaterial);
         }
 
-        // 3. Dibujar la tabla (probamos tus dos nombres de funciones conocidos)
+        // Renderizar la tabla de Nueva Cuenta
         if (typeof renderizarListaYTotales === "function") {
             renderizarListaYTotales();
         } else if (typeof levRenderMateriales === "function") {
             levRenderMateriales();
         }
-
-        // Si quieres que el catálogo se cierre solo al elegir en Nueva Cuenta:
-        // cerrarModalCatalogo();
+        
+        alert("¡Producto añadido a la nota!");
     }
 }
 
@@ -1824,7 +1824,6 @@ function cerrarModalCatalogo() {
 function abrirRegistroExpress() {
     document.getElementById("modalClienteExpress").style.display = "flex";
 }
-
 
 function cerrarRegistroExpress() {
     document.getElementById("modalClienteExpress").style.display = "none";
