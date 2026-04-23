@@ -1750,48 +1750,66 @@ function agregarAlPedidoDesdeCatalogo(id) {
 
     if (destinoCatalogo === "EDIT") {
         // --- MODO EDICIÓN ---
-        // Buscamos los IDs correctos de tu modal de editar (según tu imagen)
-        const inputInsumo = document.getElementById("edit-levInsumo") || document.querySelector("#modalEditarNota [name='insumo']"); 
-        const inputPrecio = document.getElementById("edit-prodCosto") || document.querySelector("#modalEditarNota [name='precio']");
+        // 1. Buscamos los inputs del modal de edición (intentamos varios IDs comunes)
+        const inputInsumo = document.getElementById("edit-levInsumo") || document.getElementById("editInsumo") || document.querySelector("#modalEditarNota [name='insumo']"); 
+        const inputPrecio = document.getElementById("edit-prodCosto") || document.getElementById("editCosto") || document.querySelector("#modalEditarNota [name='precio']");
+        const inputCant = document.getElementById("edit-prodCant") || document.getElementById("editCantidad");
 
         if (inputInsumo) inputInsumo.value = producto.nombre;
         if (inputPrecio) inputPrecio.value = producto.costo;
+        if (inputCant) inputCant.value = 1;
+
+        // 2. Gestionar la imagen en el editor
+        const imgPreview = document.getElementById("imgPreviewEdit");
+        const containerPreview = document.getElementById("previewFotoEdit");
+        
+        if (producto.fotoUrl) {
+            // Guardamos la URL en una variable global temporal para que el botón (+) la use
+            window.fotoTemporalCatalogo = producto.fotoUrl;
+            if (imgPreview) imgPreview.src = producto.fotoUrl;
+            if (containerPreview) containerPreview.style.display = "block";
+        }
 
         cerrarModalCatalogo();
-        alert("Producto cargado en el editor. Haz clic en '+' para añadirlo a la tabla.");
+        
+        // 3. Opcional: Si quieres que se agregue solo a la tabla de edición sin picar el botón verde:
+        // const btnMasVerde = document.querySelector("#modalEditarNota .btn-agregar") || document.querySelector(".btn-plus-edit");
+        // if(btnMasVerde) btnMasVerde.click();
+
+        alert("Producto cargado. Presiona el botón (+) verde para confirmarlo en la tabla.");
 
     } else {
         // --- MODO NUEVA CUENTA ---
-        // 1. Verificamos si ya existe por idOriginal
+        // 1. Buscamos si ya existe en la lista global 'levMaterialesList'
         const existente = levMaterialesList.find(m => m.idOriginal === producto.id);
 
         if (existente) {
             existente.cantidad++;
         } else {
-            // 2. Creamos el objeto con la estructura que tu tabla espera
+            // 2. Estructura compatible con tu sistema de reportes y contratos
             const nuevoMaterial = {
                 id: Date.now(),
                 idOriginal: producto.id,
-                insumo: producto.nombre, // Asegúrate que sea 'insumo' y no 'nombre'
+                insumo: producto.nombre, 
                 cantidad: 1,
                 costo: parseFloat(producto.costo),
+                unidad: producto.unidad || 'Pza',
                 fotoUrl: producto.fotoUrl || null
             };
             levMaterialesList.push(nuevoMaterial);
         }
 
-        // 3. LLAMADA CRÍTICA: Aquí es donde fallaba. 
-        // Usaremos una validación para llamar a la función que SÍ existe.
+        // 3. Dibujar la tabla (probamos tus dos nombres de funciones conocidos)
         if (typeof renderizarListaYTotales === "function") {
             renderizarListaYTotales();
-        } else if (typeof renderizarTabla === "function") {
-            renderizarTabla();
-        } else {
-            console.error("No encontré la función para dibujar la tabla. Revisa el nombre en scriptCuentas.js");
+        } else if (typeof levRenderMateriales === "function") {
+            levRenderMateriales();
         }
+
+        // Si quieres que el catálogo se cierre solo al elegir en Nueva Cuenta:
+        // cerrarModalCatalogo();
     }
 }
-
 
 function cerrarModalCatalogo() {
     document.getElementById("modalCatalogo").style.display = "none";
