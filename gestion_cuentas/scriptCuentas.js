@@ -1748,12 +1748,17 @@ function agregarAlPedidoDesdeCatalogo(id) {
     const producto = catalogoProductos.find(p => p.id === idNumerico);
     if (!producto) return;
 
-    // --- MODO EDICIÓN (Tabla: tablaMaterialesEdit) ---
+    // --- MODO EDICIÓN ---
     if (destinoCatalogo === "EDIT") {
+        // Obtenemos el nombre real. Intentamos con .nombre o .insumo por si acaso.
+        const nombreReal = producto.nombre || producto.insumo || "Producto sin nombre";
+
         const nuevoMaterialEdit = {
             id: Date.now(),
             idOriginal: producto.id,
-            insumo: producto.nombre, // 👈 Aquí corregimos el "undefined"
+            // Le pasamos AMBAS para que el render encuentre la que busca
+            insumo: nombreReal, 
+            nombre: nombreReal,
             cantidad: 1,
             costo: parseFloat(producto.costo),
             fotoUrl: producto.fotoUrl || 'img/logoAEtech.png' 
@@ -1767,27 +1772,22 @@ function agregarAlPedidoDesdeCatalogo(id) {
             }
             
             cerrarModalCatalogo();
-            alert("¡Producto añadido a la edición!");
-        } else {
-            console.error("No se encontró el arreglo materialesEditList");
         }
 
     } 
     // --- MODO NUEVA CUENTA ---
     else {
+        const nombreReal = producto.nombre || producto.insumo || "Producto sin nombre";
         const existente = levMaterialesList.find(m => m.idOriginal === producto.id);
 
         if (existente) {
-            if (producto.stock !== null && existente.cantidad >= producto.stock) {
-                alert(`Amigue, solo hay ${producto.stock} disponibles.`);
-                return;
-            }
             existente.cantidad++;
         } else {
             const nuevoMaterial = {
                 id: Date.now(),
                 idOriginal: producto.id,
-                insumo: producto.nombre, // 👈 Consistencia para evitar undefined
+                insumo: nombreReal,
+                nombre: nombreReal,
                 cantidad: 1,
                 costo: parseFloat(producto.costo),
                 unidad: producto.unidad || 'Pza',
@@ -1801,8 +1801,6 @@ function agregarAlPedidoDesdeCatalogo(id) {
         } else if (typeof levRenderMateriales === "function") {
             levRenderMateriales();
         }
-        
-        alert("¡Producto añadido a la nota!");
     }
 }
 
