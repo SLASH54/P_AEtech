@@ -1441,6 +1441,24 @@ function limpiarFiltroCliente() {
     setTimeout(() => select.style.boxShadow = "none", 500);
 }
 
+//abrir catalo en editar 
+// Variable global para saber a dónde mandar el producto
+let destinoCatalogo = "NUEVA"; 
+
+function abrirCatalogoParaSeleccionEdit() {
+    destinoCatalogo = "EDIT"; // Marcamos que vamos para el modal de editar
+    document.getElementById("modalCatalogo").style.display = "flex";
+    cargarCatalogo(); 
+}
+
+// También actualiza tu función original de Nueva Cuenta para que resetee el destino
+function abrirCatalogoParaSeleccion() {
+    destinoCatalogo = "NUEVA"; 
+    document.getElementById("modalCatalogo").style.display = "flex";
+    cargarCatalogo();
+}
+
+//asta aqui terminda el de editar 
 
 let cuentaSeleccionadaId = null;
 let saldoActualPendiente = 0;
@@ -1725,39 +1743,67 @@ function abrirCatalogoParaSeleccion() {
     cargarCatalogo(); // Asegura que los productos estén frescos
 }
 
-// Esta es la función que llamaremos cuando el usuario dé clic en el "+" del catálogo
 function agregarAlPedidoDesdeCatalogo(id) {
     const idNumerico = parseInt(id);
     const producto = catalogoProductos.find(p => p.id === idNumerico);
     if (!producto) return;
 
-    // Si ya existe en la lista, solo sumamos 1 a la cantidad
-    const existente = levMaterialesList.find(m => m.idOriginal === producto.id);
-    if (existente) {
-        if (producto.stock !== null && existente.cantidad >= producto.stock) {
-            alert(`Amigue, solo hay ${producto.stock} disponibles.`);
-            return;
+    // --- CASO A: ESTAMOS EDITANDO UNA CUENTA ---
+    if (destinoCatalogo === "EDIT") {
+        // Rellenamos los campos del formulario de edición
+        const inputInsumo = document.getElementById("edit-levInsumo");
+        const inputPrecio = document.getElementById("edit-prodCosto");
+        const inputCant = document.getElementById("edit-prodCant");
+
+        if (inputInsumo) inputInsumo.value = producto.nombre;
+        if (inputPrecio) inputPrecio.value = producto.costo;
+        if (inputCant) inputCant.value = 1;
+
+        // Mostramos la miniatura en el editor si existe
+        const imgPreview = document.getElementById("imgPreviewEdit");
+        const containerPreview = document.getElementById("previewFotoEdit");
+        if (imgPreview && producto.fotoUrl) {
+            imgPreview.src = producto.fotoUrl;
+            if (containerPreview) containerPreview.style.display = "block";
         }
-        existente.cantidad++;
-        renderizarListaYTotales();
-        return;
+
+        // Cerramos el catálogo para que el usuario solo pique el botón "+" verde del editor
+        cerrarModalCatalogo();
+        
+    } 
+    // --- CASO B: ES UNA NUEVA CUENTA (Tu lógica original) ---
+    else {
+        const existente = levMaterialesList.find(m => m.idOriginal === producto.id);
+        
+        if (existente) {
+            if (producto.stock !== null && existente.cantidad >= producto.stock) {
+                alert(`Amigue, solo hay ${producto.stock} disponibles.`);
+                return;
+            }
+            existente.cantidad++;
+        } else {
+            const nuevoMaterial = {
+                id: Date.now(),
+                idOriginal: producto.id,
+                insumo: producto.nombre, // Cambié 'nombre' por 'insumo' para que sea compatible con tu render
+                cantidad: 1,
+                costo: parseFloat(producto.costo),
+                unidad: producto.unidad || 'Pza',
+                fotoUrl: producto.fotoUrl || null
+            };
+            levMaterialesList.push(nuevoMaterial);
+        }
+
+        // Llamamos al render de nueva cuenta
+        if (typeof renderizarListaYTotales === "function") {
+            renderizarListaYTotales();
+        } else if (typeof levRenderMateriales === "function") {
+            levRenderMateriales();
+        }
     }
-
-    // Si es nuevo en la nota
-    const nuevoMaterial = {
-        id: Date.now(),
-        idOriginal: producto.id, // 👈 Importante para el descuento de inventario
-        nombre: producto.nombre,
-        cantidad: 1,
-        costo: parseFloat(producto.costo),
-        unidad: producto.unidad || 'Pza',
-        fotoUrl: producto.fotoUrl || null, // 👈 Heredamos la URL de Cloudinary
-        foto: null // No es un base64 nuevo
-    };
-
-    levMaterialesList.push(nuevoMaterial);
-    renderizarListaYTotales();
 }
+
+
 
 function cerrarModalCatalogo() {
     document.getElementById("modalCatalogo").style.display = "none";
