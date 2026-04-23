@@ -1825,6 +1825,7 @@ function abrirRegistroExpress() {
     document.getElementById("modalClienteExpress").style.display = "flex";
 }
 
+
 function cerrarRegistroExpress() {
     document.getElementById("modalClienteExpress").style.display = "none";
     document.getElementById("expNombre").value = "";
