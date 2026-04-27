@@ -133,6 +133,7 @@ exports.generarPDFCuenta = async (req, res) => {
                     doc.image(noimgBuf, 40, rowY, { width: 40, height: 40 });
                 }
             }
+            
 
             // Texto del producto alineado con la imagen
             doc.text(mat.nombre, 120, rowY + 15);

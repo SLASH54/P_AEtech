@@ -1734,6 +1734,8 @@ function cancelarEdicionCatalogo() {
     alert("Modo edición cancelado. Ahora puedes agregar un producto nuevo.");
 }
 
+
+
 // Variable para saber si el catálogo debe "devolver" el producto a la cuenta
 let modoSeleccionCatalogo = false;
 
