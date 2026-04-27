@@ -920,7 +920,7 @@ main {
 
 .datagrid-container th,
 .datagrid-container td {
-    border: 1px solid #fff; /* Líneas blancas */
+    border: 1px solid #ff0101;; /* Líneas blancas */
     padding: 8px;
     text-align: left;
 }
