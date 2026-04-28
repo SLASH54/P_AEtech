@@ -1672,10 +1672,10 @@ function agregarAlPedidoDesdeCatalogo(id) {
     const producto = catalogoProductos.find(p => p.id === idNumerico);
     if (!producto) return;
 
-    // --- MODO EDICIÓN ---
-    if (destinoCatalogo === "EDIT") {
-        const nombreReal = producto.nombre || producto.insumo || "Producto sin nombre";
+    const nombreReal = producto.nombre || producto.insumo || "Producto sin nombre";
 
+    // --- CASO 1: MODO EDICIÓN DE NOTA EXISTENTE ---
+    if (typeof destinoCatalogo !== 'undefined' && destinoCatalogo === "EDIT") {
         const nuevoMaterialEdit = {
             id: Date.now(),
             idOriginal: producto.id,
@@ -1688,45 +1688,45 @@ function agregarAlPedidoDesdeCatalogo(id) {
 
         if (typeof materialesEditList !== 'undefined') {
             materialesEditList.push(nuevoMaterialEdit);
+            if (typeof renderMaterialesEdit === "function") renderMaterialesEdit();
             
-            if (typeof renderMaterialesEdit === "function") {
-                renderMaterialesEdit();
-            }
-            
-            // 🚀 CERRAMOS AUTOMÁTICAMENTE AL SELECCIONAR
-            cerrarModalCatalogo();
+            cerrarModalCatalogo(); // ✅ Cierre automático
         }
-
     } 
-    // --- MODO NUEVA CUENTA ---
+    // --- CASO 2: MODO NUEVA CUENTA (LEVANTAMIENTO) ---
     else {
-        const nombreReal = producto.nombre || producto.insumo || "Producto sin nombre";
-        const existente = levMaterialesList.find(m => m.idOriginal === producto.id);
+        // Verificamos que la lista de materiales de nueva cuenta exista
+        if (typeof levMaterialesList !== 'undefined') {
+            const existente = levMaterialesList.find(m => m.idOriginal === producto.id);
 
-        if (existente) {
-            existente.cantidad++;
+            if (existente) {
+                existente.cantidad++;
+            } else {
+                const nuevoMaterial = {
+                    id: Date.now(),
+                    idOriginal: producto.id,
+                    insumo: nombreReal,
+                    nombre: nombreReal,
+                    cantidad: 1,
+                    costo: parseFloat(producto.costo),
+                    unidad: producto.unidad || 'Pza',
+                    fotoUrl: producto.fotoUrl || null
+                };
+                levMaterialesList.push(nuevoMaterial);
+            }
+
+            // Ejecutamos el render que corresponda
+            if (typeof renderizarListaYTotales === "function") {
+                renderizarListaYTotales();
+            } else if (typeof levRenderMateriales === "function") {
+                levRenderMateriales();
+            }
+
+            cerrarModalCatalogo(); // ✅ Cierre automático
         } else {
-            const nuevoMaterial = {
-                id: Date.now(),
-                idOriginal: producto.id,
-                insumo: nombreReal,
-                nombre: nombreReal,
-                cantidad: 1,
-                costo: parseFloat(producto.costo),
-                unidad: producto.unidad || 'Pza',
-                fotoUrl: producto.fotoUrl || null
-            };
-            levMaterialesList.push(nuevoMaterial);
+            console.error("Error: No se encontró levMaterialesList para agregar el producto.");
+            alert("Error al agregar: No hay una lista activa.");
         }
-
-        if (typeof renderizarListaYTotales === "function") {
-            renderizarListaYTotales();
-        } else if (typeof levRenderMateriales === "function") {
-            levRenderMateriales();
-        }
-
-        // 🚀 CERRAMOS AUTOMÁTICAMENTE AL SELECCIONAR (También en nueva cuenta)
-        cerrarModalCatalogo();
     }
 }
 
