@@ -1601,6 +1601,14 @@ input#catFoto {
     border-radius: 15px;
 }
 
+button#btnCancelEdit {
+    display: inline-block;
+    border-radius: 15px;
+    background: linear-gradient(135deg, #00938f, #00c9c4);
+    color: #ffffff;
+    padding: 10px;
+}
+
 /* --- AJUSTES PARA CELULAR (RESPONSIVE) --- */
 @media (max-width: 768px) {
     .catalogo-layout {
@@ -1641,5 +1649,67 @@ input#catFoto {
     .product-item img {
         width: 50px;
         height: 50px;
+    }
+}
+
+
+/* --- ESTILOS GENERALES (Asegúrate de tener estos) --- */
+
+/* Agrupamos los botones de acción del formulario */
+.actions-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    margin-bottom: 12px;
+}
+
+/* Botones de acción circular del producto */
+.actions button {
+    border: none;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    margin-left: 5px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    font-size: 1rem;
+}
+
+/* --- AJUSTES CRÍTICOS PARA TELÉFONO (RESPONSIVE CORREGIDO) --- */
+@media (max-width: 768px) {
+    .catalogo-layout {
+        flex-direction: column; /* Apilamos formulario arriba, lista abajo */
+        height: 95vh; /* Un poco más alto en móvil */
+        max-width: 98% !important;
+    }
+
+    .catalogo-form-side, .catalogo-list-side {
+        padding: 15px;
+    }
+
+    /* ⚠️ ESTA ES LA CLAVE PARA QUE NO SE SALGAN LOS BOTONES EN MÓVIL ⚠️ */
+    .product-item {
+        flex-direction: column; /* Apilamos contenido de la tarjeta en columna */
+        align-items: flex-start; /* Alineamos todo a la izquierda */
+        padding: 15px;
+        gap: 12px;
+    }
+
+    /* Reacomodamos la info y las acciones dentro de la tarjeta móvil */
+    .product-item .info {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    /* Movemos los botones de acción circular al centro/derecha en móvil */
+    .product-item .actions {
+        width: 100%;
+        display: flex;
+        justify-content: flex-end; /* Los pegamos a la derecha */
+        margin-top: -30px; /* Un truco visual para subirlos un poco */
+        padding-right: 5px;
     }
 }
