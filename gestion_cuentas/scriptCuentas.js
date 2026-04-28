@@ -1777,8 +1777,6 @@ function agregarAlPedidoDesdeCatalogo(id) {
         }
 
     } 
-
-
     // --- MODO NUEVA CUENTA ---
     else {
         const nombreReal = producto.nombre || producto.insumo || "Producto sin nombre";
@@ -1805,25 +1803,16 @@ function agregarAlPedidoDesdeCatalogo(id) {
         } else if (typeof levRenderMateriales === "function") {
             levRenderMateriales();
         }
-
-        // 🚀 AGREGA ESTA LÍNEA AQUÍ TAMBIÉN:
-        cerrarModalCatalogo(); 
     }
 }
 
 
+
 function cerrarModalCatalogo() {
     document.getElementById("modalCatalogo").style.display = "none";
-    
-    // 👈 ESTA LÍNEA ES LA QUE TE SALVA LA VIDA:
-    // Limpiamos el destino para que "olvide" que estaba editando
-    destinoCatalogo = null; 
-
-    modoSeleccionCatalogo = false; 
-    resetFormularioCatalogo(); 
+    modoSeleccionCatalogo = false; // Resetear el modo
+    resetFormularioCatalogo(); // Limpiar inputs del catálogo
 }
-
-
 //AQUI TERMINA XDD
 
 
