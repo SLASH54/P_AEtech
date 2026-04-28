@@ -1667,43 +1667,68 @@ function renderizarCatalogo() {
 
 
 // Carga los datos del producto en el formulario del modal para editarlos
-function prepararEdicionProducto(id) {
-    const prod = catalogoProductos.find(p => p.id === id);
-    if (!prod) return;
+function agregarAlPedidoDesdeCatalogo(id) {
+    const idNumerico = parseInt(id);
+    const producto = catalogoProductos.find(p => p.id === idNumerico);
+    if (!producto) return;
 
-    editandoProductoId = id;
-    
-    // Mantenemos tus asignaciones originales
-    document.getElementById("catNombre").value = prod.nombre;
-    document.getElementById("catCosto").value = prod.costo;
-    document.getElementById("catStock").value = prod.stock;
-    document.getElementById("catClasificacion").value = prod.clasificacion;
+    // --- MODO EDICIÓN ---
+    if (destinoCatalogo === "EDIT") {
+        const nombreReal = producto.nombre || producto.insumo || "Producto sin nombre";
 
-    const preview = document.getElementById('imgPreviewCatalogo');
-    const container = document.getElementById('previewCatalogoContainer');
+        const nuevoMaterialEdit = {
+            id: Date.now(),
+            idOriginal: producto.id,
+            insumo: nombreReal, 
+            nombre: nombreReal,
+            cantidad: 1,
+            costo: parseFloat(producto.costo),
+            fotoUrl: producto.fotoUrl || 'img/logoAEtech.png' 
+        };
 
-    if (prod.fotoUrl) {
-        preview.src = prod.fotoUrl;
-        container.style.display = 'block';
-    } else {
-        container.style.display = 'none';
-    }
-    
-    // --- PARCHE DE EDICIÓN ---
-    // 1. Cambiamos el botón principal (usando el ID correcto)
-    const btnGuardar = document.getElementById('btnGuardarCatalogo');
-    if (btnGuardar) {
-        btnGuardar.innerText = "Actualizar Producto";
-        btnGuardar.style.background = "#ffcc00"; // Color naranja de edición
-    }
+        if (typeof materialesEditList !== 'undefined') {
+            materialesEditList.push(nuevoMaterialEdit);
+            
+            if (typeof renderMaterialesEdit === "function") {
+                renderMaterialesEdit();
+            }
+            
+            // 🚀 CERRAMOS AUTOMÁTICAMENTE AL SELECCIONAR
+            cerrarModalCatalogo();
+        }
 
-    // 2. MOSTRAMOS el botón de cancelar que creamos en el HTML
-    const btnCancel = document.getElementById('btnCancelEdit');
-    if (btnCancel) {
-        btnCancel.style.display = "flex"; // Lo hacemos visible
+    } 
+    // --- MODO NUEVA CUENTA ---
+    else {
+        const nombreReal = producto.nombre || producto.insumo || "Producto sin nombre";
+        const existente = levMaterialesList.find(m => m.idOriginal === producto.id);
+
+        if (existente) {
+            existente.cantidad++;
+        } else {
+            const nuevoMaterial = {
+                id: Date.now(),
+                idOriginal: producto.id,
+                insumo: nombreReal,
+                nombre: nombreReal,
+                cantidad: 1,
+                costo: parseFloat(producto.costo),
+                unidad: producto.unidad || 'Pza',
+                fotoUrl: producto.fotoUrl || null
+            };
+            levMaterialesList.push(nuevoMaterial);
+        }
+
+        if (typeof renderizarListaYTotales === "function") {
+            renderizarListaYTotales();
+        } else if (typeof levRenderMateriales === "function") {
+            levRenderMateriales();
+        }
+
+        // 🚀 CERRAMOS AUTOMÁTICAMENTE AL SELECCIONAR (También en nueva cuenta)
+        cerrarModalCatalogo();
     }
 }
-
 
 async function eliminarProductoDelCatalogo(id) {
     if (!confirm("¿Seguro que quieres quitar este producto del catálogo?")) return;
