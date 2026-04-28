@@ -1592,3 +1592,54 @@ input[type="text"], input[type="number"] {
 /* Scrollbar personalizada */
 .scroll-area::-webkit-scrollbar { width: 5px; }
 .scroll-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
+
+button.btn-close-simple {
+    border-radius: 15px;
+}
+
+input#catFoto {
+    border-radius: 15px;
+}
+
+/* --- AJUSTES PARA CELULAR (RESPONSIVE) --- */
+@media (max-width: 768px) {
+    .catalogo-layout {
+        flex-direction: column; /* Ponemos el formulario arriba y la lista abajo */
+        height: 90vh; /* Un poco más alto en móvil para que quepa todo */
+        max-width: 95% !important;
+        overflow-y: auto; /* Permitimos scroll general si el cel es muy chico */
+    }
+
+    .catalogo-form-side {
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 15px;
+        flex: none; /* Que no intente crecer de más */
+    }
+
+    .catalogo-list-side {
+        padding: 15px;
+        flex: none;
+        height: auto; /* Deja que la lista defina su espacio */
+    }
+
+    .scroll-area {
+        max-height: 400px; /* Limitamos el alto de la lista en móvil */
+        overflow-y: auto;
+    }
+
+    /* Ajustamos los inputs para que no se vean apretados */
+    .input-row {
+        flex-direction: row; /* Mantenemos costo y stock juntos o puedes poner column */
+    }
+
+    .product-item {
+        padding: 10px;
+        gap: 10px;
+    }
+
+    .product-item img {
+        width: 50px;
+        height: 50px;
+    }
+}
