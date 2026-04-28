@@ -1601,12 +1601,26 @@ input#catFoto {
     border-radius: 15px;
 }
 
-button#btnCancelEdit {
-    display: inline-block;
+/* Este es el diseño elegante que pusiste en consola */
+#btnCancelEdit {
+    display: none; /* 👈 Importante: Empieza oculto */
     border-radius: 15px;
-    background: linear-gradient(135deg, #00938f, #00c9c4);
+    background: linear-gradient(135deg, #ff3b30, #ff2d55); /* Un rojo tipo iOS para cancelar */
     color: #ffffff;
-    padding: 10px;
+    padding: 12px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    width: 100%;
+    margin-top: 5px;
+}
+
+/* Cuando el JS lo active, se verá así */
+#btnCancelEdit.show {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 /* --- AJUSTES PARA CELULAR (RESPONSIVE) --- */
