@@ -1515,152 +1515,152 @@ let editandoProductoId = null; // Para saber si el formulario está en modo edit
 let catalogoProductos = []; // Almacena los productos de la DB
 
 function openCatalogoProductos() {
-    document.getElementById("modalCatalogo").style.display = "flex";
-    cargarCatalogo(); // Cargamos los datos cada que se abre
+    document.getElementById("modalCatalogo").style.display = "flex";
+    cargarCatalogo(); // Cargamos los datos cada que se abre
 }
 
 // Cargar productos desde el backend
 async function cargarCatalogo() {
-    try {
-        const res = await fetch(`${API_BASE_URL}/productos`, {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` }
-        });
-        if (!res.ok) throw new Error("No se pudo obtener el catálogo");
-        catalogoProductos = await res.json();
-        renderizarCatalogo();
-    } catch (err) {
-        console.error("Error catálogo:", err);
-    }
+    try {
+        const res = await fetch(`${API_BASE_URL}/productos`, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` }
+        });
+        if (!res.ok) throw new Error("No se pudo obtener el catálogo");
+        catalogoProductos = await res.json();
+        renderizarCatalogo();
+    } catch (err) {
+        console.error("Error catálogo:", err);
+    }
 }
 
 // Guardar nuevo producto en el catálogo maestro
 // Modificamos la función que ya tenías para que decida si CREA o EDITA
 async function guardarProductoEnCatalogo() {
-    const nombre = document.getElementById("catNombre").value;
-    const costo = document.getElementById("catCosto").value;
-    const stock = document.getElementById("catStock").value; // ✅ Nueva existencia
-    const clasificacion = document.getElementById("catClasificacion").value; // ✅ Nueva clasificación
-    const fotoFile = document.getElementById("catFoto").files[0];
+    const nombre = document.getElementById("catNombre").value;
+    const costo = document.getElementById("catCosto").value;
+    const stock = document.getElementById("catStock").value; // ✅ Nueva existencia
+    const clasificacion = document.getElementById("catClasificacion").value; // ✅ Nueva clasificación
+    const fotoFile = document.getElementById("catFoto").files[0];
 
-    if (!nombre || !costo) return alert("Nombre y costo son obligatorios, amiko.");
+    if (!nombre || !costo) return alert("Nombre y costo son obligatorios, amiko.");
 
-    const formData = new FormData();
-    formData.append("nombre", nombre);
-    formData.append("costo", costo);
-    formData.append("stock", stock || 0); // Enviamos 0 si no ponen nada
-    formData.append("clasificacion", clasificacion);
-    
-    if (fotoFile) formData.append("foto", fotoFile);
+    const formData = new FormData();
+    formData.append("nombre", nombre);
+    formData.append("costo", costo);
+    formData.append("stock", stock || 0); // Enviamos 0 si no ponen nada
+    formData.append("clasificacion", clasificacion);
+    
+    if (fotoFile) formData.append("foto", fotoFile);
 
-    try {
-        document.getElementById("loader").style.display = "flex";
-        
-        // Si editandoId tiene valor, es un PUT, si no, es un POST
-        const url = editandoProductoId ? `${API_BASE_URL}/productos/${editandoProductoId}` : `${API_BASE_URL}/productos`;
-        const method = editandoProductoId ? "PUT" : "POST";
+    try {
+        document.getElementById("loader").style.display = "flex";
+        
+        // Si editandoId tiene valor, es un PUT, si no, es un POST
+        const url = editandoProductoId ? `${API_BASE_URL}/productos/${editandoProductoId}` : `${API_BASE_URL}/productos`;
+        const method = editandoProductoId ? "PUT" : "POST";
 
-        const res = await fetch(url, {
-            method: method,
-            headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` },
-            body: formData
-        });
+        const res = await fetch(url, {
+            method: method,
+            headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` },
+            body: formData
+        });
 
-        if (res.ok) {
-            alert(editandoProductoId ? "¡Producto actualizado!" : "¡Producto guardado!");
-            cargarCatalogo(); // Refresca la lista
-            resetFormularioCatalogo();
-        } else {
-            alert("Hubo un error al guardar.");
-        }
-    } catch (err) {
-        console.error(err);
-        alert("Error de conexión con el servidor.");
-    } finally {
-        document.getElementById("loader").style.display = "none";
-    }
+        if (res.ok) {
+            alert(editandoProductoId ? "¡Producto actualizado!" : "¡Producto guardado!");
+            cargarCatalogo(); // Refresca la lista
+            resetFormularioCatalogo();
+        } else {
+            alert("Hubo un error al guardar.");
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Error de conexión con el servidor.");
+    } finally {
+        document.getElementById("loader").style.display = "none";
+    }
 }
 
 // Para limpiar el formulario después de guardar
 
 function resetFormularioCatalogo() {
-    document.getElementById("catNombre").value = "";
-    document.getElementById("catCosto").value = "";
-    document.getElementById("catStock").value = "";
-    document.getElementById("catClasificacion").value = "Producto"; // Valor por defecto
-    document.getElementById("catFoto").value = "";
+    document.getElementById("catNombre").value = "";
+    document.getElementById("catCosto").value = "";
+    document.getElementById("catStock").value = "";
+    document.getElementById("catClasificacion").value = "Producto"; // Valor por defecto
+    document.getElementById("catFoto").value = "";
 
-    document.getElementById('previewCatalogoContainer').style.display = 'none';
-    document.getElementById('imgPreviewCatalogo').src = "";
-    editandoProductoId = null;
+    document.getElementById('previewCatalogoContainer').style.display = 'none';
+    document.getElementById('imgPreviewCatalogo').src = "";
+    editandoProductoId = null;
 }
 
 // === PREVISUALIZACIÓN DE IMAGEN AL REGISTRAR NUEVO PRODUCTO ===
 // Escuchamos el cambio en el input de archivo del catálogo
 document.getElementById('catFoto')?.addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    const preview = document.getElementById('imgPreviewCatalogo');
-    const container = document.getElementById('previewCatalogoContainer');
+    const file = e.target.files[0];
+    const preview = document.getElementById('imgPreviewCatalogo');
+    const container = document.getElementById('previewCatalogoContainer');
 
-    // Verificamos que sí sea un archivo de imagen
-    if (file && file.type.startsWith('image/')) {
-        const reader = new FileReader();
+    // Verificamos que sí sea un archivo de imagen
+    if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
 
-        // Cuando el navegador termine de leer el archivo...
-        reader.onload = function(event) {
-            // ...asignamos el resultado Base64 al src de la imagen
-            preview.src = event.target.result;
-            // Y mostramos el contenedor
-            container.style.display = 'block';
-        };
+        // Cuando el navegador termine de leer el archivo...
+        reader.onload = function(event) {
+            // ...asignamos el resultado Base64 al src de la imagen
+            preview.src = event.target.result;
+            // Y mostramos el contenedor
+            container.style.display = 'block';
+        };
 
-        // Leemos el archivo como una URL Base64 (data:image/...)
-        reader.readAsDataURL(file);
-    } else {
-        // Si no hay archivo o no es imagen, ocultamos la preview
-        container.style.display = 'none';
-        preview.src = "";
-    }
+        // Leemos el archivo como una URL Base64 (data:image/...)
+        reader.readAsDataURL(file);
+    } else {
+        // Si no hay archivo o no es imagen, ocultamos la preview
+        container.style.display = 'none';
+        preview.src = "";
+    }
 });
 
 function renderizarCatalogo() {
-    const contenedor = document.getElementById("listaProductosCatalogo");
-    const busqueda = document.getElementById("busquedaCatalogo").value.toLowerCase();
-    contenedor.innerHTML = "";
+    const contenedor = document.getElementById("listaProductosCatalogo");
+    const busqueda = document.getElementById("busquedaCatalogo").value.toLowerCase();
+    contenedor.innerHTML = "";
 
-    const filtrados = catalogoProductos.filter(p => p.nombre.toLowerCase().includes(busqueda));
+    const filtrados = catalogoProductos.filter(p => p.nombre.toLowerCase().includes(busqueda));
 
-    filtrados.forEach(p => {
-        // Dentro del .forEach de renderizarCatalogo
-        const badgeColor = {
-            'Producto': '#007aff',
-            'Herramienta': '#5856d6',
-            'Insumo': '#ff9500',
-            'Servicio': '#34c759'
-        }[p.clasificacion] || '#8e8e93';
-        const div = document.createElement("div");
-        div.style = "display: flex; align-items: center; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; background: white; margin: 5px; border-radius: 8px;";
-        
-        div.innerHTML = `
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee;">
-            <img src="${p.fotoUrl || 'img/default-product.png'}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 5px;">
-                <div style="flex: 1;">
-                    <span style="font-size: 0.7rem; background: ${badgeColor}; color: white; padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">
-                        ${p.clasificacion}
-                    </span>
-                    <br><strong>${p.nombre}</strong>
-                    <br><small style="color: #28a745;">Stock: ${p.stock || 0} pzs</small>
-                </div>
-                <div style="font-weight: bold;">$${p.costo}</div>
-            </div>
+    filtrados.forEach(p => {
+        // Dentro del .forEach de renderizarCatalogo
+        const badgeColor = {
+            'Producto': '#007aff',
+            'Herramienta': '#5856d6',
+            'Insumo': '#ff9500',
+            'Servicio': '#34c759'
+        }[p.clasificacion] || '#8e8e93';
+        const div = document.createElement("div");
+        div.style = "display: flex; align-items: center; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; background: white; margin: 5px; border-radius: 8px;";
+        
+        div.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee;">
+            <img src="${p.fotoUrl || 'img/default-product.png'}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 5px;">
+                <div style="flex: 1;">
+                    <span style="font-size: 0.7rem; background: ${badgeColor}; color: white; padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">
+                        ${p.clasificacion}
+                    </span>
+                    <br><strong>${p.nombre}</strong>
+                    <br><small style="color: #28a745;">Stock: ${p.stock || 0} pzs</small>
+                </div>
+                <div style="font-weight: bold;">$${p.costo}</div>
+            </div>
 
-            <div style="display: flex; gap: 5px;">
-                <button onclick="prepararEdicionProducto(${p.id})" style="background: #ffcc00; border: none; border-radius: 5px; padding: 5px 8px; cursor: pointer;">✏️</button>
-                <button onclick="eliminarProductoDelCatalogo(${p.id})" style="background: #ff3b30; border: none; border-radius: 5px; padding: 5px 8px; cursor: pointer; color: white;">🗑️</button>
-                <button onclick="agregarAlPedidoDesdeCatalogo(${p.id})" style="background: #007aff; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-weight: bold;">+</button>
-            </div>
-        `;
-        contenedor.appendChild(div);
-    });
+            <div style="display: flex; gap: 5px;">
+                <button onclick="prepararEdicionProducto(${p.id})" style="background: #ffcc00; border: none; border-radius: 5px; padding: 5px 8px; cursor: pointer;">✏️</button>
+                <button onclick="eliminarProductoDelCatalogo(${p.id})" style="background: #ff3b30; border: none; border-radius: 5px; padding: 5px 8px; cursor: pointer; color: white;">🗑️</button>
+                <button onclick="agregarAlPedidoDesdeCatalogo(${p.id})" style="background: #007aff; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-weight: bold;">+</button>
+            </div>
+        `;
+        contenedor.appendChild(div);
+    });
 }
 
 // ESTA FUNCIÓN CONECTA EL CATÁLOGO CON TU NOTA DE CUENTA
@@ -1668,89 +1668,70 @@ function renderizarCatalogo() {
 
 // Carga los datos del producto en el formulario del modal para editarlos
 function prepararEdicionProducto(id) {
-    const prod = catalogoProductos.find(p => p.id === id);
-    if (!prod) return;
+    const prod = catalogoProductos.find(p => p.id === id);
+    if (!prod) return;
 
-    editandoProductoId = id;
-    
-    // Mantenemos tus asignaciones originales
-    document.getElementById("catNombre").value = prod.nombre;
-    document.getElementById("catCosto").value = prod.costo;
-    document.getElementById("catStock").value = prod.stock;
-    document.getElementById("catClasificacion").value = prod.clasificacion;
+    editandoProductoId = id;
+    document.getElementById("catNombre").value = prod.nombre;
+    document.getElementById("catCosto").value = prod.costo;
+    document.getElementById("catStock").value = prod.stock
+    document.getElementById("catClasificacion").value = prod.clasificacion
 
-    const preview = document.getElementById('imgPreviewCatalogo');
-    const container = document.getElementById('previewCatalogoContainer');
+    const preview = document.getElementById('imgPreviewCatalogo');
+    const container = document.getElementById('previewCatalogoContainer');
 
-    if (prod.fotoUrl) {
-        preview.src = prod.fotoUrl;
-        container.style.display = 'block';
-    } else {
-        container.style.display = 'none';
-    }
-    
-    // --- PARCHE DE EDICIÓN ---
-    // 1. Cambiamos el botón principal (usando el ID correcto)
-    const btnGuardar = document.getElementById('btnGuardarCatalogo');
-    if (btnGuardar) {
-        btnGuardar.innerText = "Actualizar Producto";
-        btnGuardar.style.background = "#ffcc00"; // Color naranja de edición
-    }
-
-    // 2. MOSTRAMOS el botón de cancelar que creamos en el HTML
-    const btnCancel = document.getElementById('btnCancelEdit');
-    if (btnCancel) {
-        btnCancel.style.display = "flex"; // Lo hacemos visible
-    }
+    if (prod.fotoUrl) {
+        preview.src = prod.fotoUrl;
+        container.style.display = 'block';
+    } else {
+        container.style.display = 'none';
+    }
+    
+    // Cambiamos el texto del botón para que el usuario sepa que está editando
+    //document.getElementById('btnGuardarCatalogo').innerHTML = '<span class="glass-text">Actualizar Producto</span>';
+    
+    // Cambiamos el texto del botón para que el usuario sepa que está editando
+    const btnGuardar = document.querySelector("#modalCatalogo .btn-ver");
+    btnGuardar.innerText = "Actualizar Producto";
+    btnGuardar.style.background = "#ffcc00";
 }
+
 
 
 async function eliminarProductoDelCatalogo(id) {
-    if (!confirm("¿Seguro que quieres quitar este producto del catálogo?")) return;
+    if (!confirm("¿Seguro que quieres quitar este producto del catálogo?")) return;
 
-    try {
-        const res = await fetch(`${API_BASE_URL}/productos/${id}`, {
-            method: "DELETE",
-            headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` }
-        });
-        if (res.ok) {
-            alert("Eliminado");
-            cargarCatalogo();
-        }
-    } catch (err) {
-        console.error(err);
-    }
+    try {
+        const res = await fetch(`${API_BASE_URL}/productos/${id}`, {
+            method: "DELETE",
+            headers: { 'Authorization': `Bearer ${localStorage.getItem("accessToken")}` }
+        });
+        if (res.ok) {
+            alert("Eliminado");
+            cargarCatalogo();
+        }
+    } catch (err) {
+        console.error(err);
+    }
 }
 
 function cancelarEdicionCatalogo() {
-    editandoProductoId = null; // 👈 Regresamos al estado de "Nuevo Producto"
-    
-    // Limpiamos el formulario (tus líneas originales)
-    document.getElementById('catNombre').value = "";
-    document.getElementById('catCosto').value = "";
-    document.getElementById('catStock').value = "";
-    document.getElementById('catClasificacion').value = "Producto"; // Ajustado a tu select
-    document.getElementById("catFoto").value = "";
-    
-    // Ocultamos la preview de imagen
-    const container = document.getElementById('previewCatalogoContainer');
-    if (container) container.style.display = 'none';
-    
-    // --- PARCHE DE RESETEO ---
-    // 3. Regresamos el botón principal a su estado normal
-    const btnGuardar = document.getElementById('btnGuardarCatalogo');
-    if (btnGuardar) {
-        btnGuardar.innerText = "Añadir al Inventario";
-        btnGuardar.style.background = "#00938f"; // Tu verde original
-    }
-    
-    // 4. OCULTAMOS el botón de cancelar otra vez
-    const btnCancel = document.getElementById('btnCancelEdit');
-    if (btnCancel) {
-        btnCancel.style.display = 'none';
-    }
-    
-    console.log("Modo edición cancelado.");
+    editandoProductoId = null; // 👈 Esto es lo más importante
+    
+    // Limpiamos el formulario
+    document.getElementById('catNombre').value = "";
+    document.getElementById('catCosto').value = "";
+    document.getElementById('catStock').value = "";
+    document.getElementById('catClasificacion').value = "Material";
+    document.getElementById("catFoto").value = "";
+    
+    // Ocultamos la preview de imagen
+    document.getElementById('previewCatalogoContainer').style.display = 'none';
+    
+    // Regresamos el botón a su estado original
+    document.getElementById('btnGuardarCatalogo').innerHTML = '<span class="glass-text">Agregar al Catálogo</span>';
+    
+    alert("Modo edición cancelado. Ahora puedes agregar un producto nuevo.");
 }
 
 
@@ -1759,78 +1740,78 @@ function cancelarEdicionCatalogo() {
 let modoSeleccionCatalogo = false;
 
 function abrirCatalogoParaSeleccion() {
-    modoSeleccionCatalogo = true;
-    document.getElementById("modalCatalogo").style.display = "flex";
-    cargarCatalogo(); // Asegura que los productos estén frescos
+    modoSeleccionCatalogo = true;
+    document.getElementById("modalCatalogo").style.display = "flex";
+    cargarCatalogo(); // Asegura que los productos estén frescos
 }
 
 function agregarAlPedidoDesdeCatalogo(id) {
-    const idNumerico = parseInt(id);
-    const producto = catalogoProductos.find(p => p.id === idNumerico);
-    if (!producto) return;
+    const idNumerico = parseInt(id);
+    const producto = catalogoProductos.find(p => p.id === idNumerico);
+    if (!producto) return;
 
-    // --- MODO EDICIÓN ---
-    if (destinoCatalogo === "EDIT") {
-        // Obtenemos el nombre real. Intentamos con .nombre o .insumo por si acaso.
-        const nombreReal = producto.nombre || producto.insumo || "Producto sin nombre";
+    // --- MODO EDICIÓN ---
+    if (destinoCatalogo === "EDIT") {
+        // Obtenemos el nombre real. Intentamos con .nombre o .insumo por si acaso.
+        const nombreReal = producto.nombre || producto.insumo || "Producto sin nombre";
 
-        const nuevoMaterialEdit = {
-            id: Date.now(),
-            idOriginal: producto.id,
-            // Le pasamos AMBAS para que el render encuentre la que busca
-            insumo: nombreReal, 
-            nombre: nombreReal,
-            cantidad: 1,
-            costo: parseFloat(producto.costo),
-            fotoUrl: producto.fotoUrl || 'img/logoAEtech.png' 
-        };
+        const nuevoMaterialEdit = {
+            id: Date.now(),
+            idOriginal: producto.id,
+            // Le pasamos AMBAS para que el render encuentre la que busca
+            insumo: nombreReal, 
+            nombre: nombreReal,
+            cantidad: 1,
+            costo: parseFloat(producto.costo),
+            fotoUrl: producto.fotoUrl || 'img/logoAEtech.png' 
+        };
 
-        if (typeof materialesEditList !== 'undefined') {
-            materialesEditList.push(nuevoMaterialEdit);
-            
-            if (typeof renderMaterialesEdit === "function") {
-                renderMaterialesEdit();
-            }
-            
-            cerrarModalCatalogo();
-        }
+        if (typeof materialesEditList !== 'undefined') {
+            materialesEditList.push(nuevoMaterialEdit);
+            
+            if (typeof renderMaterialesEdit === "function") {
+                renderMaterialesEdit();
+            }
+            
+            cerrarModalCatalogo();
+        }
 
-    } 
-    // --- MODO NUEVA CUENTA ---
-    else {
-        const nombreReal = producto.nombre || producto.insumo || "Producto sin nombre";
-        const existente = levMaterialesList.find(m => m.idOriginal === producto.id);
+    } 
+    // --- MODO NUEVA CUENTA ---
+    else {
+        const nombreReal = producto.nombre || producto.insumo || "Producto sin nombre";
+        const existente = levMaterialesList.find(m => m.idOriginal === producto.id);
 
-        if (existente) {
-            existente.cantidad++;
-        } else {
-            const nuevoMaterial = {
-                id: Date.now(),
-                idOriginal: producto.id,
-                insumo: nombreReal,
-                nombre: nombreReal,
-                cantidad: 1,
-                costo: parseFloat(producto.costo),
-                unidad: producto.unidad || 'Pza',
-                fotoUrl: producto.fotoUrl || null
-            };
-            levMaterialesList.push(nuevoMaterial);
-        }
+        if (existente) {
+            existente.cantidad++;
+        } else {
+            const nuevoMaterial = {
+                id: Date.now(),
+                idOriginal: producto.id,
+                insumo: nombreReal,
+                nombre: nombreReal,
+                cantidad: 1,
+                costo: parseFloat(producto.costo),
+                unidad: producto.unidad || 'Pza',
+                fotoUrl: producto.fotoUrl || null
+            };
+            levMaterialesList.push(nuevoMaterial);
+        }
 
-        if (typeof renderizarListaYTotales === "function") {
-            renderizarListaYTotales();
-        } else if (typeof levRenderMateriales === "function") {
-            levRenderMateriales();
-        }
-    }
+        if (typeof renderizarListaYTotales === "function") {
+            renderizarListaYTotales();
+        } else if (typeof levRenderMateriales === "function") {
+            levRenderMateriales();
+        }
+    }
 }
 
 
 
 function cerrarModalCatalogo() {
-    document.getElementById("modalCatalogo").style.display = "none";
-    modoSeleccionCatalogo = false; // Resetear el modo
-    resetFormularioCatalogo(); // Limpiar inputs del catálogo
+    document.getElementById("modalCatalogo").style.display = "none";
+    modoSeleccionCatalogo = false; // Resetear el modo
+    resetFormularioCatalogo(); // Limpiar inputs del catálogo
 }
 //AQUI TERMINA XDD
 
