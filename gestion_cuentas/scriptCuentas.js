@@ -1672,10 +1672,12 @@ function prepararEdicionProducto(id) {
     if (!prod) return;
 
     editandoProductoId = id;
+    
+    // Mantenemos tus asignaciones originales
     document.getElementById("catNombre").value = prod.nombre;
     document.getElementById("catCosto").value = prod.costo;
-    document.getElementById("catStock").value = prod.stock
-    document.getElementById("catClasificacion").value = prod.clasificacion
+    document.getElementById("catStock").value = prod.stock;
+    document.getElementById("catClasificacion").value = prod.clasificacion;
 
     const preview = document.getElementById('imgPreviewCatalogo');
     const container = document.getElementById('previewCatalogoContainer');
@@ -1687,15 +1689,20 @@ function prepararEdicionProducto(id) {
         container.style.display = 'none';
     }
     
-    // Cambiamos el texto del botón para que el usuario sepa que está editando
-    //document.getElementById('btnGuardarCatalogo').innerHTML = '<span class="glass-text">Actualizar Producto</span>';
-    
-    // Cambiamos el texto del botón para que el usuario sepa que está editando
-    const btnGuardar = document.querySelector("#modalCatalogo .btn-ver");
-    btnGuardar.innerText = "Actualizar Producto";
-    btnGuardar.style.background = "#ffcc00";
-}
+    // --- PARCHE DE EDICIÓN ---
+    // 1. Cambiamos el botón principal (usando el ID correcto)
+    const btnGuardar = document.getElementById('btnGuardarCatalogo');
+    if (btnGuardar) {
+        btnGuardar.innerText = "Actualizar Producto";
+        btnGuardar.style.background = "#ffcc00"; // Color naranja de edición
+    }
 
+    // 2. MOSTRAMOS el botón de cancelar que creamos en el HTML
+    const btnCancel = document.getElementById('btnCancelEdit');
+    if (btnCancel) {
+        btnCancel.style.display = "flex"; // Lo hacemos visible
+    }
+}
 
 
 async function eliminarProductoDelCatalogo(id) {
@@ -1716,24 +1723,35 @@ async function eliminarProductoDelCatalogo(id) {
 }
 
 function cancelarEdicionCatalogo() {
-    editandoProductoId = null; // 👈 Esto es lo más importante
+    editandoProductoId = null; // 👈 Regresamos al estado de "Nuevo Producto"
     
-    // Limpiamos el formulario
+    // Limpiamos el formulario (tus líneas originales)
     document.getElementById('catNombre').value = "";
     document.getElementById('catCosto').value = "";
     document.getElementById('catStock').value = "";
-    document.getElementById('catClasificacion').value = "Material";
+    document.getElementById('catClasificacion').value = "Producto"; // Ajustado a tu select
     document.getElementById("catFoto").value = "";
     
     // Ocultamos la preview de imagen
-    document.getElementById('previewCatalogoContainer').style.display = 'none';
+    const container = document.getElementById('previewCatalogoContainer');
+    if (container) container.style.display = 'none';
     
-    // Regresamos el botón a su estado original
-    document.getElementById('btnGuardarCatalogo').innerHTML = '<span class="glass-text">Agregar al Catálogo</span>';
+    // --- PARCHE DE RESETEO ---
+    // 3. Regresamos el botón principal a su estado normal
+    const btnGuardar = document.getElementById('btnGuardarCatalogo');
+    if (btnGuardar) {
+        btnGuardar.innerText = "Añadir al Inventario";
+        btnGuardar.style.background = "#00938f"; // Tu verde original
+    }
     
-    alert("Modo edición cancelado. Ahora puedes agregar un producto nuevo.");
+    // 4. OCULTAMOS el botón de cancelar otra vez
+    const btnCancel = document.getElementById('btnCancelEdit');
+    if (btnCancel) {
+        btnCancel.style.display = 'none';
+    }
+    
+    console.log("Modo edición cancelado.");
 }
-
 
 
 // Variable para saber si el catálogo debe "devolver" el producto a la cuenta
@@ -1750,15 +1768,13 @@ function agregarAlPedidoDesdeCatalogo(id) {
     const producto = catalogoProductos.find(p => p.id === idNumerico);
     if (!producto) return;
 
-    // --- MODO EDICIÓN ---
-    if (destinoCatalogo === "EDIT") {
-        // Obtenemos el nombre real. Intentamos con .nombre o .insumo por si acaso.
-        const nombreReal = producto.nombre || producto.insumo || "Producto sin nombre";
+    const nombreReal = producto.nombre || producto.insumo || "Producto sin nombre";
 
+    // --- MODO EDICIÓN ---
+    if (typeof destinoCatalogo !== 'undefined' && destinoCatalogo === "EDIT") {
         const nuevoMaterialEdit = {
             id: Date.now(),
             idOriginal: producto.id,
-            // Le pasamos AMBAS para que el render encuentre la que busca
             insumo: nombreReal, 
             nombre: nombreReal,
             cantidad: 1,
@@ -1768,16 +1784,15 @@ function agregarAlPedidoDesdeCatalogo(id) {
 
         if (typeof materialesEditList !== 'undefined') {
             materialesEditList.push(nuevoMaterialEdit);
+            if (typeof renderMaterialesEdit === "function") renderMaterialesEdit();
             
-            if (typeof renderMaterialesEdit === "function") {
-                renderMaterialesEdit();
-            }
-            
-            cerrarModalCatalogo();
+            cerrarModalCatalogo(); // ✅ Se cierra
         }
-
     } 
-    // --- MODO NUEVA CUENTA ---
+
+
+
+   // --- MODO NUEVA CUENTA ---
     else {
         const nombreReal = producto.nombre || producto.insumo || "Producto sin nombre";
         const existente = levMaterialesList.find(m => m.idOriginal === producto.id);
@@ -1803,16 +1818,25 @@ function agregarAlPedidoDesdeCatalogo(id) {
         } else if (typeof levRenderMateriales === "function") {
             levRenderMateriales();
         }
+
+        // 🚀 AGREGA ESTA LÍNEA AQUÍ TAMBIÉN:
+        cerrarModalCatalogo(); 
     }
 }
 
-
-
 function cerrarModalCatalogo() {
     document.getElementById("modalCatalogo").style.display = "none";
-    modoSeleccionCatalogo = false; // Resetear el modo
-    resetFormularioCatalogo(); // Limpiar inputs del catálogo
+    
+    // 👈 ESTA LÍNEA ES LA QUE TE SALVA LA VIDA:
+    // Limpiamos el destino para que "olvide" que estaba editando
+    destinoCatalogo = null; 
+
+    modoSeleccionCatalogo = false; 
+    resetFormularioCatalogo(); 
 }
+
+
+
 //AQUI TERMINA XDD
 
 
