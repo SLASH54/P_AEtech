@@ -30,45 +30,61 @@
     </div>
 </div>
 
-    <div id="modalCatalogo" class="loader-overlay" style="display: none;">
-        <div class="modal-content-ios" style="max-width: 600px;">
-            <h3>📦 Catálogo de Productos</h3>
+
+
+<div id="modalCatalogo" class="loader-overlay" style="display: none;">
+    <div class="modal-content-ios catalogo-layout">
+        
+        <div class="catalogo-form-side">
+            <h3>📦 Inventario</h3>
             
-            <div style="background: rgba(0,0,0,0.05); padding: 15px; border-radius: 10px; margin-bottom: 15px; display: grid; gap: 10px;">
+            <div class="glass-form">
                 <input type="text" id="catNombre" placeholder="Nombre del producto/servicio">
                 
-                <div style="width: 100%;display: flex;gap: 10px;">
-                    <input type="number" id="catCosto" placeholder="Costo $0.00" style="width: 50%;flex: 1;">
-                    <input type="number" id="catStock" placeholder="Existencia (Piezas)" style="width: 50%;flex: 1;">
+                <div class="input-row">
+                    <input type="number" id="catCosto" placeholder="Costo $">
+                    <input type="number" id="catStock" placeholder="Stock">
                 </div>
 
-                <select id="catClasificacion" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #ccc;">
+                <select id="catClasificacion">
                     <option value="Producto">📦 Producto</option>
                     <option value="Herramienta">🛠️ Herramienta</option>
                     <option value="Insumo">📑 Insumo</option>
                     <option value="Servicio">💡 Servicio</option>
                 </select>
 
-                <input type="file" id="catFoto" accept="image/*" style="width: 100%;">
-                <div id="previewCatalogoContainer" style="text-align: center; margin-bottom: 10px; display: none;">
-                    <img id="imgPreviewCatalogo" src="" style="max-width: 100px; border-radius: 8px; border: 1px solid #ddd;">
+                <div class="file-custom">
+                    <input type="file" id="catFoto" accept="image/*">
                 </div>
-                <button onclick="guardarProductoEnCatalogo()" id="btnGuardarCatalogo" class="btn-ver" style="width: 100%; background: #00938f;">
+
+                <div id="previewCatalogoContainer" class="preview-box">
+                    <img id="imgPreviewCatalogo" src="">
+                </div>
+
+                <button onclick="guardarProductoEnCatalogo()" id="btnGuardarCatalogo" class="btn-primary-cool">
                     Añadir al Inventario
                 </button>
-                <button type="button" onclick="cancelarEdicionCatalogo()" class="btn-cancelar" style="background: #ff3b30; margin-top: 5px;">
+                
+                <button type="button" id="btnCancelEdit" onclick="cancelarEdicionCatalogo()" class="btn-danger-cool" style="display:none;">
                     Cancelar Edición
                 </button>
             </div>
-
-            <input type="text" id="busquedaCatalogo" placeholder="🔍 Buscar producto..." oninput="renderizarCatalogo()">
-
-            <div id="listaProductosCatalogo" style="max-height: 300px; overflow-y: auto;">
-                </div>
-
-            <button onclick="document.getElementById('modalCatalogo').style.display='none'" class="btn-cancelar">Cerrar</button>
+            
+            <button onclick="document.getElementById('modalCatalogo').style.display='none'" class="btn-close-simple">Cerrar</button>
         </div>
+
+        <div class="catalogo-list-side">
+            <div class="search-container">
+                <input type="text" id="busquedaCatalogo" placeholder="🔍 Buscar producto..." oninput="renderizarCatalogo()">
+            </div>
+
+            <div id="listaProductosCatalogo" class="scroll-area">
+                </div>
+        </div>
+
     </div>
+</div>
+
 
     <div id="loader" class="loader-overlay" style="display: none;">
         <div class="loader-container">

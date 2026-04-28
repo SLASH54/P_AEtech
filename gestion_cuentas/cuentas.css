@@ -1289,6 +1289,7 @@ input:checked + .slider:before { transform: translateX(18px); }
 .status-pendiente { background: #fff3e0; color: #ef6c00; border: 1px solid #ffe0b2; }
 
 
+
 .modal-content-ios {
     overflow-y: auto;
     backdrop-filter: blur(2px);
@@ -1472,3 +1473,112 @@ input[type="text"], input[type="number"] {
     align-items: center;
     z-index: 2000;
 }
+
+
+
+
+
+/* Layout Principal catalogo  */
+.catalogo-layout {
+    display: flex;
+    max-width: 900px !important; /* Más ancho para las 2 columnas */
+    width: 95%;
+    gap: 20px;
+    padding: 0 !important;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    animation: entranceBounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Columna Izquierda */
+.catalogo-form-side {
+    flex: 1;
+    padding: 25px;
+    background: rgba(255, 255, 255, 0.05);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Columna Derecha */
+.catalogo-list-side {
+    flex: 1.4;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Estilos de inputs elegantes */
+.glass-form input, .glass-form select {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    border: none;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.input-row {
+    display: flex;
+    gap: 10px;
+}
+
+/* Área de Lista Animada */
+.scroll-area {
+    max-height: 450px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+/* Tarjeta de Producto (Efecto Gomita) */
+.product-item {
+    background: white;
+    margin-bottom: 15px;
+    padding: 15px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    animation: slideUp 0.4s ease-out;
+}
+
+.product-item:hover {
+    transform: scale(1.02) translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+}
+
+/* Botones con estilo AEtech */
+.btn-primary-cool {
+    background: linear-gradient(135deg, #00938f, #00c9c4);
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-primary-cool:hover {
+    filter: brightness(1.1);
+    transform: translateY(-2px);
+}
+
+/* Animaciones */
+@keyframes entranceBounce {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Scrollbar personalizada */
+.scroll-area::-webkit-scrollbar { width: 5px; }
+.scroll-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
