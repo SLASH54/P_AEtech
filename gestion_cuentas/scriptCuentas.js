@@ -1791,10 +1791,10 @@ function agregarAlPedidoDesdeCatalogo(id) {
     } 
 
 
-
-   // --- MODO NUEVA CUENTA ---
+    
+    // --- MODO NUEVA CUENTA ---
     else {
-        const nombreReal = producto.nombre || producto.insumo || "Producto sin nombre";
+        // Buscamos si ya existe en la lista de nueva cuenta
         const existente = levMaterialesList.find(m => m.idOriginal === producto.id);
 
         if (existente) {
@@ -1819,8 +1819,7 @@ function agregarAlPedidoDesdeCatalogo(id) {
             levRenderMateriales();
         }
 
-        // 🚀 AGREGA ESTA LÍNEA AQUÍ TAMBIÉN:
-        cerrarModalCatalogo(); 
+        cerrarModalCatalogo(); // ⚠️ TE FALTABA ESTE AQUÍ ABAJO TAMBIÉN
     }
 }
 

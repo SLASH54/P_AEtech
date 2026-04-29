@@ -8,29 +8,43 @@
     <link rel="icon" href="img/logoAEtech.png">
 </head>
 <body>
-    <div id="modalClienteExpress" class="loader-overlay" style="display: none;">
-    <div class="modal-content-ios" style="max-width: 350px; padding: 25px;">
-        <h3 style="margin-top: 0; color: #005e73;">⚡ Registro Rápido</h3>
-        <p style="color: #666; font-size: 0.9em;">Agrega un cliente sin salir de esta pantalla.</p>
+
+
+<div id="modalClienteExpress" class="loader-overlay" style="display: none;">
+    <div class="modal-express-card">
+        <div class="modal-header-express">
+            <div class="icon-circle">⚡</div>
+            <h3>Registro Rápido</h3>
+            <p>Nuevo cliente en un segundo</p>
+        </div>
         
-        <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
-            <input type="text" id="expNombre" placeholder="Nombre completo" style="width: auto;">
-            <input type="text" id="expTelefono" placeholder="Teléfono (Opcional)" style="width: auto;">
-            <input type="text" id="expDireccion" placeholder="Dirección (Opcional)" style="width: auto;">
+        <div class="modal-body-express">
+            <div class="input-group-express">
+                <label>Nombre del Cliente</label>
+                <input type="text" id="expNombre" placeholder="Ej. Juan Pérez">
+            </div>
+            
+            <div class="input-group-express">
+                <label>Teléfono</label>
+                <input type="text" id="expTelefono" placeholder="(Opcional)">
+            </div>
+            
+            <div class="input-group-express">
+                <label>Dirección</label>
+                <input type="text" id="expDireccion" placeholder="(Opcional)">
+            </div>
         </div>
 
-        <div style="display: flex; gap: 10px; margin-top: 20px;">
-            <button onclick="guardarClienteExpress()" class="btn-ver" id="btn-guardarClienteExp" style="width: 45%;">
-                <span class="glass-text">Guardar</span>
+        <div class="modal-footer-express">
+            <button onclick="cerrarRegistroExpress()" class="btn-express-cancel">
+                Cancelar
             </button>
-            <button onclick="cerrarRegistroExpress()" class="btn-eliminar" style="flex: 1;">
-                <span class="glass-text">Cancelar</span>
+            <button onclick="guardarClienteExpress()" id="btn-guardarClienteExp" class="btn-express-save">
+                <span class="glass-text">Guardar Cliente</span>
             </button>
         </div>
     </div>
 </div>
-
-
 
 <div id="modalCatalogo" class="loader-overlay" style="display: none; align-items: center; justify-content: center;">
     <div class="modal-content-ios catalogo-layout">
