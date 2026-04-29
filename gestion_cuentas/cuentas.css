@@ -1865,3 +1865,9 @@ input#catFoto {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(0, 147, 143, 0.3);
 }
+
+button.btn-pdf:hover {
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px #00BCD4;
+}
