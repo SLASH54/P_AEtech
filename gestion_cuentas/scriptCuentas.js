@@ -1592,6 +1592,7 @@ function resetFormularioCatalogo() {
     document.getElementById('previewCatalogoContainer').style.display = 'none';
     document.getElementById('imgPreviewCatalogo').src = "";
     editandoProductoId = null;
+    cancelarEdicionCatalogo();
 }
 
 // === PREVISUALIZACIÓN DE IMAGEN AL REGISTRAR NUEVO PRODUCTO ===
@@ -1853,6 +1854,7 @@ function cerrarRegistroExpress() {
 }
 
 async function guardarClienteExpress() {
+    document.getElementById("loader").style.display = "flex";
     const nombre = document.getElementById("expNombre").value.trim();
     const telefono = document.getElementById("expTelefono").value.trim();
     const direccion = document.getElementById("expDireccion").value.trim();
@@ -1896,6 +1898,7 @@ async function guardarClienteExpress() {
     } catch (error) {
         console.error("Error express:", error);
     }
+    document.getElementById("loader").style.display = "none";
 }
 
 
