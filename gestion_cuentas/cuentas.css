@@ -1522,7 +1522,7 @@ input[type="text"], input[type="number"] {
 
 /* Estilos de inputs elegantes */
 .glass-form input, .glass-form select {
-    width: 100%;
+    width: stretch;
     padding: 12px;
     margin-bottom: 12px;
     border-radius: 12px;
@@ -1598,25 +1598,35 @@ input[type="text"], input[type="number"] {
 .scroll-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
 
 button.btn-close-simple {
+    FONT-WEIGHT: bold;
+    COLOR: WHITE;
+    background: linear-gradient(135deg, #E91E63, #FF5722);
+    MARGIN: auto;
+    DISPLAY: block;
+    WIDTH: fit-content;
     border-radius: 15px;
+    MARGIN-TOP: 2PX;
+    MARGIN-BOTTOM: -10PX;
 }
 
 input#catFoto {
     border-radius: 15px;
+    width: stretch;
 }
 
 /* Este es el diseño elegante que pusiste en consola */
 #btnCancelEdit {
-    display: none; /* 👈 Importante: Empieza oculto */
+    MARGIN: auto;
+    display: none;
     border-radius: 15px;
-    background: linear-gradient(135deg, #ff3b30, #ff2d55); /* Un rojo tipo iOS para cancelar */
+    background: linear-gradient(135deg, #ff3b30, #ff2d55);
     color: #ffffff;
     padding: 12px;
     border: none;
     font-weight: bold;
     cursor: pointer;
     transition: 0.3s;
-    width: 100%;
+    width: auto;
     margin-top: 5px;
 }
 
