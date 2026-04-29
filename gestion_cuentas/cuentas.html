@@ -64,8 +64,8 @@
                 <input type="text" id="catNombre" placeholder="Nombre del producto/servicio">
                 
                 <div class="input-row">
-                    <input type="number" id="catCosto" placeholder="Costo $">
-                    <input type="number" id="catStock" placeholder="Stock">
+                    <input type="number" id="catCosto" placeholder="Costo $" style="width: 50%;">
+                    <input type="number" id="catStock" placeholder="Stock" style="width: 50%;">
                 </div>
 
                 <select id="catClasificacion">
@@ -598,7 +598,7 @@
 
         <div style="display: flex; flex-direction: column; gap: 10px;">
             <button onclick="procesarAbono()" class="btn-ver" style="width: 100%; background: #28a745; color: white;">Confirmar Abono</button>
-            <button onclick="liquidarTotalDirecto()" class="btn-pdf" style="width: 100%; background: #007aff;">Liquidar Total</button>
+            <button onclick="liquidarTotalDirecto()" class="btn-pdf" style="border: 2px solid #00BCD4;font-size: large;color: white;width: 100%;background: #007aff;padding: 8px 12px;border-radius: 12px;transition: 0.3s;">Liquidar Total</button>
             <button onclick="cerrarModalAbono()" style="background: none; border: none; color: #ff3b30; cursor: pointer; margin-top: 5px;">Cancelar</button>
         </div>
     </div>
