@@ -1853,6 +1853,7 @@ function cerrarRegistroExpress() {
     document.getElementById("expDireccion").value = "";
 }
 
+//para guardar cliente express en tareas 
 async function guardarClienteExpress() {
     document.getElementById("loader").style.display = "flex";
     const nombre = document.getElementById("expNombre").value.trim();
