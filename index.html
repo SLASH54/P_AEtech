@@ -10,7 +10,86 @@
         integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
+
+
         /* Los estilos CSS se encuentran en el archivo login.css */
+
+        
+/* ================================================= */
+/* ESTILOS PARA EL FORMULARIO DE RECUPERACIÓN AEtech */
+/* ================================================= */
+
+/* Contenedor de ícono y texto descriptivo */
+#forgotForm .logo-container h3 {
+    margin-bottom: 5px;
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+#forgotForm .logo-container p {
+    margin-bottom: 20px;
+    line-height: 1.4;
+}
+
+/* Ajuste específico para el enlace de "¿Olvidaste tu contraseña?" */
+#forgot-password-link {
+    transition: color 0.3s ease;
+    font-weight: 500;
+}
+
+#forgot-password-link:hover {
+    color: #00938f; /* Cambia al verde agua de AEtech al pasar el mouse */
+    text-decoration: underline;
+}
+
+/* Estilo para el botón de enviar (Verde AEtech) */
+#forgotForm button[type="submit"] {
+    background-color: #00938f;
+    margin-top: 10px;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.3s ease;
+}
+
+#forgotForm button[type="submit"]:hover {
+    background-color: #007a77;
+}
+
+/* Estilo para el botón Volver (Gris neutro como el de tu imagen) */
+.back-btn {
+    background-color: #7d7d7d; /* Color similar al de tu botón 'Volver' actual */
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 10px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 0.9rem;
+    transition: opacity 0.3s;
+}
+
+.back-btn:hover {
+    opacity: 0.8;
+}
+
+/* Animación de entrada suave para los formularios */
+#forgotForm, #loginForm, #registroForm {
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
     </style>
 </head>
 <body>
