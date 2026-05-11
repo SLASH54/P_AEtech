@@ -292,12 +292,40 @@
     // === 3. LÓGICA DE FORMULARIOS ===
 
     // Envío de recuperación
+  // Envío de recuperación real
     if (forgotFormSub) {
-        forgotFormSub.addEventListener('submit', function(e) {
+        forgotFormSub.addEventListener('submit', async function(e) {
             e.preventDefault();
             const email = document.getElementById('recovery_email').value;
-            alert(`¡Listo amiko! Se han enviado instrucciones a: ${email}`);
-            showWelcomeScreen();
+            
+            // Mostramos un loader o cambiamos el texto del botón
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            btn.innerText = "Enviando...";
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/usuarios/forgot-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert('✅ ¡Listo! Revisa tu correo, te enviamos un enlace de recuperación.');
+                    showWelcomeScreen();
+                } else {
+                    alert(data.msg || 'Hubo un error al procesar la solicitud.');
+                }
+            } catch (err) {
+                console.error('❌ Error:', err);
+                alert('No se pudo conectar con el servidor.');
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
         });
     }
 
