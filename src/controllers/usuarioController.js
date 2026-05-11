@@ -1,6 +1,6 @@
 const { Usuario } = require('../models/relations');
 const nodemailer = require('nodemailer');
-const bcrypt = require('bcrypt'); // Falta esta importación para que funcione el hash
+const bcrypt = require('bcrypt'); // 👈 AGREGA ESTA LÍNEA AQUÍ
 
 exports.forgotPassword = async (req, res) => {
     const { email } = req.body;
