@@ -343,25 +343,29 @@ exports.generateReportePDF = async (req, res) => {
 
 
     // =============================================================
-    // SECCIÓN: INFORMACIÓN DEL SERVICIO (CON OBSERVACIONES)
+    // SECCIÓN: OBSERVACIONES DEL TÉCNICO (OMITIR SI ESTÁ VACÍO)
     // =============================================================
-    // Buscamos las observaciones en el primer registro del array de evidencias
-    const obsTexto = (tarea.Evidencia && tarea.Evidencia.length > 0) 
-                    ? (tarea.Evidencia[0].observaciones || "Sin observaciones adicionales.") 
-                    : "Sin observaciones reportadas.";
+    
+    // 1. Validamos que existan evidencias y que el campo observaciones tenga contenido real
+    const tieneObservaciones = (tarea.Evidencia && tarea.Evidencia.length > 0) && 
+                               (tarea.Evidencia[0].observaciones && 
+                                tarea.Evidencia[0].observaciones.trim() !== "" && 
+                                tarea.Evidencia[0].observaciones !== "NULL");
 
+    // 2. Solo entramos si el usuario pidió incluir comentarios Y si realmente hay texto
+    if (incluirComentarios && tieneObservaciones) {
+        
+        const textoFinal = tarea.Evidencia[0].observaciones;
 
-    if (incluirComentarios) {
-        // Si la firma o materiales dejaron el cursor muy abajo, saltamos página
-        if (doc.y > doc.page.height - 150) nuevaPagina(doc, plantillaBuf);
+        // Si el cursor está muy cerca del final de la página, saltamos para que no se corte el título
+        if (doc.y > doc.page.height - 150) {
+            nuevaPagina(doc, plantillaBuf);
+        }
 
         doc.moveDown(1.5);
         doc.fontSize(14).fillColor("#00938f").text("OBSERVACIONES DEL TÉCNICO", MARGIN_LEFT);
         doc.moveDown(0.5);
         
-        // Limpiamos el texto por si viene con la palabra "NULL" de la DB
-        const textoFinal = (obsTexto === "NULL" || !obsTexto) ? "Sin observaciones adicionales." : obsTexto;
-
         doc.fontSize(11).fillColor("#333").text(textoFinal, {
             width: doc.page.width - (MARGIN_LEFT + MARGIN_RIGHT),
             align: 'justify'
