@@ -331,22 +331,27 @@ exports.generateReportePDF = async (req, res) => {
     // =============================================================
     // SECCIÓN: INFORMACIÓN DEL SERVICIO (CON OBSERVACIONES)
     // =============================================================
-    const obsTexto = tarea.Evidencia.observaciones
+    // Buscamos las observaciones en el primer registro del array de evidencias
+    const obsTexto = (tarea.Evidencia && tarea.Evidencia.length > 0) 
+                    ? (tarea.Evidencia[0].observaciones || "Sin observaciones adicionales.") 
+                    : "Sin observaciones reportadas.";
 
+                    
     if (incluirComentarios) {
+        // Si la firma o materiales dejaron el cursor muy abajo, saltamos página
+        if (doc.y > doc.page.height - 150) nuevaPagina(doc, plantillaBuf);
 
-        // 🚀 AQUÍ AGREGAMOS LAS OBSERVACIONES
         doc.moveDown(1.5);
         doc.fontSize(14).fillColor("#00938f").text("OBSERVACIONES DEL TÉCNICO", MARGIN_LEFT);
         doc.moveDown(0.5);
         
-        // Si la columna observaciones en la DB es NULL, ponemos un mensaje por defecto
-        
-        doc.fontSize(11).fillColor("#333").text(obsTexto, {
+        // Limpiamos el texto por si viene con la palabra "NULL" de la DB
+        const textoFinal = (obsTexto === "NULL" || !obsTexto) ? "Sin observaciones adicionales." : obsTexto;
+
+        doc.fontSize(11).fillColor("#333").text(textoFinal, {
             width: doc.page.width - (MARGIN_LEFT + MARGIN_RIGHT),
             align: 'justify'
         });
-        
     }
 
     doc.end();
