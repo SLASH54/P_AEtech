@@ -339,9 +339,7 @@ exports.generateReportePDF = async (req, res) => {
         doc.moveDown(0.5);
         
         // Si la columna observaciones en la DB es NULL, ponemos un mensaje por defecto
-        const obsTexto = evidencias.observaciones && evidencias.observaciones !== "NULL" 
-                        ? evidencias.observaciones 
-                        : "Sin observaciones adicionales reportadas.";
+        const obsTexto = evidencias.observaciones
 
         doc.fontSize(11).fillColor("#333").text(obsTexto, {
             width: doc.page.width - (MARGIN_LEFT + MARGIN_RIGHT),
