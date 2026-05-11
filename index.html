@@ -14,82 +14,137 @@
 
         /* Los estilos CSS se encuentran en el archivo login.css */
 
-        
-/* ================================================= */
-/* ESTILOS PARA EL FORMULARIO DE RECUPERACIÓN AEtech */
+    /* ================================================= */
+/* NUEVOS ESTILOS PREMIUM PARA RECUPERACIÓN AEtech */
 /* ================================================= */
 
-/* Contenedor de ícono y texto descriptivo */
-#forgotForm .logo-container h3 {
-    margin-bottom: 5px;
-    font-size: 1.4rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
+/* Contenedor principal con efecto Glassmorphism (Vidrio) */
+.form-container-glass {
+    background: rgba(255, 255, 255, 0.1); /* Efecto transparente */
+    backdrop-filter: blur(15px); /* Desenfoque Pro */
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 30px;
+    width: 90%;
+    max-width: 360px;
+    margin: 20px auto;
+    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.3);
+    color: white; /* 👈 CLAVE: Texto blanco para que se lea */
+    animation: slideUpRecover 0.3s ease-out;
 }
 
-#forgotForm .logo-container p {
-    margin-bottom: 20px;
+/* Animación de entrada */
+@keyframes slideUpRecover {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Encabezado */
+.title-aetech {
+    margin: 10px 0 5px;
+    color: #fff; /* Título blanco nítido */
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.description-text {
+    margin: 0 0 20px;
+    color: #dfdfdf; /* Gris muy claro para lectura */
+    font-size: 0.9em;
     line-height: 1.4;
 }
 
-/* Ajuste específico para el enlace de "¿Olvidaste tu contraseña?" */
-#forgot-password-link {
-    transition: color 0.3s ease;
-    font-weight: 500;
+/* Ícono en círculo de gradiente (como el de tu login) */
+.icon-circle {
+    background: linear-gradient(135deg, #00c9c4, #00938f);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    font-size: 1.6rem;
+    color: white;
+    box-shadow: 0 4px 10px rgba(0, 147, 143, 0.3);
 }
 
-#forgot-password-link:hover {
-    color: #00938f; /* Cambia al verde agua de AEtech al pasar el mouse */
-    text-decoration: underline;
+/* Campos de entrada */
+.form-group-aetech {
+    margin-bottom: 20px;
+    text-align: left;
 }
 
-/* Estilo para el botón de enviar (Verde AEtech) */
-#forgotForm button[type="submit"] {
-    background-color: #00938f;
-    margin-top: 10px;
+.form-group-aetech label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #fff; /* Label blanco */
+    margin-bottom: 5px;
+    margin-left: 5px;
+}
+
+.form-group-aetech input {
+    background: rgba(255, 255, 255, 0.95); /* Input blanco opaco */
     border: none;
-    padding: 12px;
-    border-radius: 8px;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
+    border-radius: 10px;
+    padding: 12px 15px;
+    font-size: 1rem;
+    color: #333;
     width: 100%;
-    transition: background 0.3s ease;
+    transition: all 0.2s;
+    outline: none;
+    box-sizing: border-box; /* Para que no se desborde */
 }
 
-#forgotForm button[type="submit"]:hover {
-    background-color: #007a77;
+/* Foco del input */
+.form-group-aetech input:focus {
+    box-shadow: 0 0 0 3px rgba(0, 201, 196, 0.3);
 }
 
-/* Estilo para el botón Volver (Gris neutro como el de tu imagen) */
-.back-btn {
-    background-color: #7d7d7d; /* Color similar al de tu botón 'Volver' actual */
+/* Botones */
+.buttons-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btn-express-save {
+    background: linear-gradient(135deg, #00938f, #00c9c4);
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
     color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 1rem;
+}
+
+.btn-express-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 147, 143, 0.3);
+}
+
+.btn-express-cancel {
+    background: #7d7d7d; /* Gris de tu botón 'Volver' original */
     border: none;
     padding: 10px;
-    border-radius: 8px;
-    margin-top: 10px;
+    border-radius: 10px;
+    color: white;
+    font-weight: 500;
     cursor: pointer;
-    width: 100%;
     font-size: 0.9rem;
-    transition: opacity 0.3s;
+    transition: 0.2s;
 }
 
-.back-btn:hover {
+.btn-express-cancel:hover {
     opacity: 0.8;
 }
 
-/* Animación de entrada suave para los formularios */
-#forgotForm, #loginForm, #registroForm {
-    animation: fadeIn 0.4s ease-in-out;
-}
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
     </style>
 </head>
 <body>
@@ -152,129 +207,122 @@
 
         <!-- Recuperar contraseña -->
 
-    <form id="forgotForm" style="display: none;">
+  <div id="forgot-form-container" class="form-container-glass" style="display: none;">
     <div class="logo-container">
-        <h3 style="color: #004b85;"><i class="fa-solid fa-lock-open"></i> Recuperar Acceso</h3>
-        <p style="font-size: 0.9em; color: #666;">Ingresa tu correo y te enviaremos instrucciones.</p>
+        <div class="icon-circle">
+            <i class="fa-solid fa-user-shield"></i>
+        </div>
+        <h3 class="title-aetech">Recuperar Acceso</h3>
+        <p class="description-text">Ingresa tu correo y te enviaremos instrucciones.</p>
     </div>
-    <div class="form-group">
-        <label for="recovery_email">Email registrado:</label>
-        <input type="email" id="recovery_email" name="recovery_email" required placeholder="ejemplo@aetech.mx">
-    </div>
-    <button type="submit" style="background-color: #00938f;">Enviar instrucciones</button>
-    <button type="button" class="back-btn">Volver</button>
-</form>
 
-<form id="forgotForm" style="display: none;">
-    <div class="logo-container">
-        <h3 style="color: #004b85;"><i class="fa-solid fa-lock-open"></i> Recuperar Acceso</h3>
-        <p style="font-size: 0.9em; color: #666;">Ingresa tu correo y te enviaremos instrucciones.</p>
-    </div>
-    <div class="form-group">
-        <label for="recovery_email">Email registrado:</label>
-        <input type="email" id="recovery_email" name="recovery_email" required placeholder="ejemplo@aetech.mx">
-    </div>
-    <button type="submit" style="background-color: #00938f;">Enviar instrucciones</button>
-    <button type="button" class="back-btn">Volver</button>
-</form>
+    <form id="forgotForm">
+        <div class="form-group-aetech">
+            <label for="recovery_email">Email registrado:</label>
+            <input type="email" id="recovery_email" name="recovery_email" required placeholder="ejemplo@aetech.mx">
+        </div>
+
+        <div class="buttons-group">
+            <button type="submit" class="btn-express-save">
+                Enviar instrucciones
+            </button>
+            <button type="button" class="btn-express-cancel back-btn-recover">
+                Volver
+            </button>
+        </div>
+    </form>
+</div>
 
     <script>
 
         // Función para mostrar la pantalla de bienvenida y ocultar los formularios
-                function showWelcomeScreen() {
-                    welcomeScreen.style.display = 'block';
-                    loginForm.style.display = 'none';
-                    registroForm.style.display = 'none';
-                }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const loginBtn = document.getElementById('login-btn');
-            const registerBtn = document.getElementById('register-btn');
-            const welcomeScreen = document.getElementById('welcome-screen');    
-            const registroForm = document.getElementById('registroForm'); // << ESTE
-            const loginForm = document.getElementById('loginForm');     // << Y ESTE
-
-            checkSession();
-            loginForm.addEventListener('submit', loginUser); 
-            registroForm.addEventListener('submit', registerUser); 
-
-            // Mostrar/ocultar contraseña
-        document.querySelectorAll('.toggle-password').forEach(icon => {
-          icon.addEventListener('click', () => {
-            const targetId = icon.getAttribute('data-target');
-            const passwordInput = document.getElementById(targetId);
-            if (passwordInput.type === 'password') {
-              passwordInput.type = 'text';
-              icon.classList.remove('fa-eye');
-              icon.classList.add('fa-eye-slash');
-            } else {
-              passwordInput.type = 'password';
-              icon.classList.remove('fa-eye-slash');
-              icon.classList.add('fa-eye');
-            }
-          });
-        });
-
-            // Función para mostrar la pantalla de bienvenida y ocultar los formularios
-            function showWelcomeScreen() {
-                welcomeScreen.style.display = 'block';
-                loginForm.style.display = 'none';
-                registroForm.style.display = 'none';
-            }
-
-            loginBtn.addEventListener('click', function() {
-                welcomeScreen.style.display = 'none';
-                loginForm.style.display = 'block';
-            });
-
-            registerBtn.addEventListener('click', function() {
-                welcomeScreen.style.display = 'none';
-                registroForm.style.display = 'block';
-            });
-
-            // Agregar event listeners a los botones de "Volver"
-            const backButtons = document.querySelectorAll('.back-btn');
-            backButtons.forEach(button => {
-                button.addEventListener('click', showWelcomeScreen);
-            });
-        });
-
-
-
-        document.addEventListener('DOMContentLoaded', function() {
-    // ... tus constantes actuales ...
-    const forgotForm = document.getElementById('forgotForm');
+   document.addEventListener('DOMContentLoaded', function() {
+    // === 1. CONSTANTES DE ELEMENTOS ===
+    const loginBtn = document.getElementById('login-btn');
+    const registerBtn = document.getElementById('register-btn');
+    const welcomeScreen = document.getElementById('welcome-screen');
+    const registroForm = document.getElementById('registroForm');
+    const loginForm = document.getElementById('loginForm');
+    
+    // Elementos de Recuperación Pro
+    const forgotFormContainer = document.getElementById('forgot-form-container');
+    const forgotFormSub = document.getElementById('forgotForm');
     const forgotLink = document.getElementById('forgot-password-link');
 
-    // Función para limpiar y mostrar la pantalla de bienvenida
+    // === 2. FUNCIONES DE NAVEGACIÓN ===
+    
     function showWelcomeScreen() {
         welcomeScreen.style.display = 'block';
         loginForm.style.display = 'none';
         registroForm.style.display = 'none';
-        forgotForm.style.display = 'none'; // También ocultamos recuperación
+        if (forgotFormContainer) forgotFormContainer.style.display = 'none';
     }
 
-    // Al dar clic en "¿Olvidaste tu contraseña?"
-    forgotLink.addEventListener('click', function(e) {
-        e.preventDefault();
-        loginForm.style.display = 'none';
-        forgotForm.style.display = 'block';
-    });
+    // Mostrar Login
+    if (loginBtn) {
+        loginBtn.addEventListener('click', function() {
+            welcomeScreen.style.display = 'none';
+            loginForm.style.display = 'block';
+        });
+    }
 
-    // Asegúrate de que los botones "Volver" oculten el de recuperación también
-    const backButtons = document.querySelectorAll('.back-btn');
+    // Mostrar Registro
+    if (registerBtn) {
+        registerBtn.addEventListener('click', function() {
+            welcomeScreen.style.display = 'none';
+            registroForm.style.display = 'block';
+        });
+    }
+
+    // Mostrar Recuperación (El enlace azul en el login)
+    if (forgotLink) {
+        forgotLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            loginForm.style.display = 'none';
+            forgotFormContainer.style.display = 'block';
+        });
+    }
+
+    // Configurar todos los botones "Volver"
+    const backButtons = document.querySelectorAll('.back-btn, .back-btn-recover');
     backButtons.forEach(button => {
         button.addEventListener('click', showWelcomeScreen);
     });
 
-    // Lógica para enviar el correo (Preventiva por ahora)
-    forgotForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const email = document.getElementById('recovery_email').value;
-        alert(`¡Listo amiko! Si el correo ${email} existe, te llegará un enlace pronto.`);
-        showWelcomeScreen();
+    // === 3. LÓGICA DE FORMULARIOS ===
+
+    // Envío de recuperación
+    if (forgotFormSub) {
+        forgotFormSub.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('recovery_email').value;
+            alert(`¡Listo amiko! Se han enviado instrucciones a: ${email}`);
+            showWelcomeScreen();
+        });
+    }
+
+    // Mostrar/Ocultar Contraseña
+    document.querySelectorAll('.toggle-password').forEach(icon => {
+        icon.addEventListener('click', () => {
+            const targetId = icon.getAttribute('data-target');
+            const passwordInput = document.getElementById(targetId);
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        });
     });
+
+    // Inicializar sesión y eventos existentes
+    if (typeof checkSession === "function") checkSession();
+    if (loginForm) loginForm.addEventListener('submit', loginUser);
+    if (registroForm) registroForm.addEventListener('submit', registerUser);
 });
+
+        
         
     </script>
 
