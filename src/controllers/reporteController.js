@@ -331,6 +331,8 @@ exports.generateReportePDF = async (req, res) => {
     // =============================================================
     // SECCIÓN: INFORMACIÓN DEL SERVICIO (CON OBSERVACIONES)
     // =============================================================
+    const obsTexto = tarea.Evidencia.observaciones
+
     if (incluirComentarios) {
 
         // 🚀 AQUÍ AGREGAMOS LAS OBSERVACIONES
@@ -339,8 +341,7 @@ exports.generateReportePDF = async (req, res) => {
         doc.moveDown(0.5);
         
         // Si la columna observaciones en la DB es NULL, ponemos un mensaje por defecto
-        const obsTexto = evidencias.observaciones
-
+        
         doc.fontSize(11).fillColor("#333").text(obsTexto, {
             width: doc.page.width - (MARGIN_LEFT + MARGIN_RIGHT),
             align: 'justify'
