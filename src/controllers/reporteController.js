@@ -205,7 +205,6 @@ exports.generateReportePDF = async (req, res) => {
     // =============================================================
     // SECCIÓN: INFORMACIÓN DEL SERVICIO (FILTRADA)
     // =============================================================
-    if (incluirComentarios) {
       doc.fontSize(16)
         .fillColor("#00938f")
         .text("INFORMACION DEL SERVICIO", MARGIN_LEFT, doc.y);
@@ -219,11 +218,6 @@ exports.generateReportePDF = async (req, res) => {
       doc.text(`Actividad: ${tarea.Actividad.nombre}`, MARGIN_LEFT);
       doc.text(`Asignado a: ${tarea.AsignadoA.nombre}`, MARGIN_LEFT);
       doc.text(`Fecha: ${tarea.fechaLimite}`, MARGIN_LEFT);
-    } else {
-        // Si no se incluyen comentarios, dejamos un espacio o mensaje sutil
-        doc.fontSize(12).fillColor("#888").text("Información general omitida por preferencia.", MARGIN_LEFT);
-    }
-
     // =============================================================
     // EVIDENCIAS (Estas siempre salen, según tu flujo)
     // =============================================================
@@ -331,6 +325,29 @@ exports.generateReportePDF = async (req, res) => {
         });
         doc.moveDown(1);
       }
+    }
+
+
+    // =============================================================
+    // SECCIÓN: INFORMACIÓN DEL SERVICIO (CON OBSERVACIONES)
+    // =============================================================
+    if (incluirComentarios) {
+
+        // 🚀 AQUÍ AGREGAMOS LAS OBSERVACIONES
+        doc.moveDown(1.5);
+        doc.fontSize(14).fillColor("#00938f").text("OBSERVACIONES DEL TÉCNICO", MARGIN_LEFT);
+        doc.moveDown(0.5);
+        
+        // Si la columna observaciones en la DB es NULL, ponemos un mensaje por defecto
+        const obsTexto = evidencias.observaciones && evidencias.observaciones !== "NULL" 
+                        ? evidencias.observaciones 
+                        : "Sin observaciones adicionales reportadas.";
+
+        doc.fontSize(11).fillColor("#333").text(obsTexto, {
+            width: doc.page.width - (MARGIN_LEFT + MARGIN_RIGHT),
+            align: 'justify'
+        });
+        
     }
 
     doc.end();
