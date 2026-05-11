@@ -59,7 +59,7 @@
        
     </div>
     <button type="submit">Iniciar Sesión</button> 
-    
+
    <div class="form-group" style="text-align: center; margin-top: 10px;">
     <a href="#" id="forgot-password-link" style="color: #004b85; text-decoration: none; font-size: 0.9em;">
         ¿Olvidaste tu contraseña?
@@ -161,6 +161,41 @@
         });
 
 
+
+        document.addEventListener('DOMContentLoaded', function() {
+    // ... tus constantes actuales ...
+    const forgotForm = document.getElementById('forgotForm');
+    const forgotLink = document.getElementById('forgot-password-link');
+
+    // Función para limpiar y mostrar la pantalla de bienvenida
+    function showWelcomeScreen() {
+        welcomeScreen.style.display = 'block';
+        loginForm.style.display = 'none';
+        registroForm.style.display = 'none';
+        forgotForm.style.display = 'none'; // También ocultamos recuperación
+    }
+
+    // Al dar clic en "¿Olvidaste tu contraseña?"
+    forgotLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        loginForm.style.display = 'none';
+        forgotForm.style.display = 'block';
+    });
+
+    // Asegúrate de que los botones "Volver" oculten el de recuperación también
+    const backButtons = document.querySelectorAll('.back-btn');
+    backButtons.forEach(button => {
+        button.addEventListener('click', showWelcomeScreen);
+    });
+
+    // Lógica para enviar el correo (Preventiva por ahora)
+    forgotForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const email = document.getElementById('recovery_email').value;
+        alert(`¡Listo amiko! Si el correo ${email} existe, te llegará un enlace pronto.`);
+        showWelcomeScreen();
+    });
+});
         
     </script>
 
