@@ -2919,6 +2919,27 @@ function initEvidencias(tareaId) {
   // 🔹 BOTÓN GUARDAR (REPARADO Y LIGERO)
   saveBtn.onclick = async (e) => {
     e.preventDefault();
+    
+    // 1. 🛡️ VALIDADOR DE SEGURIDAD
+    const archivosInputs = [...document.querySelectorAll('.archivo')];
+    const titulosInputs = [...document.querySelectorAll('.titulo')];
+    
+    // Verificamos si al menos hay una foto (La de ubicación suele ser la primera)
+    const hayFotos = archivosInputs.some(input => input.files.length > 0);
+    
+    if (!hayFotos) {
+        alert("¡Amigo! Necesitas subir al menos una foto (evidencia) para poder guardar.");
+        return; // Detenemos todo antes de prender el loader
+    }
+
+    // Opcional: Validar que cada archivo seleccionado tenga un título escrito
+    for (let i = 0; i < archivosInputs.length; i++) {
+        if (archivosInputs[i].files[0] && titulosInputs[i].value.trim() === "") {
+            alert(`Por favor, ponle un título a la foto número ${i + 1}`);
+            return;
+        }
+    }
+
     loader.style.display = 'flex'; // Mostrar loader desde el inicio
 
     try {
@@ -3411,7 +3432,7 @@ async function subirEvidencias(tareaId) {
 
   // Validación: Si hay firma pero no hay nombre, detenemos todo
   if (!nombreFirma && document.getElementById('signature-pad')) {
-      return alert("Amiko, por favor escribe el nombre de quien firma antes de enviar.");
+      return alert("Por favor escribe el nombre de quien firma antes de enviar.");
   }
 
   // Agregamos el nombre al formData
