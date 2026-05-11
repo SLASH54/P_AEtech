@@ -274,25 +274,39 @@ exports.generateReportePDF = async (req, res) => {
     }
 
     // =============================================================
-    // SECCIÓN DE FIRMA
+    // SECCIÓN DE FIRMA (CORREGIDA: NO MUESTRA NADA SI ESTÁ VACÍA)
     // =============================================================
-    const evFirma = evidencias.find(e => e.firmaClienteUrl);
-    if (evFirma) {
-      nuevaPagina(doc, plantillaBuf);
-      doc.moveDown(3);
-      doc.fontSize(16).fillColor("#00938f").text("FIRMA DE CONFORMIDAD", MARGIN_LEFT);
-      doc.moveDown(1);
+    const evFirma = evidencias.find(e => e.firmaClienteUrl && e.firmaClienteUrl !== "");
 
+    if (evFirma) {
+      // Intentamos procesar la imagen primero
       const firmaBuf = await procesarImagen(evFirma.firmaClienteUrl, 400, 250, true);
+
+      // SOLO si el buffer de la imagen existe, creamos la sección en el PDF
       if (firmaBuf) {
+        nuevaPagina(doc, plantillaBuf);
+        doc.moveDown(3);
+        doc.fontSize(16).fillColor("#00938f").text("FIRMA DE CONFORMIDAD", MARGIN_LEFT);
+        doc.moveDown(1);
+
         const xCentral = (doc.page.width - 250) / 2;
         const yEspacioFirma = doc.y + 20;
+        
+        // Estampamos la firma
         doc.image(firmaBuf, (doc.page.width - 200) / 2, yEspacioFirma, { width: 200 });
+        
         const yLinea = yEspacioFirma + 110; 
 
+        // Línea y Nombre
         doc.strokeColor("#000").lineWidth(1.5).moveTo(xCentral, yLinea).lineTo(xCentral + 250, yLinea).stroke();
         doc.moveDown(0.5);
-        doc.fontSize(12).fillColor("#000").text(evFirma.nombreFirma ? evFirma.nombreFirma.toUpperCase() : "FIRMA DEL CLIENTE", xCentral, yLinea + 8, { width: 250, align: 'center' });
+        
+        const nombreParaMostrar = (evFirma.nombreFirma && evFirma.nombreFirma !== "No especificado") 
+                                  ? evFirma.nombreFirma.toUpperCase() 
+                                  : "FIRMA DEL CLIENTE";
+
+        doc.fontSize(12).fillColor("#000").text(nombreParaMostrar, xCentral, yLinea + 8, { width: 250, align: 'center' });
+        
         doc.y = yLinea + 40;
       }
     }
@@ -336,7 +350,7 @@ exports.generateReportePDF = async (req, res) => {
                     ? (tarea.Evidencia[0].observaciones || "Sin observaciones adicionales.") 
                     : "Sin observaciones reportadas.";
 
-                    
+
     if (incluirComentarios) {
         // Si la firma o materiales dejaron el cursor muy abajo, saltamos página
         if (doc.y > doc.page.height - 150) nuevaPagina(doc, plantillaBuf);
