@@ -59,14 +59,45 @@
        
     </div>
     <button type="submit">Iniciar Sesión</button> 
-    <div class="form-group">
-        
-      <a href="#">Verifica tus datos </a>
-    </div>
+    
+   <div class="form-group" style="text-align: center; margin-top: 10px;">
+    <a href="#" id="forgot-password-link" style="color: #004b85; text-decoration: none; font-size: 0.9em;">
+        ¿Olvidaste tu contraseña?
+    </a>
+</div>
     <button type="button" class="back-btn">Volver</button>
 </form>
 
     </div>
+
+
+        <!-- Recuperar contraseña -->
+
+    <form id="forgotForm" style="display: none;">
+    <div class="logo-container">
+        <h3 style="color: #004b85;"><i class="fa-solid fa-lock-open"></i> Recuperar Acceso</h3>
+        <p style="font-size: 0.9em; color: #666;">Ingresa tu correo y te enviaremos instrucciones.</p>
+    </div>
+    <div class="form-group">
+        <label for="recovery_email">Email registrado:</label>
+        <input type="email" id="recovery_email" name="recovery_email" required placeholder="ejemplo@aetech.mx">
+    </div>
+    <button type="submit" style="background-color: #00938f;">Enviar instrucciones</button>
+    <button type="button" class="back-btn">Volver</button>
+</form>
+
+<form id="forgotForm" style="display: none;">
+    <div class="logo-container">
+        <h3 style="color: #004b85;"><i class="fa-solid fa-lock-open"></i> Recuperar Acceso</h3>
+        <p style="font-size: 0.9em; color: #666;">Ingresa tu correo y te enviaremos instrucciones.</p>
+    </div>
+    <div class="form-group">
+        <label for="recovery_email">Email registrado:</label>
+        <input type="email" id="recovery_email" name="recovery_email" required placeholder="ejemplo@aetech.mx">
+    </div>
+    <button type="submit" style="background-color: #00938f;">Enviar instrucciones</button>
+    <button type="button" class="back-btn">Volver</button>
+</form>
 
     <script>
 
@@ -132,6 +163,7 @@
 
         
     </script>
+
     <script src="script.js"></script>
 </section>
 </body>
