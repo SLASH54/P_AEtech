@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize');
-const db = require('../config/db'); // Tu conexión a la base de datos
-const bcrypt = require('bcrypt'); // Para encriptar contraseñas
+const { sequelize } = require('../config/database');const bcrypt = require('bcrypt'); // Para encriptar contraseñas
 
 const Usuario = db.define('Usuario', {
     id: {
