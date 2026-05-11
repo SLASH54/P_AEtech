@@ -1,7 +1,9 @@
+// src/models/UsuarioContraseña.js
 const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/database');const bcrypt = require('bcrypt'); // Para encriptar contraseñas
+const { sequelize } = require('../config/database'); // 👈 Importas como 'sequelize' entre llaves
+const bcrypt = require('bcrypt');
 
-const Usuario = db.define('Usuario', {
+const Usuario = sequelize.define('Usuario', { // 👈 Aquí USAS 'sequelize' para definir
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
