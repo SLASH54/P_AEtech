@@ -1352,8 +1352,10 @@ main {
     padding: 15px; /* Aumenta el padding para mejor espaciado */
     z-index: 1000;
     right: 0;
-    border-radius: 5px;
+    border-radius: 6% ;
     text-align: center; /* Centra el contenido horizontalmente */
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
 }
 
 
@@ -1377,7 +1379,7 @@ main {
 }
 
 .profile-email {
-    color: #777;
+    color: #ffffff;
     margin-bottom: 10px;
 }
 
