@@ -1337,7 +1337,7 @@ button.btn-ver:hover {
 
 button.btn.btn-secondary {
     border-color: rgb(0 245 255 / 44%);
-    background: #01FFC3;
+    background: #01ffc361;
     border-radius: 15px;
     height: 37px;
 }
