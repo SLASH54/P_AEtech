@@ -1336,11 +1336,13 @@ button.btn-ver:hover {
 }
 
 button.btn.btn-secondary {
-    border-color: rgb(89 48 209 / 30%);
-    background: rgb(48 209 81 / 54%) !important;
+    border-color: rgb(0 245 255 / 44%);
+    background: #01FFC3;
     border-radius: 15px;
     height: 37px;
 }
+
+
  .display{
     display: flex;
     justify-content: space-between;
