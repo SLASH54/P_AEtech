@@ -207,13 +207,13 @@
 
         <!-- Recuperar contraseña -->
 
-  <div id="forgot-form-container" class="form-container-glass" style="display: none;">
+ <div id="forgot-form-container" class="form-container-glass" style="display: none;">
     <div class="logo-container">
         <div class="icon-circle">
             <i class="fa-solid fa-user-shield"></i>
         </div>
-        <h3 class="title-aetech">Recuperar Acceso</h3>
-        <p class="description-text">Ingresa tu correo y te enviaremos instrucciones.</p>
+        <h3 class="title-aetech">Restablecer Clave</h3>
+        <p class="description-text">Ingresa tu correo y tu nueva contraseña para actualizar tu acceso.</p>
     </div>
 
     <form id="forgotForm">
@@ -221,17 +221,20 @@
             <label for="recovery_email">Email registrado:</label>
             <input type="email" id="recovery_email" name="recovery_email" required placeholder="ejemplo@aetech.mx">
         </div>
+        
+        <div class="form-group-aetech">
+            <label for="recovery_password">Nueva Contraseña:</label>
+            <input type="password" id="recovery_password" name="recovery_password" required placeholder="Mínimo 6 caracteres">
+        </div>
 
         <div class="buttons-group">
-            <button type="submit" class="btn-express-save">
-                Enviar instrucciones
-            </button>
-            <button type="button" class="btn-express-cancel back-btn-recover">
-                Volver
-            </button>
+            <button type="submit" class="btn-express-save">Actualizar ahora</button>
+            <button type="button" class="btn-express-cancel back-btn-recover">Volver</button>
         </div>
     </form>
 </div>
+
+
 
     <script>
 
@@ -293,41 +296,42 @@
 
     // Envío de recuperación
   // Envío de recuperación real
-    if (forgotFormSub) {
-        forgotFormSub.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const email = document.getElementById('recovery_email').value;
-            
-            // Mostramos un loader o cambiamos el texto del botón
-            const btn = e.target.querySelector('button[type="submit"]');
-            const originalText = btn.innerText;
-            btn.innerText = "Enviando...";
-            btn.disabled = true;
+  if (forgotFormSub) {
+    forgotFormSub.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const email = document.getElementById('recovery_email').value;
+        const nuevaPassword = document.getElementById('recovery_password').value; // 👈 Obtenemos la nueva clave
+        
+        const btn = e.target.querySelector('button[type="submit"]');
+        btn.innerText = "Actualizando...";
+        btn.disabled = true;
 
-            try {
-                const res = await fetch(`${API_BASE_URL}/usuarios/forgot-password`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email })
-                });
+        try {
+            // 🚩 Cambiamos la ruta a /quick-reset
+            const res = await fetch(`${API_BASE_URL}/usuarios/quick-reset`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, nuevaPassword })
+            });
 
-                const data = await res.json();
+            const data = await res.json();
 
-                if (res.ok) {
-                    alert('✅ ¡Listo! Revisa tu correo, te enviamos un enlace de recuperación.');
-                    showWelcomeScreen();
-                } else {
-                    alert(data.msg || 'Hubo un error al procesar la solicitud.');
-                }
-            } catch (err) {
-                console.error('❌ Error:', err);
-                alert('No se pudo conectar con el servidor.');
-            } finally {
-                btn.innerText = originalText;
-                btn.disabled = false;
+            if (res.ok) {
+                alert('✅ ¡Contraseña actualizada con éxito! Ya puedes iniciar sesión.');
+                showWelcomeScreen();
+            } else {
+                alert(data.msg || 'Hubo un error.');
             }
-        });
-    }
+        } catch (err) {
+            console.error('❌ Error:', err);
+            alert('No se pudo conectar con el servidor.');
+        } finally {
+            btn.innerText = "Actualizar ahora";
+            btn.disabled = false;
+        }
+    });
+}
 
     // Mostrar/Ocultar Contraseña
     document.querySelectorAll('.toggle-password').forEach(icon => {

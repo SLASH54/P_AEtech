@@ -60,7 +60,8 @@ exports.resetPassword = async (req, res) => {
             return res.status(404).json({ msg: "Usuario no encontrado" });
         }
 
-        // Encriptar la nueva contraseña antes de guardar
+        // Simplemente asignamos la contraseña, el hook del modelo se encargará
+        // o la encriptamos aquí si el hook no está configurado para updates.
         const salt = await bcrypt.genSalt(10);
         usuario.password = await bcrypt.hash(nuevaPassword, salt);
 
@@ -70,5 +71,31 @@ exports.resetPassword = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ msg: "Error al actualizar la contraseña" });
+    }
+};
+
+
+exports.quickReset = async (req, res) => {
+    const { email, nuevaPassword } = req.body;
+    try {
+        // Buscamos al usuario por su correo
+        const usuario = await Usuario.findOne({ where: { email } });
+        
+        if (!usuario) {
+            return res.status(404).json({ msg: "Este correo no está registrado en AEtech." });
+        }
+
+        // Encriptamos la nueva contraseña
+        const salt = await bcrypt.genSalt(10);
+        usuario.password = await bcrypt.hash(nuevaPassword, salt);
+
+        // Guardamos los cambios
+        await usuario.save();
+        
+        res.json({ msg: "Contraseña actualizada correctamente." });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ msg: "Error al actualizar la contraseña." });
     }
 };
