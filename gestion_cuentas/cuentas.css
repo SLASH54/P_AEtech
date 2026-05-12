@@ -554,6 +554,7 @@ header h1 {
 .modalGlass-content {
     border: 1px solid rgba(255, 255, 255, 0.5); /* Borde blanco sutil */
     background: linear-gradient(135deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4)); /* Gradiente de cristal */
+        animation: slideUp 0.3s ease-out;
 }
 
 /* Ocultar barra en Chrome, Safari y Opera */
