@@ -233,117 +233,126 @@
     </form>
 </div>
 
+    <script>
 
-<script>
-    // 1. DEFINIR LA URL GLOBAL (INDISPENSABLE)
-    const API_BASE_URL = 'https://aetech-backend.onrender.com/api';
+        // Función para mostrar la pantalla de bienvenida y ocultar los formularios
+   document.addEventListener('DOMContentLoaded', function() {
+    // === 1. CONSTANTES DE ELEMENTOS ===
+    const loginBtn = document.getElementById('login-btn');
+    const registerBtn = document.getElementById('register-btn');
+    const welcomeScreen = document.getElementById('welcome-screen');
+    const registroForm = document.getElementById('registroForm');
+    const loginForm = document.getElementById('loginForm');
+    
+    // Elementos de Recuperación Pro
+    const forgotFormContainer = document.getElementById('forgot-form-container');
+    const forgotFormSub = document.getElementById('forgotForm');
+    const forgotLink = document.getElementById('forgot-password-link');
 
-    // 2. FUNCIÓN DE NAVEGACIÓN GLOBAL
+    // === 2. FUNCIONES DE NAVEGACIÓN ===
+    
     function showWelcomeScreen() {
-        const welcome = document.getElementById('welcome-screen');
-        const login = document.getElementById('loginForm');
-        const registro = document.getElementById('registroForm');
-        const forgot = document.getElementById('forgot-form-container');
-
-        if (welcome) welcome.style.display = 'block';
-        if (login) login.style.display = 'none';
-        if (registro) registro.style.display = 'none';
-        if (forgot) forgot.style.display = 'none';
+        welcomeScreen.style.display = 'block';
+        loginForm.style.display = 'none';
+        registroForm.style.display = 'none';
+        if (forgotFormContainer) forgotFormContainer.style.display = 'none';
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        // Elementos
-        const loginBtn = document.getElementById('login-btn');
-        const registerBtn = document.getElementById('register-btn');
-        const welcomeScreen = document.getElementById('welcome-screen');    
-        const registroForm = document.getElementById('registroForm');
-        const loginForm = document.getElementById('loginForm');
-        const forgotFormSub = document.getElementById('forgotForm');
-        const forgotFormContainer = document.getElementById('forgot-form-container');
-        const forgotLink = document.getElementById('forgot-password-link');
-
-        // === LÓGICA DE RECUPERACIÓN ===
-        if (forgotLink) {
-            forgotLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                loginForm.style.display = 'none';
-                forgotFormContainer.style.display = 'block';
-            });
-        }
-
-        if (forgotFormSub) {
-            forgotFormSub.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const emailInput = document.getElementById('recovery_email');
-                if (!emailInput) return;
-
-                const email = emailInput.value;
-                const btn = e.target.querySelector('button[type="submit"]');
-                
-                btn.innerText = "Enviando..."; 
-                btn.disabled = true;
-
-                try {
-                    const res = await fetch(`${API_BASE_URL}/usuarios/forgot-password`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email })
-                    });
-
-                    const data = await res.json();
-                    if (res.ok) {
-                        alert('✅ ¡Listo! Revisa tu correo.');
-                        showWelcomeScreen();
-                    } else {
-                        alert(data.msg || 'Error en el servidor de AEtech.');
-                    }
-                } catch (err) {
-                    console.error('❌ Error:', err);
-                    alert('No se pudo conectar con el servidor.');
-                } finally {
-                    btn.innerText = "Enviar";
-                    btn.disabled = false;
-                }
-            });
-        }
-
-        // === NAVEGACIÓN BÁSICA (LOGIN / REGISTRO) ===
-        if (loginBtn) loginBtn.addEventListener('click', () => {
+    // Mostrar Login
+    if (loginBtn) {
+        loginBtn.addEventListener('click', function() {
             welcomeScreen.style.display = 'none';
             loginForm.style.display = 'block';
         });
+    }
 
-        if (registerBtn) registerBtn.addEventListener('click', () => {
+    // Mostrar Registro
+    if (registerBtn) {
+        registerBtn.addEventListener('click', function() {
             welcomeScreen.style.display = 'none';
             registroForm.style.display = 'block';
         });
+    }
 
-        document.querySelectorAll('.back-btn, .back-btn-recover').forEach(button => {
-            button.addEventListener('click', showWelcomeScreen);
+    // Mostrar Recuperación (El enlace azul en el login)
+    if (forgotLink) {
+        forgotLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            loginForm.style.display = 'none';
+            forgotFormContainer.style.display = 'block';
         });
+    }
 
-        // === PASSWORD TOGGLE ===
-        document.querySelectorAll('.toggle-password').forEach(icon => {
-            icon.addEventListener('click', () => {
-                const targetId = icon.getAttribute('data-target');
-                const input = document.getElementById(targetId);
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    icon.classList.replace('fa-eye', 'fa-eye-slash');
-                } else {
-                    input.type = 'password';
-                    icon.classList.replace('fa-eye-slash', 'fa-eye');
-                }
-            });
-        });
-
-        // === INICIALIZAR FUNCIONES EXTERNAS ===
-        if (typeof checkSession === "function") checkSession();
-        if (loginForm) loginForm.addEventListener('submit', loginUser); 
-        if (registroForm) registroForm.addEventListener('submit', registerUser); 
+    // Configurar todos los botones "Volver"
+    const backButtons = document.querySelectorAll('.back-btn, .back-btn-recover');
+    backButtons.forEach(button => {
+        button.addEventListener('click', showWelcomeScreen);
     });
-</script>
 
+    // === 3. LÓGICA DE FORMULARIOS ===
+
+    // Envío de recuperación
+  // Envío de recuperación real
+    if (forgotFormSub) {
+        forgotFormSub.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('recovery_email').value;
+            
+            // Mostramos un loader o cambiamos el texto del botón
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            btn.innerText = "Enviando...";
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/usuarios/forgot-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert('✅ ¡Listo! Revisa tu correo, te enviamos un enlace de recuperación.');
+                    showWelcomeScreen();
+                } else {
+                    alert(data.msg || 'Hubo un error al procesar la solicitud.');
+                }
+            } catch (err) {
+                console.error('❌ Error:', err);
+                alert('No se pudo conectar con el servidor.');
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        });
+    }
+
+    // Mostrar/Ocultar Contraseña
+    document.querySelectorAll('.toggle-password').forEach(icon => {
+        icon.addEventListener('click', () => {
+            const targetId = icon.getAttribute('data-target');
+            const passwordInput = document.getElementById(targetId);
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        });
+    });
+
+    // Inicializar sesión y eventos existentes
+    if (typeof checkSession === "function") checkSession();
+    if (loginForm) loginForm.addEventListener('submit', loginUser);
+    if (registroForm) registroForm.addEventListener('submit', registerUser);
+});
+
+        
+        
+    </script>
 
     <script src="script.js"></script>
 </section>
