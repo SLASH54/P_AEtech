@@ -233,26 +233,24 @@
     </form>
 </div>
 
+    <script>
 
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // === 1. CONFIGURACIÓN GLOBAL ===
-    // ⚠️ SUSTITUYE ESTO POR TU URL REAL DE RENDER
-    const API_BASE_URL = 'https://aetech-backend.onrender.com/api'; 
-
-    // === 2. CONSTANTES DE ELEMENTOS ===
+        // Función para mostrar la pantalla de bienvenida y ocultar los formularios
+   document.addEventListener('DOMContentLoaded', function() {
+    // === 1. CONSTANTES DE ELEMENTOS ===
     const loginBtn = document.getElementById('login-btn');
     const registerBtn = document.getElementById('register-btn');
     const welcomeScreen = document.getElementById('welcome-screen');
     const registroForm = document.getElementById('registroForm');
     const loginForm = document.getElementById('loginForm');
     
+    // Elementos de Recuperación Pro
     const forgotFormContainer = document.getElementById('forgot-form-container');
     const forgotFormSub = document.getElementById('forgotForm');
     const forgotLink = document.getElementById('forgot-password-link');
 
-    // === 3. FUNCIONES DE NAVEGACIÓN ===
+    // === 2. FUNCIONES DE NAVEGACIÓN ===
+    
     function showWelcomeScreen() {
         welcomeScreen.style.display = 'block';
         loginForm.style.display = 'none';
@@ -260,46 +258,53 @@ document.addEventListener('DOMContentLoaded', function() {
         if (forgotFormContainer) forgotFormContainer.style.display = 'none';
     }
 
+    // Mostrar Login
     if (loginBtn) {
-        loginBtn.addEventListener('click', () => {
+        loginBtn.addEventListener('click', function() {
             welcomeScreen.style.display = 'none';
             loginForm.style.display = 'block';
         });
     }
 
+    // Mostrar Registro
     if (registerBtn) {
-        registerBtn.addEventListener('click', () => {
+        registerBtn.addEventListener('click', function() {
             welcomeScreen.style.display = 'none';
             registroForm.style.display = 'block';
         });
     }
 
+    // Mostrar Recuperación (El enlace azul en el login)
     if (forgotLink) {
-        forgotLink.addEventListener('click', (e) => {
+        forgotLink.addEventListener('click', function(e) {
             e.preventDefault();
             loginForm.style.display = 'none';
             forgotFormContainer.style.display = 'block';
         });
     }
 
+    // Configurar todos los botones "Volver"
     const backButtons = document.querySelectorAll('.back-btn, .back-btn-recover');
     backButtons.forEach(button => {
         button.addEventListener('click', showWelcomeScreen);
     });
 
-    // === 4. LÓGICA DE ENVÍO DE CORREO (FORGOT PASSWORD) ===
+    // === 3. LÓGICA DE FORMULARIOS ===
+
+    // Envío de recuperación
+  // Envío de recuperación real
     if (forgotFormSub) {
         forgotFormSub.addEventListener('submit', async function(e) {
             e.preventDefault();
             const email = document.getElementById('recovery_email').value;
             
+            // Mostramos un loader o cambiamos el texto del botón
             const btn = e.target.querySelector('button[type="submit"]');
             const originalText = btn.innerText;
             btn.innerText = "Enviando...";
             btn.disabled = true;
 
             try {
-                // Aquí usamos la constante que definimos arriba
                 const res = await fetch(`${API_BASE_URL}/usuarios/forgot-password`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -309,15 +314,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 const data = await res.json();
 
                 if (res.ok) {
-                    alert('✅ ¡Correo enviado! Revisa tu bandeja de entrada en AEtech.');
+                    alert('✅ ¡Listo! Revisa tu correo, te enviamos un enlace de recuperación.');
                     showWelcomeScreen();
                 } else {
-                    // Si el servidor manda error, lo mostramos aquí
-                    alert(data.msg || 'Error en el servidor');
+                    alert(data.msg || 'Hubo un error al procesar la solicitud.');
                 }
             } catch (err) {
                 console.error('❌ Error:', err);
-                alert('No se pudo conectar con el servidor de Render.');
+                alert('No se pudo conectar con el servidor.');
             } finally {
                 btn.innerText = originalText;
                 btn.disabled = false;
@@ -325,7 +329,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // === 5. EXTRAS (PASSWORD TOGGLE) ===
+    // Mostrar/Ocultar Contraseña
     document.querySelectorAll('.toggle-password').forEach(icon => {
         icon.addEventListener('click', () => {
             const targetId = icon.getAttribute('data-target');
@@ -339,9 +343,16 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-});
-</script>
 
+    // Inicializar sesión y eventos existentes
+    if (typeof checkSession === "function") checkSession();
+    if (loginForm) loginForm.addEventListener('submit', loginUser);
+    if (registroForm) registroForm.addEventListener('submit', registerUser);
+});
+
+        
+        
+    </script>
 
     <script src="script.js"></script>
 </section>
