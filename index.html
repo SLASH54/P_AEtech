@@ -235,10 +235,10 @@
 
 
 <script>
-    // 1. DEFINIR LA URL (ESTO ES LO QUE FALTABA PARA EVITAR EL ERROR 404)
+    // 1. DEFINIR LA URL GLOBAL (INDISPENSABLE)
     const API_BASE_URL = 'https://aetech-backend.onrender.com/api';
 
-    // 2. FUNCIÓN GLOBAL PARA NAVEGACIÓN
+    // 2. FUNCIÓN DE NAVEGACIÓN GLOBAL
     function showWelcomeScreen() {
         const welcome = document.getElementById('welcome-screen');
         const login = document.getElementById('loginForm');
@@ -252,7 +252,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        // Elementos del DOM
+        // Elementos
         const loginBtn = document.getElementById('login-btn');
         const registerBtn = document.getElementById('register-btn');
         const welcomeScreen = document.getElementById('welcome-screen');    
@@ -295,7 +295,7 @@
                         alert('✅ ¡Listo! Revisa tu correo.');
                         showWelcomeScreen();
                     } else {
-                        alert(data.msg || 'Error en el servidor.');
+                        alert(data.msg || 'Error en el servidor de AEtech.');
                     }
                 } catch (err) {
                     console.error('❌ Error:', err);
@@ -307,12 +307,7 @@
             });
         }
 
-        // === BOTONES VOLVER ===
-        document.querySelectorAll('.back-btn, .back-btn-recover').forEach(button => {
-            button.addEventListener('click', showWelcomeScreen);
-        });
-
-        // === NAVEGACIÓN LOGIN/REGISTRO ===
+        // === NAVEGACIÓN BÁSICA (LOGIN / REGISTRO) ===
         if (loginBtn) loginBtn.addEventListener('click', () => {
             welcomeScreen.style.display = 'none';
             loginForm.style.display = 'block';
@@ -321,6 +316,10 @@
         if (registerBtn) registerBtn.addEventListener('click', () => {
             welcomeScreen.style.display = 'none';
             registroForm.style.display = 'block';
+        });
+
+        document.querySelectorAll('.back-btn, .back-btn-recover').forEach(button => {
+            button.addEventListener('click', showWelcomeScreen);
         });
 
         // === PASSWORD TOGGLE ===
@@ -338,7 +337,7 @@
             });
         });
 
-        // Iniciar Sesión (Tus funciones originales)
+        // === INICIALIZAR FUNCIONES EXTERNAS ===
         if (typeof checkSession === "function") checkSession();
         if (loginForm) loginForm.addEventListener('submit', loginUser); 
         if (registroForm) registroForm.addEventListener('submit', registerUser); 
