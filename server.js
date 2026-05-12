@@ -63,14 +63,7 @@ app.use('/api/contratos', require('./src/routes/contratoRoutes'));
 app.use('/api/usuarios',  require('./src/routes/usuarioRoutes'));
 
 
-// ... (después del bloque de app.use(cors({ ... })))
 
-app.use((req, res, next) => {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.warn("⚠️ Advertencia: Las credenciales de correo no están configuradas en .env");
-  }
-  next();
-});
 
 // ... (antes de app.use(express.json()))
 // Ruta exclusiva para el Cronjob - NO TOCA LA BASE DE DATOS
