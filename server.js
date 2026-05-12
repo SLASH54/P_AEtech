@@ -62,6 +62,17 @@ app.use('/api/productos', require('./src/routes/productoRoutes'));
 app.use('/api/contratos', require('./src/routes/contratoRoutes'));
 app.use('/api/usuarios',  require('./src/routes/usuarioRoutes'));
 
+
+// ... (después del bloque de app.use(cors({ ... })))
+
+app.use((req, res, next) => {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.warn("⚠️ Advertencia: Las credenciales de correo no están configuradas en .env");
+  }
+  next();
+});
+
+// ... (antes de app.use(express.json()))
 // Ruta exclusiva para el Cronjob - NO TOCA LA BASE DE DATOS
 app.get('/api/keep-alive', (req, res) => {
   console.log('Keep-alive: El servidor sigue despierto, Neon sigue durmiendo. 😴');
@@ -99,6 +110,23 @@ connectDB()
 
 
 
+
+
+  // ... (después de la última ruta: app.use('/api/usuarios', require(...)))
+
+// --- AQUÍ VAN LOS MANEJADORES ---
+app.use((req, res, next) => {
+  res.status(404).json({ msg: "Ruta no encontrada en el servidor de AEtech" });
+});
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ msg: "Error interno del servidor", error: err.message });
+});
+
+// === INICIO DEL SERVIDOR EN NEON ===
+connectDB()
+// ...
   
 // server.js final
 
