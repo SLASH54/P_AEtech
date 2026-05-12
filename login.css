@@ -5460,3 +5460,51 @@ label[for="tareaAsignadoA"] {
 }
 
 /* ELIMINAMOS EL width: max-content QUE TENÍAS AQUÍ */
+
+
+/* Estilo para el botón X de las evidencias */
+.btn-eliminar-evidencia {
+    transition: background 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.btn-eliminar-evidencia:hover {
+    background: #cc0000 !important;
+    transform: scale(1.1);
+}
+
+/* Asegurar que la tarjeta sea el contenedor de referencia */
+.card-evidencia {
+    position: relative; /* Importante para que la X se quede en la esquina */
+}
+
+
+.card-evidencia {
+  position: relative; /* Obligatorio para posicionar la X */
+  padding-top: 30px;  /* Espacio para que la X no tape el título */
+}
+
+.btn-eliminar-evidencia {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  z-index: 5;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.btn-eliminar-evidencia:hover {
+  background-color: #d32f2f;
+  transform: scale(1.1);
+}

@@ -1037,34 +1037,34 @@
   <div id="contenedor-evidencias" class="evidencias-grid">
 
     <!-- Campo 1 -->
-    <div class="card-evidencia">
-      <label>Título de la evidencia</label>
-      <input type="text" name="titulo[]" value="Foto De confirmacion de Ubicación" readonly>
-      <!-- PREVISUALIZACIÓN DE IMAGEN -->
-<div class="preview-container">
-  <img class="preview-img" src="" alt="Vista previa" style="display:none;">
+   <div class="card-evidencia" style="position: relative;">
+  <label>Título de la evidencia</label>
+  <input type="text" name="titulo[]" value="Foto De confirmacion de Ubicación" readonly>
+  <div class="preview-container">
+    <img class="preview-img" src="" alt="Vista previa" style="display:none;">
+  </div>
+  <label class="label-file">
+    <i class="fa-solid fa-camera"></i> Tomar Foto / Elegir Archivo
+    <input type="file" name="archivos" class="archivo" accept="image/*">
+  </label>
 </div>
 
-      <label class="label-file">
-        <i class="fa-solid fa-camera"></i> Tomar Foto / Elegir Archivo
-        <input type="file" name="archivos" class="archivo" accept="image/*">
-      </label>
-    </div>
+<div class="card-evidencia" style="position: relative;">
+  <button type="button" class="btn-eliminar-evidencia" onclick="this.parentElement.remove()">
+    <i class="fa-solid fa-xmark"></i>
+  </button>
 
-    <!-- Campo 2 -->
-    <div class="card-evidencia">
-      <label>Título de la evidencia</label>
-      <input type="text" name="titulo[]" placeholder="Ej: Foto después de la instalación">
-      <!-- PREVISUALIZACIÓN DE IMAGEN -->
-<div class="preview-container">
-  <img class="preview-img" src="" alt="Vista previa" style="display:none;">
+  <label>Título de la evidencia</label>
+  <input type="text" name="titulo[]" placeholder="Ej: Foto después de la instalación">
+  <div class="preview-container">
+    <img class="preview-img" src="" alt="Vista previa" style="display:none;">
+  </div>
+
+  <label class="label-file">
+    <i class="fa-solid fa-camera"></i> Tomar Foto / Elegir Archivo
+    <input type="file" name="archivos" class="archivo" accept="image/*">
+  </label>
 </div>
-
-      <label class="label-file">
-        <i class="fa-solid fa-camera"></i> Tomar Foto / Elegir Archivo
-        <input type="file" name="archivos" class="archivo" accept="image/*">
-      </label>
-    </div>
   </div>
 
 

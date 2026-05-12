@@ -2882,23 +2882,27 @@ function initEvidencias(tareaId) {
   `;
   fotosContainer.appendChild(divFija);
 
-  function agregarCampo() {
-    const div = document.createElement('div');
-    div.className = 'card-evidencia';
-    div.style = "margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 10px; background-color: #f9f9f9;";
-    div.innerHTML = `
-      <label>Título de la evidencia</label>
-      <input type="text" class="titulo" placeholder="Ej: Foto antes de la instalación">
-      <label class="label-file">
-        <i class="fa-solid fa-camera"></i> Tomar Foto / Elegir Archivo
-        <input type="file" class="archivo" accept="image/*">
-      </label>
-      <div class="preview-container">
-        <img class="preview-img" src="" alt="Vista previa" style="display:none;">
-      </div>
-    `;
-    fotosContainer.appendChild(div);
-  }
+function agregarCampo() {
+  const div = document.createElement('div');
+  div.className = 'card-evidencia';
+  div.style.position = "relative"; // Aseguramos el posicionamiento
+  
+  div.innerHTML = `
+    <button type="button" class="btn-eliminar-evidencia" onclick="this.parentElement.remove()">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+    <label>Título de la evidencia</label>
+    <input type="text" class="titulo" name="titulo[]" placeholder="Ej: Foto antes de la instalación">
+    <label class="label-file">
+      <i class="fa-solid fa-camera"></i> Tomar Foto / Elegir Archivo
+      <input type="file" name="archivos" class="archivo" accept="image/*">
+    </label>
+    <div class="preview-container">
+      <img class="preview-img" src="" alt="Vista previa" style="display:none; width:100%; margin-top:10px; border-radius:8px;">
+    </div>
+  `;
+  fotosContainer.appendChild(div);
+}
 
   for (let i = 0; i < 2; i++) agregarCampo();
   addBtn.onclick = agregarCampo;
