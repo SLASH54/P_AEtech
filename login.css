@@ -1939,6 +1939,7 @@ button:disabled {
     border-radius: 24px !important;
     max-width: 700px !important;
     box-shadow: 0 20px 40px #2196F3, 0 0 20px rgba(59, 130, 246, 0.3) !important;
+     animation: slideUp 0.3s ease-out;
 }
 
 /* --- FORZAR GRID EN EL FORMULARIO --- */
@@ -3502,22 +3503,6 @@ h3 {
     transform: translateY(-6px) scale(1.03);
     background: rgba(255, 255, 255, 0.35);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
