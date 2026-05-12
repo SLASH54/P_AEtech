@@ -1776,7 +1776,7 @@ const clienteMapsLink = clienteMaps
      </button>`
   : `<button disabled title="Solo disponible cuando la tarea esté completada" 
              class="inline-block px-3 py-1 text-sm rounded bg-gray-300 text-gray-600 cursor-not-allowed ml-2" 
-             style="width: 95%;">
+             style="width: 100%;">
          📄 PDF
      </button>`
 }
