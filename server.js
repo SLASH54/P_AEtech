@@ -73,7 +73,7 @@ app.get('/api/keep-alive', (req, res) => {
 });
 
 
-// === INICIO DEL SERVIDOR EN NEON ===
+// === INICIO DEL SERVIDOR EN NEON CONECCION BASE DE DATOS  ===
 connectDB()
   .then(async () => {
     console.log('✅ Base de datos Neon conectada');
