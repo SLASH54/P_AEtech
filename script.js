@@ -2966,39 +2966,40 @@ function agregarCampo() {
           formData.append('archivos', fotoLigera, 'evidencia.jpg');
         }
       }
+// 3. Firma (Lógica de recuperación con prioridad)
+const firmaLocalRaw = localStorage.getItem(`firma_pendiente_${tareaId}`);
+const canvas = document.getElementById('signature-pad');
+let firmaFinalBlob = null;
+let nombreFinalFirma = document.getElementById("inputNombreFirma")?.value.trim() || "";
 
-      // 3. Firma (Lógica de recuperación)
-        const firmaLocal = JSON.parse(localStorage.getItem(`firma_pendiente_${tareaId}`));
-        const canvas = document.getElementById('signature-pad');
+if (firmaLocalRaw) {
+    // PRIORIDAD 1: Si hay algo en LocalStorage, lo usamos sí o sí
+    const firmaLocal = JSON.parse(firmaLocalRaw);
+    const blobBin = atob(firmaLocal.imagen.split(',')[1]);
+    const array = [];
+    for (let i = 0; i < blobBin.length; i++) array.push(blobBin.charCodeAt(i));
+    firmaFinalBlob = new Blob([new Uint8Array(array)], { type: 'image/png' });
+    nombreFinalFirma = firmaLocal.nombre;
+    
+    console.log("Firma: Se encontró una firma guardada localmente. Usando esa.");
+    alert("ℹ️ Usando la firma guardada anteriormente del cliente."); // Mensaje de confirmación para el técnico
+} else if (canvas) {
+    // PRIORIDAD 2: Solo si NO hay nada guardado, intentamos leer el canvas
+    const firmaData = canvas.toDataURL('image/png');
+    
+    // Validación extra: No enviar si el canvas está "en blanco"
+    // (Opcional: puedes dejarlo así si confías en que firmarán en el momento)
+    const blobBin = atob(firmaData.split(',')[1]);
+    const array = [];
+    for (let i = 0; i < blobBin.length; i++) array.push(blobBin.charCodeAt(i));
+    firmaFinalBlob = new Blob([new Uint8Array(array)], { type: 'image/png' });
+}
 
-        let firmaFinalBlob = null;
-        let nombreFinalFirma = document.getElementById("inputNombreFirma")?.value.trim() || "";
-
-        if (firmaLocal) {
-            // Si hay una firma guardada días antes en LocalStorage, la usamos
-            const blobBin = atob(firmaLocal.imagen.split(',')[1]);
-            const array = [];
-            for (let i = 0; i < blobBin.length; i++) array.push(blobBin.charCodeAt(i));
-            firmaFinalBlob = new Blob([new Uint8Array(array)], { type: 'image/png' });
-            nombreFinalFirma = firmaLocal.nombre;
-            console.log("Firmas: Usando firma recuperada del almacenamiento local.");
-        } else if (canvas) {
-            // Si no hay nada en LocalStorage, intentamos capturar lo que haya en el canvas actualmente
-            const firmaData = canvas.toDataURL('image/png');
-            // Verificamos que el canvas no esté vacío (opcional pero recomendado)
-            const blobBin = atob(firmaData.split(',')[1]);
-            const array = [];
-            for (let i = 0; i < blobBin.length; i++) array.push(blobBin.charCodeAt(i));
-            firmaFinalBlob = new Blob([new Uint8Array(array)], { type: 'image/png' });
-        }
-
-        // Agregamos la firma al FormData si existe
-        if (firmaFinalBlob) {
-            formData.append('firmaCliente', firmaFinalBlob, 'firma_cliente.png');
-        }
-
-        // IMPORTANTE: Actualizamos el nombre con el de la firma recuperada o el actual
-        formData.set('nombreFirma', nombreFinalFirma);
+// Agregar al FormData
+if (firmaFinalBlob) {
+    formData.append('firmaCliente', firmaFinalBlob, 'firma_cliente.png');
+}
+formData.set('nombreFirma', nombreFinalFirma);
 
       //const canvas = document.getElementById('signature-pad');
       //if (canvas) {
@@ -3038,6 +3039,24 @@ function agregarCampo() {
     } finally {
       loader.style.display = 'none';
     }
+    // Al final de initEvidencias(tareaId)
+const firmaExistente = localStorage.getItem(`firma_pendiente_${tareaId}`);
+if (firmaExistente) {
+    const btnFirma = document.getElementById('btnGuardarFirma');
+    const inputNombre = document.getElementById('inputNombreFirma');
+    const datos = JSON.parse(firmaExistente);
+
+    if (btnFirma) {
+        btnFirma.innerHTML = '<i class="fa-solid fa-check"></i> Firma Recuperada';
+        btnFirma.style.backgroundColor = "#28a745"; // Color verde de éxito
+    }
+    if (inputNombre) {
+        inputNombre.value = datos.nombre;
+        inputNombre.disabled = true; // Evitamos que lo cambien si ya está firmado
+    }
+    
+    console.log("Sistema: Firma recuperada de la memoria para la tarea " + tareaId);
+}
   };
 }
 
@@ -3147,43 +3166,27 @@ if (canvas) {
 
     // 🟢 GUARDAR FIRMA Y NOMBRE EN AETECH
     document.getElementById('btnGuardarFirma').addEventListener('click', async () => {
-        // 1. Buscamos el input por su ID real
-        const inputNombre = document.getElementById("inputNombreFirma");
-        const nombreFirma = inputNombre ? inputNombre.value.trim() : "";
-        const canvas = document.getElementById('signature-pad');
+    const inputNombre = document.getElementById("inputNombreFirma");
+    const nombreFirma = inputNombre ? inputNombre.value.trim() : "";
+    const canvas = document.getElementById('signature-pad');
 
-        // 2. Validación amigable
-        if (!nombreFirma) {
-            return alert(" por favor escribe el nombre de quien firma antes de guardar.");
-        }
+    if (!nombreFirma) {
+        return alert("Por favor escribe el nombre de quien firma antes de guardar.");
+    }
 
-        
     if (canvas) {
         const firmaData = canvas.toDataURL('image/png');
-        
-        // Guardamos un objeto con la firma y el nombre usando el ID de la tarea como llave
-        // Usamos la variable tareaId que ya tienes en tu función principal
         const datosFirma = {
             imagen: firmaData,
             nombre: nombreFirma
         };
         
+        // Guardamos usando la variable tareaId que recibe tu función initEvidencias
         localStorage.setItem(`firma_pendiente_${tareaId}`, JSON.stringify(datosFirma));
         
-        alert("✅ Firma guardada en el dispositivo. Puedes subir las evidencias después.");
-        
-        // Opcional: Deshabilitar el botón para indicar que ya se guardó
-        document.getElementById('btnGuardarFirma').innerText = "Firma Guardada ✔️";
-        document.getElementById('btnGuardarFirma').disabled = true;
+        alert("✅ Firma guardada localmente. Ahora puedes refrescar o subir las evidencias después.");
     }
-
-        // 3. Ejecutamos la subida a Render
-      //  if (typeof tareaIdActual !== 'undefined' && tareaIdActual) {
-          //  await subirEvidencias(tareaIdActual);
-       // } else {
-         //   alert("Error: No se detectó el ID de la tarea. Intenta abrir de nuevo la tarea.");
-       // }
-    });
+});
 }
 
 
