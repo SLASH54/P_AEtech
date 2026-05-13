@@ -5449,7 +5449,9 @@ label[for="tareaAsignadoA"] {
 /* ELIMINAMOS EL width: max-content QUE TENÍAS AQUÍ */
 
 
-/* Estilo para el botón X de las evidencias */
+
+
+/* Estilo para el botón (X)de las evidencias */
 .btn-eliminar-evidencia {
     transition: background 0.3s ease, transform 0.2s ease;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);

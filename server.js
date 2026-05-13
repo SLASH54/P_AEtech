@@ -60,7 +60,7 @@ app.use("/api/levantamientos", require("./src/routes/LevantamientosRoutes"));
 app.use('/api/cuentas', require('./src/routes/cuentaRoutes'));
 app.use('/api/productos', require('./src/routes/productoRoutes'));
 app.use('/api/contratos', require('./src/routes/contratoRoutes'));
-app.use('/api/usuarios',  require('./src/routes/usuarioRoutes'));
+app.use('/api/usuarios',  require('./src/routes/usuarioRoutes'));  // === Login Usuarios ===
 
 
 
