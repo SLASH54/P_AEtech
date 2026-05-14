@@ -55,8 +55,8 @@ exports.generarPDFContrato = async (req, res) => {
             `2.- Declara “la prestadora” que su actividad es entre otras, la prestación de servicios de instalación, implementación de sistemas de seguridad electrónica, tendientes a satisfacer las necesidades de “la contratante”.`,
             `3.- Declara “la prestadora” tener la capacidad jurídica para celebrar todo tipo de contratos relacionados con su actividad, así como contar con el personal profesional capacitado para prestar a la contratante los servicios requeridos y que cuenta con la capacidad y experiencia técnica suficiente,  conociendo las normas para la implementación del proyecto.`,
             `4.- Por su parte declara “la contratante”, por medio de su representante, ser una persona física, mexicana, debidamente constituida conforme a las leyes vigentes con plena capacidad legal para contratar y obligarse en los términos del presente contrato.`,
-            `5.- Declara “la contratante” que para realizar su objeto social requiere de la obtención de servicios especializados en seguridad electrónica, instalación e implementación, por lo que decidió contratar dichos servicios con “la prestadora”, la cual está preparada para proporcionárselos en forma especializada.`
-            `6.- Declara la prestadora y la contratante: que será la bitácora, el propio contrato y sus anexos quien vincule a las partes que declaren motivo de este contrato en sus derechos y obligaciones.`
+            `5.- Declara “la contratante” que para realizar su objeto social requiere de la obtención de servicios especializados en seguridad electrónica, instalación e implementación, por lo que decidió contratar dichos servicios con “la prestadora”, la cual está preparada para proporcionárselos en forma especializada.`,
+            `6.- Declara la prestadora y la contratante: que será la bitácora, el propio contrato y sus anexos quien vincule a las partes que declaren motivo de este contrato en sus derechos y obligaciones.`,
         ];
 
         declaraciones.forEach(texto => {
