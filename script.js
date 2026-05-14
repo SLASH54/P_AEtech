@@ -3805,7 +3805,9 @@ const token = localStorage.getItem('accessToken');
 async function cargarNotificaciones() {
   try {
     const jwt = localStorage.getItem('accessToken');
+
     const res = await fetch(`${API_BASE_URL}/notificaciones`, {
+        
       headers: { Authorization: `Bearer ${jwt}` }
     });
     const data = await res.json();
