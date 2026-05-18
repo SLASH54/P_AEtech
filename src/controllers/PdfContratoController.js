@@ -71,16 +71,7 @@ exports.generarPDFContrato = async (req, res) => {
         doc.font('Helvetica').text(`Primera. “La prestadora” se obliga a prestar a “la contratante” los servicios especializados monitoreo de sistema de alarma vinculado a central de monitoreo “AE Tech”.`, { align: 'justify' });
         doc.moveDown(0.5);
         
-        doc.text(`. Los servicios objeto del presente contrato serán proporcionados por “la 
-prestadora” a “la contratante” con sus propios elementos personales y materiales, ya que 
-cuenta con el personal especializado necesario para ello y con el equipo idóneo para 
-proporcionarlos. Queda expresamente convenido que los servicios serán prestados por la 
-prestadora a la contratante con su propio personal, obligandose a: a)  
-Realizar con el apoyo total de la contratante las visitas de carácter técnico de cuando 
-menos al inicio y durante el periodo comprendido en el contrato. 
-b) Tener acceso a la bitácora de la obra en ejecución con la autoridad que corresponda para 
-anotar las observaciones pertinentes y que redunden en el proceso constructivo como en 
-el avance de la misma.`, { align: 'justify' });
+        doc.text(`. Los servicios objeto del presente contrato serán proporcionados por “la prestadora” a “la contratante” con sus propios elementos personales y materiales, ya que cuenta con el personal especializado necesario para ello y con el equipo idóneo para proporcionarlos. Queda expresamente convenido que los servicios serán prestados por la prestadora a la contratante con su propio personal, obligandose a: a) Realizar con el apoyo total de la contratante las visitas de carácter técnico de cuando menos al inicio y durante el periodo comprendido en el contrato. b) Tener acceso a la bitácora de la obra en ejecución con la autoridad que corresponda para anotar las observaciones pertinentes y que redunden en el proceso constructivo como en el avance de la misma.`, { align: 'justify' });
         doc.moveDown(0.5);
 
         doc.text(`Tercera. Los servicios y suministros de material y equipo en calidad de préstamo (propiedad de la contratante) objeto del presente contrato serán prestados fundamentalmente en las instalaciones solicitadas por la parte contratante, con domicilio `, { align: 'justify', continued: true })
