@@ -715,6 +715,7 @@ async function fetchData(endpoint, options = {}) {
     // ... tu lógica de carga de datos ...
 
 // Función initAdminPanel - (OK, déjala global)
+
 async function initAdminPanel() {
   const userRole = localStorage.getItem('userRol');
   const adminSection = document.getElementById('Administracion');
@@ -743,6 +744,10 @@ async function initAdminPanel() {
 
   console.log('initAdminPanel cargado correctamente.');
 }
+
+
+
+
 
 
 // Función generarFilasUsuariosRoles - (DEBE SER GLOBAL)
@@ -837,6 +842,8 @@ function generarFilasClientes(clientes, tbodyElement) {
     tbodyElement.innerHTML = filas;
     attachCrudListeners();
 }
+
+
 
 async function cargarClientesTabla() {
   const userRole = localStorage.getItem('userRol');

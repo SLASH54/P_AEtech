@@ -5497,3 +5497,96 @@ label[for="tareaAsignadoA"] {
   background-color: #d32f2f;
   transform: scale(1.1);
 }
+
+
+
+/* ==========================================
+   MEDIA QUERY PARA TABLAS EN CELULARES (AETech)
+   ========================================== */
+@media screen and (max-width: 768px) {
+    
+    /* 1. Esconder por completo el encabezado de la tabla */
+    #datagridUsuariosRoles thead, 
+    #datagridClientes thead {
+        display: none;
+    }
+
+    /* 2. Forzar a la tabla, filas y celdas a comportarse como bloques apilados */
+    #datagridUsuariosRoles, 
+    #datagridClientes,
+    #datagridUsuariosRoles tbody, 
+    #datagridClientes tbody,
+    #datagridUsuariosRoles tr, 
+    #datagridClientes tr,
+    #datagridUsuariosRoles td, 
+    #datagridClientes td {
+        display: block;
+        width: 100%;
+    }
+
+    /* 3. Convertir cada fila (tr) en una tarjeta "Card" independiente */
+    #datagridUsuariosRoles tr, 
+    #datagridClientes tr {
+        background-color: #1a1a1a; /* Ajusta al fondo oscuro de tu app */
+        margin-bottom: 20px;
+        padding: 15px;
+        border-radius: 12px;
+        border: 1px solid #333;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    /* 4. Darle formato a cada celda (td) para que parezca un campo del Card */
+    #datagridUsuariosRoles td, 
+    #datagridClientes td {
+        text-align: left;
+        padding: 8px 5px;
+        border: none;
+        font-size: 14px;
+        position: relative;
+    }
+
+    /* 5. Estilo especial para la primera celda (El Nombre) para que resalte como título */
+    #datagridUsuariosRoles td:first-child, 
+    #datagridClientes td:first-child {
+        font-size: 18px;
+        font-weight: bold;
+        color: #00938f; /* El color verde característico de AEtech */
+        border-bottom: 1px solid #333;
+        margin-bottom: 10px;
+        padding-bottom: 8px;
+    }
+
+    /* 6. Truco CSS: Agregar etiquetas automáticas antes del contenido usando :before */
+    
+    /* Para la tabla de Usuarios con Roles */
+    #datagridUsuariosRoles td:nth-child(2):before { content: "📧 Email: "; font-weight: bold; color: #aaa; }
+    #datagridUsuariosRoles td:nth-child(3):before { content: "💼 Rol: "; font-weight: bold; color: #aaa; }
+    #datagridUsuariosRoles td:nth-child(4):before { content: "🔑 Contraseña: "; font-weight: bold; color: #aaa; }
+
+    /* Para la tabla de Clientes */
+    #datagridClientes td:nth-child(2):before { content: "📧 Email: "; font-weight: bold; color: #aaa; }
+    #datagridClientes td:nth-child(3):before { content: "📍 Dirección(es): \A"; font-weight: bold; color: #aaa; white-space: pre; }
+    #datagridClientes td:nth-child(4):before { content: "📞 Teléfono: "; font-weight: bold; color: #aaa; }
+
+    /* 7. Contenedor de botones de Acción (Editar / Eliminar) */
+    #datagridUsuariosRoles td:last-child, 
+    #datagridClientes td:last-child {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        border-top: 1px solid #333;
+        margin-top: 10px;
+        padding-top: 12px;
+    }
+
+    /* Asegurar que los botones ocupen buen tamaño para el dedo en el cel */
+    #datagridUsuariosRoles .edit-btn, #datagridUsuariosRoles .delete-btn,
+    #datagridClientes .edit-btn, #datagridClientes .delete-btn {
+        flex: 1;
+        max-width: 150px;
+        padding: 10px;
+        text-align: center;
+        border-radius: 8px;
+        font-size: 14px;
+    }
+}
