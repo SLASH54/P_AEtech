@@ -5529,7 +5529,7 @@ label[for="tareaAsignadoA"] {
     #datagridClientes tr {
         background-color: #1a1a1a; /* Ajusta al fondo oscuro de tu app */
         margin-bottom: 20px;
-        padding: 15px;
+       
         border-radius: 12px;
         border: 1px solid #333;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
@@ -5590,3 +5590,5 @@ label[for="tareaAsignadoA"] {
         font-size: 14px;
     }
 }
+
+
