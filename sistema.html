@@ -2734,18 +2734,40 @@ function abrirMinijuegoOculto() {
     let corriendo = true;
 
     // Controles por teclado (PC)
+    // ==========================================
+    // CONTROLES OPTIMIZADOS (PC Y MÓVIL)
+    // ==========================================
+
+    // 1. Controles por teclado (Para PC)
     window.onkeydown = (e) => {
         if (e.key === 'ArrowUp' || e.key === 'w') jugadorVelY = -6;
         if (e.key === 'ArrowDown' || e.key === 's') jugadorVelY = 6;
     };
     window.onkeyup = () => jugadorVelY = 0;
     
-    // Controles por clics/toques en pantalla (Móvil)
-    canvas.onclick = (e) => {
+    // 2. Control por Toques Tactiles (Para Celulares) - ¡AQUÍ ESTÁ LA MAGIA!
+    canvas.addEventListener('touchstart', (e) => {
+        // Evita que la pantalla del celular haga scroll o rebote al jugar
+        e.preventDefault(); 
+
+        // Obtener la posición exacta del toque en relación al Canvas
+        const rect = canvas.getBoundingClientRect();
+        const toqueRealY = e.touches[0].clientY - rect.top;
+
+        // Si el usuario toca la mitad superior del canvas, sube. Si toca la mitad inferior, baja.
+        if (toqueRealY < jugadorY) {
+            jugadorY -= 40; // Salto hacia arriba
+        } else {
+            jugadorY += 40; // Salto hacia abajo
+        }
+    }, { passive: false });
+
+    // 3. Mantener el clic de mouse por si en la PC también quieren jugar con el puntero
+    canvas.onmousedown = (e) => {
         const rect = canvas.getBoundingClientRect();
         const clickRealY = e.clientY - rect.top;
-        if (clickRealY < jugadorY) jugadorY -= 35;
-        else jugadorY += 35;
+        if (clickRealY < jugadorY) jugadorY -= 40;
+        else jugadorY += 40;
     };
 
     function loop() {
