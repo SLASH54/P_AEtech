@@ -3024,6 +3024,7 @@ function abrirTetrisOculto() {
     }
 
     // Controles por teclado (PC)
+    // --- CONTROLES PARA PC ---
     window.onkeydown = (e) => {
         if (e.key === 'ArrowLeft' || e.key === 'a') moverIzquierda();
         if (e.key === 'ArrowRight' || e.key === 'd') moverDerecha();
@@ -3032,14 +3033,37 @@ function abrirTetrisOculto() {
         dibujar();
     };
 
-    // Controles por botones en pantalla (Móvil)
-    document.getElementById('btnIzquierda').onclick = () => { moverIzquierda(); dibujar(); };
-    document.getElementById('btnDerecha').onclick = () => { moverDerecha(); dibujar(); };
-    document.getElementById('btnRotar').onclick = () => { rotarPieza(); dibujar(); };
-    document.getElementById('btnBajar').onclick = () => { bajarPieza(); dibujar(); };
+    // --- CONTROLES PARA MÓVIL (CORREGIDOS CON TOUCHSTART) ---
+    
+    // Función asistente para manejar el toque de forma limpia
+    function manejarToqueBoton(idBoton, accion) {
+        const boton = document.getElementById(idBoton);
+        if (boton) {
+            // Usamos touchstart para una respuesta instantánea en celular
+            boton.addEventListener('touchstart', (e) => {
+                e.preventDefault(); // Evita el zoom o scroll del navegador
+                e.stopPropagation(); // Evita que el evento afecte al fondo
+                accion();
+                dibujar();
+            }, { passive: false });
 
-    // Evitar scroll accidental al presionar botones en celular
-    document.getElementById('controlesMovil').addEventListener('touchstart', (e) => {
+            // Mantenemos también el click por si lo prueban con el mouse en la PC
+            boton.onclick = (e) => {
+                e.preventDefault();
+                accion();
+                dibujar();
+            };
+        }
+    }
+
+    // Asignar las acciones correctas a cada botón
+    manejarToqueBoton('btnIzquierda', moverIzquierda);
+    manejarToqueBoton('btnDerecha', moverDerecha);
+    manejarToqueBoton('btnRotar', rotarPieza);
+    manejarToqueBoton('btnBajar', bajarPieza);
+
+    // Bloquear cualquier intento de scroll accidental en el contenedor de controles
+    document.getElementById('controlesMovil')?.addEventListener('touchstart', (e) => {
         e.preventDefault();
     }, { passive: false });
 
