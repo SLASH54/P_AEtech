@@ -2673,7 +2673,7 @@ document.querySelector('.top-bar')?.addEventListener('click', (e) => {
         if (contadorBugs === 5) {
             contadorBugs = 0; // Reseteamos
             console.log("👾 ¡Iniciando el modo debug secreto!");
-            abrirMinijuegoOculto();
+            abrirTetrisOculto();
         }
 
         // Si el usuario se tarda más de 2.5 segundos entre clics, se reinicia el contador
@@ -2840,7 +2840,217 @@ function abrirMinijuegoOculto() {
     loop();
 }
 
+function abrirTetrisOculto() {
+    if (document.getElementById('modal-easter-egg')) return;
 
+    const modalJuego = document.createElement('div');
+    modalJuego.id = 'modal-easter-egg';
+    modalJuego.style = `
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+        background: rgba(10, 15, 20, 0.95); z-index: 100000;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        color: #fff; font-family: 'Courier New', Courier, monospace;
+        backdrop-filter: blur(8px);
+    `;
+
+    modalJuego.innerHTML = `
+        <div style="text-align: center; margin-bottom: 10px;">
+            <h2 style="color: #00938f; letter-spacing: 2px; margin: 0;">🧱 AETECH STACK 🧱</h2>
+            <p style="color: #888; font-size: 12px; margin: 5px 0 0 0;">Acomoda los bloques de código. ¡No dejes que se llene la memoria!</p>
+        </div>
+        
+        <canvas id="canvasTetris" width="240" height="400" style="background: #0d1117; border: 2px solid #00938f; border-radius: 10px; box-shadow: 0 0 20px rgba(0,147,143,0.3);"></canvas>
+        
+        <div id="scoreTetris" style="font-size: 20px; color: #00938f; font-weight: bold; margin-top: 10px;">Líneas: 0</div>
+        
+        <div id="controlesMovil" style="display: flex; gap: 15px; margin-top: 15px;">
+            <button id="btnIzquierda" style="padding: 12px 20px; background: #222; color: #fff; border: 1px solid #444; border-radius: 6px; font-weight: bold;">◀</button>
+            <button id="btnRotar" style="padding: 12px 20px; background: #00938f; color: #fff; border: none; border-radius: 6px; font-weight: bold;">GIRAR</button>
+            <button id="btnDerecha" style="padding: 12px 20px; background: #222; color: #fff; border: 1px solid #444; border-radius: 6px; font-weight: bold;">▶</button>
+            <button id="btnBajar" style="padding: 12px 20px; background: #333; color: #fff; border: 1px solid #444; border-radius: 6px; font-weight: bold;">▼</button>
+        </div>
+
+        <button id="btnCerrarTetris" style="margin-top: 15px; padding: 8px 20px; background: #222; color: #aaa; border: 1px solid #333; border-radius: 6px; cursor: pointer;">
+            Volver a la App
+        </button>
+    `;
+
+    document.body.appendChild(modalJuego);
+
+    document.getElementById('btnCerrarTetris').onclick = () => {
+        clearInterval(intervaloJuego);
+        modalJuego.remove();
+    };
+
+    // --- LÓGICA DEL JUEGO ---
+    const canvas = document.getElementById('canvasTetris');
+    const ctx = canvas.getContext('2d');
+    const ESCALA = 20; // Tamaño de cada bloque en pixeles (12 columnas x 20 filas)
+    const COLUMNAS = 12;
+    const FILAS = 20;
+
+    let score = 0;
+
+    // Crear la matriz del tablero vacía
+    const matrizTablero = Array.from({ length: FILAS }, () => Array(COLUMNAS).fill(0));
+
+    // Definición de las piezas (I, J, L, O, S, T, Z)
+    const PIEZAS = [
+        [[1, 1, 1, 1]],
+        [[1, 0, 0], [1, 1, 1]],
+        [[0, 0, 1], [1, 1, 1]],
+        [[1, 1], [1, 1]],
+        [[0, 1, 1], [1, 1, 0]],
+        [[0, 1, 0], [1, 1, 1]],
+        [[1, 1, 0], [0, 1, 1]]
+    ];
+
+    // Colores corporativos y llamativos para los bloques
+    const COLORES = [null, '#00938f', '#ff4a4a', '#ffc107', '#28a745', '#17a2b8', '#6f42c1', '#fd7e14'];
+
+    let piezaActual = {
+        matriz: PIEZAS[Math.floor(Math.random() * PIEZAS.length)],
+        x: 4,
+        y: 0,
+        color: Math.floor(Math.random() * (COLORES.length - 1)) + 1
+    };
+
+    // Detectar colisiones
+    function colision(pieza, offsetX, offsetY) {
+        for (let r = 0; r < pieza.matriz.length; r++) {
+            for (let c = 0; c < pieza.matriz[r].length; c++) {
+                if (pieza.matriz[r][c]) {
+                    let nuevaX = pieza.x + c + offsetX;
+                    let nuevaY = pieza.y + r + offsetY;
+                    if (nuevaX < 0 || nuevaX >= COLUMNAS || nuevaY >= FILAS) return true;
+                    if (nuevaY >= 0 && matrizTablero[nuevaY][nuevaX]) return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    // Fusionar la pieza con el tablero al tocar fondo
+    function integrarPieza() {
+        piezaActual.matriz.forEach((fila, r) => {
+            fila.forEach((valor, c) => {
+                if (valor) {
+                    if (piezaActual.y + r >= 0) {
+                        matrizTablero[piezaActual.y + r][piezaActual.x + c] = piezaActual.color;
+                    }
+                }
+            });
+        });
+    }
+
+    // Rotar matriz de la pieza
+    function rotarPieza() {
+        const m = piezaActual.matriz;
+        const nuevaMatriz = m[0].map((_, i) => m.map(row => row[i]).reverse());
+        const piezaClon = { ...piezaActual, matriz: nuevaMatriz };
+        
+        if (!colision(piezaClon, 0, 0)) {
+            piezaActual.matriz = nuevaMatriz;
+        }
+    }
+
+    // Limpiar líneas llenas
+    function limpiarLineas() {
+        for (let r = FILAS - 1; r >= 0; r--) {
+            if (matrizTablero[r].every(valor => valor > 0)) {
+                matrizTablero.splice(r, 1);
+                matrizTablero.unshift(Array(COLUMNAS).fill(0));
+                score += 10;
+                document.getElementById('scoreTetris').innerText = `Líneas: ${score / 10}`;
+                r++; // Re-checar la misma fila por si bajó otra llena
+            }
+        }
+    }
+
+    // Generar nueva pieza caer
+    function nuevaPieza() {
+        piezaActual.matriz = PIEZAS[Math.floor(Math.random() * PIEZAS.length)];
+        piezaActual.x = 4;
+        piezaActual.y = 0;
+        piezaActual.color = Math.floor(Math.random() * (COLORES.length - 1)) + 1;
+
+        if (colision(piezaActual, 0, 0)) {
+            // Game Over
+            ctx.fillStyle = 'rgba(0,0,0,0.75)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#ff4a4a';
+            ctx.font = 'bold 18px Courier New';
+            ctx.fillText('MEMORY OVERFLOW 💀', 30, 180);
+            clearInterval(intervaloJuego);
+        }
+    }
+
+    // Movimientos básicos
+    function moverIzquierda() { if (!colision(piezaActual, -1, 0)) piezaActual.x--; }
+    function moverDerecha() { if (!colision(piezaActual, 1, 0)) piezaActual.x++; }
+    function bajarPieza() {
+        if (!colision(piezaActual, 0, 1)) {
+            piezaActual.y++;
+        } else {
+            integrarPieza();
+            limpiarLineas();
+            nuevaPieza();
+        }
+    }
+
+    // --- RENDERIZADO ---
+    function dibujar() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Dibujar bloques fijos en el tablero
+        matrizTablero.forEach((fila, r) => {
+            fila.forEach((valor, c) => {
+                if (valor) {
+                    ctx.fillStyle = COLORES[valor];
+                    ctx.fillRect(c * ESCALA, r * ESCALA, ESCALA - 1, ESCALA - 1);
+                }
+            });
+        });
+
+        // Dibujar pieza activa
+        piezaActual.matriz.forEach((fila, r) => {
+            fila.forEach((valor, c) => {
+                if (valor) {
+                    ctx.fillStyle = COLORES[piezaActual.color];
+                    ctx.fillRect((piezaActual.x + c) * ESCALA, (piezaActual.y + r) * ESCALA, ESCALA - 1, ESCALA - 1);
+                }
+            });
+        });
+    }
+
+    // Controles por teclado (PC)
+    window.onkeydown = (e) => {
+        if (e.key === 'ArrowLeft' || e.key === 'a') moverIzquierda();
+        if (e.key === 'ArrowRight' || e.key === 'd') moverDerecha();
+        if (e.key === 'ArrowDown' || e.key === 's') bajarPieza();
+        if (e.key === 'ArrowUp' || e.key === 'w') rotarPieza();
+        dibujar();
+    };
+
+    // Controles por botones en pantalla (Móvil)
+    document.getElementById('btnIzquierda').onclick = () => { moverIzquierda(); dibujar(); };
+    document.getElementById('btnDerecha').onclick = () => { moverDerecha(); dibujar(); };
+    document.getElementById('btnRotar').onclick = () => { rotarPieza(); dibujar(); };
+    document.getElementById('btnBajar').onclick = () => { bajarPieza(); dibujar(); };
+
+    // Evitar scroll accidental al presionar botones en celular
+    document.getElementById('controlesMovil').addEventListener('touchstart', (e) => {
+        e.preventDefault();
+    }, { passive: false });
+
+    // Loop de caída automática cada 500ms
+    const intervaloJuego = setInterval(() => {
+        bajarPieza();
+        dibujar();
+    }, 500);
+
+    dibujar();
+}
 
 </script>
 
