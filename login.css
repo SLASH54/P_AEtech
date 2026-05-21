@@ -5521,7 +5521,7 @@ label[for="tareaAsignadoA"] {
     #datagridUsuariosRoles td, 
     #datagridClientes td {
         display: block;
-        width: 100%;
+        width: 99%;
     }
 
     /* 3. Convertir cada fila (tr) en una tarjeta "Card" independiente */
