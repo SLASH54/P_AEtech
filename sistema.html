@@ -2855,8 +2855,8 @@ function abrirTetrisOculto() {
 
     modalJuego.innerHTML = `
         <div style="text-align: center; margin-bottom: 10px;">
-            <h2 style="color: #00938f; letter-spacing: 2px; margin: 0;">🧱 AETECH STACK 🧱</h2>
-            <p style="color: #888; font-size: 12px; margin: 5px 0 0 0;">Acomoda los bloques de código. ¡No dejes que se llene la memoria!</p>
+            <h2 style="color: #00938f; letter-spacing: 2px; margin: 0;">🧱 Salon de las almas torturadas 🧱</h2>
+            <p style="color: #888; font-size: 12px; margin: 5px 0 0 0;">Acomoda los bloques. ¡No dejes que se llene la memoria!</p>
         </div>
         
         <canvas id="canvasTetris" width="240" height="400" style="background: #0d1117; border: 2px solid #00938f; border-radius: 10px; box-shadow: 0 0 20px rgba(0,147,143,0.3);"></canvas>
@@ -2980,7 +2980,7 @@ function abrirTetrisOculto() {
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = '#ff4a4a';
             ctx.font = 'bold 18px Courier New';
-            ctx.fillText('MEMORY OVERFLOW 💀', 30, 180);
+            ctx.fillText('MEMORIA LLENA 💀', 30, 180);
             clearInterval(intervaloJuego);
         }
     }
