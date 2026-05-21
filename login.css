@@ -912,7 +912,7 @@ main {
 
 .datagrid-container table {
     border-collapse: collapse;
-    width: 100%;
+    width: 96%;
     margin-bottom: 15px;
     background-color: #000000; /* Fondo negro */
     color: #fff; /* Texto blanco para que se vea en el fondo negro */
