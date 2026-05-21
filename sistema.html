@@ -2653,6 +2653,173 @@ document.addEventListener("DOMContentLoaded", () => {
     // 4️⃣ Carga inicial de datos
     cargarNotificaciones();
 });
+
+
+
+
+
+// --- DETECTOR DE EASTER EGG (LOGO AETECH) ---
+let contadorBugs = 0;
+
+// Escuchamos el clic directamente en la barra superior para capturar la imagen
+document.querySelector('.top-bar')?.addEventListener('click', (e) => {
+    // Verificamos si hicieron clic en la imagen del logo de AEtech
+    if (e.target.tagName === 'IMG' && e.target.getAttribute('src') === 'img/imgae.jpg') {
+        contadorBugs++;
+        
+        // Pequeño guiño en la consola para ti mientras programas
+        console.log(`[Easter Egg] Clics acumulados: ${contadorBugs}/5`);
+
+        if (contadorBugs === 5) {
+            contadorBugs = 0; // Reseteamos
+            console.log("👾 ¡Iniciando el modo debug secreto!");
+            abrirMinijuegoOculto();
+        }
+
+        // Si el usuario se tarda más de 2.5 segundos entre clics, se reinicia el contador
+        setTimeout(() => {
+            contadorBugs = 0;
+        }, 2500);
+    }
+});
+
+
+
+function abrirMinijuegoOculto() {
+    // 1. Evitar duplicados si ya está abierto
+    if (document.getElementById('modal-easter-egg')) return;
+
+    // 2. Crear la capa oscura encima de todo el sistema
+    const modalJuego = document.createElement('div');
+    modalJuego.id = 'modal-easter-egg';
+    modalJuego.style = `
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+        background: rgba(10, 15, 20, 0.95); z-index: 100000;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        color: #fff; font-family: 'Courier New', Courier, monospace;
+        backdrop-filter: blur(8px);
+    `;
+
+    modalJuego.innerHTML = `
+        <div style="text-align: center; margin-bottom: 15px;">
+            <h2 style="color: #00938f; letter-spacing: 2px; margin: 0 0 5px 0;">👾 AMIKO BUG HUNTER 👾</h2>
+            <p style="color: #888; font-size: 13px; margin: 0;">Esquiva las excepciones en rojo antes del release de Junio</p>
+        </div>
+        
+        <canvas id="canvasJuego" width="400" height="400" style="background: #0d1117; border: 2px solid #00938f; border-radius: 10px; box-shadow: 0 0 20px rgba(0,147,143,0.3);"></canvas>
+        
+        <div id="scoreJuego" style="font-size: 22px; color: #00938f; font-weight: bold; margin-top: 15px;">Bugs Resueltos: 0</div>
+        
+        <button id="btnCerrarJuego" style="margin-top: 20px; padding: 12px 30px; background: #333; color: #aaa; border: 1px solid #444; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s;">
+            Volver a la App
+        </button>
+    `;
+
+    document.body.appendChild(modalJuego);
+
+    // Efecto visual al botón de salir
+    const btnCerrar = document.getElementById('btnCerrarJuego');
+    btnCerrar.onmouseenter = () => { btnCerrar.style.background = '#ff4a4a'; btnCerrar.style.color = '#fff'; };
+    btnCerrar.onmouseleave = () => { btnCerrar.style.background = '#333'; btnCerrar.style.color = '#aaa'; };
+    btnCerrar.onclick = () => { modalJuego.remove(); };
+
+    // --- MOTOR DEL JUEGO ---
+    const canvas = document.getElementById('canvasJuego');
+    const ctx = canvas.getContext('2d');
+    
+    let jugadorY = 185;
+    let jugadorVelY = 0;
+    let listaBugs = [];
+    let score = 0;
+    let corriendo = true;
+
+    // Controles por teclado (PC)
+    window.onkeydown = (e) => {
+        if (e.key === 'ArrowUp' || e.key === 'w') jugadorVelY = -6;
+        if (e.key === 'ArrowDown' || e.key === 's') jugadorVelY = 6;
+    };
+    window.onkeyup = () => jugadorVelY = 0;
+    
+    // Controles por clics/toques en pantalla (Móvil)
+    canvas.onclick = (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const clickRealY = e.clientY - rect.top;
+        if (clickRealY < jugadorY) jugadorY -= 35;
+        else jugadorY += 35;
+    };
+
+    function loop() {
+        if (!corriendo) return;
+
+        // Limpiar el canvas renderizado
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Actualizar posición del cuadrado del programador
+        jugadorY += jugadorVelY;
+        if (jugadorY < 10) jugadorY = 10;
+        if (jugadorY > 360) jugadorY = 360;
+
+        // Dibujar al Jugador (Tu inicial o cuadrito corporativo de AEtech)
+        ctx.fillStyle = '#00938f';
+        ctx.fillRect(25, jugadorY, 30, 30);
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 12px sans-serif';
+        ctx.fillText('DAE', 30, jugadorY + 19); // Tus iniciales de la terminal en el personaje
+
+        // Generar nuevos obstáculos (Bugs)
+        if (Math.random() < 0.04) {
+            listaBugs.push({
+                x: 400,
+                y: 20 + Math.random() * 340,
+                ancho: 25,
+                alto: 15,
+                speed: 4 + score * 0.2
+            });
+        }
+
+        // Dibujar y mover los obstáculos
+        ctx.fillStyle = '#ff4a4a';
+        for (let i = listaBugs.length - 1; i >= 0; i--) {
+            listaBugs[i].x -= listaBugs[i].speed;
+
+            // Dibujar el bug como un bloque de error peligroso
+            ctx.fillRect(listaBugs[i].x, listaBugs[i].y, listaBugs[i].ancho, listaBugs[i].alto);
+
+            // DETECTAR COLISIÓN AABB
+            if (
+                listaBugs[i].x < 25 + 30 &&
+                listaBugs[i].x + listaBugs[i].ancho > 25 &&
+                listaBugs[i].y < jugadorY + 30 &&
+                listaBugs[i].y + listaBugs[i].alto > jugadorY
+            ) {
+                corriendo = false;
+                ctx.fillStyle = 'rgba(0,0,0,0.6)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#ff4a4a';
+                ctx.font = 'bold 24px Courier New';
+                ctx.fillText('CRASH SYSTEM 💀', 100, 190);
+                ctx.fillStyle = '#fff';
+                ctx.font = '14px Courier New';
+                ctx.fillText('Presiona "Volver" para reintentar', 70, 230);
+                return;
+            }
+
+            // Si el bug sale de la pantalla sumas un punto
+            if (listaBugs[i].x < -30) {
+                listaBugs.splice(i, 1);
+                score++;
+                document.getElementById('scoreJuego').innerText = `Bugs Resueltos: ${score}`;
+            }
+        }
+
+        requestAnimationFrame(loop);
+    }
+
+    loop();
+}
+
+
+
 </script>
 
 
