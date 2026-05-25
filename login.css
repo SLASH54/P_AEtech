@@ -4792,8 +4792,8 @@ button.edit-btn {
 
 
 button.edit-btn {
-    background: rgba(48, 209, 88, 0.25) !important;
-    border-color: rgba(48, 209, 88, 0.3);
+       background: #00bcd470 !important;
+    border-color: #2196F3
 }
 
 
