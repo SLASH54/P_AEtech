@@ -3414,7 +3414,7 @@ function mostrarCampoExtra() {
 
 
 
-// Agrega esto en tu script para debuguear:
+// Agrega esto en tu script para debuguear: el estado de la firma 
 const inputNombre = document.getElementById("inputNombreFirma");
 const nombreFirma = inputNombre ? inputNombre.value.trim() : "";
 
