@@ -2683,7 +2683,7 @@ button:disabled {
     box-shadow: 0 20px 40px #30f2fff0;
     padding: 20px;
     position: relative;
-    
+
 }
 
 #editModal label{
@@ -5597,3 +5597,6 @@ label[for="tareaAsignadoA"] {
 }
 
 
+h3 {
+    color: azure;
+}
