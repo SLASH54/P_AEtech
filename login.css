@@ -2671,14 +2671,19 @@ button:disabled {
 #editModal>div {
     /* Fondo azul oscuro para replicar el estilo de la imagen del usuario */
    
-    background: rgba(98, 179, 255, 0.5);
-
+      backdrop-filter: blur((16px));
+    background: rgb(28 145 201 / 21%);
     padding: 1.5rem;
     border-radius: 1rem;
-    box-shadow: inset 0px 0px 20px 20px rgba(0, 0, 255, 0.2);
+    box-shadow: inset 0px 0px 20px 20px rgb(0 0 255 / 0%);
     max-height: 90vh;
     overflow-y: auto;
     transition: transform 0.3s ease, opacity 0.3s ease;
+    border: 1px solid #007aff;
+    box-shadow: 0 20px 40px #30f2fff0;
+    padding: 20px;
+    position: relative;
+    
 }
 
 #editModal label{
