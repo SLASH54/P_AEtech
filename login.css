@@ -5600,3 +5600,19 @@ label[for="tareaAsignadoA"] {
 h3 {
     color: azure;
 }
+
+
+button.btn-save {
+    background: #4caf5069;
+    color: #89ff00;
+    cursor: pointer;
+}
+
+
+button.btn-remove-dir {
+    background: #4caf5069;
+    color: #89ff00;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+}
