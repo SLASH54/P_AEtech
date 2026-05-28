@@ -2680,7 +2680,8 @@ button:disabled {
     overflow-y: auto;
     transition: transform 0.3s ease, opacity 0.3s ease;
     border: 1px solid #007aff;
-    box-shadow: 0 20px 40px #30f2fff0;
+    box-shadow: 0 20px 40px #172be7;
+;
     padding: 20px;
     position: relative;
 
@@ -5599,6 +5600,8 @@ label[for="tareaAsignadoA"] {
 
 
 /* formulario de (Editar / Eliminar) clientes y personal */
+
+
 h3 {
     color: azure;
 }
