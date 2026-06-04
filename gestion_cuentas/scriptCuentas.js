@@ -1914,10 +1914,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Escuchar cuando activan/desactivan el checkbox de IVA
     document.getElementById('chkIva')?.addEventListener('change', toggleIva);
     
-    // Escuchar cuando activan/desactivan el checkbox de Factura
+    // Escuchar cuando activan/desactivan el checkbox de Factura 
     document.getElementById('chkFactura')?.addEventListener('change', toggleFactura);
 
     //ver fecha 
         document.getElementById("verFecha").textContent = new Date(lev.fecha).toLocaleString();
 
 });
+
+

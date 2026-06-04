@@ -56,7 +56,7 @@ app.use('/api/evidencias', require('./src/routes/evidenciaRoutes'));
 app.use('/api/reportes', require('./src/routes/reporteRoutes'));
 app.use('/api/upload', require('./src/routes/uploadRoutes'));
 app.use('/api/notificaciones', require('./src/routes/NotificacionRoutes'));
-app.use("/api/levantamientos", require("./src/routes/LevantamientosRoutes"));
+app.use("/api/levantamientos", require("./src/routes/LevantamientosRoutes")); // === Agregar Levantamientos ===
 app.use('/api/cuentas', require('./src/routes/cuentaRoutes'));
 app.use('/api/productos', require('./src/routes/productoRoutes'));
 app.use('/api/contratos', require('./src/routes/contratoRoutes'));

@@ -1346,7 +1346,7 @@ main {
 /* Estilo del menú desplegable */
 .dropdown-menu {
     position: absolute;
-    background-color: #4ecefd;
+   
     min-width: 250px; /* Aumenta el ancho para acomodar la info del perfil */
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     padding: 18px; /* Aumenta el padding para mejor espaciado */
@@ -2251,6 +2251,7 @@ button:disabled {
     /* Gray-600 */
 }
 
+
 #tareaForm .btn-primary {
     background-color: #4CAF50;
     color: white;
@@ -2622,11 +2623,13 @@ button:disabled {
         padding: 1rem;
     }
 
+
     #tareasTable th,
     #tareasTable td {
         font-size: 0.8rem;
         
     }
+
 
     #tareaForm .grid {
         /* Forzando a que la rejilla se convierta en una sola columna */
@@ -2646,11 +2649,16 @@ button:disabled {
             margin-bottom: 20px;
             padding: 10px;
         }
+
+
         .contenedor-imagenes {
             display: flex;
             overflow-x: auto;
             padding: 10px 0;
         }
+
+
+
         .imagen-evidencia {
             width: 150px;
             height: 150px;
@@ -2682,6 +2690,7 @@ button:disabled {
     border: 1px solid #007aff;
     box-shadow: 0 20px 40px #172be7;
 ;
+
     padding: 20px;
     position: relative;
 
@@ -3242,7 +3251,10 @@ form input:focus {
 
 
 
-/* levantamientos  */
+/* ============================================== */
+/* LEVANTAMIENTOS      */
+/* ============================================== */
+
 .lev-container {
   background: #fff;
   padding: 20px;
@@ -3373,6 +3385,12 @@ h3 {
     padding: 0;
     margin-top: 15px;
 }
+
+
+
+
+/* LISTA DE MATERIALES LEVANTAMIENTO */
+
 
 .lista-materiales-lev li {
     background: #f3f3f3;
@@ -5320,7 +5338,9 @@ label[for="tareaAsignadoA"] {
 .btn-naranja:hover {
     background-color: #d35400;
 }
+  
 
+/* buton de cancelar */
 .btn-cancelar {
     background-color: #eee;
     color: #666;
@@ -5373,6 +5393,9 @@ label[for="tareaAsignadoA"] {
   padding: 20px;
   text-align: center;
 }
+
+
+/* Canvas para la firma de evidencias  */
 
 #canvas-firma-contrato {
   touch-action: none; /* 🔑 Bloquea el scroll del celular para poder firmar */
@@ -5479,6 +5502,9 @@ label[for="tareaAsignadoA"] {
   padding-top: 30px;  /* Espacio para que la X no tape el título */
 }
 
+
+
+/* boton de eliminar evidencia*/
 .btn-eliminar-evidencia {
   position: absolute;
   top: 10px;
@@ -5599,7 +5625,7 @@ label[for="tareaAsignadoA"] {
 
 
 
-/* formulario de (Editar / Eliminar) clientes y personal */
+/* formulario de ADMINISTRACION (Editar / Eliminar) clientes y personal */
 
 
 h3 {

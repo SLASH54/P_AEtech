@@ -159,6 +159,7 @@ const checkSession = async () => {
     return !!token;
 };
 
+
 /**
  * Función para cerrar sesión.
  */
@@ -167,6 +168,7 @@ const logout = () => {
     alert('Sesión cerrada.');
     window.location.href = '/index.html'; // Redirige al login
 };
+
 
 /**
  * Carga el nombre y email del usuario en el contenedor de perfil existente en sistema.html.

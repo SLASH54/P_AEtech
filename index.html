@@ -154,14 +154,14 @@
             <img src="img/logoAEtech.png" alt="imgae.jpg">
         </div>
 
-        <!-- Pantalla de Bienvenida -->
+        <!-- Pantalla de Bienvenida xd inicio  -->
         <div id="welcome-screen">
             <h2>Bienvenido a AEtech</h2>
             <button id="login-btn">Iniciar Sesión</button>
             <button id="register-btn">Registrarse</button>
         </div>
 
-        <!-- Formulario de Registro (Oculto inicialmente) -->
+        <!-- Formulario de Registro (Oculto inicialmente del proceso xd) -->
         <form id="registroForm" style="display: none;">
             <div class="form-group">
                 <label for="nombre">Nombre:</label>
@@ -178,10 +178,10 @@
             </div>
 
             <button type="submit">Registrar</button>
-            <button type="button" class="back-btn">Volver</button> <!-- Botón de Volver -->
+            <button type="button" class="back-btn">Volver</button> <!-- Botón de Volver al aparto principal -->
         </form>
 
-        <!-- Formulario de Inicio de Sesión (Añádelo aquí, oculto inicialmente) -->
+        <!-- Formulario de Inicio de Sesión -->
         <form id="loginForm" style="display: none;">
     <div class="form-group">
         <label for="email_input">Email:</label>
@@ -348,7 +348,7 @@
         });
     });
 
-    // Inicializar sesión y eventos existentes
+    // Inicializar sesión y eventos existentes modelo de inicio sesion 
     if (typeof checkSession === "function") checkSession();
     if (loginForm) loginForm.addEventListener('submit', loginUser);
     if (registroForm) registroForm.addEventListener('submit', registerUser);
