@@ -583,7 +583,8 @@ async function guardarCuentaFinal() {
 
     const datos = {
         numeroNota: textoNota, // <--- Aquí ya va "Nota #5" por ejemplo
-        clienteNombre: selectCliente.options[selectCliente.selectedIndex].text,
+        //clienteNombre: selectCliente.options[selectCliente.selectedIndex].text,
+        clienteNombre: selectCliente.value, // Enviamos el ID del cliente, no el nombre
         subtotal: parseFloat(document.getElementById('levSubtotal').value) || 0,
         total: parseFloat(document.getElementById('levTotal').value) || 0,
         anticipo: parseFloat(document.getElementById('levAnticipo').value) || 0,
