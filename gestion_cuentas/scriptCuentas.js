@@ -1658,7 +1658,7 @@ function renderizarCatalogo() {
                 <div style="font-weight: bold;">$${p.costo}</div>
             </div>
 
-            <div style="display: flex; gap: 5px;">
+            <div style="display: grid; gap: 5px;">
                 <button onclick="prepararEdicionProducto(${p.id})" style="background: #ffcc00; border: none; border-radius: 5px; padding: 5px 8px; cursor: pointer;">✏️</button>
                 <button onclick="eliminarProductoDelCatalogo(${p.id})" style="background: #ff3b30; border: none; border-radius: 5px; padding: 5px 8px; cursor: pointer; color: white;">🗑️</button>
                 <button onclick="agregarAlPedidoDesdeCatalogo(${p.id})" style="background: #007aff; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-weight: bold;">+</button>
