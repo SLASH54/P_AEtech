@@ -723,7 +723,7 @@ main {
 
 
 
-/* Estilos para el Tablero */
+/* Estilos para el Tablero XD */
 #Tablero .tablero-container {
  background-color: #f8f9fa;
  border-radius: 10px;
@@ -896,7 +896,10 @@ main {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
     width: 100%;
     height: 220px;
-}
+}  /* FIN DE SUCURSALES */
+
+
+
 
 #Administracion {
     display: none;
@@ -964,6 +967,7 @@ main {
     margin-bottom: 15px;
 }
 
+/* FILTRO DE TAREAS */
 #filter-tipo, #btn-agregar-tarea {
     padding: 6px 12px;
     border-radius: 4px;
@@ -993,6 +997,7 @@ main {
     box-shadow: 0 0 5px rgba(0,0,0,0.05);
 }
 
+/* FORMULARIO DE TAREAS LABELS  */
 #form-tarea div {
     margin-bottom: 12px;
 }
@@ -1004,6 +1009,8 @@ main {
     color: #444;
 }
 
+
+/* INPUTS DE TAREA */
 #form-tarea input[type="text"],
 #form-tarea select,
 #form-tarea input[type="datetime-local"] {
@@ -1026,6 +1033,9 @@ main {
     transition: background-color 0.3s ease;
 }
 
+
+/* BOTON DE VER DESCRPCION DE TAREAS */
+
 #form-tarea button[type="submit"]:hover {
     background-color: #1e7e34;
 }
@@ -1038,6 +1048,8 @@ main {
     max-width: 100%;
 }
 
+
+/* CONTENEDOR DE LISTAS */
 #contenedor-listas > div {
     flex: 1;
 }
@@ -1241,6 +1253,8 @@ main {
     color: #555;
 }
 
+
+/*  GRUPO DE TEXTO  */
 .form-group input[type="text"],
 .form-group input[type="email"],
 .form-group input[type="password"],

@@ -26,7 +26,10 @@ function openNuevaCuenta() {
     const modal = document.getElementById("modalNuevaCuenta");
     editandoId = null; 
     levMaterialesList = [];
-    
+    // Añade estas líneas dentro de tu función openNuevaCuenta()
+document.getElementById("buscar-cliente-input").value = "";
+document.getElementById("lev-clienteSelect").value = "";
+
     // 1. Limpiamos la lista visual de materiales
     document.getElementById("levListaMateriales").innerHTML = "";
 
@@ -1901,6 +1904,90 @@ async function guardarClienteExpress() {
     }
     document.getElementById("loader").style.display = "none";
 }
+
+
+// Función para filtrar clientes en tiempo real mientras se escribe
+function filtrarClientesExpress(busqueda) {
+    const dropdown = document.getElementById("lista-clientes-dropdown");
+    busqueda = busqueda.toLowerCase().trim();
+
+    // Si no hay datos cargados o el input está vacío, ocultamos la lista
+    if (!window.clientesData || busqueda === "") {
+        dropdown.style.display = "none";
+        dropdown.innerHTML = "";
+        return;
+    }
+
+    dropdown.innerHTML = "";
+    let coincidencias = 0;
+
+    // Recorremos el objeto indexado de clientes de AEtech
+    for (const id in window.clientesData) {
+        const cliente = window.clientesData[id];
+        const nombreCliente = cliente.nombre.toLowerCase();
+
+        if (nombreCliente.includes(busqueda)) {
+            coincidencias++;
+            
+            // Crear el elemento de la opción
+            const divOption = document.createElement("div");
+            divOption.className = "cliente-option-item";
+            
+            // Añadimos estructura limpia con nombre y teléfono opcional
+            divOption.innerHTML = `
+                <strong>${cliente.nombre}</strong>
+                ${cliente.telefono ? `<span class="cliente-option-sub">📞 ${cliente.telefono}</span>` : ''}
+            `;
+            
+            // Evento al dar clic sobre el cliente encontrado
+            divOption.onclick = function() {
+                seleccionarClienteBuscador(cliente);
+            };
+            
+            dropdown.appendChild(divOption);
+        }
+    }
+
+    // Si hubo coincidencias, mostramos el panel flotante
+    if (coincidencias > 0) {
+        dropdown.style.display = "block";
+    } else {
+        dropdown.innerHTML = '<div style="padding: 10px; color: #999; font-size: 0.9em;">Sin resultados...</div>';
+        dropdown.style.display = "block";
+    }
+}
+
+// Función que se ejecuta al seleccionar el cliente de la lista
+function seleccionarClienteBuscador(cliente) {
+    // 1. Colocamos el nombre completo en el input visual
+    document.getElementById("buscar-cliente-input").value = cliente.nombre;
+    
+    // 2. Guardamos el ID en el campo oculto para procesar el formulario
+    const inputHidden = document.getElementById("lev-clienteSelect");
+    inputHidden.value = cliente.id;
+
+    // 3. Ocultamos el dropdown de sugerencias
+    document.getElementById("lista-clientes-dropdown").style.display = "none";
+
+    console.log("Cliente seleccionado perfectamente:", cliente);
+
+    // 🚨 RECOMENDACIÓN EXTRA: Si tienes lógica que carga las direcciones del cliente al cambiar,
+    // puedes simular el evento 'change' en tu input oculto o llamar directamente a esa función aquí:
+    // Ejemplo: si tenías cargarDirecciones(cliente.id); lo ejecutas aquí.
+    inputHidden.dispatchEvent(new Event('change'));
+}
+
+// Cerrar el buscador flotante si el usuario hace clic fuera de él
+document.addEventListener("click", function(event) {
+    const dropdown = document.getElementById("lista-clientes-dropdown");
+    const buscadorInput = document.getElementById("buscar-cliente-input");
+    
+    if (dropdown && event.target !== dropdown && event.target !== buscadorInput) {
+        dropdown.style.display = "none";
+    }
+});
+
+
 
 
 // 🔍 ESCUCHADORES PARA CÁLCULO EN TIEMPO REAL

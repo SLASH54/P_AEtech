@@ -210,6 +210,25 @@
                         </button>
                     </div>
 
+                    <div class="form-group-express" style="position: relative; margin-bottom: 15px;">
+                        <label for="buscar-cliente-input" style="display: block; margin-bottom: 5px; color: white; font-weight: bold;">Cliente:</label>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <div style="position: relative; flex: 1;">
+                                <input type="text" id="buscar-cliente-input" placeholder="🔍 Escribe para buscar cliente..." 
+                                    oninput="filtrarClientesExpress(this.value)" autocomplete="off" style="width: 100%;">
+                                
+                                <div id="lista-clientes-dropdown" class="clientes-dropdown-lista" style="display: none;"></div>
+                            </div>
+                            
+                            <button type="button" onclick="abrirRegistroExpress()" class="btn-add" 
+                                    style="padding: 5px 12px; height: 38px; border-radius: 8px; flex-shrink: 0;">
+                                +
+                            </button>
+                        </div>
+                        
+                        <input type="hidden" id="lev-clienteSelect" value="">
+                    </div>
+
 
                     <div class="lev-field">
                         <label>Fecha y Hora</label>

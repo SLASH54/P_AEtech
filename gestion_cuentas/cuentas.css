@@ -1874,3 +1874,51 @@ button.btn-pdf:hover {
     transform: scale(1.05);
     box-shadow: 0 4px 15px #00BCD4;
 }
+
+
+
+/* Lista desplegable flotante para el buscador de clientes */
+.clientes-dropdown-lista {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 3000; /* Asegura que flote sobre todo el contenido del modal */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    margin-top: 5px;
+}
+
+/* Cada opción o fila de cliente dentro del buscador */
+.cliente-option-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    color: #333;
+    font-size: 0.95em;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.2s ease;
+    text-align: left;
+}
+
+.cliente-option-item:last-child {
+    border-bottom: none;
+}
+
+.cliente-option-item:hover {
+    background-color: #005e73;
+    color: white;
+}
+
+/* Texto secundario (por si quieres mostrar el teléfono abajo del nombre) */
+.cliente-option-sub {
+    font-size: 0.8em;
+    color: #777;
+    display: block;
+}
+.cliente-option-item:hover .cliente-option-sub {
+    color: #ddd;
+}
