@@ -192,7 +192,7 @@ function renderizarListaYTotales() {
                 </div>
             </div>
 
-            <div style="display: flex; align-items: center; gap: 10px; margin: 0 15px; background: #f0f0f0; padding: 5px 10px; border-radius: 20px;">
+            <div style="display: flex; align-items: center; background: #f0f0f0; padding: 5px 10px; border-radius: 20px;">
                 <button type="button" onclick="cambiarCant(${index}, -1)" style="border: none; background: none; color: #007aff; font-weight: bold; cursor: pointer;">-</button>
                 <span style="font-weight: bold; min-width: 20px; text-align: center;">${mat.cantidad}</span>
                 <button type="button" onclick="cambiarCant(${index}, 1)" style="border: none; background: none; color: #007aff; font-weight: bold; cursor: pointer;">+</button>
