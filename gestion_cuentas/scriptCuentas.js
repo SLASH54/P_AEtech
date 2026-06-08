@@ -1964,7 +1964,7 @@ function seleccionarClienteBuscador(cliente) {
     
     // 2. Guardamos el ID en el campo oculto para procesar el formulario
     const inputHidden = document.getElementById("lev-clienteSelect");
-    inputHidden.value = cliente.id;
+    inputHidden.value = cliente.nombre;
 
     // 3. Ocultamos el dropdown de sugerencias
     document.getElementById("lista-clientes-dropdown").style.display = "none";
