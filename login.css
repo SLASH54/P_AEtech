@@ -5428,7 +5428,7 @@ label[for="tareaAsignadoA"] {
 
 /* Contenedor Principal de Captura - ACTUALIZADO */
 .seccion-captura {
-    background: rgba(255, 255, 255, 0.7); 
+    background: rgb(2 255 65 / 18%);; 
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
     border-radius: 20px;
