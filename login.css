@@ -910,14 +910,14 @@ main {
     width: 100%;
     overflow-x: auto; /* Para hacer la tabla horizontalmente scrollable si es necesario */
     margin-bottom: 20px; /* Espacio entre las tablas */
-    background-color: #0066cc;
+    background-color: #0066cc00;
 }
 
 .datagrid-container table {
     border-collapse: collapse;
     width: 96%;
     margin-bottom: 15px;
-    background-color: #000000; /* Fondo negro */
+    background-color: #00000000; /* Fondo negro */
     color: #fff; /* Texto blanco para que se vea en el fondo negro */
 }
 
@@ -5573,7 +5573,7 @@ label[for="tareaAsignadoA"] {
     /* 3. Convertir cada fila (tr) en una tarjeta "Card" independiente */
     #datagridUsuariosRoles tr, 
     #datagridClientes tr {
-        background-color: #1a1a1a; /* Ajusta al fondo oscuro de tu app */
+        background-color: #01151894; /* Ajusta al fondo oscuro de tu app */
         margin-bottom: 20px;
        
         border-radius: 12px;
