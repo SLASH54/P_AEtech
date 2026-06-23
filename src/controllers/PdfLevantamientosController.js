@@ -64,7 +64,7 @@ exports.generateLevantamientoPDF = async (req, res) => {
             year: 'numeric'
         });
 
-        // Datos del Cliente
+        // Datos del Cliente que se vaya a mostrar en el pdf 
         doc.fontSize(12).fillColor("black");
         doc.font('Helvetica-Bold').text("Cliente: ", { continued: true }).font('Helvetica').text(lev.cliente_nombre);
         doc.font('Helvetica-Bold').text("Dirección: ", { continued: true }).font('Helvetica').text(lev.direccion);

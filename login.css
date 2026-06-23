@@ -4546,11 +4546,12 @@ div#tareaExpressModal {
     justify-content: center;
 }
 
+
 #tareaExpressModal>div {
-    box-shadow: rgba(0, 0, 255, 0.2) 0px 0px 20px 20px inset;
+    box-shadow:rgb(49 94 129 / 20%) 0px 0px 20px 20px inset;
     max-height: 90vh;
     overflow-y: auto;
-    background: rgb(98 255 169 / 48%);
+    background: rgb(98 188 255 / 48%);
 }
 
 
