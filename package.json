@@ -6,21 +6,20 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
-    "firebase-admin": "^13.9.0",
+    "firebase-admin": "^14.0.0",
     "git-filter-repo": "^0.0.30",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
-    "nodemailer": "^8.0.7",
+    "nodemailer": "^9.0.1",
     "pdfkit": "^0.17.2",
     "pg": "^8.16.3",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.37.8",
+    "sequelize": "^3.30.0",
     "sharp": "^0.34.5"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
   },
-
   "overrides": {
     "@tootallnate/once": "3.0.1"
   },

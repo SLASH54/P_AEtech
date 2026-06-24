@@ -3,7 +3,7 @@ const PDFDocument = require("pdfkit");
 const axios = require("axios");
 const sharp = require("sharp");
 
-// 1. Función para procesar imágenes con alta calidad
+// 1. Función para procesar imágenes con alta calidad en el PDF
 async function procesarImagenLev(url, maxW, maxH) {
     try {
         const res = await axios.get(url, { responseType: "arraybuffer" });
@@ -18,7 +18,7 @@ async function procesarImagenLev(url, maxW, maxH) {
     }
 }
 
-// 2. Función para cargar la plantilla de fondo
+// 2. Función para cargar la plantilla de fondo del PDF 
 async function cargarFondo(url) {
     try {
         const res = await axios.get(url, { responseType: "arraybuffer" });
@@ -50,7 +50,7 @@ exports.generateLevantamientoPDF = async (req, res) => {
             doc.y = MARGIN_TOP; 
         };
 
-        // --- PRIMERA PÁGINA ---
+        // --- PRIMERA PÁGINA DEL ARCHIVO PDF---
         nuevaPaginaConFondo();
 
         doc.fontSize(20).fillColor("#004b85").text("REPORTE DE LEVANTAMIENTO", MARGIN_LEFT, doc.y, { align: 'center' });
@@ -78,7 +78,7 @@ exports.generateLevantamientoPDF = async (req, res) => {
         doc.moveTo(MARGIN_LEFT, doc.y).lineTo(550, doc.y).stroke("#00938f");
         doc.moveDown(1.5);
 
-        // --- EVIDENCIAS ---
+        // --- EVIDENCIAS DE LAS NECESIDADES ---
         doc.fontSize(16).fillColor("#00938f").text("NECESIDADES Y EVIDENCIAS");
         doc.moveDown();
 
@@ -100,7 +100,7 @@ exports.generateLevantamientoPDF = async (req, res) => {
             }
         }
 
-        // --- MATERIALES ---
+        // --- MATERIALES REQUERIDOS ---
         if (lev.materiales && lev.materiales.length > 0) {
             doc.addPage();
             nuevaPaginaConFondo();
